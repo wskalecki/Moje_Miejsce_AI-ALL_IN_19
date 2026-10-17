@@ -27,12 +27,12 @@ Use `feat` for new capability, `fix` for bugs. Keep the subject short and impera
 | `application/` | React (Vite) + Supabase |
 | `docs/core/` | Product concept, decisions (`koncept-aplikacji.md`) |
 | `docs/sources/` | Reference notes |
-| `data/` | Datasets and ETL |
+| `data/` | Datasets and ETL — see `docs/data/`, rule `.cursor/rules/data-developer.mdc` |
 | `presentation/` | Demo graphics and 3D |
 
 ## Product context
 
-Hackathon W3 — Warsaw open data; map of ~1 km cells to help choose where to live. See `docs/core/koncept-aplikacji.md`.
+Hackathon W3 — Warsaw open data; map of 200 m cells (EPSG:2180, see `docs/data/grid-schema.md`) to help choose where to live. See `docs/core/koncept-aplikacji.md`.
 
 ## Do not
 

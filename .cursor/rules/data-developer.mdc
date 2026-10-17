@@ -1,0 +1,52 @@
+---
+description: Data developer — ETL, GeoJSON, grid, POI, manifest
+globs:
+  - data/**
+  - docs/data/**
+---
+
+# Data developer
+
+You own files under `data/` and schemas in `docs/data/`. The React app loads paths from `data/manifest.json`.
+
+## Before writing output
+
+1. Read [`docs/data/grid-schema.md`](../../docs/data/grid-schema.md) and [`docs/data/poi-schema.md`](../../docs/data/poi-schema.md).
+2. Use **`assign_cell(lon, lat)`** from [`data/scripts/generate_grid.py`](../../data/scripts/generate_grid.py) for every POI `cell_id` (200 m squares in EPSG:2180 from origin E 620000, N 470000). Importing it needs `pyproj` in the env, e.g. `uv run --with pyproj python your_etl.py`.
+3. POI `id` format: `{source}_{sourceId}`.
+
+## File layout
+
+| Output | Path |
+|--------|------|
+| Grid | `data/grid/warsaw_grid.geojson` |
+| Metrics | `data/grid/cell_metrics.json` |
+| POI | `data/poi/{category}.geojson` |
+| Raw downloads | `data/raw/{slug}/` (gitignored) |
+| Dev samples | `data/samples/` (commit small fixtures) |
+
+## After each ETL
+
+1. Run `python3 data/scripts/validate_data.py`.
+2. Update [`data/manifest.json`](../../data/manifest.json) `files` and `bbox` if needed.
+3. Add a row to [`data/README.md`](../../data/README.md) inventory (source URL, license, date).
+4. Map API fields to catalog **`source`** slug — see poi-schema mapping table.
+
+## Rules
+
+- **No secrets** in `data/` (no API tokens; use env vars in scripts).
+- **Missing values** → JSON `null`, not `0`.
+- **Scores** 0–100 integers per persona: `kasia`, `marek`, `ania_tomek`.
+- Prefer **GeoJSON** RFC 7946; WGS84 coordinates.
+- Large files: gitignore or LFS; keep `data/samples/` small for frontend.
+
+## Catalog reference
+
+Slugs live in `warsaw_open_data_catalog.json` (repo parent `hackathon/`). Document which slug each script uses in script docstring and `data/README.md`.
+
+## Scripts
+
+- `data/scripts/generate_grid.py` — grid + `assign_cell`; run with `uv run data/scripts/generate_grid.py …` (pyproj comes from the script header)
+- `data/scripts/validate_data.py` — schema checks
+
+Changing `CELL_SIZE_M` or the origin changes every cell ID: agree it with the team first, then update `docs/data/grid-schema.md` and regenerate all POI `cell_id`s and metrics.

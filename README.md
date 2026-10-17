@@ -18,9 +18,13 @@ Repozytorium zespołu **AI All In** na **Warsaw Open Data Hackathon 2026**.
 
 ## Quick start
 
-1. Przeczytaj [`docs/setup/README.md`](docs/setup/README.md).
-2. Skonfiguruj Supabase w `application/.env` (patrz `application/.env.example`).
-3. W katalogu `application/`: `npm install` → `npm run dev`.
+| Rola | Start |
+|------|--------|
+| **Data dev** | [`docs/data/START-here-data-dev.md`](docs/data/START-here-data-dev.md) → schematy, `data/scripts/`, manifest |
+| **Frontend** | [`docs/setup/README.md`](docs/setup/README.md) → `application/.env`, `npm run dev` |
+| **Wszyscy** | Koncept: [`docs/core/koncept-aplikacji.md`](docs/core/koncept-aplikacji.md) |
+
+Stan **mapy w aplikacji** to spike (próbka siatki Mokotów) — produkt dopracujemy później; priorytet: dane w `data/`.
 
 ## Gałęzie
 
