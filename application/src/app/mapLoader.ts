@@ -3,6 +3,7 @@
  * `import.meta.glob` resolves to an empty object when the file does not exist,
  * so the shell builds with or without the map module.
  */
+import maplibreWorker from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import type { ComponentType } from 'react'
 import type { MapViewProps } from './types'
 
@@ -25,13 +26,16 @@ export async function loadMapView(): Promise<{ default: ComponentType<MapViewPro
 }
 
 let prefetched = false
-/** Warm the map chunk and data files (called from the intro). */
+/**
+ * Warm the map chunk (MapView + maplibre-gl, kept out of the initial bundle), the maplibre
+ * worker and the data files. Called from the intro and the survey; runs once, on idle.
+ */
 export function prefetchMap(dataUrls: readonly string[] = []): void {
   if (prefetched) return
   prefetched = true
   const run = () => {
     if (loader) void loader().catch(() => undefined)
-    for (const href of dataUrls) {
+    for (const href of [maplibreWorker, ...dataUrls]) {
       const link = document.createElement('link')
       link.rel = 'prefetch'
       link.as = 'fetch'
