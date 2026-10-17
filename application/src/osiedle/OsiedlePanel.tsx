@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Badge } from '../components/ui/Badge'
 import { DEFAULT_PRIORITIES, PROFILES } from '../app/dictionary'
 import type { CategoryId, Horizon, ProfileId } from '../app/types'
-import type { Highlight, LngLat, Osiedle, Route, TravelMode } from '../mock/osiedla'
+import type { Highlight, LngLat, Osiedle, Route, TimelineEvent, TravelMode } from '../mock/osiedla'
 import { AiSummary } from './AiSummary'
 import { CategoryBars } from './CategoryBars'
 import { Commute } from './Commute'
@@ -15,6 +15,8 @@ import { Prices } from './Prices'
 import { Ring } from './Ring'
 import { Routes, defaultMode } from './Routes'
 import { EASE_EMPHASIZED, useSeenOnce } from './shared'
+import { Timeline, TimelineTeaser } from './Timeline'
+import { FIRST_YEAR, eventsUpTo, matchAtYear, statDeltasAtYear, statsAtYear, toTimelineYear, type TimelineYear } from './timelineMath'
 import { TrafficChart } from './TrafficChart'
 import './osiedle.css'
 
@@ -33,6 +35,12 @@ export interface OsiedlePanelProps {
   onHoverPlace?: (id: string | null) => void
   /** Destination or mode picked → draw the route; null when the panel closes. */
   onShowRoute?: (route: Route | null, mode?: TravelMode) => void
+  /** Controlled timeline year (store `timelineYear`); uncontrolled (starts at 2026) when omitted. */
+  timelineYear?: number
+  /** Timeline year changed (and once when the timeline opens) with the events of year ≤ Y, for map markers. */
+  onTimelineYear?: (year: TimelineYear, events: TimelineEvent[]) => void
+  /** "Pokaż prognozę" on the `chwila` teaser asks to switch the horizon to `stale`. */
+  onHorizonChange?: (horizon: Horizon) => void
   /** Highlight id currently emphasised from the map side (marker hover). */
   activePlaceId?: string | null
   /** Explicit hero video; default probes `/osiedla/<slug>/flyover.{webm,mp4}`; `false` = photos only. */
@@ -49,7 +57,7 @@ const DEMO_NOTE = 'Wersja demonstracyjna — profile wyróżnionych osiedli przy
 
 /**
  * Osiedle detail panel (spec §4.5). Sections, in order: hero, name + match, AI summary,
- * category bars, places, routes, commute, traffic, prices, credits + back.
+ * category bars, places, routes, commute, traffic, prices, timeline 2026 → 2030, credits + back.
  */
 export function OsiedlePanel(props: OsiedlePanelProps) {
   // Keyed by slug: switching osiedle starts from a clean state (gallery, route, scroll, reveal).
@@ -68,6 +76,9 @@ function PanelBody({
   onShowRoute,
   activePlaceId,
   heroVideo,
+  timelineYear,
+  onTimelineYear,
+  onHorizonChange,
   className,
 }: OsiedlePanelProps) {
   const reduce = useReducedMotion()
@@ -75,9 +86,27 @@ function PanelBody({
   const titleRef = useRef<HTMLHeadingElement>(null)
   const headRef = useRef<HTMLDivElement>(null)
   const prios = (priorities?.length ? priorities : [...DEFAULT_PRIORITIES[profile]]).slice(0, 4)
-  const match = osiedle.match[profile]
   const isBest = osiedle.profile === profile
   const msiName = MSI_NAMES[osiedle.msiId]
+
+  // Timeline (spec §4.6): full for `stale`; for `chwila` a teaser that can expand in place.
+  const [expanded, setExpanded] = useState(false)
+  const timelineOn = horizon === 'stale' || expanded
+  const [ownYear, setOwnYear] = useState<TimelineYear>(toTimelineYear(timelineYear ?? FIRST_YEAR))
+  const year = timelineYear != null ? toTimelineYear(timelineYear) : ownYear
+  const onYearRef = useRef(onTimelineYear)
+  const setYear = useCallback((y: TimelineYear) => {
+    setOwnYear(y)
+    onYearRef.current?.(y, eventsUpTo(osiedle, y))
+  }, [osiedle])
+  // Tell the map once when the timeline opens (markers for year ≤ current).
+  useEffect(() => {
+    if (timelineOn) onYearRef.current?.(year, eventsUpTo(osiedle, year))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timelineOn])
+  const values = timelineOn ? statsAtYear(osiedle, year) : osiedle.stats
+  const deltas = timelineOn ? statDeltasAtYear(osiedle, year) : undefined
+  const match = timelineOn ? matchAtYear(osiedle, profile, year) : osiedle.match[profile]
 
   // Places
   const [placeId, setPlaceId] = useState<string | null>(null)
@@ -96,6 +125,7 @@ function PanelBody({
   useEffect(() => {
     showRoute.current = onShowRoute
     back.current = onBack
+    onYearRef.current = onTimelineYear
   })
   const route = osiedle.routes.find((r) => r.id === routeId) ?? osiedle.routes[0]
   useEffect(() => {
@@ -128,17 +158,25 @@ function PanelBody({
     if (!root || !head) return
     const headIo = new IntersectionObserver(([e]) => setCompact(!e.isIntersecting), { root, threshold: 0, rootMargin: '-56px 0px 0px 0px' })
     headIo.observe(head)
-    const secIo = new IntersectionObserver(
-      (entries) => {
-        const hit = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
-        if (hit) setSection((hit.target as HTMLElement).dataset.section ?? '')
-      },
-      { root, rootMargin: '-64px 0px -75% 0px', threshold: 0 },
-    )
-    root.querySelectorAll('[data-section]').forEach((el) => secIo.observe(el))
+    // Current section = the last one whose top has passed under the sticky bar (rAF-throttled).
+    let raf = 0
+    const pick = () => {
+      raf = 0
+      const line = root.getBoundingClientRect().top + 80
+      let name = ''
+      root.querySelectorAll<HTMLElement>('[data-section]').forEach((el) => {
+        if (el.getBoundingClientRect().top <= line) name = el.dataset.section ?? ''
+      })
+      setSection(name)
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(pick)
+    }
+    root.addEventListener('scroll', onScroll, { passive: true })
     return () => {
       headIo.disconnect()
-      secIo.disconnect()
+      root.removeEventListener('scroll', onScroll)
+      cancelAnimationFrame(raf)
     }
   }, [osiedle.slug])
 
@@ -196,7 +234,7 @@ function PanelBody({
         </div>
 
         <AiSummary key={osiedle.slug} slug={osiedle.slug} text={osiedle.aiSummary} />
-        <CategoryBars profile={profile} priorities={prios} values={osiedle.stats} />
+        <CategoryBars profile={profile} priorities={prios} values={values} deltas={deltas} />
         <Places places={osiedle.highlights} activeId={shownPlaceId} onSelect={selectPlace} onHover={onHoverPlace} hasMap={!!onFocusPlace} />
         {osiedle.routes.length > 0 && (
           <div ref={routesRef}>
@@ -206,6 +244,17 @@ function PanelBody({
         <Commute rows={osiedle.commute} />
         <TrafficChart traffic={osiedle.traffic} road={osiedle.trafficRoad} />
         <Prices osiedle={osiedle} horizon={horizon} />
+        {timelineOn ? (
+          <Timeline osiedle={osiedle} profile={profile} year={year} onYear={setYear} />
+        ) : (
+          <TimelineTeaser
+            name={osiedle.name}
+            onExpand={() => {
+              setExpanded(true)
+              onHorizonChange?.('stale')
+            }}
+          />
+        )}
 
         <footer className="op-foot">
           <Credits slug={osiedle.slug} images={osiedle.heroImages} />
