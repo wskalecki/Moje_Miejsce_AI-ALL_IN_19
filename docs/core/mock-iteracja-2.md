@@ -22,6 +22,13 @@ Wersja 1 (obszary MSI) jest zachowana pod tagiem git `mock-v1-msi`.
 
 Poza zakresem: muzyka (żart z nagrania).
 
+## Ustalenia doprecyzowane (wiadomość od zespołu)
+
+- **Najpierw funkcje, design na końcu.** Teraz tylko lekki tuning wyglądu; dokładny design zespół wybierze na koniec.
+- **Raport danych** (`docs/data/raport-danych.md`): każda liczba w UI oznaczona jako prawdziwa / wyliczona / szacowana / wymyślona, z planem zastąpienia szacunków prawdziwymi danymi.
+- **Dane z innych gałęzi** (`mikolaj`, `feat/grid-tile-lab`, `feat/noise-dataset`) — scalić i z nich korzystać.
+- **Drobna ziarnistość jako drugi krok:** po przybliżeniu wybranego obszaru (MSI) pokazujemy w nim małe osiedla mieszkaniowe (kilka budynków), z ceną za m² (np. z Rejestru Cen Nieruchomości) i wszystkimi dostępnymi informacjami. Próbujemy i commitujemy — w razie czego cofamy.
+
 ## Plan zadań (iteracja 2)
 
 - [ ] I2-0 Analiza gałęzi `feat/grid-tile-lab` i `mikolaj` (co można przenieść)
@@ -32,4 +39,7 @@ Poza zakresem: muzyka (żart z nagrania).
 - [ ] I2-5 Mapa: POI i budynki 3D kolorowane wg funkcji, drogi asfalt + krawężnik
 - [ ] I2-6 Mapa: korki na drogach + suwak godziny
 - [ ] I2-7 Panel osiedla: liczby, mniej tekstu, grupowanie, wybór obiektów, karuzela, oś do 2040, oferty
-- [ ] I2-8 Deploy + QA end-to-end
+- [ ] I2-8 Raport danych (pochodzenie każdej liczby)
+- [ ] I2-9 Drugi poziom: małe osiedla mieszkaniowe w obszarze MSI + ceny za m²
+- [ ] I2-10 Deploy + QA end-to-end
+- [ ] I2-11 (na końcu) wybór finalnego designu z zespołem
