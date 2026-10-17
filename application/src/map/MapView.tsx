@@ -533,9 +533,7 @@ export function MapView({
               onReset={resetWeights}
               onSoloChange={setSolo}
               poiInterests={poiInterests}
-              onTogglePoiInterest={onTogglePoiInterest}
               gastronomyCuisines={gastronomyCuisines}
-              onToggleGastronomyCuisine={onToggleGastronomyCuisine}
               detailCat={openDetailCat}
               onDetailCatChange={setDetailCat}
               filterSections={filterSections}
