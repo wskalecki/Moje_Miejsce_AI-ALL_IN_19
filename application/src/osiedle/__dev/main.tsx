@@ -1,0 +1,86 @@
+/** Dev-only harness for the osiedle panel: `npx vite` → /osiedle-dev.html. Not part of the app bundle. */
+import { StrictMode, useEffect, useState } from 'react'
+import { createRoot } from 'react-dom/client'
+import '@fontsource-variable/inter'
+import '@fontsource-variable/plus-jakarta-sans'
+import '../../design/tokens.css'
+import '../../design/global.css'
+import { OSIEDLA, OSIEDLA_BY_SLUG, type OsiedleSlug } from '../../mock/osiedla'
+import type { Horizon, ProfileId } from '../../app/types'
+import { OsiedlePanel } from '../OsiedlePanel'
+import './dev.css'
+
+const params = new URLSearchParams(location.search)
+
+function Harness() {
+  const [slug, setSlug] = useState<OsiedleSlug>((params.get('slug') as OsiedleSlug) || 'powisle')
+  const [profile, setProfile] = useState<ProfileId>((params.get('profil') as ProfileId) || OSIEDLA_BY_SLUG[slug].profile)
+  const [horizon, setHorizon] = useState<Horizon>((params.get('horyzont') as Horizon) || 'chwila')
+  const [layout, setLayout] = useState<'overlay' | 'page'>((params.get('layout') as 'overlay' | 'page') || 'overlay')
+  const [open, setOpen] = useState(true)
+  const [log, setLog] = useState<string[]>([])
+  const push = (s: string) => setLog((l) => [`${new Date().toLocaleTimeString('pl-PL')}  ${s}`, ...l].slice(0, 14))
+
+  useEffect(() => {
+    document.documentElement.dataset.profile = profile
+  }, [profile])
+
+  const seg = <T extends string>(value: T, options: readonly T[], set: (v: T) => void, label?: (v: T) => string) => (
+    <div className="dev-seg">
+      {options.map((o) => (
+        <button key={o} type="button" aria-pressed={o === value} onClick={() => set(o)}>
+          {label ? label(o) : o}
+        </button>
+      ))}
+    </div>
+  )
+
+  return (
+    <div className={`dev dev--${layout}`}>
+      <div className="dev-map">
+        <div className="dev-controls">
+          <strong>Panel osiedla — harness</strong>
+          {seg(slug, OSIEDLA.map((o) => o.slug), (s) => {
+            setSlug(s)
+            setOpen(true)
+          }, (s) => OSIEDLA_BY_SLUG[s].name)}
+          {seg(profile, ['student', 'rodzina', 'senior'] as const, setProfile)}
+          {seg(horizon, ['chwila', 'stale'] as const, setHorizon)}
+          {seg(layout, ['overlay', 'page'] as const, setLayout)}
+          {!open && (
+            <button type="button" className="dev-open" onClick={() => setOpen(true)}>
+              Otwórz panel
+            </button>
+          )}
+        </div>
+        <ol className="dev-log" aria-label="Zdarzenia">
+          {log.map((l, i) => (
+            <li key={i}>{l}</li>
+          ))}
+        </ol>
+      </div>
+      {open && (
+        <OsiedlePanel
+          key={`${slug}-${layout}`}
+          osiedle={OSIEDLA_BY_SLUG[slug]}
+          profile={profile}
+          horizon={horizon}
+          layout={layout}
+          onBack={() => {
+            push('onBack()')
+            setOpen(false)
+          }}
+          onFocusPlace={(ll, p) => push(`onFocusPlace([${ll.join(', ')}]) ${p.name}`)}
+          onHoverPlace={(id) => id && push(`onHoverPlace(${id})`)}
+          onShowRoute={(r, m) => push(`onShowRoute(${r ? `${r.id}, ${m}` : 'null'})`)}
+        />
+      )}
+    </div>
+  )
+}
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <Harness />
+  </StrictMode>,
+)
