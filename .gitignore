@@ -9,3 +9,6 @@ dist/
 
 # Python
 __pycache__/
+
+# browser automation artefacts
+.playwright-mcp/
