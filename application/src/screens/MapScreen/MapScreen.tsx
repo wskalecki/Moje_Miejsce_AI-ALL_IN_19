@@ -1,32 +1,26 @@
 import { Component, lazy, Suspense, useState, type ReactNode } from 'react'
 import { navigate, useRouter } from '../../app/router'
 import { useAppStore } from '../../app/useAppStore'
-import { Logo } from '../../components/ui'
 import type { MapApi } from '../../map/MapView'
+import { MapSkeleton } from './MapSkeleton'
 import { SentenceBar } from './SentenceBar'
 import './mapScreen.css'
 
 const LazyMapView = lazy(() => import('../../map/MapView'))
 const LazyCinema = lazy(() => import('../../cinematic/CinematicLayer'))
 
-class MapErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+class MapErrorBoundary extends Component<{ children: ReactNode; onError: () => void }, { error: Error | null }> {
   state = { error: null as Error | null }
   static getDerivedStateFromError(error: Error) {
     return { error }
   }
+  componentDidCatch() {
+    this.props.onError()
+  }
   render() {
-    if (this.state.error) return <MapPlaceholder message="Nie udało się wczytać mapy. Odśwież stronę." />
+    if (this.state.error) return null
     return this.props.children
   }
-}
-
-function MapPlaceholder({ message, loading = false }: { message: string; loading?: boolean }) {
-  return (
-    <div className="map-placeholder" data-loading={loading || undefined}>
-      <Logo />
-      <p className="t-small t-secondary">{message}</p>
-    </div>
-  )
 }
 
 /**
@@ -40,22 +34,25 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
   const horizon = state.horizon ?? 'stale'
   const [api, setApi] = useState<MapApi | null>(null)
   const [busy, setBusy] = useState(false)
+  const [failed, setFailed] = useState(false)
   const quick = query.get('szybko') === '1'
+
+  const activeSlug = slug
 
   return (
     <div
       className="map-screen"
-      data-cinema={slug || busy ? '' : undefined}
+      data-cinema={activeSlug || busy ? '' : undefined}
       aria-hidden={hidden || undefined}
       inert={hidden || undefined}
     >
-      <MapErrorBoundary>
-        <Suspense fallback={<MapPlaceholder message="Wczytujemy mapę Warszawy…" loading />}>
+      <MapErrorBoundary onError={() => setFailed(true)}>
+        <Suspense fallback={null}>
           <LazyMapView
             profile={profile}
             priorities={state.priorities}
             horizon={horizon}
-            selectedSlug={slug}
+            selectedSlug={activeSlug}
             chrome={!busy}
             onSelectFeatured={(s) => navigate(`/mapa/${s}${quick ? '?szybko=1' : ''}`)}
             onMapReady={(_m, a) => setApi(a)}
@@ -65,7 +62,7 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
           <Suspense fallback={null}>
             <LazyCinema
               api={api}
-              slug={slug}
+              slug={activeSlug}
               profile={profile}
               horizon={horizon}
               priorities={state.priorities}
@@ -77,12 +74,13 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
           </Suspense>
         )}
       </MapErrorBoundary>
+      <MapSkeleton profile={profile} done={!!api} error={failed} panel={!activeSlug} />
       <SentenceBar
         profile={profile}
         priorities={state.priorities}
         horizon={horizon}
         onProfileChange={(p) => setProfile(p, { keepChoices: true })}
-        hidden={!!slug || busy}
+        hidden={!!activeSlug || busy}
       />
     </div>
   )
