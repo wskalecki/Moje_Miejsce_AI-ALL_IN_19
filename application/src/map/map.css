@@ -15,8 +15,8 @@
   --smap-ease-std: var(--ease-standard, cubic-bezier(0.2, 0.8, 0.2, 1));
   --smap-display: var(--font-display, 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif);
   --smap-ui: var(--font-ui, 'Inter Variable', 'Inter', system-ui, sans-serif);
-  --smap-edge: 24px;
-  --smap-panel-width: 416px;
+  --smap-edge: var(--chrome-edge, 24px);
+  --smap-panel-width: var(--chrome-col, 416px);
 
   position: relative;
   width: 100%;
