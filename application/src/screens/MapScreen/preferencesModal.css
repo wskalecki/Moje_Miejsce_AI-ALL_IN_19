@@ -36,7 +36,8 @@
 }
 .prefs-modal__head {
   display: grid;
-  grid-template-columns: 44px 1fr 44px;
+  /* minmax(0, …) lets the progress bar shrink on 320 px phones instead of pushing out the close button */
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
   align-items: center;
   gap: 8px;
   padding: 12px 12px 0;
@@ -63,7 +64,8 @@
   gap: 6px;
 }
 .prefs-modal__seg {
-  width: 40px;
+  flex: 0 1 40px;
+  min-width: 12px;
   height: 4px;
   border-radius: 999px;
   background: rgba(22, 22, 29, 0.12);
@@ -134,6 +136,16 @@
   }
   .prefs-modal .profile-card__text {
     padding: 4px 28px 4px 16px;
+  }
+}
+/* 320 px phones: the title otherwise runs under the check circle in the card's top-right corner */
+@container (max-width: 320px) {
+  .prefs-modal .profile-card__art {
+    width: 72px;
+    height: 72px;
+  }
+  .prefs-modal .profile-card__text {
+    padding: 4px 36px 4px 12px;
   }
 }
 .prefs-modal__hints {
