@@ -70,6 +70,42 @@ Warunki: https://architektura.um.warszawa.pl/warunki-ponownego-wykorzystania. Cz
 - **Skrypt:** `uv run data/scripts/fetch_osiedla_boundaries.py` → `data/boundaries/warszawa_osiedla.geojson` i `application/public/data/osiedla.geojson` (326 KB, właściwości `id`, `name`, `district`, `area_km2`).
 - OSM (`admin_level=10/11`, `place=neighbourhood`) jako zapas: niepełne pokrycie i nakładające się poligony, więc MSI jest lepsze.
 
+### Kwartały w obszarach MSI (`warszawa_osiedla_fine`) ✅
+
+Trzeci poziom hierarchii: dzielnica (18) → obszar MSI (143) → kwartał, czyli kilka budynków między ulicami. Zbudowane 2026-10-17.
+
+- **Brak gotowej warstwy miejskiej:** WFS `wfs.um.warszawa.pl` nie ma warstwy osiedli ani jednostek pomocniczych (18 warstw `ns92528565:*` i 19 `wfs:*`). GeoServer `wms2.um.warszawa.pl/geoserver/wfs/wfs` ma tylko `budynki`, `dzialki`, `miejscowosci`, `place`, `punkty_adresowe`, `ulice` i osnowy.
+- **Czemu nie same poligony OSM:**
+  - `landuse=residential` (23,6 tys. w Warszawie) jest drobne (mediana 0,37 ha), ale nie wszędzie jest wyrysowane. Na Powiślu pokrywa tylko 16% obszaru.
+  - Nazwanych poligonów osiedli jest ok. 1100, głównie inwestycje deweloperskie.
+  - `place=neighbourhood/quarter` to prawie wyłącznie punkty (ok. 550, np. „Muranów II”, „Moczydło”, „Wyżyny-Wschód”). Poligonów jest tylko 8.
+- **Metoda (skrypt):**
+  1. Poligonizujemy ulice OSM (`highway` od `motorway` do `living_street` oraz `pedestrian`), tory, rzeki i granice MSI, osobno w każdym obszarze MSI. Wychodzą bloki między ulicami.
+  2. Zostawiamy bloki, w których leży środek budynku mieszkalnego z miejskiego rejestru albo które są w ≥25% `landuse=residential`.
+  3. Bloki z więcej niż 12 budynkami dzielimy na części po ok. 8 budynków (k-means na środkach budynków, cięcie po krawędziach Voronoi między budynkami).
+- **Budynki mieszkalne:** `wfs:budynki` z GeoServera z filtrem `cql_filter=RODZAJ='m'`. To 110 517 ze 184 488 budynków, z polem `KONDYGNACJE_NADZIEMNE`, w EPSG:2178 (easting pierwszy). GeoServer obsługuje `outputFormat=application/json` (w przeciwieństwie do MapGuide), plik ma 60 MB.
+  - `RODZAJ` to kod EGiB: `m` mieszkalne, `i` inne, `h` handlowo-usługowe, `b` biurowe (pozostałe kody, np. `t`, nierozpoznane)
+  - **`ID_BUDYNKU` (np. `146510_8.0408.20_BUD`) to przedrostek `LOK_ID_LOKALU` w RCN**, więc transakcje mieszkań da się przypiąć do budynku, a przez niego do kwartału.
+- **Nazwy:**
+  - Jeśli nazwany poligon OSM pokrywa ≥30% kwartału, bierzemy jego nazwę (`name_source: "osm"`).
+  - W innym razie generujemy „Kwartał <ulica A> / <ulica B>” z dwóch nazwanych ulic o najdłuższej pierzei (`name_source: "generated"`).
+  - Powtórzenia w jednym MSI dostają w nawiasie nazwę osiedla, a potem dopisek „· część N” (numeracja z północy na południe).
+  - `osiedle` to poligon `place` albo najbliższy punkt `place=neighbourhood/quarter` w promieniu 900 m.
+- **Wynik:**
+  - 14 576 kwartałów, wszystkie z `msi_id`. Mediana 0,01 km², 90% poniżej 0,034 km², maksimum 0,25 km².
+  - Pokrywają 45,8% powierzchni miasta, 99,9% `landuse=residential` z OSM i ~100% budynków mieszkalnych.
+  - Nakładania po uproszczeniu wynoszą łącznie ok. 0,2 ha (pod-metrowe szwy).
+- **Pułapki:**
+  - Overpass w X 2026 często zwraca 500, 502 albo zawiesza się. Zapytania dzielimy na kafle 2×2, rotujemy `overpass.kumi.systems`, `overpass.private.coffee` i `overpass-api.de` z odstępami, a odpowiedzi trzymamy w cache `data/raw/osm_fine/`.
+  - Upraszczamy wszystkie kwartały razem (`coverage_simplify`, 3 m) i zaokrąglamy do 6 miejsc. Przy 5 miejscach (ok. 1 m) sąsiedzi nachodzą na siebie o kilkadziesiąt m².
+- **Skrypt:** `uv run data/scripts/fetch_osiedla_fine.py` (`--no-fetch` używa tylko cache, `--only muranow,natolin` przelicza wybrane obszary). Wyniki:
+  - `data/boundaries/warszawa_osiedla_fine.geojson` (cała Warszawa, 12,5 MB),
+  - `application/public/data/fine/<msi_id>.geojson` (jeden plik na obszar MSI, 1–380 KB, ładowany po wejściu w obszar),
+  - `fine/index.json` (liczba kwartałów, bbox i rozmiar pliku dla każdego obszaru).
+- **Właściwości:** `id` (`<msi_id>--<slug nazwy>`), `name`, `name_source`, `osiedle`, `msi_id`, `district`, `area_km2`, `residential` (`residential=*` z OSM albo `apartments`/`houses` z mediany kondygnacji), `buildings`, `floors_max`, `source`.
+- **Licencja:** ODbL (OSM, podać „© współtwórcy OpenStreetMap”) oraz dane m.st. Warszawy (budynki i MSI, podać „Urząd m.st. Warszawy”).
+
+
 ## 3. Inne źródła
 
 | Źródło | Co | Status | Uwagi |
