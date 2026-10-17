@@ -6,7 +6,8 @@ import { Check, LoaderCircle } from 'lucide-react'
 import { AnimatePresence, useReducedMotion } from 'motion/react'
 import * as m from 'motion/react-m'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { DATA_URLS, MATCHING_DURATION_MS } from '../../app/config'
+import { MATCHING_DURATION_MS } from '../../app/config'
+import { useOsiedlaScores } from '../../app/useMatch'
 import { useAppStore } from '../../app/useAppStore'
 import { AmbientBackground } from '../../components/ambient/AmbientBackground'
 import { WarsawArt } from '../../components/ambient/WarsawArt'
@@ -18,33 +19,20 @@ import './matching.css'
 const LINE_EVERY_MS = 500
 const LINE_DONE_AFTER_MS = 420
 const DEFAULT_OSIEDLA_COUNT = 143
+/** Distinct metrics behind the 10 category scores (osiedla-metrics.json `meta.category_metrics`). */
+const INDICATOR_COUNT = 30
 
-let cachedCount: number | null = null
-
-function useOsiedlaCount(): number {
-  const [n, setN] = useState(cachedCount ?? DEFAULT_OSIEDLA_COUNT)
-  useEffect(() => {
-    if (cachedCount !== null) return
-    let alive = true
-    fetch(DATA_URLS.osiedlaScores)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j: Record<string, unknown> | null) => {
-        if (!j) return
-        cachedCount = Object.keys(j).length
-        if (alive) setN(cachedCount)
-      })
-      .catch(() => undefined)
-    return () => {
-      alive = false
-    }
-  }, [])
-  return n
+/** "1 osiedle", "143 osiedla", "145 osiedli". */
+function osiedlaLabel(n: number): string {
+  const few = n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)
+  return `${n} ${n === 1 ? 'osiedle' : few ? 'osiedla' : 'osiedli'}`
 }
 
 export function MatchingScreen({ onDone }: { onDone: () => void }) {
   const { state } = useAppStore()
   const reduce = useReducedMotion()
-  const count = useOsiedlaCount()
+  const scores = useOsiedlaScores()
+  const count = scores ? Object.keys(scores).length : DEFAULT_OSIEDLA_COUNT
   const [elapsed, setElapsed] = useState(0)
   const doneRef = useRef(false)
   const onDoneRef = useRef(onDone)
@@ -83,8 +71,8 @@ export function MatchingScreen({ onDone }: { onDone: () => void }) {
   )
 
   const lines = [
-    'Łączymy 24 wskaźniki z otwartych danych Warszawy…',
-    `Oceniamy ${count} osiedli pod Twój profil…`,
+    `Łączymy ${INDICATOR_COUNT} wskaźników z otwartych danych Warszawy…`,
+    `Oceniamy ${osiedlaLabel(count)} pod Twój profil…`,
     'Gotowe — mamy dla Ciebie 3 propozycje.',
   ]
 

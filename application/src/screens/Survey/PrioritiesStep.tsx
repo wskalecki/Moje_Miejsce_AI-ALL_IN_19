@@ -1,6 +1,7 @@
 import { Check } from 'lucide-react'
 import type { RefObject } from 'react'
 import { CATEGORIES, CATEGORY_ORDER } from '../../app/dictionary'
+import { PRIORITY_WEIGHT } from '../../app/weights'
 import { CATEGORY_ICONS } from '../../app/icons'
 import { useAppStore } from '../../app/useAppStore'
 import type { CategoryKey } from '../../app/types'
@@ -13,7 +14,7 @@ function Tile({ category, pressed, weight, onToggle }: { category: CategoryKey; 
       type="button"
       className="priority-tile"
       aria-pressed={pressed}
-      aria-label={`${label}, waga ${weight} na 100`}
+      aria-label={`${label}, waga ${weight}%`}
       onClick={() => onToggle(category)}
     >
       <span className="priority-tile__head">
@@ -27,7 +28,7 @@ function Tile({ category, pressed, weight, onToggle }: { category: CategoryKey; 
         <span className="priority-tile__track">
           <i style={{ transform: `scaleX(${weight / 100})` }} />
         </span>
-        <span className="priority-tile__value tabular">{weight}</span>
+        <span className="priority-tile__value tabular">{weight}%</span>
       </span>
     </button>
   )
@@ -43,7 +44,8 @@ export function PrioritiesStep({ headingRef }: { headingRef: RefObject<HTMLHeadi
           Co jest dla Ciebie ważne?
         </h1>
         <p className="t-body t-secondary survey__sub" id="q-priorities-sub">
-          Zaznacz wszystko, co ma znaczenie — bez limitu. Paski pokazują, jak mocno liczymy każdą rzecz na mapie; ustawiliśmy je pod Twój etap życia.
+          Zaznacz wszystko, co ma znaczenie — bez limitu. Pasek to waga na mapie: zaznaczone liczymy na min.&nbsp;{PRIORITY_WEIGHT}%,
+          resztę dobraliśmy pod Twój etap życia.
         </p>
       </div>
 

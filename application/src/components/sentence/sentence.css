@@ -18,17 +18,19 @@
 }
 
 .sentence__word,
+.sentence__unit,
 .sentence__slot {
   display: inline-block;
 }
 
-.sentence__gap {
-  margin-right: 0.26em;
+/* a word / slot plus its glued punctuation never breaks across lines */
+.sentence__word,
+.sentence__unit {
+  white-space: nowrap;
 }
 
-/* "rodzinę," not "rodzinę ," — pull punctuation over the pill's right padding (QA #13) */
-.sentence__punct--hug {
-  margin-left: 0;
+.sentence__gap {
+  margin-right: 0.26em;
 }
 
 /* Filled slot = a word written into the blank: accent ink on a thin line, no pill. */

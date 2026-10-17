@@ -87,7 +87,7 @@ export function ProfileStep({
                 <span className="t-h2 profile-card__title">{def.title}</span>
                 <span className="t-body t-secondary">{def.description}</span>
                 <span className="profile-card__credit">
-                  {photo.place}, {photo.credit}
+                  {photo.place} · {photo.credit}
                 </span>
               </span>
             </div>

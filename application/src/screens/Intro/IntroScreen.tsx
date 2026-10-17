@@ -2,7 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import { useReducedMotion } from 'motion/react'
 import * as m from 'motion/react-m'
 import { useEffect, useState } from 'react'
-import { APP_NAME, APP_TAGLINE, DATA_URLS } from '../../app/config'
+import { APP_NAME, APP_TAGLINE, PRELOAD_DATA_URLS } from '../../app/config'
 import { PROFILE_ORDER, PROFILES } from '../../app/dictionary'
 import { prefetchMap } from '../../app/mapLoader'
 import { navigate } from '../../app/router'
@@ -22,7 +22,7 @@ export function IntroScreen() {
   const start = () => navigate('/ankieta?krok=1')
 
   useEffect(() => {
-    prefetchMap(Object.values(DATA_URLS))
+    prefetchMap(PRELOAD_DATA_URLS)
   }, [])
 
   // Cycle the map through the three profiles.
@@ -79,24 +79,21 @@ export function IntroScreen() {
           <Button size="lg" iconRight={ArrowRight} onClick={start}>
             Zacznij
           </Button>
-          <p className="t-small t-secondary">3 pytania · 30 sekund · bez logowania</p>
+          <p className="t-small intro__hint">3 pytania · 30 sekund · bez logowania</p>
         </m.div>
       </section>
 
-      <m.aside className="intro__legend" {...rise(0.9)} aria-hidden>
-        <span className="t-small t-secondary">Dopasowanie okolic dla profilu</span>
-        <span className="intro__legend-chips">
+      <footer className="intro__bottom">
+        <p className="t-small intro__credits">Dane: m.st. Warszawa, GUGiK, GIOŚ, ZTM · ©&nbsp;współtwórcy OpenStreetMap, OpenFreeMap</p>
+        <m.div className="intro__legend" {...rise(0.9)} aria-hidden>
+          <span className="intro__legend-label">Dopasowanie okolic dla profilu</span>
           {PROFILE_ORDER.map((p) => (
             <span key={p} className={`intro__chip accent-${p}`} data-on={p === active || undefined}>
               <i />
               {PROFILES[p].title}
             </span>
           ))}
-        </span>
-      </m.aside>
-
-      <footer className="intro__footer t-small">
-        Dane: m.st. Warszawa (otwarte dane), © współtwórcy OpenStreetMap, OpenFreeMap
+        </m.div>
       </footer>
     </main>
   )

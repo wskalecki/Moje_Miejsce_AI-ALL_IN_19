@@ -11,6 +11,8 @@ interface Token {
   slot?: SlotKind
   /** No space before this token (punctuation). */
   glue: boolean
+  /** Punctuation glued to this token ("zdrowie,") — rendered in the same unbreakable unit. */
+  suffix?: string
 }
 
 function tokenize(parts: readonly SentencePart[]): Token[] {
@@ -32,8 +34,16 @@ function tokenize(parts: readonly SentencePart[]): Token[] {
         continue
       }
       const text = m[2] ?? m[3]
-      tokens.push({ key: `${part.key}-${i++}`, kind: 'word', text, glue: !pendingSpace && tokens.length > 0 })
+      const glue = !pendingSpace && tokens.length > 0
       pendingSpace = false
+      // "," / "." never starts a line: keep it in the same nowrap unit as the token before it
+      if (m[3] && glue) {
+        const prev = tokens[tokens.length - 1]
+        prev.suffix = (prev.suffix ?? '') + text
+        i++
+        continue
+      }
+      tokens.push({ key: `${part.key}-${i++}`, kind: 'word', text, glue })
     }
   }
   return tokens
@@ -68,22 +78,12 @@ export function Sentence({ parts, activeSlot = null, size = 'lg', className, liv
       <span aria-hidden className="sentence__visual">
         <LayoutGroup>
           <AnimatePresence initial={false} mode="popLayout">
-            {tokens.map((tk, i) =>
-              tk.kind === 'word' ? (
-                <m.span
-                  key={tk.key}
-                  layout={layout}
-                  transition={t}
-                  className={[
-                    'sentence__word',
-                    tokens[i + 1] && !tokens[i + 1].glue && 'sentence__gap',
-                    // punctuation glued to a pill hugs it: the pill's own padding already separates them (QA #13)
-                    tk.glue && /^[,.]$/.test(tk.text ?? '') && tokens[i - 1]?.kind === 'slot' && 'sentence__punct--hug',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                >
+            {tokens.map((tk, i) => {
+              const gap = tokens[i + 1] && !tokens[i + 1].glue && 'sentence__gap'
+              return tk.kind === 'word' ? (
+                <m.span key={tk.key} layout={layout} transition={t} className={['sentence__word', gap].filter(Boolean).join(' ')}>
                   {tk.text}
+                  {tk.suffix}
                 </m.span>
               ) : (
                 <m.span
@@ -93,19 +93,23 @@ export function Sentence({ parts, activeSlot = null, size = 'lg', className, liv
                   initial={{ opacity: 0, scale: 0.92 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.92 }}
-                  className={[
-                    'sentence__slot',
-                    tokens[i + 1] && !tokens[i + 1].glue && 'sentence__gap',
-                    tk.text === null && 'sentence__slot--empty',
-                    activeSlot && tk.slot === activeSlot && 'sentence__slot--active',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
+                  className={['sentence__unit', gap].filter(Boolean).join(' ')}
                 >
-                  {tk.text ?? '…'}
+                  <span
+                    className={[
+                      'sentence__slot',
+                      tk.text === null && 'sentence__slot--empty',
+                      activeSlot && tk.slot === activeSlot && 'sentence__slot--active',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                  >
+                    {tk.text ?? '…'}
+                  </span>
+                  {tk.suffix}
                 </m.span>
-              ),
-            )}
+              )
+            })}
           </AnimatePresence>
         </LayoutGroup>
       </span>

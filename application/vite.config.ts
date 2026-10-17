@@ -2,7 +2,8 @@ import path from 'node:path'
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
 
-const DATA_URLS = ['/data/heat.json', '/data/osiedla-scores.json', '/data/osiedla.geojson']
+/** Same list as PRELOAD_DATA_URLS in src/app/config.ts. */
+const DATA_URLS = ['/data/heat-categories.json', '/data/osiedla-scores.json', '/data/osiedla.geojson']
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron'
 const TILEJSON_URL = 'https://tiles.openfreemap.org/planet'
 /** Glyph ranges the overview needs for Polish labels (MapLibre asks for them only after the tiles parse). */

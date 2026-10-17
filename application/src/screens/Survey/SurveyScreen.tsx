@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { AnimatePresence, useReducedMotion } from 'motion/react'
 import * as m from 'motion/react-m'
 import { useEffect, useMemo, useRef } from 'react'
-import { DATA_URLS } from '../../app/config'
+import { PRELOAD_DATA_URLS } from '../../app/config'
 import { prefetchMap } from '../../app/mapLoader'
 import { back, navigate, useRouter, type SurveyStep } from '../../app/router'
 import { useAppStore } from '../../app/useAppStore'
@@ -39,7 +39,7 @@ export function SurveyScreen({ step, onFinish }: SurveyScreenProps) {
 
   // Deep links can skip the intro — warm the map chunk here too so the map is ready at "Pokaż".
   useEffect(() => {
-    prefetchMap(Object.values(DATA_URLS))
+    prefetchMap(PRELOAD_DATA_URLS)
   }, [])
 
   // Steps 2–3 need a profile; send deep links back to step 1.

@@ -4,6 +4,7 @@
  * React context + sessionStorage live in `storeCore.ts`.
  */
 import { DEFAULT_PRIORITIES, PROFILES, isCategoryKey, isHorizon, isProfileId } from './dictionary.ts'
+import { TIMELINE_FIRST_YEAR, TIMELINE_LAST_YEAR } from './config.ts'
 import type { AppState, CategoryKey, Horizon, ProfileId } from './types.ts'
 import { PRIORITY_WEIGHT, baseWeights, clampWeight, deriveWeights, sanitizeWeights } from './weights.ts'
 
@@ -12,7 +13,7 @@ export const INITIAL_STATE: AppState = {
   priorities: [],
   weights: deriveWeights(null, []),
   horizon: null,
-  timelineYear: 2026,
+  timelineYear: TIMELINE_FIRST_YEAR,
   visited: [],
 }
 
@@ -77,7 +78,7 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'setHorizon':
       return { ...state, horizon: action.horizon }
     case 'setYear':
-      return { ...state, timelineYear: Math.min(2030, Math.max(2026, Math.round(action.year))) }
+      return { ...state, timelineYear: Math.min(TIMELINE_LAST_YEAR, Math.max(TIMELINE_FIRST_YEAR, Math.round(action.year))) }
     case 'markVisited':
       return state.visited.includes(action.slug) ? state : { ...state, visited: [...state.visited, action.slug] }
     case 'reset':
@@ -100,7 +101,10 @@ export function parseState(raw: string | null): AppState {
       priorities: priorities.filter((c) => weights[c] >= PRIORITY_WEIGHT),
       weights,
       horizon: isHorizon(p.horizon) ? p.horizon : null,
-      timelineYear: typeof p.timelineYear === 'number' ? p.timelineYear : 2026,
+      timelineYear:
+        typeof p.timelineYear === 'number' && Number.isFinite(p.timelineYear)
+          ? Math.min(TIMELINE_LAST_YEAR, Math.max(TIMELINE_FIRST_YEAR, Math.round(p.timelineYear)))
+          : TIMELINE_FIRST_YEAR,
       visited: Array.isArray(p.visited) ? p.visited.filter((s): s is string => typeof s === 'string') : [],
     }
   } catch {
