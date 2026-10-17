@@ -797,10 +797,12 @@
 
 /* ---------- toast ---------- */
 
+/* Top-centre of the free map area (below the sentence bar, right of the "Polecane" column), clear of the cursor-following
+   hover card, which also steers around it (hover.ts keep-out) — QA #16. */
 .smap-toast {
   position: absolute;
-  left: 50%;
-  bottom: 32px;
+  left: calc(50% + 164px);
+  top: 88px;
   transform: translateX(-50%);
   z-index: var(--z-toast, 40);
   pointer-events: none;

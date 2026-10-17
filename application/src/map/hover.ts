@@ -16,6 +16,8 @@ export interface HoverOptions {
   getCard: () => HTMLElement | null
   /** Extra layers to query (e.g. featured fill, added in T6). */
   extraLayers?: () => string[]
+  /** Element the card must not cover (e.g. the visible toast), in client coordinates. */
+  getKeepOut?: () => DOMRect | null
 }
 
 /**
@@ -147,6 +149,13 @@ export class HoverController {
     if (y + h > H - EDGE) y = pt.y - CARD_OFFSET - h
     x = Math.max(EDGE, Math.min(x, W - w - EDGE))
     y = Math.max(EDGE, Math.min(y, H - h - EDGE))
+    // steer clear of the toast: drop the card below it when they would overlap
+    const keep = this.opts.getKeepOut?.()
+    if (keep) {
+      const o = box.getBoundingClientRect()
+      const k = { l: keep.left - o.left, r: keep.right - o.left, t: keep.top - o.top, b: keep.bottom - o.top }
+      if (x < k.r + 8 && x + w > k.l - 8 && y < k.b + 8 && y + h > k.t - 8) y = Math.min(k.b + 10, H - h - EDGE)
+    }
     card.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0)`
   }
 }

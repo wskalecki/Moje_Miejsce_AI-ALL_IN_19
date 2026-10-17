@@ -151,6 +151,7 @@ export function MapView({
           map.getCanvas().style.cursor = id && d.info.get(id)?.featuredSlug ? 'pointer' : ''
         },
         getCard: () => cardRef.current,
+        getKeepOut: () => el.parentElement?.querySelector('.smap-toast.is-visible .smap-toast__inner')?.getBoundingClientRect() ?? null,
       })
 
       // Only the 3 featured osiedla open; any other osiedle shows the "wkrótce" toast.
@@ -224,6 +225,13 @@ export function MapView({
   useLayoutEffect(() => {
     hoverRef.current?.reposition()
   }, [hoveredId])
+
+  // the toast mounts on the next tick — re-clamp the card around it (QA #16)
+  useEffect(() => {
+    if (!toastSeq) return
+    const t = window.setTimeout(() => hoverRef.current?.reposition(), 30)
+    return () => window.clearTimeout(t)
+  }, [toastSeq])
 
   const hovered = hoveredId && data ? (data.info.get(hoveredId) ?? null) : null
   const hoveredFeatured = useMemo(
