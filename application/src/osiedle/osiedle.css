@@ -471,10 +471,6 @@
   border-radius: 6px;
 }
 
-.op .op-head__name:focus {
-  outline: none;
-}
-
 .op-head__tagline {
   margin-top: 8px;
   font-size: 16px;
@@ -1634,6 +1630,13 @@
 
 .op-hero :focus-visible {
   outline-color: #fff;
+}
+
+/* Programmatic focus targets (heading focused on open, section heading after "Pokaż prognozę"):
+   focus stays for screen readers, but these can't be tabbed to, so they never draw a ring. */
+.op [tabindex='-1']:focus,
+.op [tabindex='-1']:focus-visible {
+  outline: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
