@@ -1,0 +1,62 @@
+---
+description: Git branching, commits, and merge workflow (master)
+alwaysApply: true
+---
+
+# Git standards
+
+## Default branch
+
+- **`master`** is integration branch. Keep it deployable/demo-ready.
+- Never commit directly on `master` for features or fixes — use a branch, then merge.
+
+## Branching
+
+| Change type | Branch prefix | Example |
+|-------------|---------------|---------|
+| Feature | `feat/` | `feat/grid-map-scoring` |
+| Bug fix | `fix/` | `fix/toilet-layer-geojson` |
+| Docs-only (optional) | `docs/` | `docs/api-setup` |
+
+1. Branch from latest `master`: `git checkout master && git pull && git checkout -b feat/short-slug`
+2. One logical change per branch (one feature or one fix).
+3. Merge into `master` via PR when possible; fast-forward or merge commit after review.
+4. Delete the branch after merge (local + remote).
+
+## Commit messages
+
+Use **Conventional Commits** — single line subject, lowercase type:
+
+```
+feat: short title
+fix: short title
+docs: short title
+chore: short title
+```
+
+- **feat** — new behavior or capability
+- **fix** — bug fix
+- **docs** — documentation only
+- **chore** — tooling, deps, config (no product change)
+
+Optional body after blank line for *why*, not a file list.
+
+## Examples
+
+```bash
+# ✅ GOOD
+git checkout -b feat/persona-presets
+git commit -m "feat: add three demo persona weight profiles"
+
+git checkout -b fix/aq-null-sensor
+git commit -m "fix: skip air quality cells without nearest station"
+
+# ❌ BAD
+git commit -m "updates"                    # on master, vague message
+git commit -m "WIP"                        # not merged-ready wording
+```
+
+## Before merge
+
+- `git fetch origin` and rebase or merge `master` into your branch if needed.
+- No secrets in commits (`.env`, tokens).

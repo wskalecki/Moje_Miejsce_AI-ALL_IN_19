@@ -31,5 +31,7 @@ Repozytorium zespołu **AI All In** na **Warsaw Open Data Hackathon 2026**.
 
 ## Jak pracujemy
 
-1. Feature’y na krótkich gałęziach (np. `jan-ideas`), merge do `master` przez pull request.
-2. `master` trzyma aktualny szkielet projektu i dokumentację.
+1. **`master`** — gałąź integracyjna; nie commitujemy na niej feature’ów ani fixów.
+2. **Jedna zmiana = jedna gałąź:** `feat/krótki-slug` lub `fix/krótki-slug`, potem merge do `master` (PR mile widziany).
+3. **Commity:** `feat: short title`, `fix: short title` (Conventional Commits).
+4. Szczegóły: [`CLAUDE.md`](CLAUDE.md), reguły Cursor: [`.cursor/rules/git-standards.mdc`](.cursor/rules/git-standards.mdc).
