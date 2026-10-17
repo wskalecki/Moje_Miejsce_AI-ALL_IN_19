@@ -135,6 +135,8 @@ export function MapView({
 
     map.once('load', async () => {
       warmBasemap(map)
+      // phones/tablets: start the attribution collapsed to its (i) button (it sits between controls and sheet)
+      if (el.clientWidth < 1024) el.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show')
       const d = await dataP
       if (cancelled) return
       addMapLayers(map, d, profileRef.current)
