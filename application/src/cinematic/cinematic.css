@@ -133,6 +133,21 @@
 .cin-media__photo.is-on {
   opacity: 1;
 }
+/* no clip or photos: the live daylight 3D map is the shot — a scrim keeps the white title legible */
+.cin-live-scrim {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(4, 6, 14, 0.7) 0%, rgba(4, 6, 14, 0.34) 34%, transparent 62%),
+    radial-gradient(90% 70% at 18% 82%, rgba(4, 6, 14, 0.35), transparent 70%);
+  transition: opacity 900ms var(--ease-cinema);
+}
+.cin-interlude.is-live.is-open .cin-live-scrim {
+  opacity: 1;
+}
+
 .cin-media__grade {
   position: absolute;
   inset: 0;

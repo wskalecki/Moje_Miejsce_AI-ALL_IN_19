@@ -50,7 +50,7 @@ function projectWith(cam: Cam, p: Pt): { x: number; y: number } {
 }
 
 export const LAND_PITCH = 57
-/** Outline vertices farther than this from the centre are left out of the framing (Wilanów's MSI area is 8 km²). */
+/** Outline vertices farther than this from the centre are left out of the framing (some MSI areas cover several km²). */
 const CORE_RADIUS_M = 1200
 
 /** Width of the osiedle panel (mirrors `.op--overlay` in osiedle.css). */

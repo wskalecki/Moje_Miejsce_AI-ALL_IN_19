@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { SkipForward } from 'lucide-react'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { APP_NAME } from '../app/config'
 import type { ProfileId } from '../app/types'
 import { ACCENTS, EASE } from '../design/tokens'
 import type { Osiedle } from '../mock/osiedla'
@@ -11,6 +12,10 @@ const PHOTO_MS = 2600
 /** Black dip (CSS `.cin-media` fade) plus the clip fading up from it — the live map is covered after this. */
 const MEDIA_FADE_MS = 900
 const VIDEO_TIMEOUT_MS = 1500
+/** No clip and no photos (e.g. a new osiedle before its flyover is recorded): hold the title over the live 3D map. */
+const LIVE_HOLD_MS = 3400
+/** The map under the bars (and in the clips) is OpenStreetMap data drawn with OpenMapTiles. */
+const MAP_CREDIT = '© OpenStreetMap (ODbL) · OpenMapTiles'
 
 interface InterludeProps {
   osiedle: Osiedle
@@ -34,7 +39,7 @@ function fmtCoord(v: number, pos: string, neg: string) {
 /** Letterboxed title card with the flyover clip (spec 4.4, "interludium"). */
 export function Interlude({ osiedle, profile, open, showTitle, playMedia, onCovered, onDone, onSkip }: InterludeProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [media, setMedia] = useState<'none' | 'video' | 'photos'>('none')
+  const [media, setMedia] = useState<'none' | 'video' | 'photos' | 'live'>('none')
   const [visible, setVisible] = useState(false)
   const [photo, setPhoto] = useState(0)
   const done = useRef(false)
@@ -71,7 +76,11 @@ export function Interlude({ osiedle, profile, open, showTitle, playMedia, onCove
         setMedia('photos')
         setVisible(true)
         cover()
-      } else finish()
+      } else {
+        // nothing to cut to: the daylight 3D map itself is the shot, the title stays a moment longer
+        setMedia('live')
+        cb.current.onCovered()
+      }
     }
     const timer = window.setTimeout(fallback, VIDEO_TIMEOUT_MS)
     const onPlaying = () => {
@@ -113,6 +122,13 @@ export function Interlude({ osiedle, profile, open, showTitle, playMedia, onCove
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [media])
 
+  useEffect(() => {
+    if (media !== 'live') return
+    const t = window.setTimeout(finish, LIVE_HOLD_MS)
+    return () => window.clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [media])
+
   // Photos: Ken Burns, crossfade, then done.
   useEffect(() => {
     if (media !== 'photos') return
@@ -134,7 +150,12 @@ export function Interlude({ osiedle, profile, open, showTitle, playMedia, onCove
   } as CSSProperties
 
   return (
-    <div className={`cin-interlude${open ? ' is-open' : ''}${visible ? ' has-media' : ''}`} style={style} onClick={onSkip}>
+    <div
+      className={`cin-interlude${open ? ' is-open' : ''}${visible ? ' has-media' : ''}${media === 'live' ? ' is-live' : ''}`}
+      style={style}
+      onClick={onSkip}
+    >
+      <div className="cin-live-scrim" aria-hidden />
       <div className={`cin-media${visible ? ' is-visible' : ''}`} aria-hidden>
         <video
           ref={videoRef}
@@ -161,7 +182,11 @@ export function Interlude({ osiedle, profile, open, showTitle, playMedia, onCove
       <div className="cin-bar cin-bar--bottom">
         <span className={`cin-bar__progress${visible ? ' is-running' : ''}`} aria-hidden />
         <span className="cin-bar__meta cin-bar__caption">
-          {media === 'photos' ? (photos[photo] ?? photos[0])?.credit : media === 'video' ? 'Siatka · ujęcie 3D z otwartych danych' : `Siatka · ${osiedle.name}`}
+          {media === 'photos'
+            ? (photos[photo] ?? photos[0])?.credit
+            : media === 'video'
+              ? `${APP_NAME} · ujęcie 3D z otwartych danych · ${MAP_CREDIT}`
+              : `${APP_NAME} · ${osiedle.name} · ${MAP_CREDIT}`}
         </span>
         <button
           type="button"
