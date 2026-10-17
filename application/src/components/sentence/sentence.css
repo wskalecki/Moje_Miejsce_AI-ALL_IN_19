@@ -26,6 +26,11 @@
   margin-right: 0.26em;
 }
 
+/* "rodzinę," not "rodzinę ," — pull punctuation over the pill's right padding (QA #13) */
+.sentence__punct--hug {
+  margin-left: -0.16em;
+}
+
 .sentence__slot {
   padding: 0 0.24em 0.04em;
   border-radius: 0.36em;

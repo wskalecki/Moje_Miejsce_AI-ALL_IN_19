@@ -70,7 +70,19 @@ export function Sentence({ parts, activeSlot = null, size = 'lg', className, liv
           <AnimatePresence initial={false} mode="popLayout">
             {tokens.map((tk, i) =>
               tk.kind === 'word' ? (
-                <m.span key={tk.key} layout={layout} transition={t} className={['sentence__word', tokens[i + 1] && !tokens[i + 1].glue && 'sentence__gap'].filter(Boolean).join(' ')}>
+                <m.span
+                  key={tk.key}
+                  layout={layout}
+                  transition={t}
+                  className={[
+                    'sentence__word',
+                    tokens[i + 1] && !tokens[i + 1].glue && 'sentence__gap',
+                    // punctuation glued to a pill hugs it: the pill's own padding already separates them (QA #13)
+                    tk.glue && /^[,.]$/.test(tk.text ?? '') && tokens[i - 1]?.kind === 'slot' && 'sentence__punct--hug',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
                   {tk.text}
                 </m.span>
               ) : (
