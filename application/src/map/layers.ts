@@ -1,4 +1,4 @@
-import type { ExpressionSpecification, Map as MlMap } from 'maplibre-gl'
+import type { ExpressionSpecification, FilterSpecification, Map as MlMap } from 'maplibre-gl'
 import type { MapData } from './data'
 import { ACCENTS } from './tokens'
 import type { Profile } from './types'
@@ -41,6 +41,8 @@ const HEAT_GAMMA = 0.55
 /** Fade window for heat → osiedla (spec 4.3). */
 const Z0 = 11.5
 const Z1 = 12.5
+
+const notFeatured: FilterSpecification = ['!=', ['get', 'featured'], 1]
 
 export const hover: ExpressionSpecification = ['boolean', ['feature-state', 'hover'], false]
 
@@ -171,6 +173,8 @@ export function addMapLayers(map: MlMap, data: MapData, profile: Profile) {
         id: LAYER.fill(p),
         type: 'fill',
         source: SOURCE.osiedla,
+        // featured osiedla are tinted by their own layers in the colour of the profile they belong to
+        filter: notFeatured,
         paint: {
           'fill-color': fillColor(p),
           'fill-opacity': fillOpacity(p === profile),
@@ -187,6 +191,7 @@ export function addMapLayers(map: MlMap, data: MapData, profile: Profile) {
       id: LAYER.hoverFill,
       type: 'fill',
       source: SOURCE.osiedla,
+      filter: notFeatured,
       paint: {
         'fill-color': ACCENTS[profile].base,
         'fill-color-transition': TRANSITION,
@@ -232,6 +237,7 @@ export function addMapLayers(map: MlMap, data: MapData, profile: Profile) {
       id: LAYER.hoverLine,
       type: 'line',
       source: SOURCE.osiedla,
+      filter: notFeatured,
       layout: { 'line-join': 'round' },
       paint: {
         'line-color': ACCENTS[profile].base,

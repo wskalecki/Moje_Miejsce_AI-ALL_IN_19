@@ -63,6 +63,11 @@ export class HoverController {
     if (!this.point) this.setState(id)
   }
 
+  /** Re-clamp the card after its content (and height) changed. */
+  reposition() {
+    if (this.point) this.position(this.point)
+  }
+
   private onMove = (e: MapMouseEvent) => {
     if (!this.enabled) return
     this.point = { x: e.point.x, y: e.point.y }

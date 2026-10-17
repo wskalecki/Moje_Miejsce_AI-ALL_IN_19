@@ -27,6 +27,7 @@ export function MapHarness() {
         profile={profile}
         priorities={DEFAULT_PRIORITIES[profile]}
         horizon="chwila"
+        onProfileChange={setProfile}
         selectedSlug={selected}
         onSelectFeatured={(slug) => {
           console.info('[harness] onSelectFeatured', slug)
@@ -39,7 +40,7 @@ export function MapHarness() {
           console.info('[harness] map ready', Object.values(api.layers))
         }}
       />
-      <div style={{ position: 'fixed', left: 24, top: 24, display: 'flex', gap: 6, zIndex: 100 }}>
+      <div style={{ position: 'fixed', left: 24, top: 40, display: 'flex', gap: 6, zIndex: 100 }}>
         {(['student', 'rodzina', 'senior'] as Profile[]).map((p) => (
           <button
             key={p}

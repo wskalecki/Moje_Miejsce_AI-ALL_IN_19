@@ -30,4 +30,6 @@ export interface FeaturedInfo {
   center: LngLat
   thumb: string
   match: Record<Profile, number>
+  /** Hand-made category stats from `src/mock/osiedla.ts` (override the computed ones). */
+  stats?: Record<string, number>
 }

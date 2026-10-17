@@ -14,12 +14,16 @@ import { warmBasemap } from './basemap'
 import { homeCamera, homePadding } from './camera'
 import { loadMapData, type MapData } from './data'
 import { HoverCard } from './HoverCard'
-import { HoverController } from './hover'
+import { FeaturedMarkers } from './FeaturedMarkers'
+import { addFeaturedLayers, applyFeaturedProfile } from './featuredLayers'
+import { HOVER_MIN_ZOOM, HoverController } from './hover'
 import { addMapLayers, applyProfile, LAYER, SOURCE } from './layers'
 import { Legend } from './Legend'
 import { MapControls } from './MapControls'
+import { RecommendedPanel } from './RecommendedPanel'
+import { Toast } from './Toast'
 import { ACCENTS } from './tokens'
-import type { CategoryKey, FeaturedInfo, Horizon, OsiedleInfo, Profile } from './types'
+import type { CategoryKey, FeaturedInfo, FeaturedSlug, Horizon, OsiedleInfo, Profile } from './types'
 import './map.css'
 
 /** Imperative handle for the app shell and the cinematic transition (T7). */
@@ -46,6 +50,8 @@ export interface MapViewProps {
   onSelectFeatured: (slug: string) => void
   /** Called once, after the style, data and all map layers are ready. */
   onMapReady?: (map: MlMap, api: MapApi) => void
+  /** Presenter switch: when given, the "Polecane" panel shows a 3-profile toggle that calls this. */
+  onProfileChange?: (p: Profile) => void
   /** Hide all overlays (legend, panel, controls) — e.g. while the cinematic transition runs. */
   chrome?: boolean
   className?: string
@@ -66,7 +72,9 @@ export function MapView({
   profile,
   priorities,
   selectedSlug = null,
+  onSelectFeatured,
   onMapReady,
+  onProfileChange,
   chrome = true,
   className,
 }: MapViewProps) {
@@ -77,14 +85,23 @@ export function MapView({
   const profileRef = useRef(profile)
   const appliedProfile = useRef<Profile>(profile)
   const onReadyRef = useRef(onMapReady)
+  const onSelectRef = useRef(onSelectFeatured)
+  const interactiveRef = useRef(true)
+  const chromeVisible = chrome && !selectedSlug
+  const chromeRef = useRef(chromeVisible)
   useLayoutEffect(() => {
     onReadyRef.current = onMapReady
+    onSelectRef.current = onSelectFeatured
     profileRef.current = profile
+    chromeRef.current = chromeVisible
   })
 
   const [data, setData] = useState<MapData | null>(null)
+  const [mapInst, setMapInst] = useState<MlMap | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [panelHover, setPanelHover] = useState<FeaturedSlug | null>(null)
   const [zoomedIn, setZoomedIn] = useState(false)
+  const [toastSeq, setToastSeq] = useState(0)
 
   // ---- map lifecycle (one instance per mount) ----
   useEffect(() => {
@@ -111,25 +128,50 @@ export function MapView({
     mapRef.current = map
     let cancelled = false
     const dataP = loadMapData()
+    const padding = () => homePadding(chromeRef.current, el.clientWidth)
 
     map.once('load', async () => {
       warmBasemap(map)
       const d = await dataP
       if (cancelled) return
       addMapLayers(map, d, profileRef.current)
+      addFeaturedLayers(map, profileRef.current)
       appliedProfile.current = profileRef.current
       hoverRef.current = new HoverController(map, {
         getProfile: () => profileRef.current,
         info: d.info,
-        onChange: setHoveredId,
+        extraLayers: () => [LAYER.featuredFill],
+        onChange: (id) => {
+          setHoveredId(id)
+          map.getCanvas().style.cursor = id && d.info.get(id)?.featuredSlug ? 'pointer' : ''
+        },
         getCard: () => cardRef.current,
       })
+
+      // Only the 3 featured osiedla open; any other osiedle shows the "wkrótce" toast.
+      map.on('click', (e) => {
+        if (!interactiveRef.current) return
+        const layers = [LAYER.featuredFill, LAYER.fill(profileRef.current)]
+        const hits = map.queryRenderedFeatures(e.point, { layers })
+        const featuredHit = hits.find((f) => d.info.get(f.properties?.id as string)?.featuredSlug)
+        if (featuredHit) {
+          const slug = d.info.get(featuredHit.properties?.id as string)?.featuredSlug
+          if (slug) onSelectRef.current(slug)
+          return
+        }
+        if (hits.length && map.getZoom() >= HOVER_MIN_ZOOM) setToastSeq((n) => n + 1)
+      })
+
       setData(d)
-      map.easeTo({ ...homeCamera(map, homePadding()), duration: reducedMotion() ? 0 : 1600 })
+      setMapInst(map)
+      map.easeTo({ ...homeCamera(map, padding()), duration: reducedMotion() ? 0 : 1600 })
       const api: MapApi = {
         map,
-        resetView: (opts) => map.flyTo({ ...homeCamera(map, homePadding()), duration: opts?.duration ?? 1400, essential: true }),
-        setInteractive: (on) => hoverRef.current?.setEnabled(on),
+        resetView: (opts) => map.flyTo({ ...homeCamera(map, padding()), duration: opts?.duration ?? 1400, essential: true }),
+        setInteractive: (on) => {
+          interactiveRef.current = on
+          hoverRef.current?.setEnabled(on)
+        },
         layers: LAYER,
         sources: SOURCE,
         featured: d.featured,
@@ -156,25 +198,42 @@ export function MapView({
     if (!map || !data) return
     if (appliedProfile.current === profile) return
     applyProfile(map, profile, appliedProfile.current)
+    applyFeaturedProfile(map, profile)
     appliedProfile.current = profile
   }, [profile, data])
 
-  // ---- hover off while an osiedle is selected ----
-  const chromeVisible = chrome && !selectedSlug
+  // ---- hover + clicks off while an osiedle is selected ----
   useEffect(() => {
+    interactiveRef.current = !selectedSlug
     hoverRef.current?.setEnabled(!selectedSlug)
   }, [selectedSlug, data])
+
+  // ---- panel / marker hover → same feature-state highlight on the map ----
+  useEffect(() => {
+    if (!data) return
+    const msi = panelHover ? data.featured.find((f) => f.slug === panelHover)?.msiId : null
+    hoverRef.current?.highlight(msi ?? null)
+  }, [panelHover, data])
+
+  useLayoutEffect(() => {
+    hoverRef.current?.reposition()
+  }, [hoveredId])
 
   const hovered = hoveredId && data ? (data.info.get(hoveredId) ?? null) : null
   const hoveredFeatured = useMemo(
     () => (hovered?.featuredSlug && data ? (data.featured.find((f) => f.slug === hovered.featuredSlug) ?? null) : null),
     [hovered, data],
   )
+  const highlighted: FeaturedSlug | null = panelHover ?? hoveredFeatured?.slug ?? null
 
   const zoomBy = useCallback((dz: number) => mapRef.current?.easeTo({ zoom: (mapRef.current?.getZoom() ?? 11) + dz, duration: 300 }), [])
   const reset = useCallback(() => {
     const map = mapRef.current
-    if (map) map.flyTo({ ...homeCamera(map, homePadding()), duration: 1400, essential: true })
+    const el = containerRef.current
+    if (map && el) map.flyTo({ ...homeCamera(map, homePadding(true, el.clientWidth)), duration: 1400, essential: true })
+  }, [])
+  const select = useCallback((slug: FeaturedSlug) => {
+    if (interactiveRef.current) onSelectRef.current(slug)
   }, [])
 
   const a = ACCENTS[profile]
@@ -196,8 +255,37 @@ export function MapView({
       style={style}
     >
       <div ref={containerRef} className="smap__canvas" />
-      <HoverCard ref={cardRef} info={chromeVisible ? hovered : null} featured={hoveredFeatured} profile={profile} priorities={priorities} />
+      {data && mapInst && (
+        <FeaturedMarkers
+          map={mapInst}
+          featured={data.featured}
+          profile={profile}
+          highlighted={highlighted}
+          selectedSlug={selectedSlug}
+          onSelect={select}
+          onHover={setPanelHover}
+        />
+      )}
+      <HoverCard
+        ref={cardRef}
+        info={chromeVisible && !panelHover ? hovered : null}
+        featured={hoveredFeatured}
+        profile={profile}
+        priorities={priorities}
+      />
       <div className="smap__chrome">
+        {data && (
+          <div className="smap__left">
+            <RecommendedPanel
+              featured={data.featured}
+              profile={profile}
+              highlighted={highlighted}
+              onHover={setPanelHover}
+              onSelect={select}
+              onProfileChange={onProfileChange}
+            />
+          </div>
+        )}
         <div className="smap__bl">
           <Legend profile={profile} zoomedIn={zoomedIn} />
         </div>
@@ -206,6 +294,7 @@ export function MapView({
         </div>
         <p className="smap__note">{DEMO_NOTE}</p>
       </div>
+      <Toast seq={toastSeq} message="Pełny profil tego osiedla wkrótce" />
     </div>
   )
 }

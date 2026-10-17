@@ -188,7 +188,7 @@ async function load(): Promise<MapData> {
       name: fi?.name ?? p.name,
       district: fi?.district ?? p.district,
       match,
-      cats: normCats(s?.cats),
+      cats: normCats(fi?.stats ? { ...s?.cats, ...fi.stats } : s?.cats),
       blurb: s?.blurb ?? { student: '', rodzina: '', senior: '' },
       featuredSlug: fi?.slug ?? null,
       labelPoint: lp,

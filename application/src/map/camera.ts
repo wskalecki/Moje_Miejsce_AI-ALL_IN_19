@@ -15,7 +15,8 @@ export function homeCamera(map: MlMap, padding: { top: number; bottom: number; l
   return { center: [c.lng, c.lat] as [number, number], zoom, pitch: 0, bearing: 0 }
 }
 
-/** Padding for the home camera; T6 reserves the left column for the "Polecane" panel. */
-export function homePadding() {
-  return { top: 48, bottom: 48, left: 48, right: 48 }
+/** Padding for the home camera; reserves the left column for the "Polecane" panel on wide screens. */
+export function homePadding(panel = true, width = 1440) {
+  const left = panel && width >= 1024 ? 360 + 24 + 32 : 48
+  return { top: 48, bottom: 48, left, right: 72 }
 }

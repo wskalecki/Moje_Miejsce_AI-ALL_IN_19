@@ -53,6 +53,7 @@ type LooseFeatured = {
   center?: LngLat
   match?: Partial<Record<Profile, number>>
   heroImages?: { src?: string }[]
+  stats?: Record<string, number>
 }
 
 function loadMock(): LooseFeatured[] {
@@ -82,6 +83,7 @@ export function buildFeatured(scoreMatch: (msiId: string) => Record<Profile, num
       center: Array.isArray(m?.center) && m.center.length === 2 ? m.center : b.center,
       thumb,
       match,
+      stats: m?.stats,
     }
   })
 }
