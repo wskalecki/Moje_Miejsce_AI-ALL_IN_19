@@ -19,6 +19,7 @@ Stable partition of Warsaw into ~1 km × 1 km cells. Each cell is one map polygo
 - **Steps** (at ~52°N, per product concept):
   - **Latitude:** `0.009°` ≈ 1 km
   - **Longitude:** `0.014°` ≈ 1 km
+- **Extent:** `WARSAW_BBOX = (20.85, 52.10, 21.28, 52.37)` — covers the whole city (official borders span lon 20.852–21.271, lat 52.098–52.368). The south edge stays at the origin so cell IDs never change; a ~200 m sliver of southern Wilanów is outside the grid. Use `--warsaw-only` to drop cells outside the city (608 cells instead of 930).
 - **Origin:** south-west corner of the Warsaw bounding box used by the generator (`GRID_ORIGIN_LON`, `GRID_ORIGIN_LAT` in `data/scripts/generate_grid.py`). All cell edges align to this global grid.
 
 ## Cell feature properties (`warsaw_grid_*.geojson`)
@@ -29,9 +30,14 @@ Stable partition of Warsaw into ~1 km × 1 km cells. Each cell is one map polygo
 | `row` | integer | yes | Row index from origin (south → north) |
 | `col` | integer | yes | Col index from origin (west → east) |
 | `center` | `[lon, lat]` | yes | Polygon centroid |
-| `district` | string | no | Warsaw district label if joined |
+| `in_warsaw` | boolean \| null | no | `true` if the cell overlaps Warsaw (official district borders); `null` if boundaries were not available |
+| `district` | string \| null | no | Warsaw district of the cell center, or of the first sampled point inside the city for border cells |
 
 Feature-level `id` must match `properties.id`.
+
+## District boundaries
+
+`data/boundaries/warszawa_dzielnice.geojson` — 18 districts from the city WFS (`GRANICE_DZIELNIC`), converted to WGS84 by `data/scripts/fetch_district_boundaries.py`. `generate_grid.py` reads it to fill `in_warsaw` and `district` (standard library only). Helpers for ETL: `load_districts()`, `district_at(lon, lat, districts)`.
 
 ## Cell ID format
 
