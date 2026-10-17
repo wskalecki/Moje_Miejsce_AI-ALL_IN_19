@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from 'motion/react'
-import { SkipForward } from 'lucide-react'
+import { Crown, SkipForward } from 'lucide-react'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import { APP_NAME } from '../app/config'
 import { useMatch } from '../app/useMatch'
 import { ACCENTS, EASE } from '../design/tokens'
 import type { Osiedle } from '../mock/osiedla'
+import type { PlaceFit } from './panelLoader'
 
 /** Seconds of the flyover clip shown in the interlude. */
 export const VIDEO_SHOW_S = 5.8
@@ -19,6 +19,8 @@ const MAP_CREDIT = '© OpenStreetMap (ODbL) · OpenMapTiles'
 
 interface InterludeProps {
   osiedle: Osiedle
+  /** Rank and match as on the osiedle's map pill (falls back to the store ranking). */
+  fit?: PlaceFit | null
   /** Letterbox bars + vignette in. */
   open: boolean
   showTitle: boolean
@@ -31,12 +33,8 @@ interface InterludeProps {
   onSkip: () => void
 }
 
-function fmtCoord(v: number, pos: string, neg: string) {
-  return `${Math.abs(v).toFixed(4).replace('.', ',')}° ${v >= 0 ? pos : neg}`
-}
-
 /** Letterboxed title card with the flyover clip (spec 4.4, "interludium"). */
-export function Interlude({ osiedle, open, showTitle, playMedia, onCovered, onDone, onSkip }: InterludeProps) {
+export function Interlude({ osiedle, fit, open, showTitle, playMedia, onCovered, onDone, onSkip }: InterludeProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [media, setMedia] = useState<'none' | 'video' | 'photos' | 'live'>('none')
   const [visible, setVisible] = useState(false)
@@ -49,16 +47,11 @@ export function Interlude({ osiedle, open, showTitle, playMedia, onCovered, onDo
   })
 
   const owner = ACCENTS[osiedle.profile]
-  // honest match and rank for the user's current weights (same numbers as the map and the panel)
-  const { match, rank, isTop } = useMatch(osiedle.msiId)
-  const fit =
-    match == null
-      ? null
-      : isTop
-        ? `Najlepiej pod Twoje potrzeby · ${match}%`
-        : rank != null
-          ? `#${rank} na liście · ${match}% dopasowania`
-          : `${match}% dopasowania`
+  // honest match and rank for the user's current weights (the numbers of the map pill and the panel)
+  const own = useMatch(osiedle.msiId)
+  const match = fit?.match ?? own.match
+  const rank = fit?.rank ?? own.rank
+  const isTop = rank === 1
   const photos = osiedle.heroImages.slice(0, 2)
 
   const finish = () => {
@@ -181,20 +174,11 @@ export function Interlude({ osiedle, open, showTitle, playMedia, onCovered, onDo
         <div className="cin-media__grade" />
       </div>
 
-      <div className="cin-bar cin-bar--top">
-        <span className="cin-bar__meta">
-          {fmtCoord(osiedle.center[1], 'N', 'S')} · {fmtCoord(osiedle.center[0], 'E', 'W')}
-        </span>
-        <span className="cin-bar__meta cin-bar__district">Warszawa · {osiedle.district}</span>
-      </div>
+      <div className="cin-bar cin-bar--top" />
       <div className="cin-bar cin-bar--bottom">
         <span className={`cin-bar__progress${visible ? ' is-running' : ''}`} aria-hidden />
         <span className="cin-bar__meta cin-bar__caption">
-          {media === 'photos'
-            ? (photos[photo] ?? photos[0])?.credit
-            : media === 'video'
-              ? `${APP_NAME} · ujęcie 3D z otwartych danych · ${MAP_CREDIT}`
-              : `${APP_NAME} · ${osiedle.name} · ${MAP_CREDIT}`}
+          {media === 'photos' ? (photos[photo] ?? photos[0])?.credit : MAP_CREDIT}
         </span>
         <button
           type="button"
@@ -218,18 +202,30 @@ export function Interlude({ osiedle, open, showTitle, playMedia, onCovered, onDo
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, y: -12, filter: 'blur(6px)', transition: { duration: 0.6, ease: EASE.cinema } }}
           >
-            <motion.p
+            <motion.div
               className="cin-title__kicker"
-              initial={{ opacity: 0, y: 10, letterSpacing: '0.42em' }}
-              animate={{ opacity: 1, y: 0, letterSpacing: '0.24em' }}
-              transition={{ duration: 1.1, ease: EASE.emphasized }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, ease: EASE.emphasized }}
             >
-              <span className="cin-title__dot" />
-              <span className="cin-title__kicker-text">
-                {osiedle.district}
-                {fit ? ` · ${fit}` : ''}
-              </span>
-            </motion.p>
+              {match != null && rank != null && (
+                <span className={`cin-fit${isTop ? ' is-top' : ''}`}>
+                  <span className="cin-fit__rank">#{rank}</span>
+                  <span className="cin-fit__text">
+                    {isTop ? (
+                      <>
+                        <Crown size={12} strokeWidth={2.4} aria-hidden />
+                        Najlepsze dopasowanie
+                      </>
+                    ) : (
+                      'pod Twoje priorytety'
+                    )}
+                  </span>
+                  <span className="cin-fit__pct">{match}%</span>
+                </span>
+              )}
+              <span className="cin-title__district">{osiedle.district}</span>
+            </motion.div>
             <h2 className="cin-title__name" aria-label={osiedle.name}>
               {letters.map((word, wi) => (
                 <span key={wi} className="cin-title__word" aria-hidden>

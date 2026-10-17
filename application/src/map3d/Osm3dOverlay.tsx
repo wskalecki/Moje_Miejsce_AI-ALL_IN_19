@@ -101,8 +101,8 @@ export function Osm3dOverlay({ area, focusKinds = null }: Osm3dOverlayProps) {
 
   return (
     <div className="m3d">
-      <details className="m3d-card m3d-advanced">
-        <summary className="m3d-advanced__sum">Zaawansowane</summary>
+      <details className="m3d-card chrome-box m3d-advanced">
+        <summary className="m3d-advanced__sum">Warstwy mapy</summary>
         <div className="m3d-advanced__body">
           <label className="m3d-advanced__opt">
             <input type="checkbox" checked={colorByKind} onChange={(e) => setColorByKind(e.target.checked)} />

@@ -3,7 +3,8 @@
 .cin-root {
   /* 2.39:1 letterbox, but never more than 17vh per bar (portrait phones would keep a thin strip) */
   --cin-bar: clamp(56px, calc((100vh - 100vw / 2.39) / 2), 17vh);
-  --cin-gutter: max(48px, 6vw);
+  /* the title starts where the place card's title will (chrome edge + card padding) */
+  --cin-gutter: calc(var(--chrome-edge, 24px) + 18px);
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -203,11 +204,8 @@
   transition-delay: 700ms;
 }
 .cin-bar__meta {
-  font: 600 11px/14px var(--font-ui, 'Inter Variable', system-ui, sans-serif);
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  font-variant-numeric: tabular-nums;
-  color: rgba(255, 255, 255, 0.46);
+  font: 500 12px/16px var(--font-ui, 'Inter Variable', system-ui, sans-serif);
+  color: rgba(255, 255, 255, 0.5);
 }
 .cin-bar__progress {
   position: absolute;
@@ -233,7 +231,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 36px;
+  height: 40px;
   padding: 0 8px 0 16px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--r-pill);
@@ -259,8 +257,8 @@
 }
 .cin-skip--floating {
   position: absolute;
-  right: 28px;
-  bottom: 28px;
+  right: var(--chrome-edge, 24px);
+  bottom: var(--chrome-edge, 24px);
   z-index: var(--z-cinema);
   padding: 0 16px;
   background: rgba(10, 12, 20, 0.38);
@@ -286,20 +284,59 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 0 0 14px;
-  font: 600 12px/16px var(--font-ui, 'Inter Variable', system-ui, sans-serif);
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 18px;
   white-space: nowrap;
 }
-.cin-title__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+/* the osiedle's map pill (src/map/map.css .smap-fm__pill), carried into the shot */
+.cin-fit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 14px 0 6px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  color: var(--color-ink);
+  font: 500 12px/16px var(--font-ui, 'Inter Variable', system-ui, sans-serif);
+}
+.cin-fit__rank {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--cin-accent) 14%, #fff);
+  color: var(--cin-accent);
+  font: 700 12.5px/1 var(--font-display, 'Plus Jakarta Sans Variable', system-ui, sans-serif);
+  letter-spacing: -0.02em;
+}
+.cin-fit.is-top .cin-fit__rank {
   background: var(--cin-accent);
-  box-shadow:
-    0 0 0 3px color-mix(in srgb, var(--cin-accent) 30%, transparent),
-    0 0 18px 2px var(--cin-accent);
+  color: #fff;
+}
+.cin-fit__text {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-ink-2);
+}
+.cin-fit.is-top .cin-fit__text {
+  font-weight: 600;
+  color: var(--cin-accent);
+}
+.cin-fit__pct {
+  font: 650 14px/1 var(--font-display, 'Plus Jakarta Sans Variable', system-ui, sans-serif);
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+.cin-title__district {
+  font: 500 14px/20px var(--font-ui, 'Inter Variable', system-ui, sans-serif);
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
 }
 .cin-title__name {
   margin: 0;
@@ -357,12 +394,8 @@
     align-items: center;
   }
   .cin-bar__meta {
-    font-size: 10px;
-    line-height: 13px;
-    letter-spacing: 0.16em;
-  }
-  .cin-bar__district {
-    display: none;
+    font-size: 11px;
+    line-height: 14px;
   }
   .cin-bar__caption {
     flex: 1;
@@ -377,16 +410,9 @@
     max-width: none;
   }
   .cin-title__kicker {
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 10px;
-    font-size: 11px;
-    line-height: 15px;
-    white-space: normal;
-  }
-  .cin-title__dot {
-    flex: none;
-    margin-top: 3.5px;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    margin-bottom: 12px;
   }
   .cin-title__name {
     font-size: clamp(40px, 12.4vw, 64px);
