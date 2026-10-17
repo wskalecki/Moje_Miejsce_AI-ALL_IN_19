@@ -3,7 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyproj>=3.6"]
 # ///
-"""ETL: school sports grounds open to residents → data/poi/sport.geojson (docs/data/poi-schema.md).
+"""ETL: school sports grounds open to residents → data/poi_mikolaj/sport.geojson (docs/data/poi-schema.md).
 
 Catalog slug: `otwarte-boiska` (API action `get_be_otwarte_boiska`), licence CC BY — Urząd m.st. Warszawy.
 
@@ -25,12 +25,12 @@ from typing import Any
 
 from generate_grid import load_districts
 from geocode_address import Geocoder
-from poi_common import Districts, merge_into, point_feature
+from poi_common import POI_DIR, Districts, merge_into, point_feature
 from um_api import DATA_DIR, ApiError, fetch
 
 SLUG = "otwarte-boiska"
 ACTION = "be_otwarte_boiska"
-OUT_PATH = DATA_DIR / "poi" / "sport.geojson"
+OUT_PATH = POI_DIR / "sport.geojson"
 DAYS = ("Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela")
 
 

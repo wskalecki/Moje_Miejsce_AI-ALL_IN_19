@@ -9,6 +9,11 @@ from pathlib import Path
 from typing import Any
 
 from generate_grid import assign_cell, district_at
+from um_api import DATA_DIR
+
+# Not data/poi/: the siatka pipeline writes data/poi/{category}.geojson with the same file names,
+# and the app's build scripts read these city API outputs from data/poi_mikolaj/.
+POI_DIR = DATA_DIR / "poi_mikolaj"
 
 Districts = list[tuple[str, dict[str, Any]]]
 Coord = tuple[float, float]  # (lon, lat)

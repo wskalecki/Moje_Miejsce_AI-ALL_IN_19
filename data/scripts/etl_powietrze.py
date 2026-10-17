@@ -3,7 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyproj>=3.6"]
 # ///
-"""ETL: air quality sensors → data/poi/environment.geojson (docs/data/poi-schema.md).
+"""ETL: air quality sensors → data/poi_mikolaj/environment.geojson (docs/data/poi-schema.md).
 
 Catalog slug: `monitoring-jakosci-powietrza` (API action `get_bopipk_monitoring_jakosci_powietrza`),
 licence CC BY — Urząd m.st. Warszawy.
@@ -30,12 +30,12 @@ from pathlib import Path
 from typing import Any
 
 from generate_grid import load_districts
-from poi_common import Districts, merge_into, point_feature
+from poi_common import POI_DIR, Districts, merge_into, point_feature
 from um_api import DATA_DIR, ApiError, fetch, raw_path
 
 SLUG = "monitoring-jakosci-powietrza"
 ACTION = "bopipk_monitoring_jakosci_powietrza"
-OUT_PATH = DATA_DIR / "poi" / "environment.geojson"
+OUT_PATH = POI_DIR / "environment.geojson"
 HISTORY_PATH = raw_path(SLUG).with_name("history.jsonl")
 WINDOWS = {"24h": timedelta(hours=24), "7d": timedelta(days=7)}
 

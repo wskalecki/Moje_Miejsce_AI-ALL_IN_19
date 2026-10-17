@@ -3,7 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyproj>=3.6"]
 # ///
-"""ETL: participatory budget projects → data/poi/future.geojson (docs/data/poi-schema.md).
+"""ETL: participatory budget projects → data/poi_mikolaj/future.geojson (docs/data/poi-schema.md).
 
 Catalog slug: `budzet-obywatelski` (API action `get_cks_budzet_obywatelski`),
 licence CC BY — Urząd m.st. Warszawy.
@@ -30,12 +30,12 @@ from pathlib import Path
 from typing import Any
 
 from generate_grid import load_districts
-from poi_common import Districts, merge_into, point_feature
+from poi_common import POI_DIR, Districts, merge_into, point_feature
 from um_api import DATA_DIR, ApiError, fetch
 
 SLUG = "budzet-obywatelski"
 ACTION = "cks_budzet_obywatelski"
-OUT_PATH = DATA_DIR / "poi" / "future.geojson"
+OUT_PATH = POI_DIR / "future.geojson"
 FIRST_YEAR = 2019
 STATUSES = {"w_realizacji": "bo_project", "zrealizowane": "bo_done"}
 MAX_PINS = 5

@@ -3,7 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyproj>=3.6"]
 # ///
-"""ETL: public defibrillators (AED) → data/poi/amenities.geojson (docs/data/poi-schema.md).
+"""ETL: public defibrillators (AED) → data/poi_mikolaj/amenities.geojson (docs/data/poi-schema.md).
 
 Catalog slug: `lokalizacja-defibryzatorow-aed` (sic, typo in the portal slug; API action
 `get_scb_lokalizacja_defibrylatorow`), licence CC BY — Urząd m.st. Warszawy.
@@ -21,12 +21,12 @@ from pathlib import Path
 from typing import Any
 
 from generate_grid import load_districts
-from poi_common import Districts, merge_into, point_feature
+from poi_common import POI_DIR, Districts, merge_into, point_feature
 from um_api import DATA_DIR, ApiError, fetch
 
 SLUG = "lokalizacja-defibryzatorow-aed"
 ACTION = "scb_lokalizacja_defibrylatorow"
-OUT_PATH = DATA_DIR / "poi" / "amenities.geojson"
+OUT_PATH = POI_DIR / "amenities.geojson"
 
 
 def text(value: Any) -> str | None:
