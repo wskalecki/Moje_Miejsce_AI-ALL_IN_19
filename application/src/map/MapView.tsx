@@ -13,6 +13,7 @@ import {
   type FilterSections,
 } from './categoryFilterRows'
 import { CategoryFilterPanel } from './CategoryFilterPanel'
+import { CommutePanel } from './CommutePanel'
 import {
   DEMO_NOTE,
   MAP_BOUNDS,
@@ -140,6 +141,8 @@ export function MapView({
   const onReadyRef = useRef(onMapReady)
   const onSelectRef = useRef(onSelectFeatured)
   const interactiveRef = useRef(true)
+  /** Set by CommutePanel while it waits for a point; a map click then goes there instead. */
+  const commutePickRef = useRef<((lngLat: [number, number]) => void) | null>(null)
   const chromeVisible = chrome && !selectedSlug
   const chromeRef = useRef(chromeVisible)
 
@@ -256,6 +259,10 @@ export function MapView({
       // Only the 3 featured osiedla open; any other osiedle shows the "wkrótce" toast.
       map.on('click', (e) => {
         if (!interactiveRef.current) return
+        if (commutePickRef.current) {
+          commutePickRef.current([e.lngLat.lng, e.lngLat.lat])
+          return
+        }
         const layers = [LAYER.featuredFill, LAYER.fill(profileRef.current)]
         const hits = map.queryRenderedFeatures(e.point, { layers })
         const featuredHit = hits.find((f) => d.info.get(f.properties?.id as string)?.featuredSlug)
@@ -539,6 +546,7 @@ export function MapView({
               filterSections={filterSections}
               onFilterSectionsChange={onFilterSectionsChange}
             />
+            <CommutePanel map={mapInst} pickRef={commutePickRef} />
           </div>
         )}
         {data && (

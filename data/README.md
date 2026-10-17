@@ -28,6 +28,9 @@ uv run data/scripts/generate_grid.py -o data/grid/warsaw_grid.geojson
 # Sample bbox (committed)
 uv run data/scripts/generate_grid.py --bbox 20.98 52.18 21.06 52.24 -o data/samples/warsaw_grid_sample.geojson
 
+# Timetable network for the in-browser "Dojazd do pracy" filter (needs data/raw/gtfs/warsaw.zip)
+uv run data/scripts/build_transit_net.py
+
 python3 data/scripts/validate_data.py
 ```
 

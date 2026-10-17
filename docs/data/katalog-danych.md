@@ -23,6 +23,7 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | osrm | OSRM FOSSGIS (routing.openstreetmap.de, profile foot i bike) | open | ODbL 1.0 — © współtwórcy OpenStreetMap (dane drogowe) | https://routing.openstreetmap.de |
 | nominatim | Nominatim (geokoder OpenStreetMap) | open | ODbL 1.0 — © współtwórcy OpenStreetMap | https://nominatim.openstreetmap.org |
 | wikimedia | Wikimedia Commons (zdjęcia osiedli) | open | Licencje CC wg pliku; autor i licencja w application/public/osiedla/credits.json | https://commons.wikimedia.org |
+| osrm_demo | OSRM, serwer demonstracyjny Project OSRM (router.project-osrm.org, usługa table) | open | ODbL 1.0 — © współtwórcy OpenStreetMap (dane drogowe) | https://router.project-osrm.org |
 
 ## Zbiory danych
 
@@ -46,7 +47,7 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | wfs_libraries | Biblioteki | Usługi mapowe m.st. Warszawy (WFS) | data/scripts/siatka (uv run siatka run) | pobrano 2026-10-17 | – |
 | wfs_utw | Uniwersytety trzeciego wieku | Usługi mapowe m.st. Warszawy (WFS) | data/scripts/siatka (uv run siatka run) | pobrano 2026-10-17 | – |
 | wfs_metro_entrances | Wejścia do metra | Usługi mapowe m.st. Warszawy (WFS) | data/scripts/siatka (uv run siatka run) | pobrano 2026-10-17 | – |
-| wfs_address_points | Punkty adresowe | Usługi mapowe m.st. Warszawy (WFS) | data/scripts/geocode_address.py | pobrano 2026-10-17 | Geokodowanie adresów i punkt odniesienia osiedla. |
+| wfs_address_points | Punkty adresowe | Usługi mapowe m.st. Warszawy (WFS) | data/scripts/geocode_address.py | pobrano 2026-10-17 | Geokodowanie adresów i punkt odniesienia osiedla. Używane też w przeglądarce do wyszukania adresu pracy (filtr „Dojazd do pracy”). |
 | wfs_buildings | Rejestr budynków (EGiB) | Usługi mapowe m.st. Warszawy (WFS) | data/scripts/build_kwartal_metrics.py | pobrano 2026-10-17 | Brak roku budowy w rejestrze. |
 | rcn_city | Transakcje lokali mieszkalnych (RCN) | Rejestr Cen Nieruchomości m.st. Warszawy (paczki GML) | data/scripts/rcn/fetch_rcn.py (filtrowanie), build_kwartal_metrics.py i build_featured_content.py (mediany) | akty 2023 – IV 2026 (ok. 6 miesięcy opóźnienia) | Filtry: lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2. Te same rekordy co GUGiK WFS ms:lokale, ale świeższe i dla całego miasta w jednym pliku. |
 | gios_noise_lden | Zasięgi hałasu Lden (SMH 2022, 4. runda), drogi i kolej z tramwajem | GIOŚ HAŁAS API (strategiczne mapy hałasu) | data/scripts/noise/fetch_gios_noise.py | dane 2021 (runda 2022) | Model, nie pomiar; wysokość 4 m; poniżej 55 dB brak konturów; 2021 to rok pandemii; brak warstw lotniska i przemysłu w użyciu. Kontrola 2026-10-17 z GIOŚ /v1/informacja-o-powierzchni-terenu (powiat Warszawa): drogi ≥ 55 dB 227,25 km² (GIOŚ 227,52), ≥ 60 dB 146,40 (146,59); kolej ≥ 55 dB 38,13 (38,18); różnice < 0,2%. |
@@ -69,6 +70,7 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | osrm_routes | Trasy piesze i rowerowe dla wyróżnionych osiedli | OSRM FOSSGIS (routing.openstreetmap.de, profile foot i bike) | data/scripts/build_featured_content.py | zapytania 2026-10-17 | – |
 | nominatim_places | Nazwy i adresy miejsc wyróżnionych osiedli | Nominatim (geokoder OpenStreetMap) | data/scripts/build_featured_content.py | zapytania 2026-10-17 | – |
 | commons_photos | Zdjęcia wyróżnionych osiedli | Wikimedia Commons (zdjęcia osiedli) | ręcznie, metadane w application/public/osiedla/credits.json | pobrano 2026-10-17 | – |
+| osrm_car_table | Czasy jazdy samochodem bez korków (OSRM table) | OSRM, serwer demonstracyjny Project OSRM (router.project-osrm.org, usługa table) | application/src/map/commuteCar.ts (w przeglądarce, na żądanie) | liczone na bieżąco przy wyborze punktu | Prędkości z sieci dróg OSM, bez natężenia ruchu. |
 
 ## Metody
 
@@ -91,6 +93,7 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | gtfs_routing | router na rozkładzie GTFS: najpóźniejszy wyjazd z komórki pozwalający dojechać na termin; czas = termin − wyjazd |
 | schedule_slowdown | spowolnienie rozkładowe: 1 − prędkość w danej godzinie / najwyższa godzinowa prędkość odcinka, z rozkładu ZTM |
 | median_transactions | mediana ceny za m² z rekordów transakcji po filtrach RCN, w podanym okresie i obszarze |
+| osrm_table | macierz czasów przejazdu OSRM (usługa table) z wielu punktów do jednego punktu docelowego |
 
 ## Metryki
 
@@ -236,6 +239,8 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | komorka.travel.centrum.* | Dojazd do: Centrum (Rondo Dmowskiego) | [średnia, min, max, liczba osiągalnych terminów] minut dojazdu ze środka komórki siatki zespołu (250 m, gridVersion 3) do punktu Centrum (Rondo Dmowskiego) (52.2297, 21.0122) przy przyjeździe 07:30–09:00 co 10 min w dniu 20261019, osobno dla trybów: wszystkie, autobus, tramwaj, metro, kolej. | min | gtfs_routing | gtfs_warsaw | DERIVED | Bez czekania na pierwszy pojazd; bez KM i WKD. |
 | komorka.travel.rondo_daszynskiego.* | Dojazd do: Rondo Daszyńskiego (biurowce Woli) | [średnia, min, max, liczba osiągalnych terminów] minut dojazdu ze środka komórki siatki zespołu (250 m, gridVersion 3) do punktu Rondo Daszyńskiego (biurowce Woli) (52.23, 20.983) przy przyjeździe 07:30–09:00 co 10 min w dniu 20261019, osobno dla trybów: wszystkie, autobus, tramwaj, metro, kolej. | min | gtfs_routing | gtfs_warsaw | DERIVED | Bez czekania na pierwszy pojazd; bez KM i WKD. |
 | komorka.travel.sluzewiec.* | Dojazd do: Służewiec (biurowce, Domaniewska) | [średnia, min, max, liczba osiągalnych terminów] minut dojazdu ze środka komórki siatki zespołu (250 m, gridVersion 3) do punktu Służewiec (biurowce, Domaniewska) (52.18, 21.001) przy przyjeździe 07:30–09:00 co 10 min w dniu 20261019, osobno dla trybów: wszystkie, autobus, tramwaj, metro, kolej. | min | gtfs_routing | gtfs_warsaw | DERIVED | Bez czekania na pierwszy pojazd; bez KM i WKD. |
+| komorka.dojazd_do_punktu_komunikacja | Dojazd komunikacją do wskazanego punktu | Średnia (z terminów osiągalnych) liczba minut dojazdu komunikacją miejską ze środka komórki siatki 250 m do punktu wskazanego na mapie albo adresu pracy, przy przyjeździe 7:30–9:00 co 10 min w dzień roboczy z rozkładu; dojście pieszo ≤ 800 m, przesiadki ≤ 400 m. Ten sam algorytm co komorka.travel.* (router przeniesiony do przeglądarki, zgodność sprawdzana testem). | min | gtfs_routing | gtfs_warsaw, wfs_address_points | DERIVED | Liczone w przeglądarce na żądanie, nie zapisywane w plikach; bez czekania na pierwszy pojazd. |
+| komorka.dojazd_do_punktu_samochod | Dojazd samochodem do wskazanego punktu (bez korków) | Czas jazdy samochodem z punktu bloku 1 × 1 km (średnia środków jego komórek 250 m) do wskazanego punktu, z usługi OSRM table; każda komórka dostaje czas swojego bloku. | min | osrm_table | osrm_car_table, wfs_address_points | DERIVED | Bez korków (prędkości swobodne z OSM), więc optymistyczne w godzinach szczytu; rozdzielczość 1 km. |
 
 ### Heatmapy
 
@@ -280,6 +285,8 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | green_min_area | Zieleń liczona z parków i lasów OSM o powierzchni ≥ 1 ha, odległość do krawędzi. | Odległość od środka zaniżałaby oceny obok dużych lasów. | build_osiedle_metrics.py, siatka |
 | price_example_area | Przykład ceny mieszkania w UI = mediana zł/m² × 55 m² (kupno). | Jawna arytmetyka na prawdziwej medianie, opisana w UI („za 55 m²”); nie jest osobną daną. | application/src/osiedle/Prices.tsx |
 | quiet_weights | „Cisza” = równe wagi (po 0,25) dla udziałów Lden ≥ 60, Lden ≥ 65, Lnight ≥ 50 i Lnight ≥ 55 dB. | Doba i noc ważą tyle samo, po dwa progi każda; bez zastępników (gastronomia, odjazdy), które nie mierzą hałasu. | data/scripts/build_osiedle_metrics.py (CATEGORY_METRICS) |
+| commute_direction | Filtr „Dojazd do pracy” liczy dojazd DO wskazanego punktu (przyjazd 7:30–9:00), dla kliknięcia i dla adresu. | Pytanie produktowe: gdzie zamieszkać, żeby dojechać do pracy; ta sama definicja co komorka.travel.*. | application/src/map/CommutePanel.tsx |
+| car_blocks_1km | Czas samochodem liczony dla bloków 1 × 1 km (4 × 4 komórki), około 6 zapytań OSRM na punkt. | Ograniczenie obciążenia publicznego serwera OSRM; rozdzielczość jest podana w UI. | application/src/map/commuteCar.ts |
 
 ## Pliki z danymi
 
@@ -312,6 +319,7 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | data/poi_mikolaj/future.geojson | poi | data/scripts/etl_budzet_obywatelski.py | um_bo |
 | data/samples/warsaw_grid_sample.geojson | geometry | data/scripts/generate_grid.py --bbox 20.98 52.18 21.06 52.24 | wfs_districts |
 | data/manifest.json | index | data/scripts/siatka (uv run siatka run) | – |
+| application/public/data/transit/commute-net.json | transit-network | data/scripts/build_transit_net.py | gtfs_warsaw |
 
 ## Historia zmian danych
 
@@ -325,3 +333,4 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | 2026-10-17 | Dodano hałas nocny Lnight; „cisza” liczona wyłącznie z hałasu (Lden ≥ 60/65, Lnight ≥ 50/55, równe wagi). | Wcześniej 30% wagi stanowiły zastępniki (gastronomia, odjazdy), które nie mierzą hałasu. |
 | 2026-10-17 | Pełna regeneracja: OSM i WFS (siatka), hałas GIOŚ, RCN 2023–2026, rejestr budynków; wyniki deterministyczne (poza generated_at). | Kontrola: pola hałasu zgodne z GIOŚ (< 0,2%), mediany RCN osiedli identyczne. Warstwy application/public/data/poi nie były przeliczone (wymagają klucza API portalu miasta). |
 | 2026-10-18 | Przeliczono cell_id / cell_ids w data/poi_mikolaj/*.geojson i data/lines/*.geojson na siatkę 250 m (funkcjami ETL: assign_cell, cells_crossed) i dodano gridVersion; walidator wymaga gridVersion w każdym pliku z ID komórek. | 12 725 punktów i 70 linii miało ID ze starej siatki, a pliki nie deklarowały wersji, więc walidator tego nie widział. Pozostałe pola bez zmian. |
+| 2026-10-18 | Dodano filtr „Dojazd do pracy”: czas dojazdu komunikacją (router w przeglądarce na rozkładzie ZTM) i samochodem (OSRM bez korków, bloki 1 km) do klikniętego punktu albo adresu z rejestru miasta. | Router w przeglądarce odtwarza wyniki routera Pythona dla wszystkich 8 572 komórek (test zgodności). |

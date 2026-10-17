@@ -1,0 +1,103 @@
+{
+ "schemaVersion": 1,
+ "gridVersion": 3,
+ "generatedAt": "2026-10-17T23:02:28+00:00",
+ "script": "data/scripts/build_transit_net.py",
+ "day": "20261019",
+ "feedVersion": "2026-10-17 00:15:22",
+ "source": "ZTM Warszawa (dane), Mikołaj Kuranowski (GTFS), © OpenStreetMap (kształty tras)",
+ "start": 16200,
+ "deadlines": [
+  27000,
+  27600,
+  28200,
+  28800,
+  29400,
+  30000,
+  30600,
+  31200,
+  31800,
+  32400
+ ],
+ "modes": [
+  "autobus",
+  "kolej",
+  "metro",
+  "tramwaj"
+ ],
+ "counts": {
+  "stops": 6955,
+  "connections": 231877,
+  "cells": 8572
+ },
+ "constants": {
+  "WALK_MPS": 1.3,
+  "DETOUR": 1.3,
+  "ACCESS_M": 800,
+  "TRANSFER_M": 400,
+  "MIN_TRANSFER_S": 60,
+  "MAX_RIDE_S": 10800
+ },
+ "layout": [
+  {
+   "name": "stopLon",
+   "type": "Float64",
+   "length": 6955
+  },
+  {
+   "name": "stopLat",
+   "type": "Float64",
+   "length": 6955
+  },
+  {
+   "name": "cellLon",
+   "type": "Float64",
+   "length": 8572
+  },
+  {
+   "name": "cellLat",
+   "type": "Float64",
+   "length": 8572
+  },
+  {
+   "name": "trip",
+   "type": "Uint32",
+   "length": 231877
+  },
+  {
+   "name": "depStop",
+   "type": "Uint16",
+   "length": 231877
+  },
+  {
+   "name": "arrStop",
+   "type": "Uint16",
+   "length": 231877
+  },
+  {
+   "name": "dep",
+   "type": "Uint16",
+   "length": 231877
+  },
+  {
+   "name": "arr",
+   "type": "Uint16",
+   "length": 231877
+  },
+  {
+   "name": "cellRow",
+   "type": "Uint16",
+   "length": 8572
+  },
+  {
+   "name": "cellCol",
+   "type": "Uint16",
+   "length": 8572
+  },
+  {
+   "name": "mode",
+   "type": "Uint8",
+   "length": 231877
+  }
+ ]
+}

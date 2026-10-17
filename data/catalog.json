@@ -118,6 +118,15 @@
       "kind": "open",
       "url": "https://commons.wikimedia.org",
       "licence": "Licencje CC wg pliku; autor i licencja w application/public/osiedla/credits.json"
+    },
+    {
+      "id": "osrm_demo",
+      "name": "OSRM, serwer demonstracyjny Project OSRM (router.project-osrm.org, usługa table)",
+      "publisher": "Project OSRM",
+      "kind": "open",
+      "url": "https://router.project-osrm.org",
+      "licence": "ODbL 1.0 — © współtwórcy OpenStreetMap (dane drogowe)",
+      "notes": "Wywoływany z przeglądarki w filtrze „Dojazd do pracy”; serwer demonstracyjny bez gwarancji dostępności."
     }
   ],
   "datasets": [
@@ -277,7 +286,7 @@
       "access": "warstwa wfs:punkty_adresowe",
       "script": "data/scripts/geocode_address.py",
       "period": "pobrano 2026-10-17",
-      "notes": "Geokodowanie adresów i punkt odniesienia osiedla."
+      "notes": "Geokodowanie adresów i punkt odniesienia osiedla. Używane też w przeglądarce do wyszukania adresu pracy (filtr „Dojazd do pracy”)."
     },
     {
       "id": "wfs_buildings",
@@ -460,6 +469,15 @@
       "access": "API Commons (miniatury 1600 px)",
       "script": "ręcznie, metadane w application/public/osiedla/credits.json",
       "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "osrm_car_table",
+      "source": "osrm_demo",
+      "title": "Czasy jazdy samochodem bez korków (OSRM table)",
+      "access": "table/v1/driving, ≤ 100 współrzędnych na zapytanie (99 bloków + punkt docelowy)",
+      "script": "application/src/map/commuteCar.ts (w przeglądarce, na żądanie)",
+      "period": "liczone na bieżąco przy wyborze punktu",
+      "notes": "Prędkości z sieci dróg OSM, bez natężenia ruchu."
     }
   ],
   "methods": [
@@ -530,6 +548,10 @@
     {
       "id": "median_transactions",
       "definition": "mediana ceny za m² z rekordów transakcji po filtrach RCN, w podanym okresie i obszarze"
+    },
+    {
+      "id": "osrm_table",
+      "definition": "macierz czasów przejazdu OSRM (usługa table) z wielu punktów do jednego punktu docelowego"
     }
   ],
   "metrics": [
@@ -2434,6 +2456,32 @@
       ],
       "status": "DERIVED",
       "caveats": "Planowe spowolnienie z rozkładu, nie ruch samochodów na żywo."
+    },
+    {
+      "id": "komorka.dojazd_do_punktu_komunikacja",
+      "label": "Dojazd komunikacją do wskazanego punktu",
+      "definition": "Średnia (z terminów osiągalnych) liczba minut dojazdu komunikacją miejską ze środka komórki siatki 250 m do punktu wskazanego na mapie albo adresu pracy, przy przyjeździe 7:30–9:00 co 10 min w dzień roboczy z rozkładu; dojście pieszo ≤ 800 m, przesiadki ≤ 400 m. Ten sam algorytm co komorka.travel.* (router przeniesiony do przeglądarki, zgodność sprawdzana testem).",
+      "unit": "min",
+      "method": "gtfs_routing",
+      "datasets": [
+        "gtfs_warsaw",
+        "wfs_address_points"
+      ],
+      "status": "DERIVED",
+      "caveats": "Liczone w przeglądarce na żądanie, nie zapisywane w plikach; bez czekania na pierwszy pojazd."
+    },
+    {
+      "id": "komorka.dojazd_do_punktu_samochod",
+      "label": "Dojazd samochodem do wskazanego punktu (bez korków)",
+      "definition": "Czas jazdy samochodem z punktu bloku 1 × 1 km (średnia środków jego komórek 250 m) do wskazanego punktu, z usługi OSRM table; każda komórka dostaje czas swojego bloku.",
+      "unit": "min",
+      "method": "osrm_table",
+      "datasets": [
+        "osrm_car_table",
+        "wfs_address_points"
+      ],
+      "status": "DERIVED",
+      "caveats": "Bez korków (prędkości swobodne z OSM), więc optymistyczne w godzinach szczytu; rozdzielczość 1 km."
     }
   ],
   "assumptions": [
@@ -2526,6 +2574,18 @@
       "description": "„Cisza” = równe wagi (po 0,25) dla udziałów Lden ≥ 60, Lden ≥ 65, Lnight ≥ 50 i Lnight ≥ 55 dB.",
       "justification": "Doba i noc ważą tyle samo, po dwa progi każda; bez zastępników (gastronomia, odjazdy), które nie mierzą hałasu.",
       "where": "data/scripts/build_osiedle_metrics.py (CATEGORY_METRICS)"
+    },
+    {
+      "id": "commute_direction",
+      "description": "Filtr „Dojazd do pracy” liczy dojazd DO wskazanego punktu (przyjazd 7:30–9:00), dla kliknięcia i dla adresu.",
+      "justification": "Pytanie produktowe: gdzie zamieszkać, żeby dojechać do pracy; ta sama definicja co komorka.travel.*.",
+      "where": "application/src/map/CommutePanel.tsx"
+    },
+    {
+      "id": "car_blocks_1km",
+      "description": "Czas samochodem liczony dla bloków 1 × 1 km (4 × 4 komórki), około 6 zapytań OSRM na punkt.",
+      "justification": "Ograniczenie obciążenia publicznego serwera OSRM; rozdzielczość jest podana w UI.",
+      "where": "application/src/map/commuteCar.ts"
     }
   ],
   "outputs": [
@@ -2920,6 +2980,15 @@
       "script": "data/scripts/siatka (uv run siatka run)",
       "datasets": [],
       "description": "Spis plików wynikowych siatka (ścieżki), bez danych."
+    },
+    {
+      "path": "application/public/data/transit/commute-net.json",
+      "kind": "transit-network",
+      "script": "data/scripts/build_transit_net.py",
+      "datasets": [
+        "gtfs_warsaw"
+      ],
+      "description": "Meta sieci komunikacji dla filtra „Dojazd do pracy”; dane w commute-net.bin (połączenia 4:30–9:00 dnia roboczego, przystanki, środki komórek)."
     }
   ],
   "history": [
@@ -2962,6 +3031,11 @@
       "date": "2026-10-18",
       "change": "Przeliczono cell_id / cell_ids w data/poi_mikolaj/*.geojson i data/lines/*.geojson na siatkę 250 m (funkcjami ETL: assign_cell, cells_crossed) i dodano gridVersion; walidator wymaga gridVersion w każdym pliku z ID komórek.",
       "why": "12 725 punktów i 70 linii miało ID ze starej siatki, a pliki nie deklarowały wersji, więc walidator tego nie widział. Pozostałe pola bez zmian."
+    },
+    {
+      "date": "2026-10-18",
+      "change": "Dodano filtr „Dojazd do pracy”: czas dojazdu komunikacją (router w przeglądarce na rozkładzie ZTM) i samochodem (OSRM bez korków, bloki 1 km) do klikniętego punktu albo adresu z rejestru miasta.",
+      "why": "Router w przeglądarce odtwarza wyniki routera Pythona dla wszystkich 8 572 komórek (test zgodności)."
     }
   ]
 }
