@@ -2,22 +2,35 @@
 
 ## Tone
 
-Urban, calm, data-forward — inspired by heatmap paving in [`urban_design.md`](../sources/urban_design.md) (gradient cubes), adapted for a dark map UI.
+**Urban Arcade** — pastelowa heatmapa na niebieskim niebie, pikselowa siatka dziedzińca + izometryczne „kostki” danych (moodboard zespołu, hackathon 2026). Solarpunk / arcade: miękkie kontury, glow przy aktywnych kafelkach, nie ciemny dashboard.
+
+Źródło koncepcji: [`urban_design.md`](../sources/urban_design.md).
 
 ## Score color ramp (0–100)
 
-Use for grid cell fill (persona score). Interpolate in HSL for smooth steps.
+Niski fit → wysoki fit: **chłód** → **mięta** → **żółty** → **koral** → **róż**.
 
-| Score | Color | Hex (guide) |
-|-------|-------|-------------|
-| 0–25 | cool / low fit | `#3d4f6f` |
-| 25–50 | neutral | `#5a7a8c` |
-| 50–75 | good | `#4a9b7f` |
-| 75–100 | strong fit | `#c9e265` |
+| Score | Znaczenie | Hex (guide) |
+|-------|-----------|-------------|
+| 0 | chłodny / niski fit | `#a5d8ff` |
+| 25 | błękit–mięta | `#a8d5ba` |
+| 50 | neutralny dobry | `#e9d56a` |
+| 75 | mocny | `#f4a261` |
+| 100 | hotspot | `#e85d8a` |
 
-**Implementation:** `scoreToColor(score: number): [r,g,b,a]` in `application/src/lib/scoreColor.ts` — alpha ~0.55 on grid, 0.85 on hover.
+**Implementation:** `scoreToRgba()` + `SCORE_RAMP_HEX` w `application/src/lib/scoreColor.ts`. Siatka na mapie: `fill-opacity` ~0.82, obrys `#5a6d88` @ 0.55. Lab kafelków: alpha ~0.9, glow `--tile-glow`.
 
-**Missing score:** `#4a4a4a` at 0.35 alpha; border dashed.
+**Missing score:** `#c8d6e5` @ 0.45 alpha; obrys przerywany.
+
+## Grid tile (UI lab)
+
+| Stan | Opis |
+|------|------|
+| Static | płaski piksel, cienki outline |
+| Color pop | uniesienie + zamiana koloru w apexie (~50% keyframe) |
+| Interactive | lift + glow bez zmiany koloru (hover / wybór) |
+
+Prototyp: `/lab/grid` (osobna podstrona) → `application/src/pages/GridTileLab.tsx`.
 
 ## Typography
 

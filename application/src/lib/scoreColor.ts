@@ -1,20 +1,38 @@
-/** Score 0–100 → RGBA for grid fill (see docs/design/visual-system.md) */
+/**
+ * Score 0–100 → heatmap fill (Urban Arcade / courtyard pixel vibe).
+ * See docs/design/visual-system.md
+ */
 
+/** MapLibre: brak metryki dla komórki */
+export const NO_SCORE = -1
+
+/** Blue → mint → yellow → coral → hot pink (low fit → strong fit) */
 const STOPS: { score: number; rgb: [number, number, number] }[] = [
-  { score: 0, rgb: [61, 79, 111] },
-  { score: 25, rgb: [90, 122, 140] },
-  { score: 50, rgb: [74, 155, 127] },
-  { score: 75, rgb: [155, 180, 100] },
-  { score: 100, rgb: [201, 226, 101] },
+  { score: 0, rgb: [165, 216, 255] },
+  { score: 20, rgb: [140, 188, 232] },
+  { score: 40, rgb: [168, 213, 186] },
+  { score: 55, rgb: [233, 213, 106] },
+  { score: 72, rgb: [244, 163, 97] },
+  { score: 88, rgb: [231, 111, 81] },
+  { score: 100, rgb: [232, 93, 138] },
+]
+
+/** MapLibre `interpolate` stops (score → #hex) */
+export const SCORE_RAMP_HEX: { score: number; color: string }[] = [
+  { score: 0, color: '#a5d8ff' },
+  { score: 25, color: '#a8d5ba' },
+  { score: 50, color: '#e9d56a' },
+  { score: 75, color: '#f4a261' },
+  { score: 100, color: '#e85d8a' },
 ]
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t
 }
 
-export function scoreToRgba(score: number | null | undefined, alpha = 0.55): [number, number, number, number] {
+export function scoreToRgba(score: number | null | undefined, alpha = 0.88): [number, number, number, number] {
   if (score == null || Number.isNaN(score)) {
-    return [74, 74, 74, 0.35]
+    return [200, 214, 229, 0.45]
   }
   const s = Math.max(0, Math.min(100, score))
   let lower = STOPS[0]
@@ -33,6 +51,11 @@ export function scoreToRgba(score: number | null | undefined, alpha = 0.55): [nu
     Math.round(lerp(lower.rgb[2], upper.rgb[2], t)),
     alpha,
   ]
+}
+
+export function scoreToGlowRgba(score: number, alpha = 0.55): string {
+  const [r, g, b] = scoreToRgba(score, 1)
+  return `rgba(${r},${g},${b},${alpha})`
 }
 
 export function rgbaToCss([r, g, b, a]: [number, number, number, number]) {

@@ -4,7 +4,12 @@
   "files": {
     "grid": "samples/warsaw_grid_sample.geojson",
     "cellMetrics": "samples/cell_metrics_sample.json",
-    "poi": ["samples/poi_sample.geojson"]
+    "poi": ["samples/poi_sample.geojson"],
+    "poiBuildings": "samples/poi_buildings_sample.geojson",
+    "localBuildings": "samples/osm_buildings_sample.geojson",
+    "localRoads": "samples/osm_roads_sample.geojson",
+    "localGreen": "samples/osm_green_sample.geojson",
+    "localWater": "samples/osm_water_sample.geojson"
   },
   "bbox": [20.98, 52.18, 21.06, 52.24]
 }

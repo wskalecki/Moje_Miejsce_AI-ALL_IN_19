@@ -21,6 +21,8 @@ Canonical schemas and ETL conventions for **Siatka** (1 km grid + POI).
 
 Committed under [`data/samples/`](../../data/samples/) so the map works without full ETL or API keys.
 
+**Demo wyspy (2 km):** `python3 data/scripts/generate_sample_islands.py` — gradient wyniku od kotwic POI (szkoła / komunikacja / park) w `cell_metrics_sample.json`; poza promieniem `scores.<persona>` = `null` (szary na mapie).
+
 ## Agents
 
 Data work with Claude/Cursor: rule [`.cursor/rules/data-developer.mdc`](../../.cursor/rules/data-developer.mdc).

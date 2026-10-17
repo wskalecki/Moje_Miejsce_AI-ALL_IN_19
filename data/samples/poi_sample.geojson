@@ -3,50 +3,142 @@
   "features": [
     {
       "type": "Feature",
-      "id": "lokalizacja-przystanow-komunikacji-miejskiej_demo_1",
-      "geometry": { "type": "Point", "coordinates": [21.02, 52.21] },
+      "id": "poi_sgh_biblioteka",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.009088,
+          52.209892
+        ]
+      },
       "properties": {
-        "id": "lokalizacja-przystanow-komunikacji-miejskiej_demo_1",
+        "id": "poi_sgh_biblioteka",
+        "category": "education",
+        "subtype": "library",
+        "name": "Biblioteka SGH",
+        "source": "osm_buildings_sample",
+        "sourceId": "29552188",
+        "osm_building_id": "29552188",
+        "cell_id": "cell_r012_c011",
+        "tags": [
+          "demo",
+          "lokalne-bryły"
+        ],
+        "meta": {
+          "notable": true
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_cbs",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.006868,
+          52.215928
+        ]
+      },
+      "properties": {
+        "id": "poi_cbs",
+        "category": "education",
+        "subtype": "library",
+        "name": "Centralna Biblioteka Statystyczna",
+        "source": "osm_buildings_sample",
+        "sourceId": "31851044",
+        "osm_building_id": "31851044",
+        "cell_id": "cell_r012_c011",
+        "tags": [
+          "demo",
+          "lokalne-bryły"
+        ],
+        "meta": {
+          "notable": true
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_zajezdnia_mokotow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.000328,
+          52.186849
+        ]
+      },
+      "properties": {
+        "id": "poi_zajezdnia_mokotow",
         "category": "transit",
-        "subtype": "tram_stop",
-        "name": "Przystanek demo Mokotów",
-        "source": "lokalizacja-przystanow-komunikacji-miejskiej",
-        "sourceId": "demo_1",
+        "subtype": "tram_depot",
+        "name": "Zajezdnia tramwajowa Mokotów",
+        "source": "osm_buildings_sample",
+        "sourceId": "25820356",
+        "osm_building_id": "25820356",
+        "cell_id": "cell_r009_c010",
+        "tags": [
+          "demo",
+          "lokalne-bryły"
+        ],
+        "meta": {
+          "notable": true
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_kosciol_wniebowstapienia",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.018545,
+          52.211849
+        ]
+      },
+      "properties": {
+        "id": "poi_kosciol_wniebowstapienia",
+        "category": "culture",
+        "subtype": "church",
+        "name": "Kościół Wniebowstąpienia Pańskiego",
+        "source": "osm_buildings_sample",
+        "sourceId": "30876216",
+        "osm_building_id": "30876216",
         "cell_id": "cell_r012_c012",
-        "tags": ["tram"],
-        "meta": {}
+        "tags": [
+          "demo",
+          "lokalne-bryły"
+        ],
+        "meta": {
+          "notable": true
+        }
       }
     },
     {
       "type": "Feature",
-      "id": "toalety_demo_1",
-      "geometry": { "type": "Point", "coordinates": [21.015, 52.205] },
+      "id": "poi_urzad_srodmiescie",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.01081,
+          52.227913
+        ]
+      },
       "properties": {
-        "id": "toalety_demo_1",
+        "id": "poi_urzad_srodmiescie",
         "category": "amenity",
-        "subtype": "toilet",
-        "name": "Toaleta publiczna demo",
-        "source": "toalety",
-        "sourceId": "demo_1",
-        "cell_id": "cell_r011_c011",
-        "tags": ["przewijak"],
-        "meta": { "Przewijak": true }
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "monitoring-jakosci-powietrza_demo_1",
-      "geometry": { "type": "Point", "coordinates": [21.03, 52.22] },
-      "properties": {
-        "id": "monitoring-jakosci-powietrza_demo_1",
-        "category": "environment",
-        "subtype": "air_sensor",
-        "name": "Sensor AQ demo",
-        "source": "monitoring-jakosci-powietrza",
-        "sourceId": "demo_1",
-        "cell_id": "cell_r013_c012",
-        "tags": [],
-        "meta": { "pm25": 16.2 }
+        "subtype": "public_office",
+        "name": "Urząd Dzielnicy Śródmieście",
+        "source": "osm_buildings_sample",
+        "sourceId": "28823435",
+        "osm_building_id": "28823435",
+        "cell_id": "cell_r014_c011",
+        "tags": [
+          "demo",
+          "lokalne-bryły"
+        ],
+        "meta": {
+          "notable": true
+        }
       }
     }
   ]

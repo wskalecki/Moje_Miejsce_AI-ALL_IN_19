@@ -66,6 +66,8 @@ def validate_metrics(path: Path, grid_ids: set[str], errors: list[str]) -> None:
         for p in PERSONAS:
             if p not in scores:
                 errors.append(f"{path}: {cid} missing scores.{p}")
+            elif scores[p] is not None and not isinstance(scores[p], (int, float)):
+                errors.append(f"{path}: {cid} scores.{p} must be number or null")
 
 
 def validate_poi(path: Path, errors: list[str]) -> None:
@@ -96,6 +98,16 @@ def validate_manifest(path: Path, errors: list[str]) -> None:
             errors.append(f"{path}: files.{key} missing")
             continue
         if not (DATA_DIR / rel).exists():
+            errors.append(f"{path}: missing file {rel}")
+    for key in (
+        "localBuildings",
+        "localRoads",
+        "localGreen",
+        "localWater",
+        "poiBuildings",
+    ):
+        rel = files.get(key)
+        if rel and not (DATA_DIR / rel).exists():
             errors.append(f"{path}: missing file {rel}")
 
 

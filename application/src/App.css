@@ -36,6 +36,19 @@
   font-weight: 600;
 }
 
+.grid-map__lab-link {
+  font-size: 0.82rem;
+  color: #f4a261;
+  text-decoration: none;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(244, 162, 97, 0.45);
+}
+
+.grid-map__lab-link:hover {
+  background: rgba(244, 162, 97, 0.15);
+}
+
 .grid-map__bar label {
   display: flex;
   align-items: center;
@@ -53,6 +66,77 @@
 
 .grid-map__checkbox {
   cursor: pointer;
+}
+
+.grid-map__checkbox--paint {
+  color: #e9b8ff;
+}
+
+.grid-map__clear-buildings {
+  font-size: 0.78rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid rgba(217, 70, 239, 0.5);
+  background: rgba(217, 70, 239, 0.12);
+  color: #f5d4ff;
+  cursor: pointer;
+}
+
+.grid-map__clear-buildings:hover {
+  background: rgba(217, 70, 239, 0.22);
+}
+
+.grid-map__paint-panel {
+  position: absolute;
+  top: 5rem;
+  left: 1rem;
+  z-index: 2;
+  width: min(18rem, calc(100vw - 2rem));
+  padding: 0.85rem 1rem;
+  background: rgba(36, 28, 48, 0.94);
+  border: 1px solid rgba(217, 70, 239, 0.35);
+  border-radius: 12px;
+  font-size: 0.82rem;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+.grid-map__paint-panel h2 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: #e9b8ff;
+}
+
+.grid-map__paint-panel p {
+  margin: 0 0 0.5rem;
+  line-height: 1.4;
+  color: #ddd8e8;
+}
+
+.grid-map__paint-msg {
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  font-size: 0.78rem;
+}
+
+.grid-map__paint-list {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  font-size: 0.76rem;
+}
+
+.grid-map__paint-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.grid-map__paint-list span {
+  color: #c4b8d8;
+  text-transform: capitalize;
 }
 
 .grid-map__panel {
@@ -91,6 +175,16 @@
 .grid-map__score {
   margin: 0 0 0.75rem;
   font-size: 0.9rem;
+}
+
+.grid-map__meta-line {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  color: #a8a8b8;
+}
+
+.grid-map__meta-line code {
+  font-size: 0.72rem;
 }
 
 .grid-map__metrics {

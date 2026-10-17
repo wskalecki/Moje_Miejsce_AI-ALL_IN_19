@@ -1,0 +1,98 @@
+{
+  "type": "FeatureCollection",
+  "description": "Demo footprinty usług — środek w komórce siatki 1 km, ~50–80 m boku. Zastępują trafianie w kafelki OSM.",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "building_szkoly_demo_1",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [21.01049, 52.207798],
+            [21.01151, 52.207798],
+            [21.01151, 52.208202],
+            [21.01049, 52.208202],
+            [21.01049, 52.207798]
+          ]
+        ]
+      },
+      "properties": {
+        "poi_id": "szkoly_demo_1",
+        "category": "education",
+        "name": "Szkoła podstawowa nr 1 demo",
+        "height": 26,
+        "min_height": 0
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "building_transit_demo_1",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [21.02449, 52.214848],
+            [21.02551, 52.214848],
+            [21.02551, 52.215152],
+            [21.02449, 52.215152],
+            [21.02449, 52.214848]
+          ]
+        ]
+      },
+      "properties": {
+        "poi_id": "lokalizacja-przystanow-komunikacji-miejskiej_demo_1",
+        "category": "transit",
+        "name": "Przystanek demo Mokotów",
+        "height": 10,
+        "min_height": 0
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "building_parki_demo_1",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [21.03835, 52.19175],
+            [21.03965, 52.19175],
+            [21.03965, 52.19225],
+            [21.03835, 52.19225],
+            [21.03835, 52.19175]
+          ]
+        ]
+      },
+      "properties": {
+        "poi_id": "parki_demo_1",
+        "category": "environment",
+        "name": "Park spokoju demo",
+        "height": 8,
+        "min_height": 0
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "building_toalety_demo_1",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [21.01172, 52.20588],
+            [21.01228, 52.20588],
+            [21.01228, 52.20612],
+            [21.01172, 52.20612],
+            [21.01172, 52.20588]
+          ]
+        ]
+      },
+      "properties": {
+        "poi_id": "toalety_demo_1",
+        "category": "amenity",
+        "name": "Toaleta publiczna demo",
+        "height": 5,
+        "min_height": 0
+      }
+    }
+  ]
+}
