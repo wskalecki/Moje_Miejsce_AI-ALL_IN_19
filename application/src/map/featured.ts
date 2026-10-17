@@ -52,7 +52,6 @@ type LooseFeatured = {
   tagline?: string
   center?: LngLat
   match?: Partial<Record<Profile, number>>
-  heroImages?: { src?: string }[]
   stats?: Record<string, number>
 }
 
@@ -74,7 +73,8 @@ export function buildFeatured(scoreMatch: (msiId: string) => Record<Profile, num
     const m = MOCK.find((x) => x?.slug === b.slug)
     const scored = scoreMatch(b.msiId) ?? { student: 60, rodzina: 60, senior: 60 }
     const match = { ...scored, ...(m?.match ?? {}) } as Record<Profile, number>
-    const thumb = m?.heroImages?.[0]?.src ?? `/osiedla/${b.slug}/01.jpg`
+    // 320×240 thumbnail cut from heroImages[0] (01.jpg) for the 64–72 px cards.
+    const thumb = `/osiedla/${b.slug}/thumb.jpg`
     return {
       ...b,
       name: m?.name ?? b.name,
