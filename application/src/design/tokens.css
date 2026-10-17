@@ -1,0 +1,69 @@
+/* Design tokens — docs/core/mock-spec.md §8.1. Mirrored in tokens.ts for MapLibre. */
+:root {
+  /* Neutral (warm paper) */
+  --color-bg: #F6F3EE;
+  --color-surface: #FFFFFF;
+  --color-ink: #16161D;
+  --color-ink-2: #4A4A57;
+  --color-ink-3: #8A8A99;
+  --color-line: #E7E2DA;
+  --color-ok: #2E9E6A;
+  --color-warn: #E3A33B;
+  --color-bad: #D9534F;
+
+  /* Profile accents */
+  --student: #7C5CFF;  --student-soft: #EEEAFF;  --student-mid: #B3A2FF;  --student-deep: #3D22B8;
+  --rodzina: #FF6B4A;  --rodzina-soft: #FFEDE6;  --rodzina-mid: #FFAA7A;  --rodzina-deep: #C2361A;
+  --senior:  #13A396;  --senior-soft:  #DFF5F2;  --senior-mid:  #6FD0C4;  --senior-deep:  #0B6B62;
+
+  /* Active accent — switched by [data-profile] on <html> */
+  --accent: var(--student); --accent-soft: var(--student-soft);
+  --accent-mid: var(--student-mid); --accent-deep: var(--student-deep);
+
+  /* Night (cinematic) */
+  --night-bg: #0B0E17;  --night-surface: rgba(14, 18, 30, 0.62);  --night-ink: #F3F1EC;
+
+  /* Glass */
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-strong: rgba(255, 255, 255, 0.86);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-hairline: rgba(22, 22, 29, 0.06);
+  --glass-blur: blur(18px) saturate(1.4);
+
+  /* Radii */
+  --r-sm: 8px; --r-md: 12px; --r-lg: 20px; --r-xl: 28px; --r-pill: 999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(22, 22, 29, 0.06);
+  --shadow-md: 0 8px 24px -6px rgba(22, 22, 29, 0.12);
+  --shadow-lg: 0 24px 60px -12px rgba(22, 22, 29, 0.22);
+  --shadow-glow: 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent),
+                 0 10px 32px -6px color-mix(in srgb, var(--accent) 40%, transparent);
+
+  /* Spacing (4 px grid) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px;
+  --s-6: 24px; --s-8: 32px; --s-10: 40px; --s-14: 56px; --s-20: 80px;
+
+  /* Motion */
+  --d-fast: 120ms; --d-base: 200ms; --d-slow: 320ms; --d-slower: 600ms; --d-cinema: 1200ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-cinema: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Layers */
+  --z-map: 0; --z-chrome: 10; --z-panel: 20; --z-hover: 30; --z-toast: 40; --z-cinema: 50;
+
+  /* Type families */
+  --font-display: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-ui: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+[data-profile="rodzina"] { --accent: var(--rodzina); --accent-soft: var(--rodzina-soft); --accent-mid: var(--rodzina-mid); --accent-deep: var(--rodzina-deep); }
+[data-profile="senior"]  { --accent: var(--senior);  --accent-soft: var(--senior-soft);  --accent-mid: var(--senior-mid);  --accent-deep: var(--senior-deep); }
+/* Before a profile is chosen the UI stays neutral ink (survey slots, CTA). */
+[data-profile="none"]    { --accent: var(--color-ink); --accent-soft: #ECE8E1; --accent-mid: #B9B5AE; --accent-deep: var(--color-ink); }
+
+/* Local accent override, e.g. a profile card that previews its own colour. */
+.accent-student { --accent: var(--student); --accent-soft: var(--student-soft); --accent-mid: var(--student-mid); --accent-deep: var(--student-deep); }
+.accent-rodzina { --accent: var(--rodzina); --accent-soft: var(--rodzina-soft); --accent-mid: var(--rodzina-mid); --accent-deep: var(--rodzina-deep); }
+.accent-senior  { --accent: var(--senior);  --accent-soft: var(--senior-soft);  --accent-mid: var(--senior-mid);  --accent-deep: var(--senior-deep); }

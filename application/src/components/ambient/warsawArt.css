@@ -1,0 +1,53 @@
+.warsaw-art {
+  overflow: visible;
+}
+
+.warsaw-art__outline {
+  fill: none;
+  stroke: rgba(22, 22, 29, 0.16);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  opacity: 0;
+  animation: warsaw-fade 1.6s var(--ease-cinema) 0.15s forwards;
+}
+
+.warsaw-art__grid circle {
+  fill: rgba(22, 22, 29, 0.14);
+}
+
+.warsaw-art__grid {
+  opacity: 0;
+  animation: warsaw-fade 1.2s var(--ease-standard) 0.9s forwards;
+}
+
+.warsaw-art__layer {
+  opacity: 0;
+  transition: opacity 1400ms var(--ease-cinema);
+}
+
+.warsaw-art__layer--student circle { fill: var(--student); }
+.warsaw-art__layer--rodzina circle { fill: var(--rodzina); }
+.warsaw-art__layer--senior circle  { fill: var(--senior); }
+
+.warsaw-art[data-active='student'] .warsaw-art__layer--student,
+.warsaw-art[data-active='rodzina'] .warsaw-art__layer--rodzina,
+.warsaw-art[data-active='senior'] .warsaw-art__layer--senior {
+  opacity: 0.9;
+}
+
+@keyframes warsaw-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .warsaw-art__outline {
+    animation: none;
+    opacity: 1;
+  }
+  .warsaw-art__grid {
+    animation: none;
+    opacity: 1;
+  }
+}

@@ -1,0 +1,28 @@
+.map-screen {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-map);
+  background: #f4f0ea;
+}
+
+.map-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+}
+
+.map-placeholder[data-loading] p {
+  animation: map-placeholder-pulse 1.6s var(--ease-standard) infinite alternate;
+}
+
+@keyframes map-placeholder-pulse {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}

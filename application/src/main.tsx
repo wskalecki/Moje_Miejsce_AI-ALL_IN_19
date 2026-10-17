@@ -1,8 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import '@fontsource-variable/inter'
+import '@fontsource-variable/plus-jakarta-sans'
 import './lib/maplibreSetup'
-import './index.css'
-import App from './App.tsx'
+import './design/tokens.css'
+import './design/global.css'
+import App from './app/App'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
