@@ -1,0 +1,5 @@
+# Track structure and docs; data files are added intentionally by the data owner.
+*
+!.gitignore
+!README.md
+!.gitkeep

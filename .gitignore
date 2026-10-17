@@ -1,0 +1,8 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output (application/)
+node_modules/
+dist/
