@@ -4,6 +4,7 @@ import { PRELOAD_DATA_URLS } from '../../app/config'
 import { prefetchMap } from '../../app/mapLoader'
 import { navigate, useRouter } from '../../app/router'
 import { useAppStore } from '../../app/useAppStore'
+import type { FeaturedRank } from '../../map/FeaturedMarkers'
 import type { MapApi } from '../../map/MapView'
 import { MatchingScreen } from '../Matching/MatchingScreen'
 import { MapSkeleton } from './MapSkeleton'
@@ -47,6 +48,10 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
   const [busy, setBusy] = useState(false)
   const [failed, setFailed] = useState(false)
   const [matching, setMatching] = useState(false)
+  /** The osiedle panel is up (or the camera is flying back from it): the header pill stays in place. */
+  const [placeOpen, setPlaceOpen] = useState(false)
+  /** Rank and match of the featured osiedla exactly as the map pills show them. */
+  const [ranks, setRanks] = useState<{ bySlug: Readonly<Record<string, FeaturedRank>>; total: number } | null>(null)
   const needsSetup = !state.profile || !state.horizon
   const [prefsOpen, setPrefsOpen] = useState(needsSetup)
   const quick = query.get('szybko') === '1'
@@ -93,6 +98,7 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
             chrome={!busy && !prefsOpen}
             onSelectFeatured={(s) => navigate(`/mapa/${s}${quick ? '?szybko=1' : ''}`)}
             onMapReady={(_m, a) => setApi(a)}
+            onFeaturedRanks={(bySlug, total) => setRanks({ bySlug, total })}
           />
         </Suspense>
         {api && (
@@ -102,18 +108,20 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
               slug={activeSlug}
               profile={profile}
               horizon={horizon}
-              priorities={state.priorities}
+              priorities={state.filterSections.score}
+              ranks={ranks}
               visited={state.visited}
               quick={quick}
               markVisited={markVisited}
               onBusyChange={setBusy}
+              onPanelChange={setPlaceOpen}
             />
           </Suspense>
         )}
       </MapErrorBoundary>
       <MapSkeleton profile={profile} done={!!api} error={failed} panel={!activeSlug} />
       <SentenceBar
-        hidden={!!activeSlug || busy || prefsOpen}
+        hidden={prefsOpen || ((!!activeSlug || busy) && !placeOpen)}
         profile={profile}
         onProfileChange={(p) => setProfile(p)}
       />

@@ -35,10 +35,12 @@ interface TimelineProps {
   profile: ProfileId
   year: TimelineYear
   onYear: (y: TimelineYear) => void
+  /** Today's match (the map pill); the forecast adds the investments' effect to it. */
+  baseMatch?: number
 }
 
 /** "Oś czasu 2026 → 2030" (spec §4.6): scrub or play through the years; stats and match follow live. */
-export function Timeline({ osiedle, profile, year, onYear }: TimelineProps) {
+export function Timeline({ osiedle, profile, year, onYear, baseMatch }: TimelineProps) {
   const reduce = useReducedMotion()
   const [playing, setPlaying] = useState(false)
   const yearRef = useRef(year)
@@ -74,8 +76,9 @@ export function Timeline({ osiedle, profile, year, onYear }: TimelineProps) {
   const at = statsAtYear(osiedle, year)
   const deltas = statDeltasAtYear(osiedle, year)
   const changed = (Object.keys(deltas) as CategoryId[]).sort((a, b) => Math.abs(deltas[b]!) - Math.abs(deltas[a]!))
-  const match = matchAtYear(osiedle, profile, year)
-  const matchDelta = match - Math.min(99, osiedle.match[profile])
+  const today = baseMatch ?? osiedle.match[profile]
+  const match = matchAtYear(osiedle, profile, year, today)
+  const matchDelta = match - Math.min(99, today)
   const eventYears = new Set(osiedle.timeline.map((e) => e.year))
   const progress = (year - FIRST_YEAR) / (LAST_YEAR - FIRST_YEAR)
 
@@ -92,7 +95,7 @@ export function Timeline({ osiedle, profile, year, onYear }: TimelineProps) {
           </span>
         }
       />
-      <p className="op-sec__lede">Na podstawie planów miasta (MPZP, inwestycje, budżet obywatelski). To szacunek, nie gwarancja.</p>
+      <p className="op-sec__lede">Szacunek z planów miasta (MPZP, inwestycje, budżet obywatelski).</p>
 
       <div className="op-tl__stage">
         <div className="op-tl__top">
@@ -110,7 +113,7 @@ export function Timeline({ osiedle, profile, year, onYear }: TimelineProps) {
             </AnimatePresence>
           </div>
           <div className="op-tl__match">
-            <Ring value={match} size={64} duration={900} changeDuration={400} label={`Dopasowanie w ${year}: ${match}%`} />
+            <Ring value={match} size={44} duration={900} changeDuration={400} label={`Dopasowanie w ${year}: ${match}%`} />
             <p>
               dopasowanie
               <br />w {year}
@@ -181,7 +184,7 @@ export function Timeline({ osiedle, profile, year, onYear }: TimelineProps) {
       {changed.length === 0 ? (
         <p className="op-tl__empty">
           {isBase
-            ? 'Rok 2026 to stan obecny — inwestycje w toku zaczną działać od 2027 r. Przesuń suwak, żeby zobaczyć kolejne lata.'
+            ? 'Inwestycje w toku zadziałają od 2027 r. Przesuń suwak.'
             : 'Bez zmian względem dziś. Przesuń suwak, żeby zobaczyć kolejne lata.'}
         </p>
       ) : (

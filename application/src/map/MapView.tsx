@@ -83,6 +83,8 @@ export interface MapViewProps {
   onSelectFeatured: (slug: string) => void
   /** Called once, after the style, data and all map layers are ready. */
   onMapReady?: (map: MlMap, api: MapApi) => void
+  /** Rank and match of the featured osiedla (the numbers on their pills) whenever they change. */
+  onFeaturedRanks?: (ranks: Readonly<Record<string, FeaturedRank>>, total: number) => void
   /** Presenter switch: when given, the filter panel shows a 3-profile toggle that calls this. */
   onProfileChange?: (p: Profile) => void
   /** Hide all overlays (legend, panel, controls) — e.g. while the cinematic transition runs. */
@@ -119,6 +121,7 @@ export function MapView({
   selectedSlug = null,
   onSelectFeatured,
   onMapReady,
+  onFeaturedRanks,
   horizon = 'stale',
   onHorizonChange,
   chrome = true,
@@ -391,6 +394,14 @@ export function MapView({
     return out
   }, [data, ranking])
   const bestSlug = data?.featured.find((f) => featuredRanks[f.slug]?.rank === 1)?.slug ?? null
+  // the osiedle view shows the same rank and match as the pills (one ranking, one source)
+  const onRanksRef = useRef(onFeaturedRanks)
+  useLayoutEffect(() => {
+    onRanksRef.current = onFeaturedRanks
+  })
+  useEffect(() => {
+    if (ranking) onRanksRef.current?.(featuredRanks, ranking.total)
+  }, [featuredRanks, ranking])
   useEffect(() => {
     const map = mapRef.current
     if (map && data) applyFeaturedBest(map, bestSlug)

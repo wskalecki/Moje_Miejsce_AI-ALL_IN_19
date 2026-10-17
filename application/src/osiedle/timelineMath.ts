@@ -57,8 +57,11 @@ export function statDeltasAtYear(o: Osiedle, year: number): Partial<Record<Categ
   return out
 }
 
-/** `match[profile] + Σ matchDelta` over effective events, clamped to 0–99. */
-export function matchAtYear(o: Osiedle, profile: ProfileId, year: number): number {
+/**
+ * `base + Σ matchDelta` over effective events, clamped to 0–99. `base` is today's match — the live
+ * ranking of the map (the osiedle's pill); defaults to the `match[profile]` snapshot of the mock.
+ */
+export function matchAtYear(o: Osiedle, profile: ProfileId, year: number, base: number = o.match[profile]): number {
   const sum = effectiveEvents(o, year).reduce((s, e) => s + (e.matchDelta ?? 0), 0)
-  return clamp(o.match[profile] + sum, 0, 99)
+  return clamp(base + sum, 0, 99)
 }

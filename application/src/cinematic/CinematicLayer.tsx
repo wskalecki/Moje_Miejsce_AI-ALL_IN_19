@@ -33,7 +33,7 @@ import { homeCamera, homePadding } from '../map/camera'
 import { OSIEDLA, OSIEDLA_BY_SLUG, type LngLat, type Osiedle, type OsiedleSlug, type Route, type TimelineEvent } from '../mock/osiedla'
 import { allVisible, corePoints, frame, metersBetween, LAND_PITCH, type Framing, type Pt } from './framing'
 import { Interlude } from './Interlude'
-import { loadPanel } from './panelLoader'
+import { loadPanel, type PlaceFit } from './panelLoader'
 import { PlacePins, type Pin } from './PlacePins'
 import { prefetchTiles } from './prefetch'
 import type { AreaLayers } from '../map3d/AreaLayers'
@@ -125,13 +125,18 @@ export interface CinematicLayerProps {
   slug: string | null
   profile: ProfileId
   horizon: Horizon
+  /** Categories that count in the score (filter panel "Liczy się dla mnie"), in panel order. */
   priorities: readonly CategoryKey[]
+  /** Rank and match of the featured osiedla as the map pills show them (null until the map ranked). */
+  ranks?: { bySlug: Readonly<Record<string, { rank: number; match: number }>>; total: number } | null
   visited: readonly string[]
   /** `?szybko=1`: never play the interlude. */
   quick?: boolean
   markVisited: (slug: string) => void
   /** True while the map is in (or flying out of) the cinematic look — the app hides its chrome. */
   onBusyChange: (busy: boolean) => void
+  /** True while the panel is up or the camera flies back from it (the app keeps its header pill). */
+  onPanelChange?: (open: boolean) => void
 }
 
 /** Owns the map-side scene (layers are added on mount and removed on unmount, StrictMode-safe). */
@@ -159,10 +164,12 @@ function CinematicStage({
   profile,
   horizon,
   priorities,
+  ranks,
   visited,
   quick,
   markVisited,
   onBusyChange,
+  onPanelChange,
 }: CinematicLayerProps & { scene: CinemaScene }) {
   const map = api.map
   const store = useAppStore()
@@ -597,6 +604,22 @@ function CinematicStage({
     return h ? categoryKinds(h.category) : null
   }, [hoverPin, activePin, active])
 
+  const panelOpen = stage === 'panel' || stage === 'leaving'
+  const panelCb = useRef(onPanelChange)
+  useEffect(() => {
+    panelCb.current = onPanelChange
+  })
+  useEffect(() => {
+    panelCb.current?.(panelOpen)
+  }, [panelOpen])
+  useEffect(() => () => panelCb.current?.(false), [])
+
+  const fitOf = (slug: string | undefined): PlaceFit | null => {
+    const r = slug ? ranks?.bySlug[slug] : undefined
+    return r && ranks ? { rank: r.rank, match: r.match, total: ranks.total } : null
+  }
+  const activeFit = fitOf(active?.slug)
+
   const cinema = stage === 'flying' || stage === 'interlude'
   const showPanel = stage === 'panel' && active
   const areaLayers = showPanel && area?.slug === active.slug ? area.layers : null
@@ -615,6 +638,7 @@ function CinematicStage({
         <Interlude
           key={interludeKey}
           osiedle={active}
+          fit={activeFit}
           open={bars}
           showTitle={title}
           playMedia={playMedia}
@@ -643,6 +667,7 @@ function CinematicStage({
           <Suspense key={active.slug} fallback={null}>
             <Panel
               osiedle={active}
+              fit={activeFit}
               profile={profile}
               horizon={horizon}
               priorities={[...priorities]}
