@@ -3,6 +3,7 @@ import { navigate, useRouter } from '../../app/router'
 import { useAppStore } from '../../app/useAppStore'
 import { Logo } from '../../components/ui'
 import type { MapApi } from '../../map/MapView'
+import { SentenceBar } from './SentenceBar'
 import './mapScreen.css'
 
 const LazyMapView = lazy(() => import('../../map/MapView'))
@@ -29,11 +30,11 @@ function MapPlaceholder({ message, loading = false }: { message: string; loading
 }
 
 /**
- * `/mapa` and `/mapa/:slug`. Hosts the single, long-lived MapView instance and the cinematic
- * transition (src/cinematic) that takes the camera into a featured osiedle and opens its panel.
+ * `/mapa` and `/mapa/:slug`. Hosts the single, long-lived MapView instance, the sentence bar and
+ * the cinematic transition (src/cinematic) that takes the camera into a featured osiedle and opens its panel.
  */
 export function MapScreen({ slug, hidden = false }: { slug: string | null; hidden?: boolean }) {
-  const { state, markVisited } = useAppStore()
+  const { state, markVisited, setProfile } = useAppStore()
   const { query } = useRouter()
   const profile = state.profile ?? 'rodzina'
   const horizon = state.horizon ?? 'stale'
@@ -76,6 +77,13 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
           </Suspense>
         )}
       </MapErrorBoundary>
+      <SentenceBar
+        profile={profile}
+        priorities={state.priorities}
+        horizon={horizon}
+        onProfileChange={(p) => setProfile(p, { keepChoices: true })}
+        hidden={!!slug || busy}
+      />
     </div>
   )
 }
