@@ -1,7 +1,7 @@
 import { Lightbulb } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { SectionHead, useElementWidth, useSeenOnce } from './shared'
-import { TRAFFIC_LEVEL_LABEL, monotonePath, trafficHint, trafficLevel, trafficTooltip } from './traffic'
+import { TRAFFIC_LEVEL_LABEL, formatClock, monotonePath, trafficAt, trafficHint, trafficLevel, trafficTooltip } from './traffic'
 
 interface TrafficChartProps {
   traffic: number[]
@@ -139,10 +139,10 @@ export function TrafficChart({ traffic, road }: TrafficChartProps) {
 
             {/* Best morning departure */}
             {hint.bestHour != null && (
-              <g className="op-traffic__best" transform={`translate(${x(hint.bestHour)} ${y(traffic[hint.bestHour])})`}>
+              <g className="op-traffic__best" transform={`translate(${x(hint.bestHour)} ${y(trafficAt(traffic, hint.bestHour))})`}>
                 <circle r={5} />
                 <text y={-12} textAnchor="middle">
-                  wyjedź {hint.bestHour}:00
+                  wyjedź {formatClock(hint.bestHour)}
                 </text>
               </g>
             )}
