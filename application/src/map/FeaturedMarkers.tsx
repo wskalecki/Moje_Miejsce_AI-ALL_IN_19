@@ -70,6 +70,7 @@ export function FeaturedMarkers({ map, featured, profile, highlighted, selectedS
             <button
               type="button"
               className="smap-fm__pill"
+              data-slug={f.slug}
               onClick={() => onSelect(f.slug)}
               onMouseEnter={() => onHover(f.slug)}
               onMouseLeave={() => onHover(null)}

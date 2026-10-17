@@ -38,8 +38,9 @@ export const NIGHT: BasemapPalette = {
   roadMinor: '#1A2031',
   roadCasing: '#121725',
   rail: '#1C2234',
-  label: 'rgba(214,220,240,0.34)',
-  halo: 'rgba(11,14,23,0.9)',
+  // labels go dark at night: street names along the outline read as spikes on the glow
+  label: 'rgba(214,220,240,0)',
+  halo: 'rgba(11,14,23,0)',
 }
 
 /**

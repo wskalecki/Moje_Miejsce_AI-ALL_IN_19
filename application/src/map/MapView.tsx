@@ -123,6 +123,10 @@ export function MapView({
       maxBounds: PADDED_BOUNDS,
       attributionControl: { compact: true },
       fadeDuration: 200,
+      // keep the tiles of the overview and of the visited osiedla (the default ≈ 5 viewports evicts
+      // them, and a second fly-in lands on a grey map); the size is a cap, the zoom levels the budget
+      maxTileCacheSize: 480,
+      maxTileCacheZoomLevels: 40,
       dragRotate: false,
       pitchWithRotate: false,
     })

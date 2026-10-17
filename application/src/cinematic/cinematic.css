@@ -1,7 +1,8 @@
 /* Cinematic transition (spec 4.4): vignette, letterbox, title card, flyover media, panel host, pins. */
 
 .cin-root {
-  --cin-bar: max(56px, calc((100vh - 100vw / 2.39) / 2));
+  /* 2.39:1 letterbox, but never more than 17vh per bar (portrait phones would keep a thin strip) */
+  --cin-bar: clamp(56px, calc((100vh - 100vw / 2.39) / 2), 17vh);
   --cin-gutter: max(48px, 6vw);
   position: absolute;
   inset: 0;
@@ -20,6 +21,41 @@
 }
 .cin-vignette.is-on {
   opacity: 1;
+}
+
+/* Dusk dip over the first second of the transition: the warm day map sinks into deep navy at once
+   instead of passing through a muddy grey while the basemap colours cross over to night. */
+.cin-dusk {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(120% 100% at 50% 55%, #161c33 0%, #0b0e17 70%, #07090f 100%);
+  transition: opacity 500ms var(--ease-standard);
+}
+.cin-dusk.is-dip {
+  animation: cin-dusk-dip 1900ms var(--ease-standard) both;
+}
+/* waiting for the street tiles under the camera: a dark gradient instead of a blank grey map */
+.cin-dusk.is-wait {
+  opacity: 1;
+  background:
+    radial-gradient(90% 80% at 40% 50%, rgba(20, 24, 44, 0.55), rgba(8, 10, 20, 0.92) 75%),
+    #0b0e17;
+  transition: opacity 350ms var(--ease-standard);
+}
+@keyframes cin-dusk-dip {
+  0% {
+    opacity: 0;
+  }
+  22% {
+    opacity: 0.8;
+  }
+  46% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .cin-veil {
@@ -50,8 +86,8 @@
   position: absolute;
   inset: 0;
   opacity: 0;
-  background: #07090f;
-  transition: opacity 900ms var(--ease-cinema);
+  background: #040508;
+  transition: opacity 420ms var(--ease-standard);
 }
 .cin-media.is-visible {
   opacity: 1;
@@ -63,7 +99,12 @@
 }
 .cin-interlude:not(.is-open) .cin-media {
   opacity: 0;
-  transition-duration: 1000ms;
+  transition: opacity 900ms var(--ease-cinema) 420ms;
+}
+.cin-interlude:not(.is-open) .cin-media__video,
+.cin-interlude:not(.is-open) .cin-media__photo {
+  opacity: 0;
+  transition: opacity 400ms var(--ease-standard);
 }
 .cin-media__video,
 .cin-media__photo {
@@ -77,8 +118,8 @@
   opacity: 0;
   transform: scale(1.04);
   transition:
-    opacity 600ms var(--ease-standard),
-    transform 7s cubic-bezier(0.2, 0.6, 0.3, 1);
+    opacity 600ms var(--ease-standard) 380ms,
+    transform 7s cubic-bezier(0.2, 0.6, 0.3, 1) 380ms;
 }
 .cin-media__video.is-on {
   opacity: 1;
@@ -86,7 +127,7 @@
 }
 .cin-media__photo {
   opacity: 0;
-  transition: opacity 700ms var(--ease-standard);
+  transition: opacity 700ms var(--ease-standard) 380ms;
   animation: cin-kenburns 3.4s linear both;
 }
 .cin-media__photo.is-on {
@@ -286,6 +327,65 @@
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.4);
 }
 
+@media (max-width: 767px) {
+  .cin-root {
+    --cin-gutter: 22px;
+  }
+  .cin-bar {
+    gap: 12px;
+  }
+  .cin-bar--top {
+    padding-bottom: 12px;
+  }
+  .cin-bar--bottom {
+    padding-top: 12px;
+    align-items: center;
+  }
+  .cin-bar__meta {
+    font-size: 10px;
+    line-height: 13px;
+    letter-spacing: 0.16em;
+  }
+  .cin-bar__district {
+    display: none;
+  }
+  .cin-bar__caption {
+    flex: 1;
+    min-width: 0;
+  }
+  .cin-skip kbd {
+    display: none;
+  }
+  .cin-title {
+    right: var(--cin-gutter);
+    bottom: calc(var(--cin-bar) + 24px);
+    max-width: none;
+  }
+  .cin-title__kicker {
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    line-height: 15px;
+    white-space: normal;
+  }
+  .cin-title__dot {
+    flex: none;
+    margin-top: 3.5px;
+  }
+  .cin-title__name {
+    font-size: clamp(40px, 12.4vw, 64px);
+    line-height: 0.98;
+  }
+  .cin-title__rule {
+    width: 96px;
+    margin: 14px 0 12px;
+  }
+  .cin-title__tagline {
+    font-size: 15px;
+  }
+}
+
 /* ---------- place pins ---------- */
 
 .cin-pin-host {
@@ -384,19 +484,79 @@
   font: 700 12px/1 var(--font-display, 'Plus Jakarta Sans Variable', system-ui, sans-serif);
   letter-spacing: -0.01em;
 }
-.cin-pin.is-investment .cin-pin__head {
-  width: 28px;
-  height: 28px;
-  color: #b7791f;
-  box-shadow:
-    0 0 0 2px #e3a33b,
-    0 10px 24px -8px rgba(22, 22, 29, 0.55);
+/* investments (timeline): ink diamond with a gold rim and an always-visible year tag */
+.cin-pin-host.is-investment {
+  z-index: 3;
+}
+.cin-pin-shift {
+  transition: transform 320ms var(--ease-emphasized);
 }
 .cin-pin.is-investment {
-  animation-name: cin-pin-fall;
-  animation-duration: 300ms;
+  animation: cin-inv-in 560ms var(--ease-emphasized) var(--d, 0ms) both;
+}
+.cin-pin__diamond {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin: 5px 0 3px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #2a2a35, #16161d);
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px #e3a33b,
+    0 10px 24px -6px rgba(22, 22, 29, 0.6);
+  transform: rotate(45deg);
+  transition: transform 240ms var(--ease-emphasized);
+}
+.cin-pin__diamond-glyph {
+  display: grid;
+  place-items: center;
+  color: #f6c25b;
+  transform: rotate(-45deg);
+}
+.cin-pin.is-investment .cin-pin__stem {
+  height: 12px;
+  background: linear-gradient(to bottom, #e3a33b, rgba(227, 163, 59, 0.1));
+}
+.cin-pin.is-investment .cin-pin__foot {
+  background: rgba(120, 80, 20, 0.5);
+}
+.cin-pin__year {
+  margin-bottom: 4px;
+  padding: 3px 7px;
+  border-radius: var(--r-pill);
+  background: #16161d;
+  color: #f6c25b;
+  font: 700 11px/1 var(--font-ui, 'Inter Variable', system-ui, sans-serif);
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 16px -6px rgba(22, 22, 29, 0.6);
+}
+.cin-pin.is-investment .cin-pin__label {
+  bottom: calc(100% + 6px);
+  max-width: 260px;
+  white-space: normal;
+  width: max-content;
+}
+.cin-pin.is-investment:hover .cin-pin__diamond,
+.cin-pin.is-investment:focus-visible .cin-pin__diamond {
+  transform: rotate(45deg) scale(1.15);
 }
 
+@keyframes cin-inv-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-26px) scale(0.4);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(2px) scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
 @keyframes cin-pin-drop {
   0% {
     opacity: 0;

@@ -31,6 +31,15 @@ export interface SceneTarget {
   bearing: number
   zoom: number
   shape: Feature<Polygon | MultiPolygon>
+  /** Zoom from which the buildings stand at full height (the panel framing zoom); defaults to `zoom − 0.3`. */
+  riseZoom?: number
+}
+
+export interface LookOptions {
+  /** Overview only: delay (ms) before the heat / fills / labels come back. */
+  overlayDelay?: number
+  /** Overview only: duration (ms) of the buildings and outline fade-out. */
+  fadeOut?: number
 }
 
 const SRC = { dim: 'cin-dim', outline: 'cin-outline', route: 'cin-route' } as const
@@ -46,8 +55,8 @@ export const CIN_LAYER = {
 
 /** Buildings extrude only within this radius of the osiedle centre. */
 const BUILDING_RADIUS_M = 2600
-/** Heights grow with the camera: flat until `zoom − Z_RISE_FROM`, full height from `zoom − Z_RISE_TO`. */
-const Z_RISE_FROM = 1.5
+/** Heights grow with the camera: flat `Z_RISE_SPAN` zoom levels below the full-height zoom. */
+const Z_RISE_SPAN = 1.2
 const Z_RISE_TO = 0.3
 const BLD_OPACITY = 0.94
 /** Buildings fade from the "lit" to the ambient ramp over this distance past the lit radius. */
@@ -92,10 +101,56 @@ function dimMask(shape: Feature<Polygon | MultiPolygon>): Feature<Polygon> {
   return { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [world, ...outerRings(shape)] } }
 }
 
+/**
+ * Clean an outline ring for the wide glow: MSI rings carry runs of metre-long zigzag segments,
+ * which a 34 px blurred line with round joins turns into spikes at close zoom. Drop near-duplicate
+ * vertices, then Douglas–Peucker with a few metres of tolerance.
+ */
+function simplifyRing(ring: Position[], tolM = 3): Position[] {
+  if (ring.length < 4) return ring
+  const lat0 = ring[0][1]
+  const kx = 111320 * Math.cos((lat0 * Math.PI) / 180)
+  const xy = (p: Position) => [p[0] * kx, p[1] * 111320] as const
+  const pts: Position[] = [ring[0]]
+  for (let i = 1; i < ring.length; i++) {
+    const [ax, ay] = xy(pts[pts.length - 1])
+    const [bx, by] = xy(ring[i])
+    if (Math.hypot(bx - ax, by - ay) >= 2 || i === ring.length - 1) pts.push(ring[i])
+  }
+  const keep = new Uint8Array(pts.length)
+  keep[0] = 1
+  keep[pts.length - 1] = 1
+  const stack: [number, number][] = [[0, pts.length - 1]]
+  while (stack.length) {
+    const [i0, i1] = stack.pop()!
+    const [ax, ay] = xy(pts[i0])
+    const [bx, by] = xy(pts[i1])
+    const dx = bx - ax
+    const dy = by - ay
+    const len = Math.hypot(dx, dy)
+    let best = -1
+    let bestD = tolM
+    for (let i = i0 + 1; i < i1; i++) {
+      const [px, py] = xy(pts[i])
+      // closed ring: the first span starts and ends on the same vertex — measure from that point
+      const d = len < 1e-6 ? Math.hypot(px - ax, py - ay) : Math.abs(dy * px - dx * py + bx * ay - by * ax) / len
+      if (d > bestD) {
+        bestD = d
+        best = i
+      }
+    }
+    if (best > 0) {
+      keep[best] = 1
+      stack.push([i0, best], [best, i1])
+    }
+  }
+  return pts.filter((_, i) => keep[i])
+}
+
 function outlineLines(shape: Feature<Polygon | MultiPolygon>): FeatureCollection<LineString> {
   return {
     type: 'FeatureCollection',
-    features: outerRings(shape).map((ring) => ({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: ring } })),
+    features: outerRings(shape).map((ring) => ({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: simplifyRing(ring) } })),
   }
 }
 
@@ -141,6 +196,7 @@ export class CinemaScene {
   private traceRaf = 0
   private routeRaf = 0
   private stopGlint: (() => void) | null = null
+  private labelTimer = 0
   private handlers: Record<string, boolean> = {}
   private current: { slug: string | null; look: Look } = { slug: null, look: 'overview' }
   /** Look used for the "day" building layers (`golden` on the recording page). */
@@ -224,8 +280,10 @@ export class CinemaScene {
       firstSymbol,
     )
 
-    // 3D buildings: a night and a day layer per featured osiedle, hidden until that osiedle is selected
-    // (only its pair is ever laid out). Day ↔ night is an opacity crossfade, so no re-layout mid-shot.
+    // 3D buildings: a night and a day layer per featured osiedle, shown only through their opacity.
+    // They stay `visible` for good: toggling `visibility` reloads the whole basemap source and empties
+    // MapLibre's out-of-view tile cache (→ a grey map on the next visit). `minzoom` 13 keeps them out of
+    // the overview, the radial filter keeps the buckets small. Day ↔ night is an opacity crossfade.
     for (const t of this.targets.values()) {
       const near: FilterSpecification = [
         'all',
@@ -236,8 +294,8 @@ export class CinemaScene {
       const dist: ExpressionSpecification = ['distance', { type: 'Point', coordinates: t.center }] as ExpressionSpecification
       const rIn = litRadius(t)
       // heights rise during the last stretch of the fly-in (and settle back when zooming out)
-      const zFlat = t.zoom - Z_RISE_FROM
-      const zFull = t.zoom - Z_RISE_TO
+      const zFull = Math.min(t.zoom - Z_RISE_TO, t.riseZoom ?? Infinity)
+      const zFlat = zFull - Z_RISE_SPAN
       const height = (prop: 'render_height' | 'render_min_height', fallback: number): ExpressionSpecification => [
         'interpolate',
         ['linear'],
@@ -266,7 +324,6 @@ export class CinemaScene {
             'source-layer': 'building',
             minzoom: 13,
             filter: near,
-            layout: { visibility: 'none' },
             paint: {
               'fill-extrusion-color': ['interpolate', ['linear'], dist, rIn, color(ramp.inside), rIn + LIT_FALLOFF_M, color(ramp.outside)],
               'fill-extrusion-height': height('render_height', 8),
@@ -359,9 +416,21 @@ export class CinemaScene {
     }
   }
 
-  private applyBasemap(look: Look, duration: number) {
+  /**
+   * `labels: 'hide'` sends the label colours to transparent (the rest of the basemap to the look),
+   * `labels: 'only'` touches the labels alone.
+   */
+  private applyBasemap(look: Look, duration: number, opts: { labels?: 'hide' | 'only'; labelDuration?: number } = {}) {
     const pal: BasemapPalette | null = look === 'night' ? NIGHT : look === 'golden' ? GOLDEN : null
-    for (const e of this.basemap) this.paint(e.id, e.prop, pal ? pal[e.key] : e.day, duration)
+    for (const e of this.basemap) {
+      const isLabel = e.key === 'label' || e.key === 'halo'
+      if (opts.labels === 'only' && !isLabel) continue
+      if (opts.labels === 'hide' && isLabel) {
+        this.paint(e.id, e.prop, 'rgba(0,0,0,0)', opts.labelDuration ?? duration)
+        continue
+      }
+      this.paint(e.id, e.prop, pal ? pal[e.key] : e.day, duration)
+    }
   }
 
   // ---------------------------------------------------------------- app overlays (heat, fills, featured)
@@ -393,11 +462,10 @@ export class CinemaScene {
     for (const [id, prop] of this.overlayProps()) this.paint(id, prop, 0, duration)
   }
 
-  private restoreOverlays(duration: number) {
+  /** The heat / fills come back after `delay`, once the camera is high again. */
+  private restoreOverlays(duration: number, delay: number) {
     const saved = this.savedOverlays
     if (!saved) return
-    // the heat / fills come back in the second half of the way out, once the camera is high again
-    const delay = Math.round(duration * 0.7)
     for (const [id, prop] of this.overlayProps()) {
       const key = `${id}|${prop}`
       if (!saved.has(key)) continue
@@ -443,31 +511,46 @@ export class CinemaScene {
    * Switch the whole map look. `overview` restores the app's day map; `night` is the dramatic
    * transition look; `day` is the daylight 3D look under the panel; `golden` is for the recordings.
    */
-  setLook(look: Look, slug: string | null, duration: number) {
+  setLook(look: Look, slug: string | null, duration: number, opts: LookOptions = {}) {
     const map = this.map
     const t = slug ? this.targets.get(slug) : undefined
     const prevSlug = this.current.slug
     this.current = { slug: look === 'overview' ? null : (slug ?? prevSlug), look }
+    window.clearTimeout(this.labelTimer)
 
+    const owner = (this.current.slug && this.targets.get(this.current.slug)?.owner) || t?.owner || 'student'
+    const a = ACCENTS[owner]
     if (t && slug !== prevSlug) {
       ;(map.getSource(SRC.dim) as GeoJSONSource).setData(dimMask(t.shape))
       ;(map.getSource(SRC.outline) as GeoJSONSource).setData(outlineLines(t.shape))
+      // the outline is invisible now: take the owner's colours at once, so the glow never starts in
+      // another osiedle's (or the default violet) colour
+      this.paint(CIN_LAYER.glowWide, 'line-color', a.accent, 0)
+      this.paint(CIN_LAYER.glow, 'line-color', look === 'night' ? a.mid : a.accent, 0)
     }
 
-    this.applyBasemap(look, duration)
-    if (look === 'overview') this.restoreOverlays(duration)
-    else this.hideOverlays(Math.min(duration, 700))
+    if (look === 'overview') {
+      // way back: labels and overlays stay away while the camera climbs (no double-exposed glyphs
+      // from the zoom crossfade), then return late
+      const delay = opts.overlayDelay ?? Math.round(duration * 0.7)
+      const fade = opts.fadeOut ?? duration
+      this.applyBasemap('overview', duration, { labels: 'hide', labelDuration: Math.min(250, fade) })
+      this.labelTimer = window.setTimeout(() => this.applyBasemap('overview', 600, { labels: 'only' }), delay)
+      this.restoreOverlays(Math.max(500, duration - delay), delay)
+    } else {
+      this.applyBasemap(look, duration)
+      this.hideOverlays(Math.min(duration, 700))
+    }
 
     // dim mask
     const dim = look === 'overview' ? null : DIM[look]
+    const fade = look === 'overview' ? (opts.fadeOut ?? duration) : duration
     if (dim) this.paint(CIN_LAYER.dim, 'fill-color', dim.color, duration)
-    this.paint(CIN_LAYER.dim, 'fill-opacity', dim ? dim.opacity : 0, duration)
+    this.paint(CIN_LAYER.dim, 'fill-opacity', dim ? dim.opacity : 0, fade)
 
     // outline
-    const owner = t?.owner ?? 'student'
-    const a = ACCENTS[owner]
     if (look === 'overview') {
-      for (const id of [CIN_LAYER.glowWide, CIN_LAYER.glow, CIN_LAYER.line]) this.paint(id, 'line-opacity', 0, duration)
+      for (const id of [CIN_LAYER.glowWide, CIN_LAYER.glow, CIN_LAYER.line]) this.paint(id, 'line-opacity', 0, fade)
       this.stopGlint?.()
       this.stopGlint = null
     } else {
@@ -479,34 +562,17 @@ export class CinemaScene {
       this.paint(CIN_LAYER.line, 'line-opacity', 1, Math.min(400, duration))
     }
 
-    // buildings
+    // buildings (opacity only — see install)
     const shown = look === 'overview' ? null : this.current.slug
-    if (shown) this.showBuildings(shown)
     for (const tg of this.targets.values()) {
       const on = tg.slug === shown
-      this.paint(CIN_LAYER.bld(tg.slug, 'night'), 'fill-extrusion-opacity', on && look === 'night' ? BLD_OPACITY : 0, duration)
-      this.paint(CIN_LAYER.bld(tg.slug, 'day'), 'fill-extrusion-opacity', on && look !== 'night' ? BLD_OPACITY : 0, duration)
+      this.paint(CIN_LAYER.bld(tg.slug, 'night'), 'fill-extrusion-opacity', on && look === 'night' ? BLD_OPACITY : 0, fade)
+      this.paint(CIN_LAYER.bld(tg.slug, 'day'), 'fill-extrusion-opacity', on && look !== 'night' ? BLD_OPACITY : 0, fade)
     }
 
     // sky + light
     this.tweenSky(look === 'overview' ? SKY.day : SKY[look], duration)
     this.tweenLight(look === 'overview' ? 'day' : look, duration)
-  }
-
-  /** Lay out only the selected osiedle's buildings (a visibility change re-parses tiles once). */
-  private showBuildings(slug: string | null) {
-    for (const tg of this.targets.values()) {
-      for (const look of ['night', 'day'] as const) {
-        const id = CIN_LAYER.bld(tg.slug, look)
-        const want = tg.slug === slug ? 'visible' : 'none'
-        if (this.map.getLayer(id) && this.map.getLayoutProperty(id, 'visibility') !== want) this.map.setLayoutProperty(id, 'visibility', want)
-      }
-    }
-  }
-
-  /** After the way back: stop laying out 3D buildings in the overview. */
-  parkBuildings() {
-    if (this.current.look === 'overview') this.showBuildings(null)
   }
 
   private tweenLight(look: 'day' | 'night' | 'golden', duration: number) {
@@ -625,6 +691,7 @@ export class CinemaScene {
   }
 
   destroy() {
+    window.clearTimeout(this.labelTimer)
     cancelAnimationFrame(this.skyRaf)
     cancelAnimationFrame(this.lightRaf)
     cancelAnimationFrame(this.traceRaf)

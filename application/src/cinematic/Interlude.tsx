@@ -8,6 +8,7 @@ import type { Osiedle } from '../mock/osiedla'
 /** Seconds of the flyover clip shown in the interlude. */
 export const VIDEO_SHOW_S = 5.8
 const PHOTO_MS = 2600
+/** Black dip (CSS `.cin-media` fade) plus the clip fading up from it — the live map is covered after this. */
 const MEDIA_FADE_MS = 900
 const VIDEO_TIMEOUT_MS = 1500
 
@@ -155,11 +156,13 @@ export function Interlude({ osiedle, profile, open, showTitle, playMedia, onCove
         <span className="cin-bar__meta">
           {fmtCoord(osiedle.center[1], 'N', 'S')} · {fmtCoord(osiedle.center[0], 'E', 'W')}
         </span>
-        <span className="cin-bar__meta">Warszawa · {osiedle.district}</span>
+        <span className="cin-bar__meta cin-bar__district">Warszawa · {osiedle.district}</span>
       </div>
       <div className="cin-bar cin-bar--bottom">
         <span className={`cin-bar__progress${visible ? ' is-running' : ''}`} aria-hidden />
-        <span className="cin-bar__meta">Siatka · ujęcie 3D z otwartych danych</span>
+        <span className="cin-bar__meta cin-bar__caption">
+          {media === 'photos' ? (photos[photo] ?? photos[0])?.credit : media === 'video' ? 'Siatka · ujęcie 3D z otwartych danych' : `Siatka · ${osiedle.name}`}
+        </span>
         <button
           type="button"
           className="cin-skip"
@@ -189,7 +192,9 @@ export function Interlude({ osiedle, profile, open, showTitle, playMedia, onCove
               transition={{ duration: 1.1, ease: EASE.emphasized }}
             >
               <span className="cin-title__dot" />
-              {osiedle.district} · {match}&nbsp;% dopasowania
+              <span className="cin-title__kicker-text">
+                {osiedle.district} · {match}% dopasowania
+              </span>
             </motion.p>
             <h2 className="cin-title__name" aria-label={osiedle.name}>
               {letters.map((word, wi) => (
