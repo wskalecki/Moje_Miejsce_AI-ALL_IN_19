@@ -283,3 +283,17 @@ def test_history_of_data_changes_is_rendered():
 
     assert "Usunięto ceny ofertowe scrapowane z portali" in doc
     assert "brak oficjalnego źródła" in doc
+
+
+def test_cell_ids_without_a_declared_grid_version_are_reported():
+    poi = "data/poi_mikolaj/transit.geojson"
+    output = {"path": poi, "kind": "poi", "script": "x.py", "datasets": ["um_aed"]}
+    policy = {**CATALOG["policy"], "gridVersion": 3}
+    feature = {"type": "Feature", "properties": {"cell_id": "cell_r082_c072"}, "geometry": {"type": "Point", "coordinates": [21, 52.2]}}
+
+    undeclared = data_catalog.validate_catalog(catalog(policy=policy, outputs=[output]), {poi: {"features": [feature]}})
+    declared = data_catalog.validate_catalog(catalog(policy=policy, outputs=[output]),
+                                             {poi: {"gridVersion": 3, "features": [feature]}})
+
+    assert errors_mentioning(undeclared, poi, "cell_id", "gridVersion")
+    assert declared == []

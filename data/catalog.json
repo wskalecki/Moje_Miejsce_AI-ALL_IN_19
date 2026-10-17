@@ -2957,6 +2957,11 @@
       "date": "2026-10-17",
       "change": "Pełna regeneracja: OSM i WFS (siatka), hałas GIOŚ, RCN 2023–2026, rejestr budynków; wyniki deterministyczne (poza generated_at).",
       "why": "Kontrola: pola hałasu zgodne z GIOŚ (< 0,2%), mediany RCN osiedli identyczne. Warstwy application/public/data/poi nie były przeliczone (wymagają klucza API portalu miasta)."
+    },
+    {
+      "date": "2026-10-18",
+      "change": "Przeliczono cell_id / cell_ids w data/poi_mikolaj/*.geojson i data/lines/*.geojson na siatkę 250 m (funkcjami ETL: assign_cell, cells_crossed) i dodano gridVersion; walidator wymaga gridVersion w każdym pliku z ID komórek.",
+      "why": "12 725 punktów i 70 linii miało ID ze starej siatki, a pliki nie deklarowały wersji, więc walidator tego nie widział. Pozostałe pola bez zmian."
     }
   ]
 }
