@@ -111,8 +111,8 @@ def is_late(opening_hours: str | None) -> bool:
 def load(name: str) -> list[dict]:
     path = POI_DIR / f"{name}.geojson"
     if not path.exists():
-        print(f"  ! missing {path.relative_to(ROOT)} — skipped")
-        return []
+        # an incomplete layer would look complete in the app: stop instead of skipping
+        raise SystemExit(f"missing {path.relative_to(ROOT)}: run `uv run siatka run` with UM_WARSZAWA_API_KEY first")
     return json.loads(path.read_text(encoding="utf-8")).get("features", [])
 
 
@@ -122,7 +122,8 @@ def main() -> None:
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
-    cache: dict[str, list[dict]] = {}
+    # load every input first, so a missing one stops the run before any layer is written
+    cache: dict[str, list[dict]] = {file: load(file) for rules in CATEGORY_RULES.values() for file, _ in rules}
     today = dt.date.today().isoformat()
     manifest = {}
 

@@ -49,8 +49,8 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | wfs_address_points | Punkty adresowe | Usługi mapowe m.st. Warszawy (WFS) | data/scripts/geocode_address.py | pobrano 2026-10-17 | Geokodowanie adresów i punkt odniesienia osiedla. |
 | wfs_buildings | Rejestr budynków (EGiB) | Usługi mapowe m.st. Warszawy (WFS) | data/scripts/build_kwartal_metrics.py | pobrano 2026-10-17 | Brak roku budowy w rejestrze. |
 | rcn_city | Transakcje lokali mieszkalnych (RCN) | Rejestr Cen Nieruchomości m.st. Warszawy (paczki GML) | data/scripts/rcn/fetch_rcn.py (filtrowanie), build_kwartal_metrics.py i build_featured_content.py (mediany) | akty 2023 – IV 2026 (ok. 6 miesięcy opóźnienia) | Filtry: lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2. Te same rekordy co GUGiK WFS ms:lokale, ale świeższe i dla całego miasta w jednym pliku. |
-| gios_noise_lden | Zasięgi hałasu Lden (SMH 2022, 4. runda), drogi i kolej z tramwajem | GIOŚ HAŁAS API (strategiczne mapy hałasu) | data/scripts/noise/fetch_gios_noise.py | dane 2021 (runda 2022) | Model, nie pomiar; wysokość 4 m; poniżej 55 dB brak konturów; 2021 to rok pandemii; brak warstw lotniska i przemysłu w użyciu. |
-| gios_noise_lnight | Zasięgi hałasu nocnego Lnight (SMH 2022, 4. runda), drogi i kolej z tramwajem | GIOŚ HAŁAS API (strategiczne mapy hałasu) | data/scripts/noise/fetch_gios_noise.py | dane 2021 (runda 2022) | Lnight = średni poziom nocny 22–6. Model, nie pomiar; wysokość 4 m; poniżej 50 dB brak konturów. |
+| gios_noise_lden | Zasięgi hałasu Lden (SMH 2022, 4. runda), drogi i kolej z tramwajem | GIOŚ HAŁAS API (strategiczne mapy hałasu) | data/scripts/noise/fetch_gios_noise.py | dane 2021 (runda 2022) | Model, nie pomiar; wysokość 4 m; poniżej 55 dB brak konturów; 2021 to rok pandemii; brak warstw lotniska i przemysłu w użyciu. Kontrola 2026-10-17 z GIOŚ /v1/informacja-o-powierzchni-terenu (powiat Warszawa): drogi ≥ 55 dB 227,25 km² (GIOŚ 227,52), ≥ 60 dB 146,40 (146,59); kolej ≥ 55 dB 38,13 (38,18); różnice < 0,2%. |
+| gios_noise_lnight | Zasięgi hałasu nocnego Lnight (SMH 2022, 4. runda), drogi i kolej z tramwajem | GIOŚ HAŁAS API (strategiczne mapy hałasu) | data/scripts/noise/fetch_gios_noise.py | dane 2021 (runda 2022) | Lnight = średni poziom nocny 22–6. Model, nie pomiar; wysokość 4 m; poniżej 50 dB brak konturów. Kontrola 2026-10-17 z GIOŚ /v1/informacja-o-powierzchni-terenu (powiat Warszawa): drogi ≥ 50 dB 168,17 km² (GIOŚ 168,36), ≥ 55 dB 98,85 (98,97); kolej ≥ 50 dB 25,17 (25,21); różnice < 0,2%. |
 | gtfs_warsaw | Rozkład jazdy ZTM (GTFS) | Rozkład jazdy ZTM Warszawa w formacie GTFS (mirror M. Kuranowskiego) | data/scripts/gtfs_feed.py | feed z 2026-10-17, dzień roboczy 2026-10-19 | – |
 | osm_kindergarten | Przedszkola | OpenStreetMap (Overpass API) | data/scripts/siatka (uv run siatka run) | pobrano 2026-10-17 | – |
 | osm_school_primary | Szkoły podstawowe | OpenStreetMap (Overpass API) | data/scripts/siatka (uv run siatka run) | pobrano 2026-10-17 | – |
@@ -312,3 +312,15 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | data/poi_mikolaj/future.geojson | poi | data/scripts/etl_budzet_obywatelski.py | um_bo |
 | data/samples/warsaw_grid_sample.geojson | geometry | data/scripts/generate_grid.py --bbox 20.98 52.18 21.06 52.24 | wfs_districts |
 | data/manifest.json | index | data/scripts/siatka (uv run siatka run) | – |
+
+## Historia zmian danych
+
+| Data | Zmiana | Dlaczego |
+|---|---|---|
+| 2026-10-17 | Usunięto ceny ofertowe scrapowane z Otodom, średnie miasta z Adresowo i Znajdź Najem oraz liczby ofert z portali. | Portale komercyjne i scraping nie są dozwolonym źródłem; wyniku nie dało się odtworzyć (skrypt nie był w repo). |
+| 2026-10-17 | Ceny = mediany transakcji RCN m.st. Warszawy (osiedle i całe miasto, te same filtry i okres); najem = null. | RCN to oficjalny rejestr miasta; mediany osiedli odtwarzają się co do złotówki z publicznych paczek. Brak otwartego źródła czynszów. |
+| 2026-10-17 | Usunięto build_mock_scores.py oraz syntetyczne próbki i manifesty (data/samples/cell_metrics_sample.json, poi_sample.geojson, manifest.json). | Skrypt ręcznie stroił wyniki (nadpisania, priorytety dzielnic, podbicia); próbki były syntetyczne. |
+| 2026-10-17 | Usunięto efekt parku linearnego nad POW (Natolin) na osi czasu. | Park był przybliżony kołem 12,5 ha; bez oficjalnego poligonu to geometria zmyślona. |
+| 2026-10-17 | Siatka 250 m (gridVersion 3); punkty heatmapy to środki komórek z cell_id; czasy przejazdu przeliczone na 8 572 komórkach. | Jedna podstawa przestrzenna dla heatmapy i metryk komórek, każdą wartość da się przypisać do komórki. |
+| 2026-10-17 | Dodano hałas nocny Lnight; „cisza” liczona wyłącznie z hałasu (Lden ≥ 60/65, Lnight ≥ 50/55, równe wagi). | Wcześniej 30% wagi stanowiły zastępniki (gastronomia, odjazdy), które nie mierzą hałasu. |
+| 2026-10-17 | Pełna regeneracja: OSM i WFS (siatka), hałas GIOŚ, RCN 2023–2026, rejestr budynków; wyniki deterministyczne (poza generated_at). | Kontrola: pola hałasu zgodne z GIOŚ (< 0,2%), mediany RCN osiedli identyczne. Warstwy application/public/data/poi nie były przeliczone (wymagają klucza API portalu miasta). |

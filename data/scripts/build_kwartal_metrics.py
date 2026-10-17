@@ -131,8 +131,31 @@ def load_kwartaly(only: set[str] | None):
     return out
 
 
+BUILDINGS_WFS = ("https://wms2.um.warszawa.pl/geoserver/wfs/wfs?service=WFS&version=2.0.0&request=GetFeature"
+                 "&typeNames=wfs:budynki&outputFormat=application/json"
+                 "&propertyName=ID_BUDYNKU,KONDYGNACJE_NADZIEMNE,GEOMETRY&cql_filter=")
+
+
+def ensure_buildings():
+    """Download the city building register (EGiB, wfs:budynki) if the cache is missing."""
+    import urllib.parse
+    import urllib.request
+    for path, cql in ((BLD_RES, "RODZAJ='m'"), (BLD_OTHER, "RODZAJ<>'m'")):
+        if path.exists():
+            continue
+        path.parent.mkdir(parents=True, exist_ok=True)
+        req = urllib.request.Request(BUILDINGS_WFS + urllib.parse.quote(cql), headers={"User-Agent": "okolica-data-etl"})
+        with urllib.request.urlopen(req, timeout=900) as resp:
+            raw = resp.read()
+        if b'"features"' not in raw[:2000]:
+            raise RuntimeError(f"budynki WFS returned {raw[:200]!r}")
+        path.write_bytes(raw)
+        print(f"  {path.name}: {len(raw) / 1e6:.1f} MB")
+
+
 def load_buildings():
     """-> centroids (2180), floors, footprint area, residential flag, id->index."""
+    ensure_buildings()
     ids, pts, floors, area, res = [], [], [], [], []
     for path, is_res in ((BLD_RES, True), (BLD_OTHER, False)):
         for ft in json.loads(path.read_text())["features"]:
@@ -190,6 +213,9 @@ def load_points(path: Path, subtypes: set[str]):
             lon, lat = ft["geometry"]["coordinates"][:2]
             out[p["subtype"]][0].append(T4326.transform(lon, lat))
             out[p["subtype"]][1].append(p)
+    missing = sorted(subtypes - {k for k, (pts, _) in out.items() if pts})
+    if missing:  # a failed download must not become "0 objects within 500 m"
+        raise SystemExit(f"{path.name}: no points of {missing}; re-run the ETL that produces them")
     return out
 
 

@@ -258,6 +258,10 @@ def render_catalog(catalog: dict[str, Any]) -> str:
         ["Plik", "Rodzaj", "Skrypt", "Zbiory"],
         [[o["path"], o.get("kind"), o.get("script"), o.get("datasets")] for o in catalog.get("outputs", [])],
     )
+    if catalog.get("history"):
+        out += ["## Historia zmian danych", ""]
+        out += _table(["Data", "Zmiana", "Dlaczego"],
+                      [[h.get("date"), h.get("change"), h.get("why")] for h in catalog["history"]])
     return "\n".join(out).rstrip("\n") + "\n"
 
 

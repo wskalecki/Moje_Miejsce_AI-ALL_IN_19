@@ -304,7 +304,7 @@
       "access": "wojewodztwo=MAZOWIECKIE, rundaMapowania=4 Runda Mapowania, wskaznik=LDWN, zrodloHalasu=Hałas drogowy / kolejowy wewnątrz aglomeracji",
       "script": "data/scripts/noise/fetch_gios_noise.py",
       "period": "dane 2021 (runda 2022)",
-      "notes": "Model, nie pomiar; wysokość 4 m; poniżej 55 dB brak konturów; 2021 to rok pandemii; brak warstw lotniska i przemysłu w użyciu."
+      "notes": "Model, nie pomiar; wysokość 4 m; poniżej 55 dB brak konturów; 2021 to rok pandemii; brak warstw lotniska i przemysłu w użyciu. Kontrola 2026-10-17 z GIOŚ /v1/informacja-o-powierzchni-terenu (powiat Warszawa): drogi ≥ 55 dB 227,25 km² (GIOŚ 227,52), ≥ 60 dB 146,40 (146,59); kolej ≥ 55 dB 38,13 (38,18); różnice < 0,2%."
     },
     {
       "id": "gios_noise_lnight",
@@ -313,7 +313,7 @@
       "access": "wojewodztwo=MAZOWIECKIE, rundaMapowania=4 Runda Mapowania, wskaznik=LN, zrodloHalasu=Hałas drogowy / kolejowy wewnątrz aglomeracji",
       "script": "data/scripts/noise/fetch_gios_noise.py",
       "period": "dane 2021 (runda 2022)",
-      "notes": "Lnight = średni poziom nocny 22–6. Model, nie pomiar; wysokość 4 m; poniżej 50 dB brak konturów."
+      "notes": "Lnight = średni poziom nocny 22–6. Model, nie pomiar; wysokość 4 m; poniżej 50 dB brak konturów. Kontrola 2026-10-17 z GIOŚ /v1/informacja-o-powierzchni-terenu (powiat Warszawa): drogi ≥ 50 dB 168,17 km² (GIOŚ 168,36), ≥ 55 dB 98,85 (98,97); kolej ≥ 50 dB 25,17 (25,21); różnice < 0,2%."
     },
     {
       "id": "gtfs_warsaw",
@@ -2920,6 +2920,43 @@
       "script": "data/scripts/siatka (uv run siatka run)",
       "datasets": [],
       "description": "Spis plików wynikowych siatka (ścieżki), bez danych."
+    }
+  ],
+  "history": [
+    {
+      "date": "2026-10-17",
+      "change": "Usunięto ceny ofertowe scrapowane z Otodom, średnie miasta z Adresowo i Znajdź Najem oraz liczby ofert z portali.",
+      "why": "Portale komercyjne i scraping nie są dozwolonym źródłem; wyniku nie dało się odtworzyć (skrypt nie był w repo)."
+    },
+    {
+      "date": "2026-10-17",
+      "change": "Ceny = mediany transakcji RCN m.st. Warszawy (osiedle i całe miasto, te same filtry i okres); najem = null.",
+      "why": "RCN to oficjalny rejestr miasta; mediany osiedli odtwarzają się co do złotówki z publicznych paczek. Brak otwartego źródła czynszów."
+    },
+    {
+      "date": "2026-10-17",
+      "change": "Usunięto build_mock_scores.py oraz syntetyczne próbki i manifesty (data/samples/cell_metrics_sample.json, poi_sample.geojson, manifest.json).",
+      "why": "Skrypt ręcznie stroił wyniki (nadpisania, priorytety dzielnic, podbicia); próbki były syntetyczne."
+    },
+    {
+      "date": "2026-10-17",
+      "change": "Usunięto efekt parku linearnego nad POW (Natolin) na osi czasu.",
+      "why": "Park był przybliżony kołem 12,5 ha; bez oficjalnego poligonu to geometria zmyślona."
+    },
+    {
+      "date": "2026-10-17",
+      "change": "Siatka 250 m (gridVersion 3); punkty heatmapy to środki komórek z cell_id; czasy przejazdu przeliczone na 8 572 komórkach.",
+      "why": "Jedna podstawa przestrzenna dla heatmapy i metryk komórek, każdą wartość da się przypisać do komórki."
+    },
+    {
+      "date": "2026-10-17",
+      "change": "Dodano hałas nocny Lnight; „cisza” liczona wyłącznie z hałasu (Lden ≥ 60/65, Lnight ≥ 50/55, równe wagi).",
+      "why": "Wcześniej 30% wagi stanowiły zastępniki (gastronomia, odjazdy), które nie mierzą hałasu."
+    },
+    {
+      "date": "2026-10-17",
+      "change": "Pełna regeneracja: OSM i WFS (siatka), hałas GIOŚ, RCN 2023–2026, rejestr budynków; wyniki deterministyczne (poza generated_at).",
+      "why": "Kontrola: pola hałasu zgodne z GIOŚ (< 0,2%), mediany RCN osiedli identyczne. Warstwy application/public/data/poi nie były przeliczone (wymagają klucza API portalu miasta)."
     }
   ]
 }

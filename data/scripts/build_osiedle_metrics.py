@@ -76,7 +76,7 @@ OUT = ROOT / "application/public/data"
 PROFILES = ("student", "rodzina", "senior")
 CATS = ("cisza", "zielen", "komunikacja", "gastronomia", "sport",
         "kultura", "edukacja", "zdrowie", "zakupy", "zycieNocne")
-FEATURED = ("powisle", "blonia-wilanowskie", "saska-kepa")
+FEATURED = ("muranow", "natolin", "stare-bielany")
 R = 1000.0           # "nearby" radius
 HEAT_STEP = float(generate_grid.CELL_SIZE_M)  # heat points = centres of the team grid cells
 RASTER = 50.0        # raster for noise/green share around heat points
@@ -346,6 +346,11 @@ def load():
             shapely.prepare(g)
 
     print("  " + ", ".join(f"{k} {len(v)}" for k, v in L.items()))
+    # A failed download must not turn into "0 objects nearby": missing data is not zero.
+    empty = [k for k, v in L.items() if len(v) == 0] + [k for k, v in (("addresses", ax), ("green", green),
+                                                                       ("travel cells", cells)) if len(v) == 0]
+    if empty:
+        raise SystemExit(f"empty input layers {empty}: re-run the ETL that produces them instead of writing zeros")
     print(f"  addresses {len(ax)}, green polygons {len(green)}, travel cells {len(cells)}, road works {len(roadworks)}, "
           f"events window {ref_day}..{end_day}")
     return dict(osiedla=osiedla, L=L, ax=ax, ay=ay, green=green, green_union=green_union, green_tree=green_tree,

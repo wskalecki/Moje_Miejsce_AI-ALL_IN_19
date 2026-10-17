@@ -213,8 +213,8 @@ export const OSIEDLA: Osiedle[] = [
     "cameraZoom": 15.6,
     "match": {
       "student": 92,
-      "rodzina": 77,
-      "senior": 75
+      "rodzina": 78,
+      "senior": 77
     },
     "rank": {
       "student": 1,
@@ -254,7 +254,7 @@ export const OSIEDLA: Osiedle[] = [
       }
     ],
     "stats": {
-      "cisza": 11,
+      "cisza": 19,
       "zielen": 54,
       "komunikacja": 96,
       "gastronomia": 96,
@@ -397,12 +397,19 @@ export const OSIEDLA: Osiedle[] = [
         "label": "Hałas drogowy lub kolejowy (z tramwajem) Lden ≥ 60 dB",
         "value": 47.7,
         "unit": "%",
-        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden, drogi + kolej z tramwajem"
+        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem"
+      },
+      {
+        "key": "noise_lnight50_share",
+        "label": "Hałas nocny drogowy lub kolejowy (z tramwajem) Lnight ≥ 50 dB",
+        "value": 51.0,
+        "unit": "%",
+        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem"
       },
       {
         "key": "travel_centrum_wszystkie_min",
         "label": "Dojazd do centrum (Rondo Dmowskiego), wszystkie",
-        "value": 15.9,
+        "value": 15.7,
         "unit": "min",
         "source": "GTFS Warszawa, routing Mikołaja (przyjazd 07:30–09:00, dzień roboczy)"
       }
@@ -545,13 +552,13 @@ export const OSIEDLA: Osiedle[] = [
           "pieszo": 37
         },
         "transitByMode": {
-          "metro": 17.1,
-          "tramwaj": 17.4,
+          "metro": 17.0,
+          "tramwaj": 17.2,
           "autobus": 27.3,
-          "kolej": 61.5
+          "kolej": 61.4
         },
-        "cells": 51,
-        "source": "Komunikacja: mediana z 51 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 33,
+        "source": "Komunikacja: mediana z 33 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       },
       {
         "id": "rondo_daszynskiego",
@@ -562,13 +569,13 @@ export const OSIEDLA: Osiedle[] = [
           "pieszo": 39
         },
         "transitByMode": {
-          "metro": 21.4,
-          "tramwaj": 20.0,
-          "autobus": 28.8,
-          "kolej": 69.6
+          "metro": 21.2,
+          "tramwaj": 19.9,
+          "autobus": 28.4,
+          "kolej": 68.8
         },
-        "cells": 51,
-        "source": "Komunikacja: mediana z 51 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 33,
+        "source": "Komunikacja: mediana z 33 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       },
       {
         "id": "sluzewiec",
@@ -578,11 +585,11 @@ export const OSIEDLA: Osiedle[] = [
           "rower": 37
         },
         "transitByMode": {
-          "tramwaj": 44.1,
-          "autobus": 53.4
+          "tramwaj": 44.2,
+          "autobus": 53.2
         },
-        "cells": 51,
-        "source": "Komunikacja: mediana z 51 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 33,
+        "source": "Komunikacja: mediana z 33 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       }
     ],
     "routes": [
@@ -959,16 +966,16 @@ export const OSIEDLA: Osiedle[] = [
     "district": "Ursynów",
     "profile": "rodzina",
     "tagline": "Metro 150 m · 26 przedszkoli i 101 placów zabaw w 1 km",
-    "summary": "3. miejsce na 143 osiedla dla profilu „rodzina z dziećmi” (78% dopasowania): 26 przedszkoli i 7 szkół podstawowych w 1 km; parki i lasy na 8% terenu w promieniu 1 km, najbliższy 120 m.",
+    "summary": "3. miejsce na 143 osiedla dla profilu „rodzina z dziećmi” (79% dopasowania): 26 przedszkoli i 7 szkół podstawowych w 1 km; parki i lasy na 8% terenu w promieniu 1 km, najbliższy 120 m.",
     "summaryKind": "z-danych",
-    "aiSummary": "3. miejsce na 143 osiedla dla profilu „rodzina z dziećmi” (78% dopasowania): 26 przedszkoli i 7 szkół podstawowych w 1 km; parki i lasy na 8% terenu w promieniu 1 km, najbliższy 120 m.",
+    "aiSummary": "3. miejsce na 143 osiedla dla profilu „rodzina z dziećmi” (79% dopasowania): 26 przedszkoli i 7 szkół podstawowych w 1 km; parki i lasy na 8% terenu w promieniu 1 km, najbliższy 120 m.",
     "center": [21.0568, 52.13982],
     "cameraBearing": 160,
     "cameraZoom": 15.6,
     "match": {
       "student": 73,
-      "rodzina": 78,
-      "senior": 76
+      "rodzina": 79,
+      "senior": 77
     },
     "rank": {
       "student": 32,
@@ -1008,7 +1015,7 @@ export const OSIEDLA: Osiedle[] = [
       }
     ],
     "stats": {
-      "cisza": 56,
+      "cisza": 63,
       "zielen": 80,
       "komunikacja": 58,
       "gastronomia": 83,
@@ -1151,12 +1158,19 @@ export const OSIEDLA: Osiedle[] = [
         "label": "Hałas drogowy lub kolejowy (z tramwajem) Lden ≥ 60 dB",
         "value": 27.1,
         "unit": "%",
-        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden, drogi + kolej z tramwajem"
+        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem"
+      },
+      {
+        "key": "noise_lnight50_share",
+        "label": "Hałas nocny drogowy lub kolejowy (z tramwajem) Lnight ≥ 50 dB",
+        "value": 30.0,
+        "unit": "%",
+        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem"
       },
       {
         "key": "travel_centrum_wszystkie_min",
         "label": "Dojazd do centrum (Rondo Dmowskiego), wszystkie",
-        "value": 32.8,
+        "value": 32.4,
         "unit": "min",
         "source": "GTFS Warszawa, routing Mikołaja (przyjazd 07:30–09:00, dzień roboczy)"
       }
@@ -1295,15 +1309,15 @@ export const OSIEDLA: Osiedle[] = [
         "id": "centrum",
         "label": "Centrum (Rondo Dmowskiego)",
         "minutes": {
-          "komunikacja": 33,
+          "komunikacja": 32,
           "rower": 44
         },
         "transitByMode": {
-          "metro": 31.2,
-          "autobus": 54.6
+          "metro": 31.7,
+          "autobus": 54.5
         },
-        "cells": 83,
-        "source": "Komunikacja: mediana z 83 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 52,
+        "source": "Komunikacja: mediana z 52 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       },
       {
         "id": "rondo_daszynskiego",
@@ -1313,24 +1327,24 @@ export const OSIEDLA: Osiedle[] = [
           "rower": 43
         },
         "transitByMode": {
-          "metro": 38.0,
-          "autobus": 66.0
+          "metro": 38.4,
+          "autobus": 65.8
         },
-        "cells": 83,
-        "source": "Komunikacja: mediana z 83 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 52,
+        "source": "Komunikacja: mediana z 52 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       },
       {
         "id": "sluzewiec",
         "label": "Służewiec (biurowce, Domaniewska)",
         "minutes": {
-          "komunikacja": 34,
+          "komunikacja": 33,
           "rower": 22
         },
         "transitByMode": {
-          "autobus": 38.6
+          "autobus": 38.2
         },
-        "cells": 83,
-        "source": "Komunikacja: mediana z 83 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 52,
+        "source": "Komunikacja: mediana z 52 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       }
     ],
     "routes": [
@@ -1670,16 +1684,16 @@ export const OSIEDLA: Osiedle[] = [
     "district": "Bielany",
     "profile": "senior",
     "tagline": "Metro 240 m · 14 przychodni i 8 aptek w 1 km",
-    "summary": "1. miejsce na 143 osiedla dla profilu „senior” (79% dopasowania): 14 przychodni i 8 aptek w 1 km; 10 supermarketów w 1 km. Słabiej: hałas ≥ 60 dB na 34% powierzchni.",
+    "summary": "1. miejsce na 143 osiedla dla profilu „senior” (81% dopasowania): 14 przychodni i 8 aptek w 1 km; 10 supermarketów w 1 km.",
     "summaryKind": "z-danych",
-    "aiSummary": "1. miejsce na 143 osiedla dla profilu „senior” (79% dopasowania): 14 przychodni i 8 aptek w 1 km; 10 supermarketów w 1 km. Słabiej: hałas ≥ 60 dB na 34% powierzchni.",
+    "aiSummary": "1. miejsce na 143 osiedla dla profilu „senior” (81% dopasowania): 14 przychodni i 8 aptek w 1 km; 10 supermarketów w 1 km.",
     "center": [20.94954, 52.27966],
     "cameraBearing": 330,
     "cameraZoom": 15.6,
     "match": {
       "student": 85,
-      "rodzina": 82,
-      "senior": 79
+      "rodzina": 83,
+      "senior": 81
     },
     "rank": {
       "student": 7,
@@ -1719,7 +1733,7 @@ export const OSIEDLA: Osiedle[] = [
       }
     ],
     "stats": {
-      "cisza": 42,
+      "cisza": 50,
       "zielen": 77,
       "komunikacja": 81,
       "gastronomia": 71,
@@ -1862,12 +1876,19 @@ export const OSIEDLA: Osiedle[] = [
         "label": "Hałas drogowy lub kolejowy (z tramwajem) Lden ≥ 60 dB",
         "value": 34.3,
         "unit": "%",
-        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden, drogi + kolej z tramwajem"
+        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem"
+      },
+      {
+        "key": "noise_lnight50_share",
+        "label": "Hałas nocny drogowy lub kolejowy (z tramwajem) Lnight ≥ 50 dB",
+        "value": 37.0,
+        "unit": "%",
+        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem"
       },
       {
         "key": "travel_centrum_wszystkie_min",
         "label": "Dojazd do centrum (Rondo Dmowskiego), wszystkie",
-        "value": 24.9,
+        "value": 25.0,
         "unit": "min",
         "source": "GTFS Warszawa, routing Mikołaja (przyjazd 07:30–09:00, dzień roboczy)"
       }
@@ -2011,11 +2032,11 @@ export const OSIEDLA: Osiedle[] = [
         },
         "transitByMode": {
           "metro": 24.6,
-          "tramwaj": 37.8,
-          "autobus": 50.5
+          "tramwaj": 37.2,
+          "autobus": 51.0
         },
-        "cells": 43,
-        "source": "Komunikacja: mediana z 43 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 28,
+        "source": "Komunikacja: mediana z 28 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       },
       {
         "id": "rondo_daszynskiego",
@@ -2025,12 +2046,12 @@ export const OSIEDLA: Osiedle[] = [
           "rower": 29
         },
         "transitByMode": {
-          "metro": 28.9,
+          "metro": 28.8,
           "tramwaj": 33.8,
           "autobus": 41.6
         },
-        "cells": 43,
-        "source": "Komunikacja: mediana z 43 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 28,
+        "source": "Komunikacja: mediana z 28 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       },
       {
         "id": "sluzewiec",
@@ -2040,11 +2061,11 @@ export const OSIEDLA: Osiedle[] = [
           "rower": 52
         },
         "transitByMode": {
-          "tramwaj": 58.2,
+          "tramwaj": 57.6,
           "autobus": 66.9
         },
-        "cells": 43,
-        "source": "Komunikacja: mediana z 43 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 28,
+        "source": "Komunikacja: mediana z 28 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       }
     ],
     "routes": [

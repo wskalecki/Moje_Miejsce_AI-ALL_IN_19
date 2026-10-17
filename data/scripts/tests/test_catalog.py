@@ -274,3 +274,12 @@ def test_file_built_on_another_grid_version_is_reported():
 
     assert errors_mentioning(errors, HEAT, "grid version 2")
     assert not errors_mentioning(errors, TRAVEL)
+
+
+def test_history_of_data_changes_is_rendered():
+    history = [{"date": "2026-10-17", "change": "Usunięto ceny ofertowe scrapowane z portali", "why": "brak oficjalnego źródła"}]
+
+    doc = data_catalog.render_catalog(catalog(history=history))
+
+    assert "Usunięto ceny ofertowe scrapowane z portali" in doc
+    assert "brak oficjalnego źródła" in doc
