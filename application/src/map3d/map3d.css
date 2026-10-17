@@ -539,3 +539,24 @@
     text-overflow: ellipsis;
   }
 }
+
+/* ---------- traffic inside the narrow layers box: slider on its own line ---------- */
+
+.m3d-traffic--nested .m3d-traffic__row {
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+.m3d-traffic--nested .m3d-traffic__slider {
+  flex-basis: 100%;
+}
+.m3d-traffic--nested .m3d-traffic__ramp {
+  flex-basis: 100%;
+  min-width: 0;
+}
+.m3d-traffic--nested .m3d-traffic__ramp-labels {
+  font-size: 11px;
+  white-space: normal;
+}
+.m3d-traffic--nested .m3d-traffic__caption > span {
+  white-space: normal;
+}

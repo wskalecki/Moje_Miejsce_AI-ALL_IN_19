@@ -2078,3 +2078,8 @@
     display: none;
   }
 }
+
+/* The compact hero in the place card leaves the photo credits to the footer list. */
+.op--overlay .op-hero__credit {
+  display: none;
+}
