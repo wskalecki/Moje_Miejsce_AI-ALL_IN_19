@@ -1,5 +1,4 @@
 import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
-import { PROFILES } from '../../app/dictionary'
 import { navigate, useRouter } from '../../app/router'
 import { useAppStore } from '../../app/useAppStore'
 import type { MapApi } from '../../map/MapView'
@@ -9,9 +8,6 @@ import './mapScreen.css'
 
 const LazyMapView = lazy(() => import('../../map/MapView'))
 const LazyCinema = lazy(() => import('../../cinematic/CinematicLayer'))
-
-/** The only slugs `/mapa/:slug` can open (spec §0.4). */
-const FEATURED_SLUGS: readonly string[] = Object.values(PROFILES).map((p) => p.featured)
 
 class MapErrorBoundary extends Component<{ children: ReactNode; onError: () => void }, { error: Error | null }> {
   state = { error: null as Error | null }
@@ -32,7 +28,7 @@ class MapErrorBoundary extends Component<{ children: ReactNode; onError: () => v
  * the cinematic transition (src/cinematic) that takes the camera into a featured osiedle and opens its panel.
  */
 export function MapScreen({ slug, hidden = false }: { slug: string | null; hidden?: boolean }) {
-  const { state, markVisited, setProfile } = useAppStore()
+  const { state, markVisited, setProfile, setWeight, resetWeights } = useAppStore()
   const { query } = useRouter()
   const profile = state.profile ?? 'rodzina'
   const horizon = state.horizon ?? 'stale'
@@ -42,7 +38,8 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
   const quick = query.get('szybko') === '1'
 
   // Unknown osiedle (`/mapa/nieistnieje`) → the city view, without a history entry (QA #17).
-  const badSlug = !!slug && !FEATURED_SLUGS.includes(slug)
+  // The featured list comes from the map data (src/mock/osiedla.ts), known once the map is ready.
+  const badSlug = !!slug && !!api && !api.featured.some((f) => f.slug === slug)
   useEffect(() => {
     if (badSlug) navigate('/mapa', { replace: true })
   }, [badSlug])
@@ -60,6 +57,9 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
           <LazyMapView
             profile={profile}
             priorities={state.priorities}
+            weights={state.weights}
+            onWeightChange={setWeight}
+            onResetWeights={resetWeights}
             horizon={horizon}
             selectedSlug={activeSlug}
             chrome={!busy}

@@ -1,8 +1,9 @@
 import type { ExpressionSpecification, FilterSpecification, Map as MlMap } from 'maplibre-gl'
 import type { MapData } from './data'
-import { ACCENTS } from './tokens'
-import type { Profile } from './types'
+import { ACCENTS, categoryTones, type Tones } from './tokens'
+import type { CategoryKey, Profile } from './types'
 import { PROFILES } from './types'
+import { heatRange, heatWeightExpr, linearExpr, rampStops } from './weighting'
 import outline from './warsaw-outline.json'
 
 /** Public ids — the cinematic transition (T7) drives these. */
@@ -29,15 +30,14 @@ export const SOURCE = {
   mask: 'warsaw-mask',
 } as const
 
-const HEAT_KEY: Record<Profile, string> = { student: 's', rodzina: 'r', senior: 'n' }
 const TRANSITION = { duration: 600, delay: 0 }
 
 /** Kernel radius as a multiple of the grid spacing — ≥ 2.5 keeps individual points invisible. */
 export const HEAT_RADIUS_SCALE = 2.6
 /** Empirical: density ≈ K · (radius / spacing)² · weight, tuned so the top cells reach the deep accent. */
-const HEAT_INTENSITY_K = 3.7
-/** Heat values are skewed (median ≈ 0.12); a gamma < 1 spreads them over the ramp. */
-const HEAT_GAMMA = 0.55
+const HEAT_INTENSITY_K = 3.2
+/** Applied after the contrast window (see `heatRange`); < 1 lifts the mid tones a little. */
+const HEAT_GAMMA = 0.8
 /** Fade window for heat → osiedla (spec 4.3). */
 const Z0 = 11.5
 const Z1 = 12.5
@@ -51,8 +51,12 @@ function rgba(hex: string, alpha: number) {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`
 }
 
-function heatRamp(p: Profile): ExpressionSpecification {
-  const a = ACCENTS[p]
+/** Weighted view: the profile accent; solo view: the category colour (transparent → colour). */
+function tonesFor(p: Profile, solo: CategoryKey | null): Tones {
+  return solo ? categoryTones(solo) : ACCENTS[p]
+}
+
+function heatRamp(a: Tones): ExpressionSpecification {
   return [
     'interpolate',
     ['linear'],
@@ -81,33 +85,27 @@ function fillOpacity(active: boolean): ExpressionSpecification | number {
   return active ? ['interpolate', ['linear'], ['zoom'], Z0, 0, Z1, 0.56, 13.5, 0.44, 15, 0.24] : 0
 }
 
-/** Match quantiles per profile (non-featured osiedla) — the fill ramp is stretched over them (QA #18). */
-export type MatchStops = Record<Profile, [number, number, number, number, number]>
-
-export function matchStops(osiedla: MapData['osiedla']): MatchStops {
-  const out = {} as MatchStops
-  for (const p of PROFILES) {
-    const v = osiedla.features
-      .filter((f) => f.properties?.featured !== 1)
-      .map((f) => Number(f.properties?.[`m_${p}`]))
-      .filter((n) => Number.isFinite(n))
-      .sort((a, b) => a - b)
-    const q = (t: number) => (v.length ? v[Math.round(t * (v.length - 1))] : 50 + t * 40)
-    const stops = [q(0.04), q(0.3), q(0.6), q(0.85), q(0.98)]
-    // interpolate needs strictly ascending inputs
-    for (let i = 1; i < stops.length; i++) if (stops[i] <= stops[i - 1]) stops[i] = stops[i - 1] + 0.5
-    out[p] = stops as MatchStops[Profile]
-  }
-  return out
+/**
+ * Weighted mix of the categories (`shares` sums to 1; solo = one category at 1).
+ * Drives both the heat (per-category grid values 0–1) and the osiedla fill (category scores 0–100).
+ */
+export interface Mix {
+  shares: number[]
+  solo: CategoryKey | null
 }
 
-function fillColor(p: Profile, stops: MatchStops[Profile]): ExpressionSpecification {
-  const a = ACCENTS[p]
+/** Weighted match expression over the osiedla features (`c0…c9` = scores 0–100). */
+export function matchExpr(mix: Mix): ExpressionSpecification | number {
+  return linearExpr(mix.shares)
+}
+
+function fillColor(p: Profile, mix: Mix, stops: number[]): ExpressionSpecification {
+  const a = tonesFor(p, mix.solo)
   // alpha rises with the match, so weak osiedla stay close to paper and strong ones read as colour
   return [
     'interpolate',
     ['linear'],
-    ['get', `m_${p}`],
+    matchExpr(mix),
     stops[0],
     rgba(a.soft, 0.1),
     stops[1],
@@ -118,10 +116,35 @@ function fillColor(p: Profile, stops: MatchStops[Profile]): ExpressionSpecificat
     rgba(a.base, 0.78),
     stops[4],
     rgba(a.deep, 0.92),
-  ]
+  ] as ExpressionSpecification
 }
 
-export function addMapLayers(map: MlMap, data: MapData, profile: Profile) {
+/** Ramp stops = quantiles of the mixed match over the non-featured osiedla (QA #18). */
+function mixStops(data: MapData, mix: Mix): number[] {
+  const vals: number[] = []
+  for (const f of data.osiedla.features) {
+    if (f.properties?.featured === 1) continue
+    let v = 0
+    mix.shares.forEach((k, i) => (v += k * (Number(f.properties?.[`c${i}`]) || 0)))
+    vals.push(v)
+  }
+  return rampStops(vals)
+}
+
+/** Re-weight heat + fills for a new mix (weights changed / solo on or off). No source data changes. */
+export function applyMix(map: MlMap, data: MapData, mix: Mix) {
+  const weight = heatWeightExpr(mix.shares, heatRange(data.heatRows, mix.shares), HEAT_GAMMA)
+  const stops = mixStops(data, mix)
+  for (const p of PROFILES) {
+    if (map.getLayer(LAYER.heat(p))) {
+      map.setPaintProperty(LAYER.heat(p), 'heatmap-weight', weight)
+      map.setPaintProperty(LAYER.heat(p), 'heatmap-color', heatRamp(tonesFor(p, mix.solo)))
+    }
+    if (map.getLayer(LAYER.fill(p))) map.setPaintProperty(LAYER.fill(p), 'fill-color', fillColor(p, mix, stops))
+  }
+}
+
+export function addMapLayers(map: MlMap, data: MapData, profile: Profile, mix: Mix) {
   const style = map.getStyle().layers
   const beforeRoads = style.find((l) => 'source-layer' in l && l['source-layer'] === 'transportation')?.id
   const beforeLabels = style.find((l) => l.type === 'symbol')?.id
@@ -131,7 +154,8 @@ export function addMapLayers(map: MlMap, data: MapData, profile: Profile) {
   const r = (z: number) => HEAT_RADIUS_SCALE * spacingPxZ10 * 2 ** (z - 10)
   const intensity = HEAT_INTENSITY_K / (HEAT_RADIUS_SCALE * HEAT_RADIUS_SCALE)
 
-  const stops = matchStops(data.osiedla)
+  const stops = mixStops(data, mix)
+  const heatWeight = heatWeightExpr(mix.shares, heatRange(data.heatRows, mix.shares), HEAT_GAMMA)
 
   map.addSource(SOURCE.heat, { type: 'geojson', data: data.heat, maxzoom: 13 })
   map.addSource(SOURCE.osiedla, { type: 'geojson', data: data.osiedla, promoteId: 'id' })
@@ -180,10 +204,10 @@ export function addMapLayers(map: MlMap, data: MapData, profile: Profile) {
         maxzoom: 13,
         layout: { visibility: p === profile ? 'visible' : 'none' },
         paint: {
-          'heatmap-weight': ['^', ['get', HEAT_KEY[p]], HEAT_GAMMA],
+          'heatmap-weight': heatWeight,
           'heatmap-radius': ['interpolate', ['exponential', 2], ['zoom'], 8, r(8), 13, r(13)],
           'heatmap-intensity': intensity,
-          'heatmap-color': heatRamp(p),
+          'heatmap-color': heatRamp(tonesFor(p, mix.solo)),
           'heatmap-opacity': heatOpacity(p === profile),
           'heatmap-opacity-transition': TRANSITION,
         },
@@ -201,7 +225,7 @@ export function addMapLayers(map: MlMap, data: MapData, profile: Profile) {
         // featured osiedla are tinted by their own layers in the colour of the profile they belong to
         filter: notFeatured,
         paint: {
-          'fill-color': fillColor(p, stops[p]),
+          'fill-color': fillColor(p, mix, stops),
           'fill-opacity': fillOpacity(p === profile),
           'fill-opacity-transition': TRANSITION,
           'fill-antialias': false,

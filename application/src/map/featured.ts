@@ -1,58 +1,20 @@
 import type { FeaturedInfo, FeaturedSlug, LngLat, Profile } from './types'
 
 /**
- * Featured osiedla — fallback config. Rich content lives in `src/mock/osiedla.ts` (another task);
- * if that module exists we read name/tagline/center/thumb/match from it, loosely, through `import.meta.glob`
- * so the map builds and runs whether or not the file is there yet.
+ * Featured osiedla — read from `src/mock/osiedla.ts` (slug, msiId, name, centre…), nothing hard-coded here.
+ * Loaded loosely through `import.meta.glob` so the map builds whether or not the module exists.
+ * Only presentation fields are taken from the mock: the match and the category scores come from
+ * the real data (osiedla-scores.json) and are weighted on the client — no showcase boosts.
  */
-interface FeaturedBase {
-  slug: FeaturedSlug
-  msiId: string
-  name: string
-  district: string
-  profile: Profile
-  tagline: string
-  center: LngLat
-}
-
-const BASE: FeaturedBase[] = [
-  {
-    slug: 'powisle',
-    msiId: 'powisle',
-    name: 'Powiśle',
-    district: 'Śródmieście',
-    profile: 'student',
-    tagline: 'Bulwary, BUW i kawiarnie — miasto tuż za drzwiami.',
-    center: [21.0283, 52.2398],
-  },
-  {
-    slug: 'miasteczko-wilanow',
-    msiId: 'blonia-wilanowskie',
-    name: 'Miasteczko Wilanów',
-    district: 'Wilanów',
-    profile: 'rodzina',
-    tagline: 'Przedszkola za rogiem, park i ciche wieczory.',
-    center: [21.0862, 52.1628],
-  },
-  {
-    slug: 'saska-kepa',
-    msiId: 'saska-kepa',
-    name: 'Saska Kępa',
-    district: 'Praga-Południe',
-    profile: 'senior',
-    tagline: 'Kameralne uliczki, przychodnie i kawiarnie na Francuskiej.',
-    center: [21.0546, 52.2331],
-  },
-]
-
 type LooseFeatured = {
   slug?: string
+  msiId?: string
   name?: string
   district?: string
+  profile?: string
   tagline?: string
   center?: LngLat
-  match?: Partial<Record<Profile, number>>
-  stats?: Record<string, number>
+  heroImages?: { src?: string }[]
 }
 
 function loadMock(): LooseFeatured[] {
@@ -65,37 +27,33 @@ function loadMock(): LooseFeatured[] {
   return []
 }
 
-const MOCK = loadMock()
+const isProfile = (p: unknown): p is Profile => p === 'student' || p === 'rodzina' || p === 'senior'
 
-/** Build featured info; `scoreMatch` comes from osiedla-scores.json for the MSI polygon. */
-export function buildFeatured(scoreMatch: (msiId: string) => Record<Profile, number> | undefined): FeaturedInfo[] {
-  return BASE.map((b) => {
-    const m = MOCK.find((x) => x?.slug === b.slug)
-    const scored = scoreMatch(b.msiId) ?? { student: 60, rodzina: 60, senior: 60 }
-    const match = { ...scored, ...(m?.match ?? {}) } as Record<Profile, number>
-    // 320×240 thumbnail cut from heroImages[0] (01.jpg) for the 64–72 px cards.
-    const thumb = `/osiedla/${b.slug}/thumb.jpg`
-    return {
-      ...b,
-      name: m?.name ?? b.name,
-      district: m?.district ?? b.district,
-      tagline: m?.tagline ?? b.tagline,
-      center: Array.isArray(m?.center) && m.center.length === 2 ? m.center : b.center,
-      thumb,
-      match,
-      stats: m?.stats,
-    }
-  })
-}
-
-export const FEATURED_SLUGS: FeaturedSlug[] = BASE.map((b) => b.slug)
-export const FEATURED_BY_MSI: Record<string, FeaturedSlug> = Object.fromEntries(BASE.map((b) => [b.msiId, b.slug]))
-
-/** Sort for the "Polecane" panel: the profile's own osiedle first, then by match for the profile. */
-export function sortFeatured(list: FeaturedInfo[], profile: Profile): FeaturedInfo[] {
-  return [...list].sort((a, b) => {
-    if (a.profile === profile) return -1
-    if (b.profile === profile) return 1
-    return b.match[profile] - a.match[profile]
-  })
+/**
+ * Featured list from the mock. `lookup(msiId)` returns the osiedle's name / district / label point from
+ * the boundaries file, used when the mock leaves a field out.
+ */
+export function buildFeatured(
+  lookup: (msiId: string) => { name: string; district: string; center: LngLat } | undefined,
+): FeaturedInfo[] {
+  const out: FeaturedInfo[] = []
+  for (const m of loadMock()) {
+    if (!m || typeof m.slug !== 'string') continue
+    const msiId = typeof m.msiId === 'string' ? m.msiId : m.slug
+    const base = lookup(msiId)
+    if (!base) continue // not on the map
+    const center = Array.isArray(m.center) && m.center.length === 2 ? m.center : base.center
+    out.push({
+      slug: m.slug as FeaturedSlug,
+      msiId,
+      name: m.name ?? base.name,
+      district: m.district ?? base.district,
+      profile: isProfile(m.profile) ? m.profile : 'rodzina',
+      tagline: m.tagline ?? '',
+      center,
+      thumb: `/osiedla/${m.slug}/thumb.jpg`,
+      thumbFallback: m.heroImages?.find((h) => typeof h?.src === 'string')?.src ?? null,
+    })
+  }
+  return out
 }

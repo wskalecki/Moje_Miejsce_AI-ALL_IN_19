@@ -8,12 +8,12 @@ export type LngLat = [number, number]
 
 export const PROFILES: Profile[] = ['student', 'rodzina', 'senior']
 
-/** One osiedle with all scores merged and featured overrides applied (spec 6.3). */
+/** One osiedle with its real category scores (osiedla-scores.json); the match is weighted on the client. */
 export interface OsiedleInfo {
   id: string
   name: string
   district: string
-  match: Record<Profile, number>
+  /** Category scores 0–100 (percentile ranks among all osiedla). */
   cats: Record<CategoryKey, number>
   blurb: Record<Profile, string>
   featuredSlug: FeaturedSlug | null
@@ -29,7 +29,6 @@ export interface FeaturedInfo {
   tagline: string
   center: LngLat
   thumb: string
-  match: Record<Profile, number>
-  /** Hand-made category stats from `src/mock/osiedla.ts` (override the computed ones). */
-  stats?: Record<string, number>
+  /** Used when `thumb` is missing (first hero image from the mock). */
+  thumbFallback: string | null
 }

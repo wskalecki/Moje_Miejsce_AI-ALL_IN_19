@@ -1,9 +1,8 @@
 import type { ExpressionSpecification, Map as MlMap } from 'maplibre-gl'
 import { hover, LAYER, SOURCE } from './layers'
 import { ACCENTS } from './tokens'
-import type { Profile } from './types'
 
-/** Colour of the profile each featured osiedle belongs to (Powiśle violet, Wilanów coral, Saska Kępa teal). */
+/** Colour of the profile each featured osiedle is presented for (`profile` in src/mock/osiedla.ts). */
 const ownerColor = (k: 'base' | 'mid' | 'deep'): ExpressionSpecification => [
   'match',
   ['get', 'owner'],
@@ -14,27 +13,28 @@ const ownerColor = (k: 'base' | 'mid' | 'deep'): ExpressionSpecification => [
   ACCENTS.senior[k],
 ]
 
-const own = (p: Profile): ExpressionSpecification => ['==', ['get', 'owner'], p]
+/** The featured osiedle that ranks #1 under the current weights (if any) is drawn a bit stronger. */
+const isBest = (best: string | null): ExpressionSpecification => ['==', ['get', 'featured_slug'], best ?? '']
 
-function fillOpacity(p: Profile): ExpressionSpecification {
-  return ['case', hover, 0.24, own(p), 0.14, 0.08]
+function fillOpacity(best: string | null): ExpressionSpecification {
+  return ['case', hover, 0.24, isBest(best), 0.14, 0.08]
 }
-function glowWidth(p: Profile): ExpressionSpecification {
-  return ['case', hover, 18, own(p), 14, 10]
+function glowWidth(best: string | null): ExpressionSpecification {
+  return ['case', hover, 18, isBest(best), 14, 10]
 }
-function glowOpacity(p: Profile): ExpressionSpecification {
-  return ['case', hover, 0.8, own(p), 0.6, 0.42]
+function glowOpacity(best: string | null): ExpressionSpecification {
+  return ['case', hover, 0.8, isBest(best), 0.6, 0.42]
 }
 
 /** Spec 5.2 #6–7: glow (wide blurred line) + crisp 2 px line, always visible, above osiedla outlines. */
-export function addFeaturedLayers(map: MlMap, profile: Profile) {
+export function addFeaturedLayers(map: MlMap, best: string | null) {
   const before = map.getLayer(LAYER.label) ? LAYER.label : undefined
   map.addLayer(
     {
       id: LAYER.featuredFill,
       type: 'fill',
       source: SOURCE.featured,
-      paint: { 'fill-color': ownerColor('base'), 'fill-opacity': fillOpacity(profile) },
+      paint: { 'fill-color': ownerColor('base'), 'fill-opacity': fillOpacity(best) },
     },
     before,
   )
@@ -47,8 +47,8 @@ export function addFeaturedLayers(map: MlMap, profile: Profile) {
       paint: {
         'line-color': ownerColor('base'),
         'line-blur': 6,
-        'line-width': glowWidth(profile),
-        'line-opacity': glowOpacity(profile),
+        'line-width': glowWidth(best),
+        'line-opacity': glowOpacity(best),
       },
     },
     before,
@@ -69,9 +69,9 @@ export function addFeaturedLayers(map: MlMap, profile: Profile) {
   )
 }
 
-export function applyFeaturedProfile(map: MlMap, profile: Profile) {
+export function applyFeaturedBest(map: MlMap, best: string | null) {
   if (!map.getLayer(LAYER.featuredFill)) return
-  map.setPaintProperty(LAYER.featuredFill, 'fill-opacity', fillOpacity(profile))
-  map.setPaintProperty(LAYER.featuredGlow, 'line-width', glowWidth(profile))
-  map.setPaintProperty(LAYER.featuredGlow, 'line-opacity', glowOpacity(profile))
+  map.setPaintProperty(LAYER.featuredFill, 'fill-opacity', fillOpacity(best))
+  map.setPaintProperty(LAYER.featuredGlow, 'line-width', glowWidth(best))
+  map.setPaintProperty(LAYER.featuredGlow, 'line-opacity', glowOpacity(best))
 }

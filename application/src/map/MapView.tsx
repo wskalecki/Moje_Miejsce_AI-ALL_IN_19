@@ -14,17 +14,22 @@ import {
 import { warmBasemap } from './basemap'
 import { homeCamera, homePadding } from './camera'
 import { loadMapData, type MapData } from './data'
-import { HoverCard } from './HoverCard'
-import { FeaturedMarkers } from './FeaturedMarkers'
-import { addFeaturedLayers, applyFeaturedProfile } from './featuredLayers'
+import { deriveWeights, PRIORITY_WEIGHT, sanitizeWeights } from '../app/weights'
+import { addFeaturedLayers, applyFeaturedBest } from './featuredLayers'
+import { FeaturedMarkers, type FeaturedRank } from './FeaturedMarkers'
+import { FilterPanel } from './FilterPanel'
 import { HOVER_MIN_ZOOM, HoverController } from './hover'
-import { addMapLayers, applyProfile, LAYER, SOURCE } from './layers'
+import { HoverCard, type HoverCardData } from './HoverCard'
+import { addMapLayers, applyMix, applyProfile, LAYER, SOURCE, type Mix } from './layers'
 import { Legend } from './Legend'
 import { MapControls } from './MapControls'
-import { RecommendedPanel } from './RecommendedPanel'
+import { factsFor, loadMetrics, type MetricsIndex } from './metrics'
+import { loadPoi, type PoiData } from './poi'
+import { addPoiLayers, applyPoi, POI_LAYER } from './poiLayer'
 import { Toast } from './Toast'
-import { ACCENTS } from './tokens'
+import { ACCENTS, CATEGORY_COLORS, CATEGORY_ORDER, topCategories } from './tokens'
 import type { CategoryKey, FeaturedInfo, FeaturedSlug, Horizon, OsiedleInfo, Profile } from './types'
+import { shares, weightedMatch, type Weights } from './weighting'
 import './map.css'
 
 /** Imperative handle for the app shell and the cinematic transition (T7). */
@@ -45,15 +50,21 @@ export interface MapApi {
 
 export interface MapViewProps {
   profile: Profile
-  /** Survey priorities in selection order — drives the hover bars. */
+  /** Survey priorities in selection order (defaults for the weights when `weights` is not given). */
   priorities?: readonly CategoryKey[]
+  /** Category weights 0–100 (store `state.weights`). Without it the map keeps its own copy. */
+  weights?: Readonly<Record<CategoryKey, number>>
+  /** Store `setWeight`. */
+  onWeightChange?: (c: CategoryKey, v: number) => void
+  /** Store `resetWeights`. */
+  onResetWeights?: () => void
   horizon?: Horizon
   /** Slug from `/mapa/:slug`; when set the map chrome fades out and hover is off. */
   selectedSlug?: string | null
   onSelectFeatured: (slug: string) => void
   /** Called once, after the style, data and all map layers are ready. */
   onMapReady?: (map: MlMap, api: MapApi) => void
-  /** Presenter switch: when given, the "Polecane" panel shows a 3-profile toggle that calls this. */
+  /** Presenter switch: when given, the filter panel shows a 3-profile toggle that calls this. */
   onProfileChange?: (p: Profile) => void
   /** Hide all overlays (legend, panel, controls) — e.g. while the cinematic transition runs. */
   chrome?: boolean
@@ -69,11 +80,16 @@ const PADDED_BOUNDS: [[number, number], [number, number]] = [
   [MAP_BOUNDS[1][0] + 0.25, MAP_BOUNDS[1][1] + 0.06],
 ]
 
+const NO_PRIORITIES: readonly CategoryKey[] = []
+
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 export function MapView({
   profile,
-  priorities,
+  priorities = NO_PRIORITIES,
+  weights: weightsProp,
+  onWeightChange,
+  onResetWeights,
   selectedSlug = null,
   onSelectFeatured,
   onMapReady,
@@ -92,12 +108,42 @@ export function MapView({
   const interactiveRef = useRef(true)
   const chromeVisible = chrome && !selectedSlug
   const chromeRef = useRef(chromeVisible)
+
+  // ---- weights: the store's when given, else a local copy (dev harness) ----
+  const defaults = useMemo(() => deriveWeights(profile, priorities), [profile, priorities])
+  const [localWeights, setLocalWeights] = useState<{ base: Weights; w: Weights }>({ base: defaults, w: defaults })
+  if (!weightsProp && localWeights.base !== defaults) setLocalWeights({ base: defaults, w: defaults })
+  const weights: Weights = useMemo(
+    () => (weightsProp ? sanitizeWeights(weightsProp, defaults) : localWeights.w),
+    [weightsProp, defaults, localWeights],
+  )
+  const setWeight = useCallback(
+    (c: CategoryKey, v: number) => {
+      if (onWeightChange) onWeightChange(c, v)
+      else setLocalWeights((s) => ({ ...s, w: { ...s.w, [c]: v } }))
+    },
+    [onWeightChange],
+  )
+  const resetWeights = useCallback(() => {
+    if (onResetWeights) onResetWeights()
+    else setLocalWeights((s) => ({ ...s, w: s.base }))
+  }, [onResetWeights])
+  const isDefault = CATEGORY_ORDER.every((c) => weights[c] === defaults[c])
+
+  const [solo, setSolo] = useState<CategoryKey | null>(null)
+  const mix: Mix = useMemo(() => ({ shares: shares(weights, solo), solo }), [weights, solo])
+  const mixRef = useRef(mix)
   useLayoutEffect(() => {
     onReadyRef.current = onMapReady
     onSelectRef.current = onSelectFeatured
     profileRef.current = profile
     chromeRef.current = chromeVisible
+    mixRef.current = mix
   })
+  const [poi, setPoi] = useState<PoiData | null>(null)
+  const [metrics, setMetrics] = useState<MetricsIndex | null>(null)
+  const [poiHover, setPoiHover] = useState<{ key: string; c: number; n: string; t: string; s: string } | null>(null)
+  const poiTipRef = useRef<HTMLDivElement>(null)
 
   const [data, setData] = useState<MapData | null>(null)
   const [mapInst, setMapInst] = useState<MlMap | null>(null)
@@ -143,8 +189,8 @@ export function MapView({
       if (el.clientWidth < 1024) el.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show')
       const d = await dataP
       if (cancelled) return
-      addMapLayers(map, d, profileRef.current)
-      addFeaturedLayers(map, profileRef.current)
+      addMapLayers(map, d, profileRef.current, mixRef.current)
+      addFeaturedLayers(map, null)
       appliedProfile.current = profileRef.current
       hoverRef.current = new HoverController(map, {
         getProfile: () => profileRef.current,
@@ -174,6 +220,34 @@ export function MapView({
 
       setData(d)
       setMapInst(map)
+
+      // POI points + real numbers for the hover card: after the first frame, off the critical path
+      void loadPoi()
+        .then((p) => {
+          if (cancelled || !map.getStyle()) return
+          addPoiLayers(map, p)
+          setPoi(p)
+        })
+        .catch(() => undefined)
+      void loadMetrics().then((m) => !cancelled && setMetrics(m))
+      let poiKey: string | undefined
+      map.on('mousemove', (e) => {
+        const layers = [POI_LAYER.solo, POI_LAYER.pri].filter((l) => map.getLayer(l) && map.getLayoutProperty(l, 'visibility') !== 'none')
+        const f = layers.length && interactiveRef.current ? map.queryRenderedFeatures(e.point, { layers })[0] : undefined
+        if (!f) {
+          if (poiKey !== undefined) setPoiHover(null)
+          poiKey = undefined
+          return
+        }
+        const tip = poiTipRef.current
+        if (tip) tip.style.transform = `translate3d(${Math.round(e.point.x)}px, ${Math.round(e.point.y)}px, 0)`
+        const pr = f.properties ?? {}
+        const key = `${(f.geometry as GeoJSON.Point).coordinates.join(',')}|${pr.n}`
+        if (key === poiKey) return
+        poiKey = key
+        setPoiHover({ key, c: Number(pr.c), n: String(pr.n ?? ''), t: String(pr.t ?? ''), s: String(pr.s ?? '') })
+      })
+      map.getCanvasContainer().addEventListener('mouseleave', () => setPoiHover(null))
       map.easeTo({ ...homeCamera(map, padding()), duration: reducedMotion() ? 0 : 1600 })
       const api: MapApi = {
         map,
@@ -209,9 +283,56 @@ export function MapView({
     if (!map || !data) return
     if (appliedProfile.current === profile) return
     applyProfile(map, profile, appliedProfile.current)
-    applyFeaturedProfile(map, profile)
     appliedProfile.current = profile
   }, [profile, data])
+
+  // ---- weights / solo → heat + fills (coalesced to one paint update per frame) ----
+  const appliedMix = useRef<Mix | null>(null)
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !data) return
+    if (!appliedMix.current) {
+      appliedMix.current = mix // layers were created with this mix
+      return
+    }
+    const raf = requestAnimationFrame(() => {
+      applyMix(map, data, mix)
+      appliedMix.current = mix
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [mix, data])
+
+  // ---- honest ranking: weighted match of every osiedle (solo does not change the ranking) ----
+  const ranking = useMemo(() => {
+    if (!data) return null
+    const match = new Map<string, number>()
+    for (const o of data.info.values()) match.set(o.id, weightedMatch(o.cats, weights))
+    const sh = shares(weights)
+    const exact = (o: OsiedleInfo) => CATEGORY_ORDER.reduce((v, c, i) => v + sh[i] * o.cats[c], 0)
+    const order = [...data.info.values()].map((o) => ({ id: o.id, v: exact(o) })).sort((a, b) => b.v - a.v || a.id.localeCompare(b.id))
+    const rank = new Map(order.map((x, i) => [x.id, i + 1]))
+    return { match, rank, total: order.length }
+  }, [data, weights])
+
+  const featuredRanks = useMemo(() => {
+    const out: Record<string, FeaturedRank> = {}
+    if (!data || !ranking) return out
+    for (const f of data.featured) out[f.slug] = { rank: ranking.rank.get(f.msiId) ?? 0, match: ranking.match.get(f.msiId) ?? 0 }
+    return out
+  }, [data, ranking])
+  const bestSlug = data?.featured.find((f) => featuredRanks[f.slug]?.rank === 1)?.slug ?? null
+  useEffect(() => {
+    const map = mapRef.current
+    if (map && data) applyFeaturedBest(map, bestSlug)
+  }, [bestSlug, data])
+
+  // ---- POI points: solo category at any zoom, priorities (≥ 80 %) from zoom 12 ----
+  const priorityCats = useMemo(() => CATEGORY_ORDER.filter((c) => weights[c] >= PRIORITY_WEIGHT), [weights])
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !poi) return
+    applyPoi(map, { solo, priorities: priorityCats, visible: chromeVisible })
+  }, [poi, solo, priorityCats, chromeVisible])
 
   // ---- hover + clicks off while an osiedle is selected ----
   useEffect(() => {
@@ -238,6 +359,22 @@ export function MapView({
   }, [toastSeq])
 
   const hovered = hoveredId && data ? (data.info.get(hoveredId) ?? null) : null
+  const cardData: HoverCardData | null = useMemo(() => {
+    if (!hovered || !ranking) return null
+    const cats = topCategories(weights, solo, 3)
+    const m = metrics?.get(hovered.id)
+    const { facts, from } = factsFor(cats, m, poi, m?.anchor ?? hovered.labelPoint, 3)
+    return {
+      info: hovered,
+      match: ranking.match.get(hovered.id) ?? 0,
+      rank: ranking.rank.get(hovered.id) ?? 0,
+      total: ranking.total,
+      cats,
+      solo,
+      facts,
+      factsFrom: from,
+    }
+  }, [hovered, ranking, weights, solo, metrics, poi])
   const hoveredFeatured = useMemo(
     () => (hovered?.featuredSlug && data ? (data.featured.find((f) => f.slug === hovered.featuredSlug) ?? null) : null),
     [hovered, data],
@@ -277,35 +414,43 @@ export function MapView({
         <FeaturedMarkers
           map={mapInst}
           featured={data.featured}
-          profile={profile}
+          ranks={featuredRanks}
           highlighted={highlighted}
           selectedSlug={selectedSlug}
           onSelect={select}
           onHover={setPanelHover}
         />
       )}
-      <HoverCard
-        ref={cardRef}
-        info={chromeVisible && !panelHover ? hovered : null}
-        featured={hoveredFeatured}
-        profile={profile}
-        priorities={priorities}
-      />
+      <HoverCard ref={cardRef} data={chromeVisible && !panelHover && !poiHover ? cardData : null} featured={hoveredFeatured} profile={profile} />
+      <div ref={poiTipRef} className={`smap-poi-tip${poiHover && chromeVisible ? ' is-visible' : ''}`} role="tooltip" aria-hidden={!poiHover}>
+        {poiHover && (
+          <span className="smap-poi-tip__inner" key={poiHover.key}>
+            <strong>
+              <i style={{ background: CATEGORY_COLORS[CATEGORY_ORDER[poiHover.c]] ?? '#8a8a99' }} aria-hidden />
+              {poiHover.n || poiHover.t}
+            </strong>
+            <span>
+              {poiHover.n ? `${poiHover.t} · ` : ''}źródło: {poiHover.s}
+            </span>
+          </span>
+        )}
+      </div>
       <div className="smap__chrome">
         {data && (
           <div className="smap__left">
-            <RecommendedPanel
-              featured={data.featured}
+            <FilterPanel
+              weights={weights}
               profile={profile}
-              highlighted={highlighted}
-              onHover={setPanelHover}
-              onSelect={select}
+              isDefault={isDefault}
+              onWeight={setWeight}
+              onReset={resetWeights}
+              onSoloChange={setSolo}
               onProfileChange={onProfileChange}
             />
           </div>
         )}
         <div className="smap__bl">
-          <Legend profile={profile} zoomedIn={zoomedIn} />
+          <Legend profile={profile} zoomedIn={zoomedIn} solo={solo} heatSource={data?.heatSource ?? null} />
         </div>
         <div className="smap__tr">
           <MapControls onZoomIn={() => zoomBy(1)} onZoomOut={() => zoomBy(-1)} onReset={reset} />

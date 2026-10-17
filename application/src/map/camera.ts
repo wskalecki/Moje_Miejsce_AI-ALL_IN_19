@@ -15,10 +15,10 @@ export function homeCamera(map: MlMap, padding: { top: number; bottom: number; l
   return { center: [c.lng, c.lat] as [number, number], zoom, pitch: 0, bearing: 0 }
 }
 
-/** Padding for the home camera; reserves the left column for the "Polecane" panel on wide screens. */
+/** Padding for the home camera; reserves the left column for the filter panel on wide screens. */
 export function homePadding(panel = true, width = 1440) {
-  // < 1024 px: sentence bar on top, "Polecane" bottom sheet below (QA #9)
-  if (width < 1024) return { top: 76, bottom: panel ? 210 : 48, left: 24, right: 24 }
+  // < 1024 px: sentence bar + legend on top, filter bottom sheet below (QA #9)
+  if (width < 1024) return { top: panel ? 190 : 76, bottom: panel ? 280 : 48, left: 24, right: 24 }
   const left = panel ? 360 + 24 + 32 : 48
   return { top: 48, bottom: 48, left, right: 72 }
 }

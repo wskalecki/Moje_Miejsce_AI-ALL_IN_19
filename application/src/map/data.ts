@@ -3,8 +3,18 @@ import { buildFeatured } from './featured'
 import { DATA_URLS } from '../app/config'
 import { fetchJson } from '../app/mapLoader'
 import { CATEGORY_ORDER } from './tokens'
+import { deriveCategoryHeat, loadPoi, type PoiData } from './poi'
 import type { CategoryKey, FeaturedInfo, LngLat, OsiedleInfo, Profile } from './types'
-import { PROFILES } from './types'
+import { catProp } from './weighting'
+
+/** Per-category heat from the data team (values 0–1, columns in `categories` order). */
+export const HEAT_CATEGORIES_URL = '/data/heat-categories.json'
+
+interface HeatCategoriesFile {
+  categories: string[]
+  points: number[][]
+  spacing_m?: number
+}
 
 interface HeatFile {
   bbox: [number, number, number, number]
@@ -19,7 +29,12 @@ type ScoreEntry = Record<Profile, number> & {
 }
 
 export interface MapData {
+  /** Heat grid; props `c0…c9` = per-category values 0–1 in CATEGORY_ORDER. */
   heat: FeatureCollection<Point>
+  /** Same values as plain rows (for the normalisers). */
+  heatRows: ArrayLike<number>[]
+  /** `data` = heat-categories.json, `poi` = temporary kernel density of the POI files. */
+  heatSource: 'data' | 'poi'
   heatSpacingM: number
   osiedla: FeatureCollection<Polygon | MultiPolygon>
   labels: FeatureCollection<Point>
@@ -137,71 +152,79 @@ export function loadMapData(): Promise<MapData> {
   return cache
 }
 
+/** `fetchJson`, but a missing / non-JSON file (Vite answers unknown paths with index.html) resolves to null. */
+function optionalJson<T>(url: string): Promise<T | null> {
+  return fetchJson<T>(url).catch(() => null)
+}
+
+function catIndex(keys: readonly string[]): number[] {
+  return CATEGORY_ORDER.map((c) => keys.findIndex((k) => k === c || (c === 'zycieNocne' && k === 'zycie_nocne')))
+}
+
+function validHeatCategories(f: HeatCategoriesFile | null): f is HeatCategoriesFile {
+  if (!f || !Array.isArray(f.categories) || !Array.isArray(f.points) || !f.points.length) return false
+  return catIndex(f.categories).filter((i) => i >= 0).length >= CATEGORY_ORDER.length / 2
+}
+
+function bboxOf(geom: Polygon | MultiPolygon): [number, number, number, number] {
+  let x0 = Infinity
+  let y0 = Infinity
+  let x1 = -Infinity
+  let y1 = -Infinity
+  for (const poly of rings(geom))
+    for (const [x, y] of poly[0]) {
+      if (x < x0) x0 = x
+      if (y < y0) y0 = y
+      if (x > x1) x1 = x
+      if (y > y1) y1 = y
+    }
+  return [x0, y0, x1, y1]
+}
+
 async function load(): Promise<MapData> {
-  const [heatFile, scores, osiedla] = await Promise.all([
-    fetchJson<HeatFile>(DATA_URLS.heat),
+  const [heatCats, scores, osiedla] = await Promise.all([
+    optionalJson<HeatCategoriesFile>(HEAT_CATEGORIES_URL),
     fetchJson<Record<string, ScoreEntry>>(DATA_URLS.osiedlaScores),
     fetchJson<FeatureCollection<Polygon | MultiPolygon>>(DATA_URLS.osiedlaGeojson),
   ])
 
-  // Heat points → GeoJSON with short props s / r / n (0–1).
-  const idx = PROFILES.map((p) => heatFile.profiles.indexOf(p))
-  const heat: FeatureCollection<Point> = {
-    type: 'FeatureCollection',
-    features: heatFile.points.map((pt) => ({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: [pt[0], pt[1]] },
-      properties: {
-        s: (pt[2 + idx[0]] as number) ?? 0,
-        r: (pt[2 + idx[1]] as number) ?? 0,
-        n: (pt[2 + idx[2]] as number) ?? 0,
-      },
-    })),
-  }
-
-  const scoreMatch = (id: string) => {
-    const s = scores[id]
-    return s ? { student: s.student, rodzina: s.rodzina, senior: s.senior } : undefined
-  }
-  const featured = buildFeatured(scoreMatch)
+  const props = (f: Feature<Polygon | MultiPolygon>) => (f.properties ?? {}) as { id: string; name: string; district: string }
+  const byId = new Map(osiedla.features.map((f) => [props(f).id, f]))
+  const featured = buildFeatured((msiId) => {
+    const f = byId.get(msiId)
+    return f ? { name: props(f).name, district: props(f).district, center: labelPoint(f.geometry) } : undefined
+  })
   const featuredByMsi = new Map(featured.map((f) => [f.msiId, f]))
-
-  // Spec 6.3: non-featured match ≤ (featured #1 for P).match[P] − 5, so #1 is always the top.
-  const cap: Record<Profile, number> = { student: 99, rodzina: 99, senior: 99 }
-  for (const f of featured) cap[f.profile] = f.match[f.profile] - 5
 
   const info = new Map<string, OsiedleInfo>()
   const labels: Feature<Point>[] = []
   const featuredShapes: Feature<Polygon | MultiPolygon>[] = []
+  const shapes: { bbox: [number, number, number, number]; geom: Ring[][]; cats: Record<CategoryKey, number> }[] = []
 
   for (const f of osiedla.features) {
-    const p = (f.properties ?? {}) as { id: string; name: string; district: string }
+    const p = props(f)
     const s = scores[p.id]
     const fi = featuredByMsi.get(p.id)
-    const match = {} as Record<Profile, number>
-    for (const pr of PROFILES) {
-      const raw = fi ? fi.match[pr] : (s?.[pr] ?? 50)
-      match[pr] = fi ? raw : Math.min(raw, cap[pr])
-    }
     const lp = fi ? fi.center : labelPoint(f.geometry)
+    const cats = normCats(s?.cats)
     const entry: OsiedleInfo = {
       id: p.id,
       name: fi?.name ?? p.name,
       district: fi?.district ?? p.district,
-      match,
-      cats: normCats(fi?.stats ? { ...s?.cats, ...fi.stats } : s?.cats),
+      cats,
       blurb: s?.blurb ?? { student: '', rodzina: '', senior: '' },
       featuredSlug: fi?.slug ?? null,
       labelPoint: lp,
     }
     info.set(p.id, entry)
+    shapes.push({ bbox: bboxOf(f.geometry), geom: rings(f.geometry), cats })
+    const catProps: Record<string, number> = {}
+    CATEGORY_ORDER.forEach((c, i) => (catProps[catProp(i)] = cats[c]))
     f.properties = {
       id: p.id,
       name: entry.name,
       district: entry.district,
-      m_student: match.student,
-      m_rodzina: match.rodzina,
-      m_senior: match.senior,
+      ...catProps,
       featured: fi ? 1 : 0,
       ...(fi ? { featured_slug: fi.slug, owner: fi.profile } : {}),
     }
@@ -214,9 +237,48 @@ async function load(): Promise<MapData> {
       })
   }
 
+  // ---- per-category heat: the data team's file, else a temporary density of the POI files ----
+  let grid: LngLat[]
+  let rows: ArrayLike<number>[]
+  let heatSource: MapData['heatSource']
+  let spacing = 250
+  if (validHeatCategories(heatCats)) {
+    const idx = catIndex(heatCats.categories)
+    grid = heatCats.points.map((pt) => [pt[0], pt[1]] as LngLat)
+    rows = heatCats.points.map((pt) => Float32Array.from(idx, (i) => (i >= 0 ? Math.max(0, Math.min(1, Number(pt[2 + i]) || 0)) : 0)))
+    heatSource = 'data'
+    spacing = heatCats.spacing_m ?? spacing
+  } else {
+    const [heatFile, poi] = await Promise.all([fetchJson<HeatFile>(DATA_URLS.heat), loadPoi().catch(() => null)])
+    grid = heatFile.points.map((pt) => [pt[0], pt[1]] as LngLat)
+    spacing = heatFile.spacing_m ?? spacing
+    // categories without points use the score of the osiedle the grid point falls in
+    const scoreAt = (lng: number, lat: number, cat: CategoryKey) => {
+      for (const sh of shapes) {
+        const [x0, y0, x1, y1] = sh.bbox
+        if (lng < x0 || lng > x1 || lat < y0 || lat > y1) continue
+        if (sh.geom.some((poly) => inPoly(lng, lat, poly))) return sh.cats[cat] / 100
+      }
+      return 0
+    }
+    const empty: PoiData = { byCat: {} as PoiData['byCat'], sources: [], subtypeLabel: (x) => x, geojson: { type: 'FeatureCollection', features: [] } }
+    rows = deriveCategoryHeat(grid, poi ?? empty, scoreAt)
+    heatSource = 'poi'
+  }
+  const heat: FeatureCollection<Point> = {
+    type: 'FeatureCollection',
+    features: grid.map((coords, g) => {
+      const props: Record<string, number> = {}
+      for (let i = 0; i < CATEGORY_ORDER.length; i++) props[catProp(i)] = Math.round(rows[g][i] * 1000) / 1000
+      return { type: 'Feature', geometry: { type: 'Point', coordinates: coords }, properties: props }
+    }),
+  }
+
   return {
     heat,
-    heatSpacingM: heatFile.spacing_m ?? 250,
+    heatRows: rows,
+    heatSource,
+    heatSpacingM: spacing,
     osiedla,
     labels: { type: 'FeatureCollection', features: labels },
     featuredShapes: { type: 'FeatureCollection', features: featuredShapes },
