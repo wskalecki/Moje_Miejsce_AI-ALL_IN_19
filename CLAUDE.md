@@ -32,7 +32,7 @@ Use `feat` for new capability, `fix` for bugs. Keep the subject short and impera
 
 ## Product context
 
-Hackathon W3 — Warsaw open data; map of ~1 km cells to help choose where to live. See `docs/core/koncept-aplikacji.md`.
+Hackathon W3 — Warsaw open data; map of 200 m cells (EPSG:2180, see `docs/data/grid-schema.md`) to help choose where to live. See `docs/core/koncept-aplikacji.md`.
 
 ## Do not
 

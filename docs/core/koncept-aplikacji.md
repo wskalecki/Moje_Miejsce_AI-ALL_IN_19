@@ -1,6 +1,6 @@
 # Koncept aplikacji — wybór miejsca na życie w Warszawie
 
-**Robocza nazwa:** **Siatka** (mapa komórek ~1×1 km pomagająca zaplanować mieszkanie pod przyszłość rodziny)
+**Robocza nazwa:** **Siatka** (mapa komórek 200 × 200 m pomagająca zaplanować mieszkanie pod przyszłość rodziny)
 
 **Wyzwanie hackathonu:** W3 „Warszawa: Twój ruch!” — aplikacja wspiera **świadomy wybór lokalizacji** (gdzie mieszkać, jak się poruszać, jak żyć w mieście na lata).
 
@@ -22,7 +22,7 @@ Młode osoby i młode rodziny planujące mieszkanie w Warszawie dostają setki o
 
 ---
 
-## Główna idea UX: mapa kwadratów ~1 km × 1 km
+## Główna idea UX: mapa kwadratów 200 m × 200 m
 
 | Element | Opis |
 |--------|------|
@@ -33,7 +33,7 @@ Młode osoby i młode rodziny planujące mieszkanie w Warszawie dostają setki o
 | **Tryb warstw** | Włącz/wyłącz: edukacja, sport, kultura, środowisko, transport, bezpieczeństwo (wg dostępności danych). |
 | **„Plamy” (heatmapy zagregowane)** | Zamiast setek pinów: **gęstość** w komórce — sport, wydarzenia kulturowe, restauracje (proxy), zieleń — czytelne na skali miasta. |
 
-**Dlaczego 1 km:** wystarczająco dużo, by zobaczyć **sąsiedztwo i dzielnicę**, wystarczająco mało, by porównać **konkurencyjne lokalizacje** bez mikroskopii ulicy.
+**Dlaczego 200 m:** komórka obejmuje kilka kwartałów, więc odróżnia **cichą ulicę od ruchliwej arterii** (hałas, dojście do przystanku). Na skali miasta ok. 13 tys. komórek nadal czyta się jak heatmapę, a **dzielnice** porównujemy na wyższym poziomie agregacji.
 
 ---
 
@@ -84,7 +84,7 @@ Młode osoby i młode rodziny planujące mieszkanie w Warszawie dostają setki o
 
 | Potrzeba | W produkcie | Źródło |
 |----------|-------------|--------|
-| Mapa przestępczości / zdarzeń | Heatmapa (z **anonimizacją**, agregacja do komórki 1 km — bez adresów) | **Poza katalogiem** (KWP / otwarte statystyki dzielnic). **Wymaga ostrożnej prezentacji** (etyka, brak stygmatyzacji osiedli). |
+| Mapa przestępczości / zdarzeń | Heatmapa (z **anonimizacją**, agregacja co najmniej do 1 km (5 × 5 komórek siatki) albo do dzielnicy — bez adresów) | **Poza katalogiem** (KWP / otwarte statystyki dzielnic). **Wymaga ostrożnej prezentacji** (etyka, brak stygmatyzacji osiedli). |
 | Wysokość zabudowy | Średnia / max wysokość w komórce — „kanyon” vs „niska zabudowa” | **Poza katalogiem** (BDOT / modele 3D UM) |
 
 ### Finanse (pewność planowania)
@@ -160,7 +160,7 @@ Młode osoby i młode rodziny planujące mieszkanie w Warszawie dostają setki o
 
 ### W zakresie (must have)
 
-- Siatka 1 km z **kolorowaniem** pod 3 persony.
+- Siatka 200 m z **kolorowaniem** pod 3 persony.
 - **Pin pracy** + prosty filtr czasu dojazdu (heurystyka OK).
 - Warstwy z katalogu: **przystanki**, **powietrze**, **toalety**, **boiska**, **zajęcia sportowe**, **wydarzenia**, **utrudnienia**, **RCN** (po dzielnicy).
 - Panel komórki z **liczbami** i 3 zdaniami „dlaczego tu”.
@@ -178,7 +178,7 @@ Młode osoby i młode rodziny planujące mieszkanie w Warszawie dostają setki o
 | Ryzyko | Mitigacja |
 |--------|-----------|
 | Brak szkół w API katalogu | Import CSV do `data/` + geokodowanie; na demo — 1 dzielnica pełna, reszta przybliżona |
-| Crime heatmap | Tylko agregat 1 km, komunikat o ograniczeniach danych |
+| Crime heatmap | Tylko agregat ≥ 1 km (5 × 5 komórek) albo dzielnica, komunikat o ograniczeniach danych |
 | Czas dojazdu bez Google | Szacunek: odległość ÷ średnia prędkość + bonus za metro w komórce |
 | Restauracje | OSM lub warstwa wyłączona w MVP |
 

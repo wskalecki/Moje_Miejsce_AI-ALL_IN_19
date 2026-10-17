@@ -33,9 +33,9 @@ issue() {
   gh issue create "${args[@]}"
 }
 
-issue "Epic: Interactive 1 km grid map with 3D buildings (MVP)" "Track MVP map delivery." epic
+issue "Epic: Interactive 200 m grid map with 3D buildings (MVP)" "Track MVP map delivery." epic
 
-issue "Define Warsaw 1 km grid generator and publish sample GeoJSON" "Ship data/scripts/generate_grid.py and sample grid for frontend. Owner: P1" data
+issue "Define Warsaw 200 m grid generator and publish sample GeoJSON" "Ship data/scripts/generate_grid.py and sample grid for frontend. Owner: P1" data
 
 issue "Add data/manifest.json and validate_data.py" "Machine-readable index and validation script. Owner: P1" data
 
