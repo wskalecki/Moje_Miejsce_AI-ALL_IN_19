@@ -224,3 +224,40 @@ Wnioski:
 7. Atrybucja: dopisać „© OpenStreetMap, OpenFreeMap, © OpenMapTiles” pod filmem w `Interlude.tsx` i `Hero.tsx`, a w `Credits.tsx` dodać „zdjęcia przycięte i zmniejszone”.
 8. Dojazd: wpisać czasy z GTFS (gałąź `mikolaj`) i OSRM, a przy aucie i korkach dodać w UI „szacunek”.
 9. Na pitchu mówić wprost: „trzy osiedla to przykłady pokazowe, ich wyniki są ustawione ręcznie”. Albo usunąć nadpisania i pokazać prawdziwe 1. miejsca.
+
+## Iteracja 2 — 3 osiedla
+
+Stan z **17.10.2026**. Nowe wyróżnione osiedla to 1. miejsca uczciwego rankingu (`docs/core/mock-iteracja-2.md`): **Muranów** (student, #1, 92%), **Natolin** (rodzina, #3, 78%) i **Stare Bielany** (senior, #1, 79%). Powiśle, Miasteczko Wilanów i Saska Kępa zostały usunięte razem z ich treścią i zdjęciami.
+
+`application/src/mock/osiedla.ts` jest teraz **generowany** przez `data/scripts/build_featured_content.py`. Skrypt łączy:
+- liczby z `osiedla-metrics.json` i `osiedla-scores.json`,
+- trasy OSRM,
+- GTFS,
+- ręcznie zebrane i opisane źródłami pliki `data/featured/<slug>.json` (miejsca, cele tras, oś czasu, ceny, linki, zdjęcia).
+
+Nic nie jest strojone ręcznie. Ponowne uruchomienie (`--offline` korzysta z cache OSRM i Nominatim w `data/raw/featured_*`) daje ten sam plik.
+
+| Pole | Status | Źródło / metoda | Uwagi |
+|---|---|---|---|
+| `stats` (10 kategorii), `match`, `rank` | **POCHODNE** | Kopia `osiedla-scores.json` / `osiedla-metrics.json` (`build_osiedle_metrics.py`), bez nadpisań | Muranów #1 / #4 / #5 (student / rodzina / senior), Natolin #32 / #3 / #4, Stare Bielany #7 / #1 / #1 |
+| `metrics` (20 liczb, np. przedszkola w 1 km, odjazdy, metro, hałas ≥ 60 dB) | **PRAWDZIWE / POCHODNE** | `osiedla-metrics.json`: wartość, jednostka, nazwa źródła | Liczone od punktu odniesienia osiedla (punkt adresowy w środku zabudowy), który jest też `center` |
+| `highlights` (9–10 na osiedle, kolejność: edukacja, zieleń, kultura, zdrowie, komunikacja, zakupy) | **PRAWDZIWE** | Obiekty OSM (id w polu `source`), metro z GTFS ZTM; nazwy i adresy z OSM / Nominatim | Opisy zawierają tylko typ, adres i powierzchnię. Część miejsc leży tuż za granicą MSI (Las Bielański, AWF, kościół pokamedulski, Las Kabacki) i opisy nie twierdzą, że są w osiedlu |
+| `highlights.distanceM`, `walkMin` | **POCHODNE** | OSRM FOSSGIS, profil `foot`, od punktu odniesienia | Dla parków i lasów liczone do najbliższego punktu krawędzi wieloboku OSM (`distanceTo: 'skraj'`). Powierzchnia „ok. X ha” policzona z wieloboku OSM |
+| `routes` (13–14 / 9 tras, w grupach `group`: uczelnia, szkoła, przedszkole, przychodnia, kultura, park) | **PRAWDZIWE** | OSRM FOSSGIS (`routed-foot`, `routed-bike`), geometria trasy pieszej uproszczona o 2 m | Po 2–4 cele w grupie, nie tylko najbliższy. Minuty pieszo i rowerem to czas OSRM, zaokrąglony |
+| `commute.komunikacja` | **POCHODNE** | `data/grid/czasy_przejazdu.geojson` (GTFS ZTM, dzień 19.10.2026, przyjazd 7:30–9:00): mediana średnich czasów z 43–83 komórek 200 m w poligonie MSI | Cele: Rondo Dmowskiego, Rondo Daszyńskiego, Służewiec. Bez czekania na pierwszy pojazd. Muranów → centrum 16 min (zgodne z `travel_centrum_wszystkie_min`, co skrypt sprawdza) |
+| `commute.rower`, `commute.pieszo` | **POCHODNE** | OSRM `bike` / `foot` z punktu odniesienia do celu | Pieszo tylko do 60 min. **Auta brak**, bo nie ma prawdziwego źródła czasów w korkach |
+| `traffic` (24 wartości), `trafficSource` | **POCHODNE** | Mediana obszaru z `public/data/3d/<slug>/traffic.json` (`build_traffic.py`) × 100 = o ile % autobusy i tramwaje jadą wolniej niż w najszybszej godzinie, według rozkładu ZTM | To nie są korki samochodowe. Szczyt: Muranów 12%, Natolin 17%, Stare Bielany 12%. Stare krzywe (WYMYŚLONE) usunięte |
+| `prices.buyPerM2`, `rentPerM2` | **PRAWDZIWE** (średnia ofertowa) | Otodom, wszystkie strony wyników dla lokalizacji osiedla, odczyt 17.10.2026, bez duplikatów. Próba: Muranów 140 sprzedaż / 152 najem, Natolin 91 / 67, Stare Bielany 50 / 32 | Muranów 21 200 zł/m² i 85 zł/m², Natolin 17 382 i 66, Stare Bielany 17 134 i 74. Granice lokalizacji Otodom nie są publikowane i mogą odbiegać od MSI. Stare Bielany ma małą próbę |
+| `prices.rent2PokAvg` | **PRAWDZIWE** (mediana) | Ta sama próba, ogłoszenia 2-pokojowe | 3 700 / 3 000 / 3 000 zł miesięcznie (bez czynszu administracyjnego) |
+| `prices.rcnNote` | **PRAWDZIWE** (transakcje) | RCN GUGiK WFS `ms:lokale`, lokale mieszkalne w poligonie MSI, od I 2025 | Mediany: Muranów 18 844 zł/m² (n=273), Natolin 15 632 (n=171), Stare Bielany 16 978 (n=127). Rejestr ma ok. 8 miesięcy opóźnienia |
+| `prices.cityBuyPerM2`, `cityRentPerM2` | **PRAWDZIWE** | Adresowo IX 2026 (17 975 zł/m², 1 870 ofert), Znajdź Najem X 2026 (84 zł/m², 46 410 ofert) | `estimate: false` dla wszystkich 3 osiedli |
+| `portals` | **PRAWDZIWE** | Otodom `srodmiescie/muranow`, `ursynow/natolin`, `bielany/stare-bielany`; Morizon `/warszawa/<slug>/` | Liczba wyników sprawdzona 17.10.2026 (`rentCount`, `buyCount`), każdy link coś zwraca |
+| `timeline` (6 / 5 / 6 wydarzeń) | **PRAWDZIWE** | Każde wydarzenie ma `sourceUrl`, `checkedAt` i status sprawdzony w X 2026 | `year` tylko z oficjalnej zapowiedzi. Bez niej: `yearUncertain: true` + `yearPlacement`, czyli BO z roku edycji, M4 „do 2044”, a w pozostałych przypadkach koszyk 2040 „bez terminu”. Odrzucone jako nieaktualne: pętla tramwajowa Muranowska (ostatnie źródło z 2022), przedszkola zakończone w 2019 i 2022 |
+| `timeline.statDeltas`, `matchDelta(s)` | **POCHODNE** | Pole `effect` w `data/featured/*.json` zmienia metryki osiedla (odległość do nowej stacji, +1 obiekt w 1 km, udział zieleni dla parku jako koło o podanej powierzchni). Potem kategorie są liczone od nowa dla 143 osiedli tą samą metodą co w `build_osiedle_metrics.py`. Różnice sumują się po kolei | Tylko 2 z 17 wydarzeń zmieniają liczby: stacja M1 Muranów (bez terminu, metro 611 → 329 m, komunikacja +1) i park linearny nad POW w Natolinie (12,5 ha, zieleń +7, dopasowanie rodziny i seniora +1, przybliżenie kołem). Opis wyliczenia jest w polu `derivation` |
+| `tagline`, `summary` (`aiSummary` = to samo) | **POCHODNE (szablon)**, `summaryKind: 'z-danych'` | Stały szablon. Mocne strony to 2 kategorie o największym wkładzie (waga profilu × wynik), słabość to najsłabsza kategoria (jeśli < 50 przy wadze ≥ 0,1 albo < 30 ogółem) | Etykieta w UI zmieniona z „Podsumowanie AI” na „W skrócie” |
+| `heroImages` (6 na osiedle), `thumb.jpg` | **PRAWDZIWE** | Wikimedia Commons; autor i licencja z metadanych Commons w `public/osiedla/credits.json` (pole `modification`: „kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG”) | Licencje: CC0, CC BY 3.0/4.0, CC BY-SA 2.0/3.0/3.0 pl/4.0. Filmów przelotu (`flyover.*`) dla nowych osiedli jeszcze nie ma, więc Hero pokazuje zdjęcia |
+| `cameraBearing`, `cameraZoom` | **Kadrowanie** | Ręcznie, w `data/featured/*.json` | Nie jest daną |
+
+Otwarte sprawy:
+- Oś czasu w UI kończy się na 2030 r. Wydarzenia z 2031, 2040 i 2044 są w danych, ale suwak ich jeszcze nie pokazuje (zadanie I2-7). Etykieta „w toku” dla wydarzeń z 2026 r. wynika z logiki osi czasu, a nie ze statusu w danych.
+- Wykres „Korki w ciągu doby” ma progi 35 i 65 oraz podpowiedź „Wyjedź o…”, zaprojektowane pod dawny indeks. Na prawdziwym spowolnieniu z rozkładu (maksymalnie 12–17%) wykres zawsze pokazuje „płynnie” i podpowiedź „Tu rzadko stoi się w korkach”. To prawda dla rozkładu autobusów i tramwajów, ale nie dla ruchu aut. Do przeprojektowania razem z warstwą korków (I2-6).

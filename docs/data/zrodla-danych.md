@@ -105,7 +105,6 @@ Trzeci poziom hierarchii: dzielnica (18) → obszar MSI (143) → kwartał, czyl
 - **Właściwości:** `id` (`<msi_id>--<slug nazwy>`), `name`, `name_source`, `osiedle`, `msi_id`, `district`, `area_km2`, `residential` (`residential=*` z OSM albo `apartments`/`houses` z mediany kondygnacji), `buildings`, `floors_max`, `source`.
 - **Licencja:** ODbL (OSM, podać „© współtwórcy OpenStreetMap”) oraz dane m.st. Warszawy (budynki i MSI, podać „Urząd m.st. Warszawy”).
 
-
 ## 3. Inne źródła
 
 | Źródło | Co | Status | Uwagi |
@@ -199,9 +198,13 @@ Uwaga: tramwaj do Miasteczka Wilanów już działa (otwarty w 2024 r., 6,5 km), 
 **Pozostałe dane w mocku:**
 - Trasy (`routes[].geometry`) pochodzą z OSRM FOSSGIS (`https://routing.openstreetmap.de/routed-foot/route/v1/driving/{lon,lat;lon,lat}?overview=full&geometries=geojson`, wariant `routed-bike` dla roweru), dane © OpenStreetMap (ODbL). Publiczne demo `router.project-osrm.org` ma tylko profil samochodowy i ignoruje `foot`.
 - Szkoły, przedszkola i przychodnie wybraliśmy z OSM (Overpass, Nominatim). Overpass w X 2026 często zwraca błędy 502 i 500, wtedy Nominatim (`?q=…&format=json`) wystarcza do pojedynczych punktów.
-- Korki (`traffic`) i czasy dojazdu (`commute`) to nasze szacunki typowego dnia roboczego, a nie pomiar.
+- Od iteracji 2 (Muranów, Natolin, Stare Bielany) `traffic` to planowe spowolnienie autobusów i tramwajów z rozkładu ZTM (`data/scripts/osm3d/build_traffic.py`), a `commute` to GTFS (`data/grid/czasy_przejazdu.geojson`) + OSRM, bez czasów autem. Generuje je `data/scripts/build_featured_content.py`, opis pól w `docs/data/raport-danych.md` (sekcja „Iteracja 2 — 3 osiedla”). Wcześniejsze krzywe korków i czasy dojazdu były szacunkami.
 - Zdjęcia pochodzą z Wikimedia Commons, autorów i licencje podajemy w `application/public/osiedla/credits.json`. Commons przy pobieraniu oryginałów szybko zwraca HTTP 429, dlatego pobieraj miniatury `iiurlwidth=1920` (`thumburl`) z przerwą kilku sekund między plikami.
 - Wyszukiwanie w portalach: w otodom Saska Kępa ma ścieżkę `praga--poludnie/saska-kepa` (podwójny myślnik), a Miasteczko Wilanów to `wilanow/blonia-wilanowskie`. Morizon używa krótkich ścieżek: `/mieszkania/warszawa/powisle/`, `/saska-kepa/`, `/blonia-wilanowskie/`.
+- Nowe osiedla (sprawdzone 17.10.2026): otodom `srodmiescie/muranow`, `bielany/stare-bielany`, `ursynow/natolin`; Morizon `/mieszkania/warszawa/{muranow,stare-bielany,natolin}/` i `/do-wynajecia/mieszkania/warszawa/…/`. Ścieżka z dzielnicą w Morizonie (`/warszawa/bielany/stare-bielany/`) daje 404.
+- Scraping otodom: `curl` z przeglądarkowym User-Agent działa bez blokady. Dane są w `<script id="__NEXT_DATA__" … crossorigin="anonymous">` (tag ma dodatkowy atrybut), w `searchAds.items` (`totalPrice`, `areaInSquareMeters`, `pricePerSquareMeter`, `roomsNumber`, `location.reverseGeocoding`). Przy `limit=72` strona zwraca tylko ok. 46–49 ogłoszeń. `pagination.totalItems` jest większe od liczby unikalnych ogłoszeń (Muranów, sprzedaż: 284 wobec 147 przy 5 sortowaniach), bo prawdopodobnie liczy lokale w inwestycjach (`estate: INVESTMENT`). Na liście są też promowane oferty z sąsiednich osiedli, więc filtruj po `reverseGeocoding`.
+- Morizon: `?page=1` i strona za ostatnią zwracają 404 („Pod tym adresem nic nie ma”). Pierwsza strona to URL bez parametru.
+- RCN WFS (sekcja 3a): w naszym teście filtr FES na `DOK_DATA` nie zawęził wyniku, a `RESULTTYPE=hits` dawał ok. 460 tys. Dlatego pobieraliśmy po samym BBOX w EPSG:2180, a daty filtrowaliśmy lokalnie. Najnowsze akty w poligonach: Natolin 29.01.2026, Stare Bielany 16.02.2026, Muranów 24.04.2026.
 
 ## 6. Budynki, drogi, zieleń 3D dla 3 osiedli (OSM) ✅
 

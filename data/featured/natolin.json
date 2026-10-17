@@ -1,0 +1,461 @@
+{
+  "slug": "natolin",
+  "msiId": "natolin",
+  "profile": "rodzina",
+  "camera": {
+    "bearing": 160,
+    "zoom": 15.6
+  },
+  "highlights": [
+    {
+      "id": "las-kabacki",
+      "name": "Las Kabacki",
+      "category": "zielen",
+      "coord": [
+        21.06291,
+        52.12613
+      ],
+      "osm": "relation/6836419",
+      "green": "relation/6836419",
+      "description": "Rezerwat przyrody Las Kabacki im. Stefana Starzyńskiego."
+    },
+    {
+      "id": "lasek-brzozowy",
+      "name": "Lasek Brzozowy",
+      "category": "zielen",
+      "coord": [
+        21.05812,
+        52.14155
+      ],
+      "osm": "way/23361657",
+      "green": "way/23361657",
+      "description": "Park obok stacji metra Natolin."
+    },
+    {
+      "id": "sp-340",
+      "name": "Szkoła Podstawowa nr 340",
+      "category": "edukacja",
+      "coord": [
+        21.063,
+        52.13974
+      ],
+      "osm": "way/25354441",
+      "description": "Publiczna szkoła podstawowa im. prof. B. Molskiego."
+    },
+    {
+      "id": "p-267",
+      "name": "Przedszkole nr 267",
+      "category": "edukacja",
+      "coord": [
+        21.05589,
+        52.13674
+      ],
+      "osm": "way/736324506",
+      "description": "Publiczne przedszkole, ul. Małcużyńskiego 4."
+    },
+    {
+      "id": "nok",
+      "name": "Natoliński Ośrodek Kultury",
+      "category": "kultura",
+      "coord": [
+        21.05066,
+        52.13868
+      ],
+      "osm": "way/29068550",
+      "description": "Dom kultury, ul. Na Uboczu 3."
+    },
+    {
+      "id": "biblioteka-127",
+      "name": "Wypożyczalnia nr 127",
+      "category": "kultura",
+      "coord": [
+        21.05099,
+        52.13887
+      ],
+      "osm": "node/1387210146",
+      "description": "Biblioteka publiczna, ul. Braci Wagów 1."
+    },
+    {
+      "id": "spzoz-ursynow",
+      "name": "Przychodnia SPZOZ Warszawa-Ursynów",
+      "category": "zdrowie",
+      "coord": [
+        21.04982,
+        52.1385
+      ],
+      "osm": "relation/1388106",
+      "description": "Publiczna przychodnia (SPZOZ Warszawa-Ursynów)."
+    },
+    {
+      "id": "metro-natolin",
+      "name": "Metro Natolin (M1)",
+      "category": "komunikacja",
+      "coord": [
+        21.0564,
+        52.14112
+      ],
+      "osm": "ztm:3281M",
+      "description": "Najbliższa stacja metra (linia M1)."
+    },
+    {
+      "id": "bazarek-na-dolku",
+      "name": "Bazarek „Na Dołku”",
+      "category": "zakupy",
+      "coord": [
+        21.05293,
+        52.14635
+      ],
+      "osm": "way/817599234",
+      "description": "Targowisko przy ul. Płaskowickiej."
+    }
+  ],
+  "routeGroups": [
+    {
+      "group": "szkola",
+      "label": "Szkoła",
+      "category": "edukacja",
+      "destinations": [
+        {
+          "id": "sp-340",
+          "name": "Szkoła Podstawowa nr 340",
+          "coord": [
+            21.063,
+            52.13974
+          ],
+          "osm": "way/25354441"
+        },
+        {
+          "id": "sp-336",
+          "name": "Szkoła Podstawowa nr 336",
+          "coord": [
+            21.05617,
+            52.13585
+          ],
+          "osm": "way/736324505"
+        },
+        {
+          "id": "sp-330",
+          "name": "Szkoła Podstawowa nr 330",
+          "coord": [
+            21.06022,
+            52.14552
+          ],
+          "osm": "way/25354445"
+        }
+      ]
+    },
+    {
+      "group": "przedszkole",
+      "label": "Przedszkole",
+      "category": "edukacja",
+      "destinations": [
+        {
+          "id": "p-267",
+          "name": "Przedszkole nr 267",
+          "coord": [
+            21.05589,
+            52.13674
+          ],
+          "osm": "way/736324506"
+        },
+        {
+          "id": "p-282",
+          "name": "Przedszkole nr 282",
+          "coord": [
+            21.04992,
+            52.13922
+          ],
+          "osm": "way/732744120"
+        }
+      ]
+    },
+    {
+      "group": "przychodnia",
+      "label": "Przychodnia",
+      "category": "zdrowie",
+      "destinations": [
+        {
+          "id": "spzoz-ursynow",
+          "name": "Przychodnia SPZOZ Warszawa-Ursynów",
+          "coord": [
+            21.04982,
+            52.1385
+          ],
+          "osm": "relation/1388106"
+        },
+        {
+          "id": "medycyna-rodzinna",
+          "name": "Medycyna Rodzinna (ul. Belgradzka)",
+          "coord": [
+            21.05966,
+            52.14153
+          ],
+          "osm": "node/8059130257"
+        },
+        {
+          "id": "szpital-mazovia",
+          "name": "Szpital Mazovia",
+          "coord": [
+            21.05241,
+            52.14245
+          ],
+          "osm": "node/2179899852"
+        }
+      ]
+    },
+    {
+      "group": "park",
+      "label": "Park i las",
+      "category": "zielen",
+      "destinations": [
+        {
+          "id": "las-kabacki",
+          "name": "Las Kabacki",
+          "green": "relation/6836419",
+          "osm": "relation/6836419"
+        },
+        {
+          "id": "lasek-brzozowy",
+          "name": "Lasek Brzozowy",
+          "green": "way/23361657",
+          "osm": "way/23361657"
+        },
+        {
+          "id": "park-bazantarnia",
+          "name": "Park przy Bażantarni",
+          "green": "way/22987815",
+          "osm": "way/22987815"
+        }
+      ]
+    },
+    {
+      "group": "kultura",
+      "label": "Kultura",
+      "category": "kultura",
+      "destinations": [
+        {
+          "id": "nok",
+          "name": "Natoliński Ośrodek Kultury",
+          "coord": [
+            21.05066,
+            52.13868
+          ],
+          "osm": "way/29068550"
+        },
+        {
+          "id": "biblioteka-127",
+          "name": "Wypożyczalnia nr 127",
+          "coord": [
+            21.05099,
+            52.13887
+          ],
+          "osm": "node/1387210146"
+        }
+      ]
+    }
+  ],
+  "prices": {
+    "buyPerM2": 17382,
+    "rentPerM2": 66,
+    "rent2PokAvg": 3000,
+    "cityBuyPerM2": 17975,
+    "cityRentPerM2": 84,
+    "asOf": "2026-10",
+    "sourceNote": "Średnia z 91 ofert sprzedaży i 67 ofert najmu na Otodom (rynek wtórny, ceny ofertowe, odczyt 17.10.2026). Transakcje (RCN, od I 2025): mediana 15 632 zł/m², 171 lokali. Warszawa: Adresowo IX 2026 (sprzedaż), Znajdź Najem X 2026 (najem).",
+    "estimate": false,
+    "buy": {
+      "meanPerM2": 17382,
+      "medianPerM2": 17000,
+      "n": 91,
+      "sourceUrls": [
+        "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin?limit=72&page=1"
+      ],
+      "scrapedAt": "2026-10-17"
+    },
+    "rent": {
+      "meanPerM2": 66,
+      "medianPerM2": 62,
+      "n": 67,
+      "medianMonthly": 3200,
+      "sourceUrls": [
+        "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin?limit=72&page=1"
+      ],
+      "scrapedAt": "2026-10-17"
+    },
+    "citySource": "Adresowo, Średnie ceny mieszkań Warszawa, wrzesień 2026, 1 870 ogłoszeń z rynku wtórnego (średnia 17 975, mediana 17 683 zł/m²): https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/ (odczyt 2026-10-17) | Znajdź Najem, Indeks Najmu Warszawa, październik 2026, próba 46 410 ofert: średnia 84 zł/m², mediana czynszu 3 200 zł/mies.: https://znajdznajem.pl/warszawa/raport (odczyt 2026-10-17)",
+    "rcnNote": "RCN (GUGiK WFS ms:lokale), lokale mieszkalne w poligonie MSI, 2025-01-01–2026-01-29: mediana 15 632 zł/m², n=171 (170 wtórny / 1 pierwotny); 2024: mediana 16 480 zł/m², n=170.",
+    "areaNote": "Lokalizacja otodom „Natolin (Ursynów)” (ursynow/natolin); granice lokalizacji otodom nie są publikowane i mogą się różnić od obszaru MSI. Ulice w próbie sprawdzone ręcznie (plik raw: pole street)."
+  },
+  "portals": [
+    {
+      "name": "Otodom",
+      "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin",
+      "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin",
+      "rentCount": 70,
+      "buyCount": 108
+    },
+    {
+      "name": "Morizon",
+      "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/natolin/",
+      "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/natolin/",
+      "rentCount": 15,
+      "buyCount": 35
+    }
+  ],
+  "timeline": [
+    {
+      "id": "park-linearny-pow",
+      "title": "Park linearny nad tunelem POW (12,5 ha)",
+      "description": "Park wzdłuż Płaskowickiej od Pileckiego do Nowoursynowskiej, ok. 2 km i 12,5 ha. Odcinek Lanciego–Rosoła (2,3 ha) otwarty w VI 2026, całość ma być gotowa w 2026 r.",
+      "category": "zielen",
+      "status": "w budowie",
+      "year": 2026,
+      "yearUncertain": false,
+      "yearNote": "ZZW: „Udostępnienie całego parku mieszkańcom planowane jest w 2026 r.”; odcinek 1 (Pileckiego–Stryjeńskich) nadal w budowie.",
+      "coord": [
+        21.05738,
+        52.14819
+      ],
+      "sourceUrl": "https://zzw.waw.pl/nasze-dzialania/inwestycje/inwestycje-trwajace/park-linearny-nad-pow/",
+      "sourceTitle": "Park linearny nad POW (Zarząd Zieleni m.st. Warszawy)",
+      "sourceDate": "2026-06-25",
+      "statusEvidence": "Odcinki 2, 4, 5 otwarte (IV 2025, IX 2025, VI 2026), odcinek 6 ukończony XI 2025, na odcinku 1 „Trwają prace”. Otwarcie odcinka Lanciego–Rosoła: https://haloursynow.pl/pl/11_wiadomosci/740_inwestycje/42446_ursynow-otwarto-kolejny-odcinek-parku-nad-pow-powstanie-tam-cos-jeszcze.html",
+      "checkedAt": "2026-10-17",
+      "effect": {
+        "type": "park",
+        "coord": [
+          21.05738,
+          52.14819
+        ],
+        "area_ha": 12.5
+      },
+      "effectNote": "Punkt = środek odcinka Lanciego–Rosoła (ok. 0,9 km od punktu odniesienia); park jest pasem ok. 2 km, więc przybliżenie kołem 12,5 ha jest zgrubne. W lokalnym cache OSM (data/raw/osm) parku jeszcze nie ma, więc efekt nie dubluje istniejącej zieleni."
+    },
+    {
+      "id": "rolkowisko-lodowisko-pow",
+      "title": "Rolkowisko i składane lodowisko w parku nad POW",
+      "description": "Na dużym trawiastym placu w odcinku Lanciego–Rosoła ma powstać rolkowisko zamieniane zimą w lodowisko. Inwestycja wchodzi w fazę projektowania.",
+      "category": "sport",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Pierwszy sezon lodowiska „najwcześniej na przełomie 2027 i 2028 roku” (haloursynow.pl, VI 2026) — bez oficjalnej daty.",
+      "coord": [
+        21.05738,
+        52.14819
+      ],
+      "sourceUrl": "https://haloursynow.pl/pl/11_wiadomosci/740_inwestycje/42446_ursynow-otwarto-kolejny-odcinek-parku-nad-pow-powstanie-tam-cos-jeszcze.html",
+      "sourceTitle": "Ursynów: Otwarto kolejny odcinek parku nad POW. Powstanie tam coś jeszcze (haloursynow.pl)",
+      "sourceDate": "2026-06-25",
+      "statusEvidence": "Projekt „wchodzi w fazę projektowania” (artykuł z 25.06.2026, aktualizacja 29.07.2026).",
+      "checkedAt": "2026-10-17",
+      "effect": null,
+      "effectNote": "Wskaźniki sportu liczą boiska szkolne i zajęcia z bazy miasta → brak wpływu.",
+      "yearHorizon": 2028,
+      "yearPlacement": "najwcześniej sezon 2027/2028"
+    },
+    {
+      "id": "sp405-teren-zewnetrzny",
+      "title": "Modernizacja boisk i terenu SP nr 405 (Na Uboczu 9)",
+      "description": "Nowe nawierzchnie boisk, rzutnia do pchnięcia kulą, plac zabaw, klasa na zewnątrz, nasadzenia. Umowa z 11.09.2025 na 6,4 mln zł, 350 dni realizacji.",
+      "category": "edukacja",
+      "status": "w budowie",
+      "year": 2026,
+      "yearUncertain": false,
+      "yearNote": "Umowa z 11.09.2025, okres realizacji 350 dni (do ok. VIII–IX 2026); komunikatu o odbiorze nie znaleziono.",
+      "coord": [
+        21.04889,
+        52.13954
+      ],
+      "sourceUrl": "https://www.przetargi.egospodarka.pl/20043071301_Modernizacja-terenu-zewnetrznego-Szkoly-Podstawowej-nr-405-przy-ul-Na-Uboczu-9_2025_2.html",
+      "sourceTitle": "Ogłoszenie o wyniku postępowania 69/WZP/2025 – Modernizacja terenu zewnętrznego SP nr 405 (BZP 2025/BZP 00430713)",
+      "sourceDate": "2025-09-18",
+      "statusEvidence": "Umowa z Eversport Sp. z o.o. zawarta 2025-09-11, 6 397 501 zł, 350 dni; dzielnica 17.08.2026 podpisała umowę o dofinansowanie 300 tys. zł z „Mazowsze dla sportu” (https://ursynow.um.warszawa.pl/-/ursynow-inwestuje-w-sport-przy-sp-405).",
+      "checkedAt": "2026-10-17",
+      "effect": null,
+      "effectNote": "Modernizacja istniejącej szkoły i placu zabaw (bez nowych obiektów) → brak wpływu na liczby szkół, placów zabaw i boisk."
+    },
+    {
+      "id": "ursynoteka-bacewiczowny",
+      "title": "Nowa siedziba biblioteki Ursynoteka (ul. Bacewiczówny)",
+      "description": "Drewniany budynek z zielonym dachem przy metrze Stokłosy, z mediateką i salą na 100 osób; zastąpi 4 obecne filie. Burmistrz: budowa 2027–2029.",
+      "category": "kultura",
+      "status": "planowana",
+      "year": 2029,
+      "yearUncertain": false,
+      "yearNote": "Plan burmistrza Ursynowa (XII 2025): obiekt gotowy „na początku 2029 roku”, pod warunkiem wyłonienia wykonawcy w pierwszym przetargu.",
+      "coord": [
+        21.0373,
+        52.15676
+      ],
+      "sourceUrl": "https://tvn24.pl/tvnwarszawa/ursynow/ursynow-ursynoteka-z-drewna-i-z-trawa-na-dachu-wyniki-konkursu-na-projekt-nowej-biblioteki-st8787970",
+      "sourceTitle": "Ursynów. Ursynoteka z drewna i z trawą na dachu. Wyniki konkursu na projekt nowej biblioteki (TVN Warszawa)",
+      "sourceDate": "2025-12-05",
+      "statusEvidence": "Konkurs rozstrzygnięty, trwają przygotowania do umowy na projekt; budowy nie rozpoczęto (stan 17.10.2026).",
+      "checkedAt": "2026-10-17",
+      "effect": {
+        "type": "library",
+        "coord": [
+          21.0373,
+          52.15676
+        ]
+      },
+      "effectNote": "Przy metrze Stokłosy, ok. 2,6 km od punktu odniesienia Natolina → nie zmienia libraries_1km; nowa siedziba zastępuje 4 filie (których — źródło nie podaje), więc ewentualnych zamknięć nie modelujemy."
+    },
+    {
+      "id": "bo-belgradzka-rower",
+      "title": "Droga rowerowa i chodnik na ul. Belgradzkiej (BO 2025)",
+      "description": "Część projektu BO „Spójna sieć dróg rowerowych” (6,02 mln zł). Odcinki na Rzymowskiego i Dolinie Służewieckiej gotowe, dla Belgradzkiej ZDM robi projekt.",
+      "category": "komunikacja",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Strona BO (aktualizacja 01.09.2026): „Przebudowa chodnika i drogi rowerowej na ul. Belgradzkiej – ZDM przygotowuje dokumentację projektową” — brak terminu.",
+      "coord": [
+        21.05685,
+        52.13966
+      ],
+      "sourceUrl": "https://bo.um.warszawa.pl/processes/na-rok-2025/f/12/projects/28343",
+      "sourceTitle": "Spójna sieć dróg rowerowych w Warszawie (budżet obywatelski 2025)",
+      "sourceDate": "2026-09-01",
+      "statusEvidence": "Aktualizacja 01.09.2026: Rzymowskiego wyremontowana, Dolina Służewiecka/Nowoursynowska zrealizowana, Belgradzka w dokumentacji.",
+      "checkedAt": "2026-10-17",
+      "effect": null,
+      "effectNote": "Infrastruktura rowerowa nie wchodzi do wskaźników komunikacji → brak wpływu.",
+      "yearHorizon": 2040,
+      "yearPlacement": "bez terminu"
+    }
+  ],
+  "heroImages": [
+    {
+      "src": "/osiedla/natolin/01.jpg",
+      "alt": "Park Przy Bażantarni i bloki Natolina z lotu ptaka",
+      "credit": "fot. Emptywords, CC BY-SA 4.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/natolin/02.jpg",
+      "alt": "Bukowy drzewostan w Lesie Kabackim wiosną",
+      "credit": "fot. Adrian Grycuk, CC BY-SA 3.0 pl, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/natolin/03.jpg",
+      "alt": "Peron stacji metra Natolin (linia M1)",
+      "credit": "fot. Adrian Grycuk, CC BY-SA 3.0 pl, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/natolin/04.jpg",
+      "alt": "Kolorowe bloki przy ul. Przy Bażantarni",
+      "credit": "fot. Mariochom, CC BY-SA 4.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/natolin/05.jpg",
+      "alt": "Świątynia Dorycka w zespole pałacowo-parkowym w Natolinie",
+      "credit": "fot. Escriptors, CC BY-SA 4.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/natolin/06.jpg",
+      "alt": "Las Kabacki widziany z Górki Kazurki",
+      "credit": "fot. Halibutt, CC BY 3.0, Wikimedia Commons"
+    }
+  ]
+}

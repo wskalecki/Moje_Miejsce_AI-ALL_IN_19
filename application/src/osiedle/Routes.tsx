@@ -69,29 +69,50 @@ function RouteSketch({ route }: { route: Route }) {
   )
 }
 
+const groupKey = (r: Route) => r.group ?? r.id
+
 /** "Najkrótsza droga do…" (spec §4.5 pkt 5). */
 export function Routes({ routes, selectedId, mode, onSelect, onMode }: RoutesProps) {
   const route = routes.find((r) => r.id === selectedId) ?? routes[0]
+  // One pill per group (e.g. "Uczelnia"); a group with several destinations gets a second row to choose from.
+  const groups = useMemo(() => {
+    const out: { key: string; first: Route }[] = []
+    for (const r of routes) if (!out.some((g) => g.key === groupKey(r))) out.push({ key: groupKey(r), first: r })
+    return out
+  }, [routes])
   if (!route) return null
+  const alternatives = routes.filter((r) => groupKey(r) === groupKey(route))
   const modes = availableModes(route)
   const activeMode = modes.includes(mode) ? mode : defaultMode(route)
   const minutes = route.minutes[activeMode]
 
   return (
-    <section className="op-sec" aria-labelledby="op-routes-title" data-section="Najkrótsza droga do…">
-      <SectionHead id="op-routes-title" title="Najkrótsza droga do…" />
-      <div className="op-pills" role="radiogroup" aria-label="Cel">
-        {routes.map((r) => {
-          const Icon = CATEGORY_ICONS[r.category]
-          const on = r.id === route.id
+    <section className="op-sec" aria-labelledby="op-routes-title" data-section="Droga do…">
+      <SectionHead id="op-routes-title" title="Droga do…" />
+      <div className="op-pills" role="radiogroup" aria-label="Rodzaj celu">
+        {groups.map((g) => {
+          const Icon = CATEGORY_ICONS[g.first.category]
+          const on = g.key === groupKey(route)
           return (
-            <button key={r.id} type="button" role="radio" aria-checked={on} className={`op-pill${on ? ' is-on' : ''}`} onClick={() => onSelect(r)}>
+            <button key={g.key} type="button" role="radio" aria-checked={on} className={`op-pill${on ? ' is-on' : ''}`} onClick={() => onSelect(on ? route : g.first)}>
               <Icon size={15} strokeWidth={2.1} aria-hidden />
-              {r.label}
+              {g.first.label}
             </button>
           )
         })}
       </div>
+      {alternatives.length > 1 && (
+        <div className="op-pills op-pills--dest" role="radiogroup" aria-label="Cel">
+          {alternatives.map((r) => {
+            const on = r.id === route.id
+            return (
+              <button key={r.id} type="button" role="radio" aria-checked={on} className={`op-pill op-pill--dest${on ? ' is-on' : ''}`} onClick={() => onSelect(r)}>
+                {r.destinationName}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       <div className="op-route">
         <RouteSketch route={route} />

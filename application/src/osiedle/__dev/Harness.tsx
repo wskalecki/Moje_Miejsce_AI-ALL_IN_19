@@ -9,7 +9,7 @@ const params = new URLSearchParams(location.search)
 const busy = params.get('bg') === 'busy'
 
 export function Harness() {
-  const [slug, setSlug] = useState<OsiedleSlug>((params.get('slug') as OsiedleSlug) || 'powisle')
+  const [slug, setSlug] = useState<OsiedleSlug>((params.get('slug') as OsiedleSlug) || OSIEDLA[0].slug)
   const [profile, setProfile] = useState<ProfileId>((params.get('profil') as ProfileId) || OSIEDLA_BY_SLUG[slug].profile)
   const [horizon, setHorizon] = useState<Horizon>((params.get('horyzont') as Horizon) || 'chwila')
   const [layout, setLayout] = useState<'overlay' | 'page'>((params.get('layout') as 'overlay' | 'page') || 'overlay')

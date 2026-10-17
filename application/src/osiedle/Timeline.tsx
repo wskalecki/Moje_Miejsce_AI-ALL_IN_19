@@ -69,7 +69,7 @@ export function Timeline({ osiedle, profile, year, onYear }: TimelineProps) {
 
   const events = eventsUpTo(osiedle, year)
   const isBase = year === FIRST_YEAR
-  const upcoming = osiedle.timeline.length - events.length
+  const upcoming = osiedle.timeline.filter((e) => e.year > year && e.year <= LAST_YEAR).length
   const base = osiedle.stats
   const at = statsAtYear(osiedle, year)
   const deltas = statDeltasAtYear(osiedle, year)

@@ -14,7 +14,7 @@
  *   mkdir -p /tmp/rec && cd /tmp/rec && npm i playwright && npx playwright install chromium
  *   cd application && npx vite --port 5176            # in another terminal
  *   PLAYWRIGHT=/tmp/rec/node_modules/playwright/index.mjs node scripts/record-flyovers.mjs \
- *     [--base http://localhost:5176] [--slugs powisle,saska-kepa,miasteczko-wilanow] \
+ *     [--base http://localhost:5176] [--slugs muranow,natolin,stare-bielany] \
  *     [--seconds 9] [--fps 30] [--scale 1.5] [--webm] [--keep-frames]
  * Requires ffmpeg (with libx264, libvpx-vp9 for --webm) on PATH.
  */
@@ -33,7 +33,7 @@ const opt = (name, fallback) => {
 const flag = (name) => args.includes(`--${name}`)
 
 const BASE = opt('base', 'http://localhost:5176')
-const SLUGS = opt('slugs', 'powisle,saska-kepa,miasteczko-wilanow').split(',')
+const SLUGS = opt('slugs', 'muranow,natolin,stare-bielany').split(',')
 const SECONDS = Number(opt('seconds', '9'))
 const FPS = Number(opt('fps', '30'))
 const SCALE = Number(opt('scale', '1.5'))

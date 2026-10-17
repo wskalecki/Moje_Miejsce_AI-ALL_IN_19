@@ -46,7 +46,9 @@ export function Prices({ osiedle, horizon }: { osiedle: Osiedle; horizon: Horizo
         </p>
         <p className="op-price__sub">
           {rent
-            ? `ok. ${formatPLN(p.rentPerM2 * 45)} miesięcznie za 45 m²`
+            ? p.rent2PokAvg
+              ? `mediana czynszu za 2 pokoje: ${formatPLN(p.rent2PokAvg)} mies.`
+              : `ok. ${formatPLN(p.rentPerM2 * 45)} miesięcznie za 45 m²`
             : `ok. ${formatFlatPrice(p.buyPerM2 * 55)} za 55 m²`}
           <span className="op-chip op-chip--neutral">{diff}</span>
         </p>
@@ -78,11 +80,14 @@ export function Prices({ osiedle, horizon }: { osiedle: Osiedle; horizon: Horizo
           </a>
         ))}
       </div>
-      <p className="op-note">Szacunek demonstracyjny na podstawie ofert z portali i RCN (dzielnica).</p>
+      <p className="op-note">
+        {p.estimate ? 'Szacunek' : `Średnie ceny ofertowe (${p.asOf.split('-').reverse().join('.')})`} · Warszawa: średnia ofertowa
+      </p>
       {p.sourceNote && (
         <details className="op-details">
           <summary>Skąd te liczby</summary>
           <p>{p.sourceNote}</p>
+          {p.rcnNote && <p>{p.rcnNote}</p>}
         </details>
       )}
     </section>

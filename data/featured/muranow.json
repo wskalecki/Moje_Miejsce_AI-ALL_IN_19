@@ -1,0 +1,489 @@
+{
+  "slug": "muranow",
+  "msiId": "muranow",
+  "profile": "student",
+  "camera": {
+    "bearing": 200,
+    "zoom": 15.6
+  },
+  "highlights": [
+    {
+      "id": "polin",
+      "name": "Muzeum POLIN",
+      "category": "kultura",
+      "coord": [
+        20.99316,
+        52.24937
+      ],
+      "osm": "way/186141946",
+      "description": "Muzeum Historii Żydów Polskich, ul. Anielewicza 6."
+    },
+    {
+      "id": "kino-muranow",
+      "name": "Kino Muranów",
+      "category": "kultura",
+      "coord": [
+        20.99963,
+        52.24494
+      ],
+      "osm": "node/248212391",
+      "description": "Kino studyjne, ul. Andersa 5."
+    },
+    {
+      "id": "ogrod-krasinskich",
+      "name": "Ogród Krasińskich",
+      "category": "zielen",
+      "coord": [
+        21.00229,
+        52.24815
+      ],
+      "osm": "way/18467869",
+      "green": "way/18467869",
+      "description": "Zabytkowy park przy Pałacu Krasińskich."
+    },
+    {
+      "id": "akademia-teatralna",
+      "name": "Akademia Teatralna",
+      "category": "edukacja",
+      "coord": [
+        21.00854,
+        52.24866
+      ],
+      "osm": "way/135770008",
+      "description": "Uczelnia artystyczna, ul. Miodowa 22/24."
+    },
+    {
+      "id": "wwsi",
+      "name": "Warszawska Wyższa Szkoła Informatyki",
+      "category": "edukacja",
+      "coord": [
+        20.98938,
+        52.24904
+      ],
+      "osm": "way/1087091854",
+      "description": "Uczelnia niepubliczna, ul. Lewartowskiego 17."
+    },
+    {
+      "id": "biblioteka-53",
+      "name": "Wypożyczalnia nr 53",
+      "category": "kultura",
+      "coord": [
+        20.99804,
+        52.2495
+      ],
+      "osm": "node/2155987301",
+      "description": "Biblioteka publiczna, ul. Anielewicza 2."
+    },
+    {
+      "id": "metro-ratusz",
+      "name": "Metro Ratusz Arsenał (M1)",
+      "category": "komunikacja",
+      "coord": [
+        21.0012,
+        52.24489
+      ],
+      "osm": "ztm:7099M",
+      "description": "Najbliższa stacja metra (linia M1)."
+    },
+    {
+      "id": "hala-mirowska",
+      "name": "Hala Mirowska",
+      "category": "zakupy",
+      "coord": [
+        20.99737,
+        52.23884
+      ],
+      "osm": "way/25748462",
+      "description": "Hala targowa, pl. Mirowski 1."
+    },
+    {
+      "id": "karmelicka",
+      "name": "NZOZ Karmelicka",
+      "category": "zdrowie",
+      "coord": [
+        20.99012,
+        52.25069
+      ],
+      "osm": "way/93811407",
+      "description": "Przychodnia (NZOZ) przy ul. Karmelickiej."
+    }
+  ],
+  "routeGroups": [
+    {
+      "group": "uczelnia",
+      "label": "Uczelnia",
+      "category": "edukacja",
+      "destinations": [
+        {
+          "id": "uw",
+          "name": "Kampus Główny UW",
+          "coord": [
+            21.01885,
+            52.24021
+          ],
+          "osm": "relation/16128958"
+        },
+        {
+          "id": "pw",
+          "name": "Politechnika Warszawska (Gmach Główny)",
+          "coord": [
+            21.0108,
+            52.22046
+          ],
+          "osm": "node/12039418124"
+        },
+        {
+          "id": "at",
+          "name": "Akademia Teatralna",
+          "coord": [
+            21.00854,
+            52.24866
+          ],
+          "osm": "way/135770008"
+        },
+        {
+          "id": "wwsi",
+          "name": "Warszawska Wyższa Szkoła Informatyki",
+          "coord": [
+            20.98938,
+            52.24904
+          ],
+          "osm": "way/1087091854"
+        }
+      ]
+    },
+    {
+      "group": "kultura",
+      "label": "Kultura",
+      "category": "kultura",
+      "destinations": [
+        {
+          "id": "polin",
+          "name": "Muzeum POLIN",
+          "coord": [
+            20.99316,
+            52.24937
+          ],
+          "osm": "way/186141946"
+        },
+        {
+          "id": "kino-muranow",
+          "name": "Kino Muranów",
+          "coord": [
+            20.99963,
+            52.24494
+          ],
+          "osm": "node/248212391"
+        },
+        {
+          "id": "pawiak",
+          "name": "Muzeum Więzienia Pawiak",
+          "coord": [
+            20.99081,
+            52.24647
+          ],
+          "osm": "way/116698622"
+        },
+        {
+          "id": "opera-kameralna",
+          "name": "Warszawska Opera Kameralna",
+          "coord": [
+            20.99739,
+            52.24401
+          ],
+          "osm": "way/29388100"
+        }
+      ]
+    },
+    {
+      "group": "park",
+      "label": "Park",
+      "category": "zielen",
+      "destinations": [
+        {
+          "id": "krasinskich",
+          "name": "Ogród Krasińskich",
+          "green": "way/18467869",
+          "osm": "way/18467869"
+        },
+        {
+          "id": "saski",
+          "name": "Ogród Saski",
+          "coord": [
+            21.00777,
+            52.24091
+          ],
+          "osm": "way/4943389"
+        },
+        {
+          "id": "skwer-wiezniow",
+          "name": "Skwer Więźniów Politycznych Stalinizmu",
+          "green": "way/1092375396",
+          "osm": "way/1092375396"
+        }
+      ]
+    },
+    {
+      "group": "przychodnia",
+      "label": "Przychodnia",
+      "category": "zdrowie",
+      "destinations": [
+        {
+          "id": "karmelicka",
+          "name": "NZOZ Karmelicka",
+          "coord": [
+            20.99012,
+            52.25069
+          ],
+          "osm": "way/93811407"
+        },
+        {
+          "id": "cm-mila",
+          "name": "Centrum Medyczne Miła",
+          "coord": [
+            20.98847,
+            52.25011
+          ],
+          "osm": "node/9875347110"
+        },
+        {
+          "id": "medicover-muranow",
+          "name": "Medicover",
+          "coord": [
+            20.99244,
+            52.25458
+          ],
+          "osm": "node/3602315717"
+        }
+      ]
+    }
+  ],
+  "prices": {
+    "buyPerM2": 21200,
+    "rentPerM2": 85,
+    "rent2PokAvg": 3700,
+    "cityBuyPerM2": 17975,
+    "cityRentPerM2": 84,
+    "asOf": "2026-10",
+    "sourceNote": "Średnia z 140 ofert sprzedaży i 152 ofert najmu na Otodom (rynek wtórny, ceny ofertowe, odczyt 17.10.2026). Transakcje (RCN, od I 2025): mediana 18 844 zł/m², 273 lokale. Warszawa: Adresowo IX 2026 (sprzedaż), Znajdź Najem X 2026 (najem).",
+    "estimate": false,
+    "buy": {
+      "meanPerM2": 21200,
+      "medianPerM2": 20100,
+      "n": 140,
+      "sourceUrls": [
+        "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow?limit=72&page=1"
+      ],
+      "scrapedAt": "2026-10-17"
+    },
+    "rent": {
+      "meanPerM2": 85,
+      "medianPerM2": 83,
+      "n": 152,
+      "medianMonthly": 4225,
+      "sourceUrls": [
+        "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow?limit=72&page=1"
+      ],
+      "scrapedAt": "2026-10-17"
+    },
+    "citySource": "Adresowo, Średnie ceny mieszkań Warszawa, wrzesień 2026, 1 870 ogłoszeń z rynku wtórnego (średnia 17 975, mediana 17 683 zł/m²): https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/ (odczyt 2026-10-17) | Znajdź Najem, Indeks Najmu Warszawa, październik 2026, próba 46 410 ofert: średnia 84 zł/m², mediana czynszu 3 200 zł/mies.: https://znajdznajem.pl/warszawa/raport (odczyt 2026-10-17)",
+    "rcnNote": "RCN (GUGiK WFS ms:lokale), lokale mieszkalne w poligonie MSI, 2025-01-01–2026-04-24: mediana 18 844 zł/m², n=273 (240 wtórny / 33 pierwotny); 2024: mediana 18 458 zł/m², n=188.",
+    "areaNote": "Lokalizacja otodom „Muranów (Śródmieście)” (srodmiescie/muranow); granice lokalizacji otodom nie są publikowane i mogą się różnić od obszaru MSI. Ulice w próbie sprawdzone ręcznie (plik raw: pole street)."
+  },
+  "portals": [
+    {
+      "name": "Otodom",
+      "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow",
+      "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow",
+      "rentCount": 159,
+      "buyCount": 284
+    },
+    {
+      "name": "Morizon",
+      "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/muranow/",
+      "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/muranow/",
+      "rentCount": 44,
+      "buyCount": 63
+    }
+  ],
+  "timeline": [
+    {
+      "id": "jp2-stawki-tory",
+      "title": "Przebudowa al. Jana Pawła II i torów na Stawkach",
+      "description": "Al. Jana Pawła II (rondo Radosława – al. Solidarności): 2 pasy na kierunek, drogi rowerowe, 3 nowe przejścia, nowy przystanek linii 16 na Stawkach. Budowa w 2028 r.",
+      "category": "komunikacja",
+      "status": "planowana",
+      "year": 2028,
+      "yearUncertain": false,
+      "yearNote": "Budowa planowana na 2028 r. (TVN Warszawa za Tramwajami Warszawskimi, IV 2026); projekt jeszcze w uzgodnieniach.",
+      "coord": [
+        20.98871,
+        52.24735
+      ],
+      "sourceUrl": "https://tvn24.pl/tvnwarszawa/srodmiescie/warszawa-przebudowa-al-jana-pawla-ii-beda-zmiany-w-projekcie-st9020403",
+      "sourceTitle": "Warszawa. Przebudowa Al. Jana Pawła II. Będą zmiany w projekcie (TVN Warszawa)",
+      "sourceDate": "2026-04-28",
+      "statusEvidence": "Etap projektu: zmieniona koncepcja przedstawiona komisjom dzielnicy, BZRD jeszcze jej nie zatwierdziło; budowa zaplanowana na 2028 r. Remont doraźny torów na Stawkach 17–25.10.2026, pełna modernizacja Stawek w 2028 r. (TransInfo, X 2026).",
+      "checkedAt": "2026-10-17",
+      "effect": null,
+      "effectNote": "Te same linie i przystanki (przesunięte, jeden nowy przystanek linii 16 na Stawkach) → brak wpływu na liczbę linii, odjazdy ani odległość do metra."
+    },
+    {
+      "id": "andersa-rower-etap-2",
+      "title": "Droga rowerowa na Andersa: etap II do pl. Bankowego",
+      "description": "Etap I (Dworzec Gdański – Nowolipki) gotowy na przełomie 2025/2026. Etap II do pl. Bankowego: droga dla rowerów, chodniki, ok. 40 nowych drzew.",
+      "category": "komunikacja",
+      "status": "w przetargu",
+      "year": 2027,
+      "yearUncertain": false,
+      "yearNote": "ZDM: przetarg ogłoszony 27.08.2026, oferty do 17.09.2026, 10 miesięcy na realizację; TVN Warszawa: „W przyszłym roku irytujący teleport ma zniknąć” (2027).",
+      "coord": [
+        21.0001,
+        52.246
+      ],
+      "sourceUrl": "https://zdm.waw.pl/aktualnosci/brakujace-ogniwo-przetarg-na-ii-etap-trasy-rowerowej-na-andersa/",
+      "sourceTitle": "Brakujące ogniwo – przetarg na II etap trasy rowerowej na Andersa (ZDM)",
+      "sourceDate": "2026-08-28",
+      "statusEvidence": "ZDM 28.08.2026: przetarg „zaprojektuj i wybuduj” ogłoszony, oferty do 17 września; wyboru wykonawcy nie znaleziono (stan 17.10.2026). Druga data: https://tvn24.pl/tvnwarszawa/srodmiescie/warszawa-powstanie-brakujacy-odcinek-sciezki-rowerowej-na-andersa-st9210610",
+      "checkedAt": "2026-10-17",
+      "effect": null,
+      "effectNote": "Infrastruktura rowerowa nie wchodzi do wskaźników komunikacji (odjazdy, linie, metro, kolej, czas dojazdu) → brak wpływu."
+    },
+    {
+      "id": "muzeum-getta",
+      "title": "Muzeum Getta Warszawskiego (Sienna 60 / Śliska 51)",
+      "description": "Muzeum w dawnym Szpitalu Dziecięcym Bersohnów i Baumanów. Budowa ma się skończyć pod koniec 2026 r., otwarcie zapowiedziane na jesień 2027 r.",
+      "category": "kultura",
+      "status": "w budowie",
+      "year": 2027,
+      "yearUncertain": false,
+      "yearNote": "Dyrektorka muzeum (V 2026): otwarcie jesienią 2027 r.; wcześniejsze zapowiedzi otwarcia w 2026 r. są nieaktualne.",
+      "coord": [
+        20.99766,
+        52.2314
+      ],
+      "sourceUrl": "https://tvn24.pl/tvnwarszawa/srodmiescie/budowa-muzeum-getta-warszawskiego-na-finiszu-bedzie-w-zabytkowym-szpitalu-st9049234",
+      "sourceTitle": "Budowa Muzeum Getta Warszawskiego na finiszu (TVN Warszawa)",
+      "sourceDate": "2026-05-15",
+      "statusEvidence": "„Jej zakończenie planowane jest na koniec tego roku” (wiceminister kultury); muzeum „zostanie otwarte jesienią 2027 roku” (K. Person). OSM: obiekt oznaczony „w budowie”.",
+      "checkedAt": "2026-10-17",
+      "effect": null,
+      "effectNote": "Ok. 1,9 km od punktu odniesienia; muzea nie są wskaźnikiem kultury (biblioteki, wydarzenia, UTW) → brak wpływu."
+    },
+    {
+      "id": "metro-m1-muranow",
+      "title": "Stacja metra M1 Muranów (pod ul. Andersa)",
+      "description": "Stacja A16 między Ratuszem-Arsenałem a Dworcem Gdańskim ma projekt i prawomocne pozwolenie na budowę (XII 2024), ale miasto nie ma na nią pieniędzy ani terminu.",
+      "category": "komunikacja",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Miasto (2026, odpowiedź na interpelację): „Na tym etapie nie został określony nowy termin realizacji tych stacji”. Projekt Strategii #Warszawa2040+ o stacji nie wspomina.",
+      "coord": [
+        20.99844,
+        52.2504
+      ],
+      "sourceUrl": "https://architektura.muratorplus.pl/krytyka/te-stacje-metra-juz-mialy-byc-gotowe-teraz-ich-budowa-odsuwa-sie-na-swiety-nigdy-aa-zEmx-TDDZ-yASA.html",
+      "sourceTitle": "Te stacje metra już miały być gotowe. Teraz budowa odsuwa się „na święty nigdy” (Architektura-Murator)",
+      "sourceDate": "2026-09-17",
+      "statusEvidence": "Prawomocne pozwolenia są, przetargu na budowę nie ogłoszono; brak decyzji o finansowaniu (TVN Warszawa 15.11.2025: https://tvn24.pl/tvnwarszawa/srodmiescie/warszawa-nowe-stacje-metra-w-centrum-sa-projekty-i-pozwolenia-nie-ma-budowy-st8751624). Koszt ok. 800 mln zł.",
+      "checkedAt": "2026-10-17",
+      "effect": {
+        "type": "metro_station",
+        "coord": [
+          20.99844,
+          52.2504
+        ],
+        "name": "Muranów (A16, projekt)"
+      },
+      "effectNote": "Lokalizacja z projektu: pod ul. Andersa na północ od Anielewicza (punkt orientacyjny ok. 120 m na północ od skrzyżowania); skróci metro_dist_m z 611 m do ok. 330 m — tylko jeśli stacja powstanie.",
+      "yearHorizon": 2040,
+      "yearPlacement": "bez terminu"
+    },
+    {
+      "id": "park-kieszonkowy-andersa",
+      "title": "Park kieszonkowy przy Andersa i Stawkach (BO 2025)",
+      "description": "Projekt budżetu obywatelskiego (573 tys. zł): skwer z zielenią, ścieżkami, ławkami i stołami na żwirowisku po dawnym parkingu. Realizację przełożono na 2026 r.",
+      "category": "zielen",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Strona BO: „Projekt niezrealizowany. Realizacja projektu przełożona na 2026 rok… Obecnie trwa etap zbierania dokumentacji do przetargu” — przy braku przetargu w X 2026 termin 2026 jest wątpliwy.",
+      "coord": [
+        20.99844,
+        52.25196
+      ],
+      "sourceUrl": "https://bo.um.warszawa.pl/processes/na-rok-2025/f/12/projects/29746",
+      "sourceTitle": "Skwer zamiast żwirowiska – park kieszonkowy przy ul. Andersa (budżet obywatelski 2025)",
+      "sourceDate": "2026",
+      "statusEvidence": "Status BO „w trakcie realizacji”, opis: projekt niezrealizowany, dokumentacja do przetargu na budowę (odczyt strony 17.10.2026).",
+      "checkedAt": "2026-10-17",
+      "effect": null,
+      "effectNote": "Skwer jest mniejszy niż 1 ha (próg zieleni w metrykach) i nie ma podanej powierzchni → brak wpływu.",
+      "yearHorizon": 2026,
+      "yearPlacement": "BO: przełożony na 2026 r."
+    },
+    {
+      "id": "metro-m4",
+      "title": "Metro M4 (Tarchomin – Wilanów) z przystankiem przy Okopowej",
+      "description": "26 km i 23 stacje; robocze nazwy przy Muranowie to Cmentarz Żydowski i Okopowa. Projekt koncepcyjny do XI 2027, budowa najwcześniej w latach 30.",
+      "category": "komunikacja",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Urzędnicy wg Gazety Powiatowej (I 2026): linia „ma powstać do 2044 roku, a jej budowa ruszy prawdopodobnie w latach 30.”; brak oficjalnego harmonogramu.",
+      "coord": [
+        20.97771,
+        52.24394
+      ],
+      "sourceUrl": "https://pl.wikipedia.org/wiki/Linia_M4_metra_w_Warszawie",
+      "sourceTitle": "Linia M4 metra w Warszawie (Wikipedia, lista stacji wg planów z VII 2026) + Gazeta Powiatowa 22.01.2026",
+      "sourceDate": "2026-07",
+      "statusEvidence": "Prace przedprojektowe (Metroprojekt) do listopada 2027 r.; „Pierwsze prace budowlane planowane są na lata 30. XXI wieku”. Druga strona: https://gazetapowiatowa.pl/artykul/aglomeracja-czy-planowana-n2211807",
+      "checkedAt": "2026-10-17",
+      "effect": {
+        "type": "metro_station",
+        "coord": [
+          20.97771,
+          52.24394
+        ],
+        "name": "Cmentarz Żydowski (M4, nazwa robocza)"
+      },
+      "effectNote": "Lokalizacja orientacyjna (brama cmentarza przy Okopowej, stacje mają tylko nazwy robocze); ok. 1,3 km od punktu odniesienia, dalej niż obecna stacja M1 (611 m) → brak zmiany metro_dist_m.",
+      "yearHorizon": 2044,
+      "yearPlacement": "urzędnicy: do 2044 r."
+    }
+  ],
+  "heroImages": [
+    {
+      "src": "/osiedla/muranow/01.jpg",
+      "alt": "Ogród Krasińskich z Pałacem Krasińskich w tle, słoneczny dzień",
+      "credit": "fot. Cybularny, CC0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/muranow/02.jpg",
+      "alt": "Muzeum POLIN i Pomnik Bohaterów Getta, w tle bloki Muranowa",
+      "credit": "fot. Kpalion, CC BY-SA 3.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/muranow/03.jpg",
+      "alt": "Socrealistyczny blok z arkadami przy ul. Andersa 5",
+      "credit": "fot. Cybularny, CC BY 4.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/muranow/04.jpg",
+      "alt": "Powojenne bloki Muranowa wśród drzew przy ul. Nowolipki",
+      "credit": "fot. Cybularny, CC0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/muranow/05.jpg",
+      "alt": "Kino Muranów w socrealistycznej kamienicy przy ul. Andersa",
+      "credit": "fot. Adrian Grycuk, CC BY-SA 3.0 pl, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/muranow/06.jpg",
+      "alt": "Panorama Muranowa z wieżowca Varso",
+      "credit": "fot. Cybularny, CC0, Wikimedia Commons"
+    }
+  ]
+}

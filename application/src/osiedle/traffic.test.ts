@@ -24,17 +24,26 @@ test('trafficAt passes through the hourly samples and stays inside their range',
   }
 })
 
-test('best departure stays in a realistic window on every featured osiedle', () => {
+// Fixture with a two-peak weekday profile (the algorithm test does not depend on the mock data).
+const TWO_PEAKS = [8, 6, 5, 5, 7, 15, 38, 72, 86, 74, 58, 52, 54, 56, 60, 68, 82, 90, 78, 58, 42, 30, 20, 12]
+
+test('best departure stays in a realistic window', () => {
+  const am = bestDeparture(TWO_PEAKS, 6, 10)
+  assert.ok(am)
+  assert.ok(am.best >= 6 && am.best <= 10, `morning ${am.best}`)
+  assert.ok(Math.abs(am.best - am.peak) >= 0.5 && Math.abs(am.best - am.peak) <= 2, 'shift')
+  assert.equal((am.best * 4) % 1, 0, 'quarter-hour steps')
+  assert.equal(am.pct % 5, 0)
+  assert.ok(am.pct >= 10 && am.pct <= 60, `pct ${am.pct}`)
+  const pm = bestDeparture(TWO_PEAKS, 15, 19)
+  assert.ok(pm && pm.best >= 15 && pm.best <= 19, 'evening')
+})
+
+test('featured osiedla carry a real 24-hour curve (GTFS planned slowdown, 0–100) or none', () => {
   for (const o of OSIEDLA) {
-    const am = bestDeparture(o.traffic, 6, 10)
-    assert.ok(am, o.slug)
-    assert.ok(am.best >= 6 && am.best <= 10, `${o.slug} morning ${am.best}`)
-    assert.ok(Math.abs(am.best - am.peak) >= 0.5 && Math.abs(am.best - am.peak) <= 2, `${o.slug} shift`)
-    assert.equal((am.best * 4) % 1, 0, 'quarter-hour steps')
-    assert.equal(am.pct % 5, 0)
-    assert.ok(am.pct >= 10 && am.pct <= 60, `${o.slug} pct ${am.pct}`)
-    const pm = bestDeparture(o.traffic, 15, 19)
-    assert.ok(pm && pm.best >= 15 && pm.best <= 19, `${o.slug} evening`)
+    assert.ok(o.traffic.length === 0 || o.traffic.length === 24, o.slug)
+    for (const v of o.traffic) assert.ok(v >= 0 && v <= 100, `${o.slug} ${v}`)
+    assert.ok(o.trafficSource.endsWith('/traffic.json'), o.slug)
   }
 })
 
@@ -56,10 +65,11 @@ test('no tip for a flat morning, and the light-traffic message', () => {
   assert.equal(trafficHint(light).morning, 'Tu rzadko stoi się w korkach — możesz wyjeżdżać, kiedy chcesz.')
 })
 
-test('hint text on the featured osiedla', () => {
-  const by = Object.fromEntries(OSIEDLA.map((o) => [o.slug, trafficHint(o.traffic)]))
-  assert.equal(by['miasteczko-wilanow'].morning, 'Rano korki są największe około 8:00. Wyjedź o 9:30 zamiast 8:00 — będzie ok. 30% luźniej.')
-  assert.equal(by['powisle'].morning, 'Rano korki są największe około 8:00. Wyjedź o 6:30 zamiast 8:00 — będzie ok. 35% luźniej.')
-  assert.equal(by['saska-kepa'].morning, 'Rano korki są największe około 8:00. Wyjedź o 9:15 zamiast 8:00 — będzie ok. 25% luźniej.')
-  for (const h of Object.values(by)) assert.doesNotMatch(h.morning + (h.afternoon ?? ''), /\b[0-5]:\d\d\b/)
+test('hint text on the featured osiedla never suggests leaving before 6:00', () => {
+  for (const o of OSIEDLA) {
+    if (o.traffic.length !== 24) continue
+    const h = trafficHint(o.traffic)
+    assert.ok(h.morning.length > 0, o.slug)
+    assert.doesNotMatch(h.morning + (h.afternoon ?? ''), /\b[0-5]:\d\d\b/, o.slug)
+  }
 })

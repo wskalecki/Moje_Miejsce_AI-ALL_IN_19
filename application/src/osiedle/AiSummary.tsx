@@ -17,10 +17,10 @@ export function AiSummary({ slug, text }: { slug: string; text: string }) {
   const step = TOTAL_MS / Math.max(1, words.length)
 
   return (
-    <section className="op-sec op-ai" aria-labelledby="op-ai-title" data-section="Podsumowanie AI">
+    <section className="op-sec op-ai" aria-labelledby="op-ai-title" data-section="W skrócie">
       <h2 id="op-ai-title" className="op-ai__label">
         <Sparkles size={15} strokeWidth={2.2} aria-hidden />
-        Podsumowanie AI
+        W skrócie
       </h2>
       <p className={`op-ai__text${animate ? ' is-revealing' : ''}`}>
         {animate && <span className="sr-only">{text}</span>}
@@ -32,7 +32,7 @@ export function AiSummary({ slug, text }: { slug: string; text: string }) {
             ))
           : text}
       </p>
-      <p className="op-note">Wygenerowane na podstawie otwartych danych · wersja demo</p>
+      <p className="op-note">Tekst z szablonu, liczby z otwartych danych (OSM, ZTM, GIOŚ, m.st. Warszawa)</p>
     </section>
   )
 }

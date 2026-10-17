@@ -53,7 +53,7 @@ const MSI_NAMES: Record<string, string> = {
   'blonia-wilanowskie': 'Błonia Wilanowskie',
 }
 
-const DEMO_NOTE = 'Wersja demonstracyjna — profile wyróżnionych osiedli przygotowane ręcznie na podstawie otwartych danych.'
+const DEMO_NOTE = 'Wersja demonstracyjna — liczby policzone z otwartych danych bez ręcznych korekt; szacunki są oznaczone.'
 
 /**
  * Osiedle detail panel (spec §4.5). Sections, in order: hero, name + match, AI summary,

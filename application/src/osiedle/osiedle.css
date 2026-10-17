@@ -1028,6 +1028,18 @@
   box-shadow: none;
 }
 
+.op-pills--dest {
+  margin-top: -6px;
+  gap: 6px;
+}
+
+.op-pill--dest {
+  height: 30px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
 .op-route {
   border-radius: var(--r-lg, 20px);
   background: var(--op-surface);
