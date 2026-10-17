@@ -150,18 +150,24 @@ def validate_catalog(catalog: dict[str, Any], files: dict[str, Any]) -> list[str
         ]
         if not registered:
             errors.append(f"{path}: data file is not registered in the catalog (outputs)")
+        declares_grid, has_cell_ids = False, False
         for where, key, value in _walk(content):
             if key in forbidden_keys:
                 errors.append(f"{path}: forbidden key {key} at {where}")
             version = value if key == "gridVersion" else value.get("version") if key == "grid" and isinstance(value, dict) else None
-            if version is not None and "gridVersion" in policy and version != policy["gridVersion"]:
-                errors.append(f"{path}: built on grid version {version} at {where}, the catalog uses {policy['gridVersion']}")
+            if version is not None:
+                declares_grid = True
+                if "gridVersion" in policy and version != policy["gridVersion"]:
+                    errors.append(f"{path}: built on grid version {version} at {where}, the catalog uses {policy['gridVersion']}")
+            has_cell_ids = has_cell_ids or key in ("cell_id", "cell_ids")
             # Only fields that describe where a value came from; plain links (e.g. buyUrl) are fine.
             if "source" in key.lower():
                 text = " ".join(_strings(value)).lower()
                 for name in forbidden_names:
                     if name in text:
                         errors.append(f"{path}: forbidden source {name} at {where}")
+        if has_cell_ids and not declares_grid and "gridVersion" in policy:
+            errors.append(f"{path}: has cell_id/cell_ids but declares no gridVersion, so they cannot be checked against the grid")
         for output in registered:
             extract = EXTRACTORS.get(output.get("kind", ""))
             if extract is None:

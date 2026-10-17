@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from generate_grid import assign_cell, district_at
+from generate_grid import GRID_VERSION, assign_cell, district_at
 
 Districts = list[tuple[str, dict[str, Any]]]
 Coord = tuple[float, float]  # (lon, lat)
@@ -106,6 +106,7 @@ def write_collection(path: Path, features: list[dict[str, Any]], extra: dict[str
     out = {
         "type": "FeatureCollection",
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "gridVersion": GRID_VERSION,  # cell_id / cell_ids belong to this grid
         **(extra or {}),
         "features": features,
     }
