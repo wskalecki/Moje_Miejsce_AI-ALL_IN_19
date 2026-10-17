@@ -83,3 +83,24 @@ Pułapki poszczególnych źródeł opisuje [`zrodla-danych.md`](zrodla-danych.md
 ## Zmiana siatki
 
 Siatka jest w jednym miejscu: `src/siatka/grid.py`. Opakowuje zespołowy `data/scripts/generate_grid.py`, z którego biorą się ID komórek i `assign_cell`. Przy zmianie standardu siatki (np. 500 m) wystarczy zmienić `Grid.build()` i `Grid.assign()`. Wskaźniki i zbiory danych zostają bez zmian.
+
+## Mock: heatmapa i wyniki osiedli
+
+Skrypt [`data/scripts/build_mock_scores.py`](../../data/scripts/build_mock_scores.py) (czysty Python 3, bez sieci i zależności) liczy z lokalnych plików `data/grid/*`, `data/poi/*` i `data/boundaries/warszawa_osiedla.geojson` dwa statyczne pliki dla frontendu (commitowane, serwowane z Netlify):
+
+| Plik | Zawartość |
+|---|---|
+| `application/public/data/heat.json` | `{bbox, spacing_m: 250, profiles, points: [[lng, lat, wStudent, wRodzina, wSenior], …]}`, wagi 0–1 do warstwy MapLibre `heatmap` (~5,8 tys. punktów, ~190 KB) |
+| `application/public/data/osiedla-scores.json` | `{<id osiedla>: {student, rodzina, senior (0–100), cats: {10 kategorii UI: 0–100}, blurb: {profil: zdanie}}}` dla 143 osiedli |
+
+Metoda (to **mock na demo**, nie model rekomendacji):
+
+1. Siatka punktów co 125 m w granicach osiedli. W każdym punkcie: gęstość POI wg podtypu (jądro Gaussa, σ = 400 m) oraz `metrics_norm` komórek ~1 km interpolowane IDW.
+2. Mapowanie na 10 kategorii UI, m.in.: `cisza` to odwrotność gęstości gastronomii i przystanków + brak utrudnień + zieleń + odległość od centrum; `zielen` to park/las + PM2.5; `komunikacja` to metro (odległość) + tramwaj + przystanki; `zycieNocne` to gastronomia + wydarzenia + uczelnie.
+3. `cats` osiedla to średnia z punktów wewnątrz poligonu (czyli ważona powierzchnią), rozciągnięta między osiedlami do 5–98.
+4. Dopasowanie profilu to średnia ważona `cats` (wagi w `WEIGHTS` w skrypcie) × łagodny priorytet dzielnicy (`DISTRICT_PRIOR`), przeskalowana do 35–91.
+5. Nadpisania na demo: Powiśle (student, 96), Błonia Wilanowskie (rodzina, 95) i Saska Kępa (senior, 96) zajmują 1. miejsce. Ich kluczowe kategorie są podbite, a na heatmapie mają wzmocnienie gaussowskie wokół centroidu.
+6. Heatmapa: wynik profilu w punkcie minus 0,55 × średnia trzech profili (żeby wzory się różniły), × priorytet dzielnicy, skalowane percentylami (p35–p99,5) i podniesione do potęgi 1,4. Punkty z wagą < 0,05 są pomijane.
+7. `blurb`: 2 najmocniejsze kategorie i 1 słabość, wstawione w szablony zależne od poziomu dopasowania. Szablon wybiera hash `id|profil`, więc wynik jest deterministyczny.
+
+Uruchomienie: `python3 data/scripts/build_mock_scores.py` (ok. 8 s). Skrypt waliduje wyniki (liczba osiedli, zakresy, nadpisania na 1. miejscu, rozmiar pliku < 700 KB) i wypisuje top 5 dla każdego profilu.
