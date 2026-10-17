@@ -108,7 +108,7 @@ SOURCES = {
                      "file": "data/lines/utrudnienia.geojson"},
     "gtfs_travel": {"name": "GTFS Warszawa, routing Mikołaja (przyjazd 07:30–09:00, dzień roboczy)",
                     "license": "ZTM Warszawa (dane), M. Kuranowski (GTFS)", "file": "data/grid/czasy_przejazdu.geojson"},
-    "gios_noise": {"name": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden, drogi + kolej z tramwajem",
+    "gios_noise": {"name": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem",
                    "license": "CC BY 4.0 — Główny Inspektorat Ochrony Środowiska", "file": "data/raw/noise/ (cache)"},
 }
 METHODS = {
@@ -335,20 +335,22 @@ def load():
     roadworks = [geom_2180(shape(f["geometry"])) for f in read_features(ROADWORKS)]
     rw_tree = shapely.STRtree(roadworks)
 
-    noise = None
+    # Noise is required: "cisza" is defined only by the strategic noise maps, never by proxies.
     try:
-        noise = gios_noise.load_unions()
-        for d in noise.values():
-            for g in d.values():
-                shapely.prepare(g)
+        noise = gios_noise.load_unions("LDWN")
+        noise_night = gios_noise.load_unions("LN")
     except FileNotFoundError as exc:
-        print(f"  noise: unavailable ({exc}) -> noise metrics null, cisza without noise")
+        raise SystemExit(f"noise unavailable: {exc}")
+    for d in (*noise.values(), *noise_night.values()):
+        for g in d.values():
+            shapely.prepare(g)
 
     print("  " + ", ".join(f"{k} {len(v)}" for k, v in L.items()))
     print(f"  addresses {len(ax)}, green polygons {len(green)}, travel cells {len(cells)}, road works {len(roadworks)}, "
           f"events window {ref_day}..{end_day}")
     return dict(osiedla=osiedla, L=L, ax=ax, ay=ay, green=green, green_union=green_union, green_tree=green_tree,
-                travel=travel, roadworks=roadworks, rw_tree=rw_tree, noise=noise, ref_day=ref_day, air_time=air_time)
+                travel=travel, roadworks=roadworks, rw_tree=rw_tree, noise=noise, noise_night=noise_night, ref_day=ref_day,
+                air_time=air_time)
 
 
 def assign(osiedla, x, y) -> np.ndarray:
@@ -422,6 +424,8 @@ for t in (55, 60, 65, 70):
     mdef(f"noise_lden{t}_share", f"Hałas drogowy lub kolejowy (z tramwajem) Lden ≥ {t} dB", "%", "gios_noise", "area_share")
 mdef("noise_road_lden60_share", "Hałas drogowy Lden ≥ 60 dB", "%", "gios_noise", "area_share")
 mdef("noise_rail_lden60_share", "Hałas kolejowy i tramwajowy Lden ≥ 60 dB", "%", "gios_noise", "area_share")
+for t in (50, 55, 60):
+    mdef(f"noise_lnight{t}_share", f"Hałas nocny drogowy lub kolejowy (z tramwajem) Lnight ≥ {t} dB", "%", "gios_noise", "area_share")
 for mode in ("wszystkie", "autobus", "tramwaj", "metro", "kolej"):
     mdef(f"travel_centrum_{mode}_min", f"Dojazd do centrum (Rondo Dmowskiego), {mode}", "min", "gtfs_travel", "median_cells")
 mdef("roadworks_in", "Utrudnienia w ruchu (aktualne)", "szt.", "um_roadworks", "count_in")
@@ -429,8 +433,9 @@ mdef("roadworks_1km", "Utrudnienia w ruchu (aktualne) w 1 km", "szt.", "um_roadw
 
 # category -> [(metric, higher_is_better, weight)]
 CATEGORY_METRICS = {
-    "cisza": [("noise_lden60_share", False, 0.45), ("noise_lden65_share", False, 0.25),
-              ("gastronomy_1km", False, 0.15), ("departures_1km", False, 0.15)],
+    # only noise from the strategic noise maps: day-evening-night and night, two thresholds each, equal weights
+    "cisza": [("noise_lden60_share", False, 0.25), ("noise_lden65_share", False, 0.25),
+              ("noise_lnight50_share", False, 0.25), ("noise_lnight55_share", False, 0.25)],
     "zielen": [("green_share", True, 0.4), ("green_share_1km", True, 0.3), ("green_dist_m", False, 0.3)],
     "komunikacja": [("departures_1km", True, 0.3), ("lines_1km", True, 0.1), ("metro_dist_m", False, 0.2),
                     ("rail_dist_m", False, 0.1), ("travel_centrum_wszystkie_min", False, 0.3)],
@@ -520,13 +525,13 @@ def osiedle_metrics(D):
     M["green_share"] = np.array([100 * o["poly"].intersection(gu).area / o["poly"].area for o in os_])
     circles = [Point(x, y).buffer(R, quad_segs=32) for x, y in anchors]
     M["green_share_1km"] = np.array([100 * c.intersection(gu).area / c.area for c in circles])
-    noise = D["noise"]
+    noise, night = D["noise"], D["noise_night"]
     for t in (55, 60, 65, 70):
-        M[f"noise_lden{t}_share"] = (np.array([100 * o["poly"].intersection(noise["any"][t]).area / o["poly"].area for o in os_])
-                                     if noise else np.full(n, np.nan))
+        M[f"noise_lden{t}_share"] = np.array([100 * o["poly"].intersection(noise["any"][t]).area / o["poly"].area for o in os_])
     for s in ("road", "rail"):
-        M[f"noise_{s}_lden60_share"] = (np.array([100 * o["poly"].intersection(noise[s][60]).area / o["poly"].area for o in os_])
-                                        if noise else np.full(n, np.nan))
+        M[f"noise_{s}_lden60_share"] = np.array([100 * o["poly"].intersection(noise[s][60]).area / o["poly"].area for o in os_])
+    for t in (50, 55, 60):
+        M[f"noise_lnight{t}_share"] = np.array([100 * o["poly"].intersection(night["any"][t]).area / o["poly"].area for o in os_])
 
     # travel times: median of cells whose centre lies in the osiedle
     tv = D["travel"]
@@ -604,10 +609,10 @@ def heat(D, weights):
     bbox = (x0 - 1000, y0 - 1000, x1 + 1000, y1 + 1000)
     M["green_share"] = window_share(raster_share(D["green_union"], bbox), px, py)
     M["green_share_1km"] = M["green_share"]
-    noise = D["noise"]
     for t in (60, 65):
-        M[f"noise_lden{t}_share"] = (window_share(raster_share(noise["any"][t], bbox), px, py)
-                                     if noise else np.full(len(px), np.nan))
+        M[f"noise_lden{t}_share"] = window_share(raster_share(D["noise"]["any"][t], bbox), px, py)
+    for t in (50, 55):
+        M[f"noise_lnight{t}_share"] = window_share(raster_share(D["noise_night"]["any"][t], bbox), px, py)
     tv = D["travel"]
     cell_layer = Layer([])
     cell_layer.x, cell_layer.y = tv["x"], tv["y"]

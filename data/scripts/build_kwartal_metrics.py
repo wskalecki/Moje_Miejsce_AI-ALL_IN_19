@@ -16,7 +16,7 @@ Inputs (run the fetchers first; raw caches are git-ignored):
   data/poi/education.geojson, amenity.geojson     OSM POI (siatka ETL)
   data/poi_mikolaj/transit.geojson                ZTM stops / metro / SKM with odjazdy_dzien (GTFS)
   data/raw/osm/<hash>.json                        OSM parks/forests with geometry (siatka cache)
-  data/raw/noise/unions.json                      GIOŚ Lden contours (noise/gios_noise.py)
+  data/raw/noise/unions.json, unions_LN.json      GIOŚ Lden / Lnight contours (noise/gios_noise.py)
   data/grid/czasy_przejazdu.geojson               GTFS travel times per team grid cell (generate_grid.py)
 
 Method (all distances straight-line in EPSG:2180 metres):
@@ -36,6 +36,7 @@ Method (all distances straight-line in EPSG:2180 metres):
                 (same detour 1.3 and 1.3 m/s as czasy_przejazdu.geojson).
   dep400      = sum of scheduled daily departures (ZTM GTFS, Mon 19 X 2026) of all stop posts,
                 metro and SKM stations within 400 m.
+  noise_night = share of the kwartał area with Lnight ≥ 50/55/60 dB, road OR rail/tram (GIOŚ)
   noise       = share of the kwartał area with Lden ≥ 55/60/65 dB, road OR rail/tram (GIOŚ,
                 4th round SMH 2022, data 2021).
   travel      = public transport to Centrum (Rondo Dmowskiego), Rondo Daszyńskiego and
@@ -78,6 +79,7 @@ POI = REPO / "data/poi"
 TRANSIT = REPO / "data/poi_mikolaj/transit.geojson"
 OSM_RAW = REPO / "data/raw/osm"
 NOISE = REPO / "data/raw/noise/unions.json"
+NOISE_NIGHT = REPO / "data/raw/noise/unions_LN.json"  # gios_noise.load_unions("LN")
 TRAVEL = REPO / "data/grid/czasy_przejazdu.geojson"
 
 MAIN_FROM = "2024-01-01"
@@ -87,6 +89,7 @@ RADIUS = 300.0
 COUNT_R = 500.0
 DEP_R = 400.0
 NOISE_DB = (55, 60, 65)
+NOISE_NIGHT_DB = (50, 55, 60)
 MIN_GREEN_M2 = 10_000
 NAME_MAX_M = 3000  # keep POI names up to this distance (file size)
 
@@ -247,6 +250,8 @@ def build(only):
     green, green_src = load_green()
     noise_raw = json.loads(NOISE.read_text())["any"]
     noise = {int(t): shapely.from_wkb(bytes.fromhex(noise_raw[str(t)])) for t in NOISE_DB}
+    night_raw = json.loads(NOISE_NIGHT.read_text())["any"]
+    night = {int(t): shapely.from_wkb(bytes.fromhex(night_raw[str(t)])) for t in NOISE_NIGHT_DB}
     travel = json.loads(TRAVEL.read_text())
     msi_geoms = {f["properties"]["id"]: to2180(shape(f["geometry"])) for f in json.loads(MSI.read_text())["features"]}
 
@@ -307,6 +312,7 @@ def build(only):
         if polys:
             bx = shapely.total_bounds(np.array(polys, dtype=object))
             nclip = {t: shapely.clip_by_rect(g, *bx) for t, g in noise.items()}
+            nnclip = {t: shapely.clip_by_rect(g, *bx) for t, g in night.items()}
         # MSI-level price (context)
         mg = msi_geoms.get(msi)
         msi_idx = rcn_tree.query(mg, predicate="contains") if mg is not None else np.array([], int)
@@ -378,6 +384,8 @@ def build(only):
             # ---- noise
             if poly.area > 0:
                 rec["noise"] = [round(float(shapely.intersection(poly, nclip[t]).area / poly.area), 2) for t in NOISE_DB]
+                rec["noise_night"] = [round(float(shapely.intersection(poly, nnclip[t]).area / poly.area), 2)
+                                      for t in NOISE_NIGHT_DB]
             # ---- travel
             ci = cell_tree.query(ref, predicate="intersects")
             if len(ci):
@@ -438,6 +446,7 @@ def write_index(areas, rcn, green_src, only):
             "n500.<typ>": "liczba obiektów w promieniu 500 m (brak klucza = 0); typy: kindergarten, school, high_school, clinic, pharmacy, supermarket, stop",
             "dep400": "suma odjazdów w dniu roboczym (rozkład ZTM 19.10.2026) ze wszystkich słupków, metra i SKM w 400 m",
             "noise": "[udział >= 55, >= 60, >= 65 dB] powierzchni kwartału, Lden, drogi lub kolej/tramwaj (GIOŚ, dane 2021)",
+            "noise_night": "[udział >= 50, >= 55, >= 60 dB] powierzchni kwartału, Lnight (22-6), drogi lub kolej/tramwaj (GIOŚ, dane 2021)",
             "travel.<cel>": "[średnia, min] minut komunikacją przy przyjeździe 07:30-09:00 (10 terminów co 10 min); trzecia wartość = liczba osiągalnych terminów, tylko gdy < 10",
             "ref point": "środek ciężkości kwartału albo punkt na jego powierzchni, gdy środek wypada poza",
             "walk rule (UI)": "czas pieszo ~ odległość x 1.3 / 78 m/min (jak czasy_przejazdu.geojson)",

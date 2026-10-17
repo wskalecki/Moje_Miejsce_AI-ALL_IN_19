@@ -307,6 +307,15 @@
       "notes": "Model, nie pomiar; wysokość 4 m; poniżej 55 dB brak konturów; 2021 to rok pandemii; brak warstw lotniska i przemysłu w użyciu."
     },
     {
+      "id": "gios_noise_lnight",
+      "source": "gios",
+      "title": "Zasięgi hałasu nocnego Lnight (SMH 2022, 4. runda), drogi i kolej z tramwajem",
+      "access": "wojewodztwo=MAZOWIECKIE, rundaMapowania=4 Runda Mapowania, wskaznik=LN, zrodloHalasu=Hałas drogowy / kolejowy wewnątrz aglomeracji",
+      "script": "data/scripts/noise/fetch_gios_noise.py",
+      "period": "dane 2021 (runda 2022)",
+      "notes": "Lnight = średni poziom nocny 22–6. Model, nie pomiar; wysokość 4 m; poniżej 50 dB brak konturów."
+    },
+    {
       "id": "gtfs_warsaw",
       "source": "ztm_gtfs",
       "title": "Rozkład jazdy ZTM (GTFS)",
@@ -1317,7 +1326,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB (Lden) i 50 dB (Lnight) brak konturów."
     },
     {
       "id": "osiedle.noise_lden60_share",
@@ -1330,7 +1339,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB (Lden) i 50 dB (Lnight) brak konturów."
     },
     {
       "id": "osiedle.noise_lden65_share",
@@ -1343,7 +1352,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB (Lden) i 50 dB (Lnight) brak konturów."
     },
     {
       "id": "osiedle.noise_lden70_share",
@@ -1356,7 +1365,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB (Lden) i 50 dB (Lnight) brak konturów."
     },
     {
       "id": "osiedle.noise_road_lden60_share",
@@ -1369,7 +1378,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB (Lden) i 50 dB (Lnight) brak konturów."
     },
     {
       "id": "osiedle.noise_rail_lden60_share",
@@ -1382,7 +1391,46 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB (Lden) i 50 dB (Lnight) brak konturów."
+    },
+    {
+      "id": "osiedle.noise_lnight50_share",
+      "label": "Hałas nocny drogowy lub kolejowy (z tramwajem) Lnight ≥ 50 dB",
+      "definition": "Udział powierzchni osiedla z hałasem nocnym (22–6) Lnight ≥ 50 dB od dróg lub kolei (z tramwajem), suma zasięgów obu źródeł.",
+      "unit": "%",
+      "method": "area_share",
+      "datasets": [
+        "gios_noise_lnight",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB (Lden) i 50 dB (Lnight) brak konturów."
+    },
+    {
+      "id": "osiedle.noise_lnight55_share",
+      "label": "Hałas nocny drogowy lub kolejowy (z tramwajem) Lnight ≥ 55 dB",
+      "definition": "Udział powierzchni osiedla z hałasem nocnym (22–6) Lnight ≥ 55 dB od dróg lub kolei (z tramwajem), suma zasięgów obu źródeł.",
+      "unit": "%",
+      "method": "area_share",
+      "datasets": [
+        "gios_noise_lnight",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB (Lden) i 50 dB (Lnight) brak konturów."
+    },
+    {
+      "id": "osiedle.noise_lnight60_share",
+      "label": "Hałas nocny drogowy lub kolejowy (z tramwajem) Lnight ≥ 60 dB",
+      "definition": "Udział powierzchni osiedla z hałasem nocnym (22–6) Lnight ≥ 60 dB od dróg lub kolei (z tramwajem), suma zasięgów obu źródeł.",
+      "unit": "%",
+      "method": "area_share",
+      "datasets": [
+        "gios_noise_lnight",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB (Lden) i 50 dB (Lnight) brak konturów."
     },
     {
       "id": "osiedle.travel_centrum_wszystkie_min",
@@ -1491,19 +1539,16 @@
     {
       "id": "kategoria.cisza",
       "label": "Cisza",
-      "definition": "Ranga percentylowa (0–100, wśród 143 osiedli) średniej ważonej rang percentylowych metryk: noise_lden60_share × 0.45 (mniej = lepiej); noise_lden65_share × 0.25 (mniej = lepiej); gastronomy_1km × 0.15 (mniej = lepiej); departures_1km × 0.15 (mniej = lepiej).",
+      "definition": "Ranga percentylowa (0–100, wśród 143 osiedli) średniej ważonej rang percentylowych metryk hałasu: noise_lden60_share × 0.25, noise_lden65_share × 0.25, noise_lnight50_share × 0.25, noise_lnight55_share × 0.25 (mniej = lepiej). Tylko strategiczne mapy hałasu, bez zastępników.",
       "unit": "0–100",
       "method": "percentile_rank",
       "datasets": [
         "gios_noise_lden",
-        "gtfs_warsaw",
-        "osm_gastronomy",
-        "um_stops",
-        "wfs_address_points",
+        "gios_noise_lnight",
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "Do zmiany (krok 4 planu): 30% wagi to zastępniki (gastronomia, odjazdy), nie pomiar hałasu; brak Lnight."
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB (Lden) i 50 dB (Lnight) brak konturów."
     },
     {
       "id": "kategoria.zielen",
@@ -1650,6 +1695,7 @@
       "method": "weighted_mean",
       "datasets": [
         "gios_noise_lden",
+        "gios_noise_lnight",
         "gtfs_warsaw",
         "osm_clinic",
         "osm_gastronomy",
@@ -1682,6 +1728,7 @@
       "method": "weighted_mean",
       "datasets": [
         "gios_noise_lden",
+        "gios_noise_lnight",
         "gtfs_warsaw",
         "osm_clinic",
         "osm_gastronomy",
@@ -1714,6 +1761,7 @@
       "method": "weighted_mean",
       "datasets": [
         "gios_noise_lden",
+        "gios_noise_lnight",
         "gtfs_warsaw",
         "osm_clinic",
         "osm_gastronomy",
@@ -1746,6 +1794,7 @@
       "method": "percentile_rank",
       "datasets": [
         "gios_noise_lden",
+        "gios_noise_lnight",
         "gtfs_warsaw",
         "osm_clinic",
         "osm_gastronomy",
@@ -1781,6 +1830,7 @@
       "method": "percentile_rank",
       "datasets": [
         "gios_noise_lden",
+        "gios_noise_lnight",
         "gtfs_warsaw",
         "osm_clinic",
         "osm_gastronomy",
@@ -1816,6 +1866,7 @@
       "method": "percentile_rank",
       "datasets": [
         "gios_noise_lden",
+        "gios_noise_lnight",
         "gtfs_warsaw",
         "osm_clinic",
         "osm_gastronomy",
@@ -1851,10 +1902,7 @@
       "method": "percentile_rank",
       "datasets": [
         "gios_noise_lden",
-        "gtfs_warsaw",
-        "osm_gastronomy",
-        "um_stops",
-        "wfs_address_points",
+        "gios_noise_lnight",
         "wfs_msi"
       ],
       "status": "DERIVED"
@@ -2308,7 +2356,21 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB (Lden) i 50 dB (Lnight) brak konturów."
+    },
+    {
+      "id": "kwartal.noise_night",
+      "label": "Hałas nocny w kwartale",
+      "definition": "[udział ≥ 50, ≥ 55, ≥ 60 dB] powierzchni kwartału z hałasem nocnym Lnight (22–6) od dróg lub kolei (z tramwajem).",
+      "unit": "0–1",
+      "method": "kwartal_field",
+      "datasets": [
+        "gios_noise_lnight",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB (Lden) i 50 dB (Lnight) brak konturów."
     },
     {
       "id": "kwartal.travel.*",
@@ -2443,7 +2505,7 @@
     },
     {
       "id": "noise_union",
-      "description": "Hałas „drogi lub kolej” = suma zasięgów Lden obu źródeł (najgłośniejsze źródło w danym miejscu).",
+      "description": "Hałas „drogi lub kolej” = suma zasięgów obu źródeł (najgłośniejsze źródło w danym miejscu), osobno dla Lden i Lnight.",
       "justification": "Pasma 5 dB nie pozwalają zsumować poziomów energetycznie; suma zasięgów to dolna granica hałasu łącznego.",
       "where": "data/scripts/noise/gios_noise.py"
     },
@@ -2458,6 +2520,12 @@
       "description": "Przykład ceny mieszkania w UI = mediana zł/m² × 55 m² (kupno).",
       "justification": "Jawna arytmetyka na prawdziwej medianie, opisana w UI („za 55 m²”); nie jest osobną daną.",
       "where": "application/src/osiedle/Prices.tsx"
+    },
+    {
+      "id": "quiet_weights",
+      "description": "„Cisza” = równe wagi (po 0,25) dla udziałów Lden ≥ 60, Lden ≥ 65, Lnight ≥ 50 i Lnight ≥ 55 dB.",
+      "justification": "Doba i noc ważą tyle samo, po dwa progi każda; bez zastępników (gastronomia, odjazdy), które nie mierzą hałasu.",
+      "where": "data/scripts/build_osiedle_metrics.py (CATEGORY_METRICS)"
     }
   ],
   "outputs": [
@@ -2467,6 +2535,7 @@
       "script": "data/scripts/build_osiedle_metrics.py",
       "datasets": [
         "gios_noise_lden",
+        "gios_noise_lnight",
         "gtfs_warsaw",
         "osm_clinic",
         "osm_gastronomy",
@@ -2499,6 +2568,7 @@
       "script": "data/scripts/build_osiedle_metrics.py",
       "datasets": [
         "gios_noise_lden",
+        "gios_noise_lnight",
         "gtfs_warsaw",
         "osm_clinic",
         "osm_gastronomy",
@@ -2531,6 +2601,7 @@
       "script": "data/scripts/build_osiedle_metrics.py",
       "datasets": [
         "gios_noise_lden",
+        "gios_noise_lnight",
         "gtfs_warsaw",
         "osm_clinic",
         "osm_gastronomy",
@@ -2563,6 +2634,7 @@
       "script": "data/scripts/build_osiedle_metrics.py",
       "datasets": [
         "gios_noise_lden",
+        "gios_noise_lnight",
         "gtfs_warsaw",
         "osm_clinic",
         "osm_gastronomy",
@@ -2628,6 +2700,7 @@
       "script": "data/scripts/build_kwartal_metrics.py",
       "datasets": [
         "gios_noise_lden",
+        "gios_noise_lnight",
         "gtfs_warsaw",
         "osm_clinic",
         "osm_kindergarten",

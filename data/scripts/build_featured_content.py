@@ -101,7 +101,7 @@ METRIC_KEYS = [  # shown in the panel as concrete numbers
     "kindergartens_1km", "schools_1km", "high_schools_1km", "universities_1km", "playgrounds_1km",
     "clinics_1km", "pharmacies_1km", "supermarkets_1km", "gastronomy_1km", "bars_pubs_1km",
     "libraries_1km", "events_30d_1km", "stops_1km", "departures_1km", "lines_1km", "metro_dist_m",
-    "green_share_1km", "green_dist_m", "noise_lden60_share", "travel_centrum_wszystkie_min",
+    "green_share_1km", "green_dist_m", "noise_lden60_share", "noise_lnight50_share", "travel_centrum_wszystkie_min",
 ]
 
 
