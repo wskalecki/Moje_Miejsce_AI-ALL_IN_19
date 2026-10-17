@@ -78,24 +78,46 @@ function heatOpacity(active: boolean): ExpressionSpecification | number {
 
 function fillOpacity(active: boolean): ExpressionSpecification | number {
   // full tint around the 12.5 hand-off, then let outlines carry the map so zoom ≥ 13 is not a wash of colour
-  return active ? ['interpolate', ['linear'], ['zoom'], Z0, 0, Z1, 0.44, 13.5, 0.24, 15, 0.12] : 0
+  return active ? ['interpolate', ['linear'], ['zoom'], Z0, 0, Z1, 0.56, 13.5, 0.44, 15, 0.24] : 0
 }
 
-function fillColor(p: Profile): ExpressionSpecification {
+/** Match quantiles per profile (non-featured osiedla) — the fill ramp is stretched over them (QA #18). */
+export type MatchStops = Record<Profile, [number, number, number, number, number]>
+
+export function matchStops(osiedla: MapData['osiedla']): MatchStops {
+  const out = {} as MatchStops
+  for (const p of PROFILES) {
+    const v = osiedla.features
+      .filter((f) => f.properties?.featured !== 1)
+      .map((f) => Number(f.properties?.[`m_${p}`]))
+      .filter((n) => Number.isFinite(n))
+      .sort((a, b) => a - b)
+    const q = (t: number) => (v.length ? v[Math.round(t * (v.length - 1))] : 50 + t * 40)
+    const stops = [q(0.04), q(0.3), q(0.6), q(0.85), q(0.98)]
+    // interpolate needs strictly ascending inputs
+    for (let i = 1; i < stops.length; i++) if (stops[i] <= stops[i - 1]) stops[i] = stops[i - 1] + 0.5
+    out[p] = stops as MatchStops[Profile]
+  }
+  return out
+}
+
+function fillColor(p: Profile, stops: MatchStops[Profile]): ExpressionSpecification {
   const a = ACCENTS[p]
   // alpha rises with the match, so weak osiedla stay close to paper and strong ones read as colour
   return [
     'interpolate',
     ['linear'],
     ['get', `m_${p}`],
-    38,
-    rgba(a.soft, 0.25),
-    62,
-    rgba(a.mid, 0.45),
-    82,
-    rgba(a.base, 0.6),
-    96,
-    rgba(a.deep, 0.8),
+    stops[0],
+    rgba(a.soft, 0.1),
+    stops[1],
+    rgba(a.mid, 0.3),
+    stops[2],
+    rgba(a.base, 0.55),
+    stops[3],
+    rgba(a.base, 0.78),
+    stops[4],
+    rgba(a.deep, 0.92),
   ]
 }
 
@@ -108,6 +130,8 @@ export function addMapLayers(map: MlMap, data: MapData, profile: Profile) {
   const spacingPxZ10 = data.heatSpacingM / ((78271.5 * Math.cos((52.23 * Math.PI) / 180)) / 1024)
   const r = (z: number) => HEAT_RADIUS_SCALE * spacingPxZ10 * 2 ** (z - 10)
   const intensity = HEAT_INTENSITY_K / (HEAT_RADIUS_SCALE * HEAT_RADIUS_SCALE)
+
+  const stops = matchStops(data.osiedla)
 
   map.addSource(SOURCE.heat, { type: 'geojson', data: data.heat, maxzoom: 13 })
   map.addSource(SOURCE.osiedla, { type: 'geojson', data: data.osiedla, promoteId: 'id' })
@@ -177,7 +201,7 @@ export function addMapLayers(map: MlMap, data: MapData, profile: Profile) {
         // featured osiedla are tinted by their own layers in the colour of the profile they belong to
         filter: notFeatured,
         paint: {
-          'fill-color': fillColor(p),
+          'fill-color': fillColor(p, stops[p]),
           'fill-opacity': fillOpacity(p === profile),
           'fill-opacity-transition': TRANSITION,
           'fill-antialias': false,
@@ -254,20 +278,22 @@ export function addMapLayers(map: MlMap, data: MapData, profile: Profile) {
     id: LAYER.label,
     type: 'symbol',
     source: SOURCE.labels,
-    minzoom: 13,
+    minzoom: 12.6,
     layout: {
       'text-field': ['get', 'name'],
-      'text-font': ['Noto Sans Regular'],
-      'text-size': ['interpolate', ['linear'], ['zoom'], 13, 11.5, 16, 14],
+      'text-font': ['Noto Sans Bold'],
+      'text-size': ['interpolate', ['linear'], ['zoom'], 13, 11.5, 16, 14.5],
       'text-max-width': 8,
-      'text-letter-spacing': 0.02,
+      'text-letter-spacing': 0.03,
       'text-padding': 4,
     },
     paint: {
-      'text-color': 'rgba(22,22,29,0.58)',
-      'text-halo-color': 'rgba(255,255,255,0.92)',
-      'text-halo-width': 1.5,
-      'text-opacity': ['interpolate', ['linear'], ['zoom'], 13, 0, 13.4, 1],
+      // dark ink on a wide paper halo: readable over tinted fills and busy streets (QA #18)
+      'text-color': 'rgba(22,22,29,0.84)',
+      'text-halo-color': 'rgba(250,247,242,0.96)',
+      'text-halo-width': 2.2,
+      'text-halo-blur': 0.4,
+      'text-opacity': ['interpolate', ['linear'], ['zoom'], 12.6, 0, 13, 1],
     },
   })
 }
