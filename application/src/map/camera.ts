@@ -1,5 +1,5 @@
 import type { Map as MlMap } from 'maplibre-gl'
-import { FILTER_PANEL_WIDTH, START_CAMERA, START_CAMERA_SETTLE_ZOOM } from '../app/config'
+import { START_CAMERA, START_CAMERA_SETTLE_ZOOM } from '../app/config'
 
 /** Warsaw bbox (from heat.json). */
 const WARSAW_BBOX: [[number, number], [number, number]] = [

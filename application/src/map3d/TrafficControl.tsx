@@ -25,7 +25,7 @@ const fmtSpeed = (v: number) => v.toFixed(0)
  * Hour slider (0–23, default = now) with a play button that runs through the day; drives the road
  * colours and the shared `useTrafficHour()` store (the panel's traffic chart can follow it).
  */
-export function TrafficControl({ doc, onHour, enabled, onEnabled, nested = false }: TrafficControlProps) {
+export function TrafficControl({ doc, onHour, enabled, nested = false }: TrafficControlProps) {
   const [hour, setHour] = useTrafficHour()
   const [playing, setPlaying] = useState(false)
   const sliderId = useId()

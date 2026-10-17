@@ -119,7 +119,6 @@ export function MapView({
   selectedSlug = null,
   onSelectFeatured,
   onMapReady,
-  onProfileChange,
   horizon = 'stale',
   onHorizonChange,
   chrome = true,

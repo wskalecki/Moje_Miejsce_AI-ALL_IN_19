@@ -113,7 +113,7 @@ export function heatRange(rows: readonly ArrayLike<number>[], s: readonly number
 }
 
 /** `heatmap-weight` for the mix: clamp((Σ sᵢ·cᵢ − lo) / (hi − lo), 0, 1) ^ gamma. */
-export function heatWeightExpr(s: readonly number[], range: HeatRange, gamma: number): ExpressionSpecification {
+export function heatWeightExpr(s: readonly number[], range: HeatRange, gamma: number): number | ExpressionSpecification {
   if (!s.some((k) => k > 1e-6)) return 0
   const span = range.hi - range.lo
   const lin = linearExpr(s.map((k) => k / span))

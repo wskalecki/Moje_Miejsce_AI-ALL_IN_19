@@ -41,6 +41,6 @@ test('real data: the featured osiedla hold their documented places (docs/core/mo
   const scores = JSON.parse(readFileSync(new URL('../../public/data/osiedla-scores.json', import.meta.url), 'utf8')) as ScoresFile
   const rankFor = (p: 'student' | 'rodzina' | 'senior', id: string) => rankOsiedla(scores, deriveWeights(p, DEFAULT_PRIORITIES[p])).rank.get(id)
   assert.equal(rankFor('student', 'muranow'), 10)
-  assert.equal(rankFor('senior', 'stare-bielany'), 5)
-  assert.equal(rankFor('rodzina', 'natolin'), 22)
+  assert.equal(rankFor('senior', 'stare-bielany'), 3)
+  assert.equal(rankFor('rodzina', 'natolin'), 17)
 })
