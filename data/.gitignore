@@ -15,5 +15,8 @@
 !poi/**
 !lines/
 !lines/**
+# Travel times for the map; the full grid and other grid outputs stay ignored
+!grid/
+!grid/czasy_przejazdu.geojson
 # Python bytecode (overrides the !scripts/** re-include above)
 __pycache__/

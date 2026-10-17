@@ -59,7 +59,7 @@
   position: absolute;
   top: 5rem;
   right: 1rem;
-  z-index: 2;
+  z-index: 3;
   width: min(22rem, calc(100vw - 2rem));
   max-height: calc(100vh - 6rem);
   overflow: auto;
@@ -252,6 +252,55 @@
 .poi-popup a {
   font-size: 0.78rem;
   color: #9bcf7f;
+}
+
+.grid-map__travel-target h3 {
+  margin: 0.6rem 0 0.25rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.grid-map__metrics li.is-active {
+  color: #ffe066;
+}
+
+.grid-map__metrics li.is-active span:first-child {
+  color: inherit;
+}
+
+.grid-map__note {
+  margin: 0.5rem 0 0;
+  font-size: 0.72rem;
+  color: #a8a8b8;
+}
+
+.grid-map__scale {
+  position: absolute;
+  left: 1rem;
+  bottom: 5rem;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.7rem;
+  /* leaves room for the cell panel on the right */
+  max-width: min(30rem, calc(100vw - 25rem));
+  padding: 0.45rem 0.7rem;
+  background: rgba(30, 30, 36, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  font-size: 0.74rem;
+}
+
+.grid-map__scale span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.grid-map__scale i {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 2px;
 }
 
 .grid-map__hint {

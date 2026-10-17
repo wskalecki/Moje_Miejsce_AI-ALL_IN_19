@@ -1,5 +1,6 @@
 import type { FeatureCollection, Geometry, Point, Polygon } from 'geojson'
 import manifest from '@data/manifest.json'
+import type { TravelTimesFile } from './travelTimes'
 import metricsSample from '@data/samples/cell_metrics_sample.json'
 import gridSampleRaw from '@data/samples/warsaw_grid_sample.geojson?raw'
 import poiSampleRaw from '@data/samples/poi_sample.geojson?raw'
@@ -8,10 +9,10 @@ const gridSample = JSON.parse(gridSampleRaw) as GridFeatureCollection
 const poiSample = JSON.parse(poiSampleRaw) as PoiFeatureCollection
 
 // ETL outputs are gitignored, so they may be absent; a lazy glob just finds nothing then.
-const ETL_FILES = import.meta.glob<string>(['../../../data/poi/*.geojson', '../../../data/lines/*.geojson'], {
-  query: '?raw',
-  import: 'default',
-})
+const ETL_FILES = import.meta.glob<string>(
+  ['../../../data/poi/*.geojson', '../../../data/lines/*.geojson', '../../../data/grid/czasy_przejazdu.geojson'],
+  { query: '?raw', import: 'default' },
+)
 
 export type PersonaId = 'kasia' | 'marek' | 'ania_tomek'
 
@@ -23,6 +24,7 @@ export type DataManifest = {
     poi: string[]
     poiFallback?: string[]
     lines?: string[]
+    travelTimes?: string
   }
   bbox: [number, number, number, number]
 }
@@ -103,6 +105,11 @@ export async function loadPoiLayers(m: DataManifest): Promise<{ layers: PoiFeatu
   if (layers.length > 0) return { layers, isSample: false }
   const fallback = (m.files.poiFallback ?? []).map((p) => SAMPLE_POI_BY_PATH[p]).filter(Boolean)
   return { layers: fallback, isSample: true }
+}
+
+/** Travel times from etl_czasy_przejazdu.py, or null when that file has not been generated. */
+export async function loadTravelTimes(m: DataManifest): Promise<TravelTimesFile | null> {
+  return m.files.travelTimes ? loadEtlFile<TravelTimesFile>(m.files.travelTimes) : null
 }
 
 /** Line files listed in the manifest that are present; there is no sample for lines. */
