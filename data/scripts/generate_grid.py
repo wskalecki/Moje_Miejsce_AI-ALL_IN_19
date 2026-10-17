@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+"""Generate ~1 km grid GeoJSON for Warsaw. Also provides assign_cell() for POI ETL."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import math
+from pathlib import Path
+from typing import Any
+
+# Aligned with docs/data/grid-schema.md
+GRID_ORIGIN_LON = 20.85
+GRID_ORIGIN_LAT = 52.10
+STEP_LAT = 0.009
+STEP_LON = 0.014
+
+WARSAW_BBOX = (20.85, 52.10, 21.25, 52.35)  # west, south, east, north
+
+# Sample: small patch (Mokotów-ish)
+SAMPLE_BBOX = (20.98, 52.18, 21.06, 52.24)
+
+
+def cell_id(row: int, col: int) -> str:
+    return f"cell_r{row:03d}_c{col:03d}"
+
+
+def lon_lat_to_row_col(lon: float, lat: float) -> tuple[int, int]:
+    col = math.floor((lon - GRID_ORIGIN_LON) / STEP_LON)
+    row = math.floor((lat - GRID_ORIGIN_LAT) / STEP_LAT)
+    return row, col
+
+
+def assign_cell(lon: float, lat: float) -> str:
+    row, col = lon_lat_to_row_col(lon, lat)
+    return cell_id(row, col)
+
+
+def cell_polygon(row: int, col: int) -> list[list[float]]:
+    west = GRID_ORIGIN_LON + col * STEP_LON
+    south = GRID_ORIGIN_LAT + row * STEP_LAT
+    east = west + STEP_LON
+    north = south + STEP_LAT
+    ring = [
+        [west, south],
+        [east, south],
+        [east, north],
+        [west, north],
+        [west, south],
+    ]
+    return ring
+
+
+def cell_center(row: int, col: int) -> list[float]:
+    west = GRID_ORIGIN_LON + col * STEP_LON
+    south = GRID_ORIGIN_LAT + row * STEP_LAT
+    return [west + STEP_LON / 2, south + STEP_LAT / 2]
+
+
+def generate_grid(
+    west: float, south: float, east: float, north: float
+) -> dict[str, Any]:
+    min_row, min_col = lon_lat_to_row_col(west, south)
+    max_row, max_col = lon_lat_to_row_col(east, north)
+
+    features: list[dict[str, Any]] = []
+    for row in range(min_row, max_row + 1):
+        for col in range(min_col, max_col + 1):
+            cid = cell_id(row, col)
+            center = cell_center(row, col)
+            # Skip cells whose center is outside bbox (clean edges)
+            if not (west <= center[0] <= east and south <= center[1] <= north):
+                continue
+            features.append(
+                {
+                    "type": "Feature",
+                    "id": cid,
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [cell_polygon(row, col)],
+                    },
+                    "properties": {
+                        "id": cid,
+                        "row": row,
+                        "col": col,
+                        "center": center,
+                    },
+                }
+            )
+
+    return {
+        "type": "FeatureCollection",
+        "metadata": {
+            "gridVersion": 1,
+            "cellSizeApproxM": 1000,
+            "origin": [GRID_ORIGIN_LON, GRID_ORIGIN_LAT],
+            "step": [STEP_LON, STEP_LAT],
+        },
+        "features": features,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Generate Warsaw 1 km grid GeoJSON")
+    parser.add_argument(
+        "--bbox",
+        nargs=4,
+        type=float,
+        metavar=("W", "S", "E", "N"),
+        help="west south east north (default: full Warsaw)",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=Path,
+        required=True,
+        help="Output .geojson path",
+    )
+    args = parser.parse_args()
+    bbox = tuple(args.bbox) if args.bbox else WARSAW_BBOX
+    geojson = generate_grid(*bbox)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    with args.output.open("w", encoding="utf-8") as f:
+        json.dump(geojson, f, ensure_ascii=False, indent=2)
+    print(f"Wrote {len(geojson['features'])} cells to {args.output}")
+
+
+if __name__ == "__main__":
+    main()

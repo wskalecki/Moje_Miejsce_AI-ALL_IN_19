@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "description": "Dev sample paths; production replaces grid/metrics with full Warsaw exports.",
+  "files": {
+    "grid": "samples/warsaw_grid_sample.geojson",
+    "cellMetrics": "samples/cell_metrics_sample.json",
+    "poi": ["samples/poi_sample.geojson"]
+  },
+  "bbox": [20.98, 52.18, 21.06, 52.24]
+}

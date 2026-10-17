@@ -27,7 +27,7 @@ Use `feat` for new capability, `fix` for bugs. Keep the subject short and impera
 | `application/` | React (Vite) + Supabase |
 | `docs/core/` | Product concept, decisions (`koncept-aplikacji.md`) |
 | `docs/sources/` | Reference notes |
-| `data/` | Datasets and ETL |
+| `data/` | Datasets and ETL — see `docs/data/`, rule `.cursor/rules/data-developer.mdc` |
 | `presentation/` | Demo graphics and 3D |
 
 ## Product context
