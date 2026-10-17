@@ -9,7 +9,8 @@
       "poi/amenities.geojson",
       "poi/sport.geojson",
       "poi/culture.geojson",
-      "poi/environment.geojson"
+      "poi/environment.geojson",
+      "poi/future.geojson"
     ],
     "poiFallback": ["samples/poi_sample.geojson"]
   },

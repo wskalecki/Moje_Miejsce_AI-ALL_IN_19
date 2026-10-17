@@ -49,6 +49,21 @@ function detailRows(subtype: string, m: Record<string, unknown>, tags: string[])
     case 'event':
       return [['Miejsce', m.miejsce], ['Adres', m.adres], ['Najbliższy termin', date(m.pierwszy_termin)],
         ['Terminów', m.liczba_terminow], ['Kategorie', tags]]
+    case 'parking':
+      return [['Miejsc', m.miejsca], ['Wolne (w chwili pobrania)', m.wolne], ['Stan na', date(m.stan_na)],
+        ['Płatności', m.platnosci], ['Zarządca', m.zarzadca]]
+    case 'medicine_disposal':
+    case 'e_waste':
+    case 'waste_collection':
+    case 'food_sharing':
+      return [['Rodzaj', m.rodzaj], ['Adres', m.adres], ['Gdzie', m.opis_lokalizacji], ['Całodobowo', m.calodobowo]]
+    case 'weather_station':
+      return [['Powietrze (°C)', m.temperatura_powietrza], ['Nawierzchnia (°C)', m.temperatura_nawierzchni],
+        ['Wilgotność (%)', m.wilgotnosc], ['Wiatr (m/s)', m.wiatr_predkosc], ['Pomiar', date(m.czas_pomiaru)]]
+    case 'bo_project':
+    case 'bo_done':
+      return [['Edycja', m.edycja], ['Opis', m.opis], ['Koszt (zł)', m.koszt_zl], ['Lokalizacja', m.lokalizacja],
+        ['Dla kogo', m.dla_kogo], ['Tematy', tags]]
     case 'air_sensor':
       return [['PM2.5 (µg/m³)', m.pm25], ['PM10 (µg/m³)', m.pm10], ['NO₂ (µg/m³)', m.no2],
         ['Indeks', m.indeks], ['Pomiar', date(m.czas_pomiaru)]]

@@ -19,23 +19,18 @@ its line geometry and lists every grid cell it crosses in `cell_ids`. API geomet
 from __future__ import annotations
 
 import argparse
-import json
-import math
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from generate_grid import assign_cell, district_at, load_districts
-from poi_common import Districts
+from generate_grid import load_districts
+from poi_common import Coord, Districts, cells_crossed, line_geometry, write_collection
 from um_api import DATA_DIR, ApiError, fetch
 
 SLUG = "utrudnienia-w-ruchu-drogowym"
 ACTION = "bin_utrudnienia_drogowe"
 OUT_PATH = DATA_DIR / "lines" / "utrudnienia.geojson"
-SAMPLE_M = 20  # well under the grid cell side, so no crossed cell is skipped
-
-Coord = tuple[float, float]
 
 
 def parts(geo: Any) -> list[list[Coord]]:
@@ -50,33 +45,6 @@ def parts(geo: Any) -> list[list[Coord]]:
     return out
 
 
-def geometry(lines: list[list[Coord]]) -> dict[str, Any]:
-    rounded = [[[round(lon, 6), round(lat, 6)] for lon, lat in line] for line in lines]
-    if all(len(line) == 1 for line in rounded):
-        points = [line[0] for line in rounded]
-        return {"type": "Point", "coordinates": points[0]} if len(points) == 1 else \
-            {"type": "MultiPoint", "coordinates": points}
-    lines_only = [line for line in rounded if len(line) > 1]
-    return {"type": "LineString", "coordinates": lines_only[0]} if len(lines_only) == 1 else \
-        {"type": "MultiLineString", "coordinates": lines_only}
-
-
-def metres(a: Coord, b: Coord) -> float:
-    dx = (b[0] - a[0]) * 111_320 * math.cos(math.radians((a[1] + b[1]) / 2))
-    dy = (b[1] - a[1]) * 110_540
-    return math.hypot(dx, dy)
-
-
-def sample(line: list[Coord]) -> list[Coord]:
-    if len(line) == 1:
-        return list(line)
-    out = []
-    for a, b in zip(line, line[1:]):
-        steps = max(1, math.ceil(metres(a, b) / SAMPLE_M))
-        out += [(a[0] + (b[0] - a[0]) * i / steps, a[1] + (b[1] - a[1]) * i / steps) for i in range(steps)]
-    return out + [line[-1]]
-
-
 def local_time(value: str | None) -> str | None:
     """'2026-12-31 09:02:53' (Warsaw local time, no zone) → '2026-12-31T09:02:53'; '' → None."""
     try:
@@ -89,19 +57,15 @@ def normalize(raw: dict[str, Any], districts: Districts) -> dict[str, Any] | Non
     lines = parts(raw.get("geo"))
     if not lines or raw.get("id") is None:
         return None
-    points = [pt for line in lines for pt in sample(line)]
-    if districts:
-        inside = [pt for pt in points if district_at(*pt, districts)]
-        if not inside:
-            return None  # entirely outside Warsaw
-        found = {district_at(*pt, districts) for pt in inside}
-    else:
-        inside, found = points, set()
+    crossed = cells_crossed(lines, districts)
+    if crossed is None:
+        return None  # entirely outside Warsaw
+    cell_ids, found = crossed
     sid = str(raw["id"])
     return {
         "type": "Feature",
         "id": f"{SLUG}_{sid}",
-        "geometry": geometry(lines),
+        "geometry": line_geometry(lines),
         "properties": {
             "id": f"{SLUG}_{sid}",
             "category": "traffic",
@@ -109,8 +73,8 @@ def normalize(raw: dict[str, Any], districts: Districts) -> dict[str, Any] | Non
             "name": (raw.get("name") or "").strip() or None,
             "source": SLUG,
             "sourceId": sid,
-            "cell_ids": sorted({assign_cell(*pt) for pt in inside}),
-            "districts": sorted(found),
+            "cell_ids": cell_ids,
+            "districts": found,
             "tags": list(raw.get("detour_type") or []),
             "meta": {
                 "od": local_time(raw.get("start_date")),
@@ -136,13 +100,7 @@ def main() -> int:
         return 1
 
     features = [f for f in (normalize(r, districts) for r in rows) if f]
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    out = {
-        "type": "FeatureCollection",
-        "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "features": features,
-    }
-    args.output.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    write_collection(args.output, features)
     cells = {c for f in features for c in f["properties"]["cell_ids"]}
     print(
         f"OK: {len(features)} utrudnień → {args.output.relative_to(DATA_DIR.parent)} "

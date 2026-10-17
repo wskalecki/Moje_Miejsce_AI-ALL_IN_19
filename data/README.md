@@ -48,6 +48,13 @@ python3 data/scripts/validate_data.py
 | `poi/sport.geojson` | `otwarte-boiska` (`etl_boiska.py`) | CC BY — Urząd m.st. Warszawy | 308 szkół (1227 wierszy pogrupowanych); geokodowane z `wfs:punkty_adresowe` |
 | `poi/sport.geojson` | `zajecia-sportowe` (`etl_zajecia_sportowe.py`) | CC BY — Urząd m.st. Warszawy | 513 punktów; punkt z mapy, inaczej geokodowany adres; 108 zajęć tylko z dzielnicą pominięte |
 | `lines/utrudnienia.geojson` | `utrudnienia-w-ruchu-drogowym` (`etl_utrudnienia.py`) | CC BY — Urząd m.st. Warszawy | 61 linii/punktów z listą przecinanych komórek `cell_ids` (nie POI) |
+| `poi/amenities.geojson` | `eko-punkty` (`etl_ekopunkty.py`) | CC BY — Urząd m.st. Warszawy | 773 punkty: odbiór leków 501, elektroodpady 158, PSZOK 67, jadłodzielnie 47; bez kontaktów |
+| `poi/amenities.geojson` | `wolne-miejsca-parkingowe` (`etl_parkingi.py`) | CC BY — Urząd m.st. Warszawy | 18 parkingów (1 bez współrzędnych); wolne miejsca to migawka z `meta.stan_na` |
+| `poi/environment.geojson` | `pogoda` (`etl_pogoda.py`) | CC BY — Urząd m.st. Warszawy | 16 stacji drogowych, w tym temperatura nawierzchni; tylko ostatni pomiar |
+| `poi/future.geojson` | `budzet-obywatelski` (`etl_budzet_obywatelski.py`) | CC BY — Urząd m.st. Warszawy | 4769 punktów z 3239 projektów 2019–2027 (w realizacji 1050, zrealizowane 3719); bez danych autorów (RODO) |
+| `lines/trasy_turystyczne.geojson` | `trasy-turystyczne` (`etl_trasy_turystyczne.py`) | CC BY — Urząd m.st. Warszawy | 9 tras z punktami w `meta.punkty` i `cell_ids` (530 komórek) |
+
+Nieobsłużone zbiory portalu: `konsultacje-spoleczne` (brak współrzędnych), `rejestr-cen-nieruchomosci` (HTTP 500), `linie-dostepne-na-przystanku` i `odjazdy-dla-linii-z-przystanku` (zapytanie na słupek), `lokalizacja-pojazdow-komunikacji-miejskiej` (pozycje co 10 s), `pojazdy-transportu-publicznego`, `segregacja-odpadow`, `typy-odpadow` (bez lokalizacji).
 | _TBD_ `grid/cell_metrics.json` | ETL aggregates | n/a | Production metrics |
 
 Raw API dumps → `data/raw/` (gitignored). Large exports: LFS or external link.
