@@ -32,9 +32,8 @@ export const DATA_URLS = {
   osiedlaGeojson: '/data/osiedla.geojson',
 } as const
 
-export const STORAGE_KEY = 'siatka.mock.v1'
-
-export const MAX_PRIORITIES = 4
+/** v2: adds `weights`, drops the 4-priority limit. */
+export const STORAGE_KEY = 'okolica.mock.v2'
 
 /** Duration of the "Dopasowujemy" screen (spec §4.2). */
 export const MATCHING_DURATION_MS = 1800

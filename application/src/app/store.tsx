@@ -1,6 +1,5 @@
 /** App store provider: Context + useReducer + sessionStorage (spec §9). */
 import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, type ReactNode } from 'react'
-import { MAX_PRIORITIES } from './config'
 import { AppStoreContext, loadState, reducer, saveState, type AppStore, type TogglePriorityResult } from './storeCore'
 
 export function AppStoreProvider({ children }: { children: ReactNode }) {
@@ -23,19 +22,15 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       state,
       setProfile: (profile, opts) => dispatch({ type: 'setProfile', profile, keepChoices: opts?.keepChoices }),
       togglePriority: (category): TogglePriorityResult => {
-        const current = stateRef.current.priorities
-        let result: TogglePriorityResult
-        if (current.includes(category)) result = 'removed'
-        else if (current.length >= MAX_PRIORITIES) result = 'blocked'
-        else result = 'added'
-        if (result !== 'blocked') {
-          // Keep the ref in sync immediately so rapid toggles see fresh state.
-          stateRef.current = reducer(stateRef.current, { type: 'togglePriority', category })
-          dispatch({ type: 'togglePriority', category })
-        }
+        const result: TogglePriorityResult = stateRef.current.priorities.includes(category) ? 'removed' : 'added'
+        // Keep the ref in sync immediately so rapid toggles see fresh state.
+        stateRef.current = reducer(stateRef.current, { type: 'togglePriority', category })
+        dispatch({ type: 'togglePriority', category })
         return result
       },
       setPriorities: (priorities) => dispatch({ type: 'setPriorities', priorities }),
+      setWeight: (category, value) => dispatch({ type: 'setWeight', category, value }),
+      resetWeights: () => dispatch({ type: 'resetWeights' }),
       setHorizon: (horizon) => dispatch({ type: 'setHorizon', horizon }),
       setYear: (year) => dispatch({ type: 'setYear', year }),
       markVisited: (slug) => dispatch({ type: 'markVisited', slug }),

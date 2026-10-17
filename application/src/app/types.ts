@@ -25,11 +25,14 @@ export type Horizon = 'chwila' | 'stale'
 
 export type FeaturedSlug = 'powisle' | 'miasteczko-wilanow' | 'saska-kepa'
 
-/** Persisted app state (sessionStorage `siatka.mock.v1`). */
+/** Persisted app state (sessionStorage `okolica.mock.v2`). */
 export interface AppState {
   profile: ProfileId | null
-  /** Selected categories in the order they were picked (max 4). */
+  /** Categories marked as priorities, in the order they were picked (no limit).
+   *  Each one has `weights[c] >= 80`. */
   priorities: CategoryKey[]
+  /** Category weights 0–100: profile defaults (max = 100), priorities boosted to ≥ 80. */
+  weights: Record<CategoryKey, number>
   horizon: Horizon | null
   timelineYear: number
   /** Featured slugs whose cinematic interlude was already shown this session. */

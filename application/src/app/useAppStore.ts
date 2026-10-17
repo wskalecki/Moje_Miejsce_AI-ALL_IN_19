@@ -4,7 +4,8 @@ import { AppStoreContext, type AppStore } from './storeCore'
 /**
  * Access the app store. Must be used under <AppStoreProvider>.
  *
- *   const { state, setProfile, togglePriority, setHorizon } = useAppStore()
+ *   const { state, setProfile, togglePriority, setWeight, resetWeights, setHorizon } = useAppStore()
+ *   state.weights.zielen // 0–100
  */
 export function useAppStore(): AppStore {
   const store = useContext(AppStoreContext)
