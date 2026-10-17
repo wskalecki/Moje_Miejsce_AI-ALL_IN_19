@@ -49,6 +49,26 @@ python3 data/scripts/validate_data.py
 
 Raw API dumps → `data/raw/` (gitignored). Large exports: LFS or external link.
 
+## Imported from `origin/mikolaj` (city-wide real data)
+
+Snapshot of branch `mikolaj` @ `ece5d00` (2026-10-17), committed here so the app can use it before the branches merge. Files whose names clash with the (gitignored) siatka outputs in `poi/` live in **`poi_mikolaj/`**; the rest keep Mikołaj's paths. ETL code (`scripts/etl_*.py`, `um_api.py`, `poi_common.py`, `geocode_address.py`, `gtfs_feed.py`, `transit_*.py`, tests) and `docs/warsaw-data/` are copied unchanged.
+
+> **Careful:** Mikołaj's scripts still write to `data/poi/<name>.geojson` (`transit`, `culture`, `sport`, `environment`, `future` clash with siatka). After re-running them, move the output to `poi_mikolaj/` and restore siatka outputs (`uv run siatka run` with `SIATKA_OFFLINE=1`, or `data/_local_backup/`). When `mikolaj` is merged into `master`, drop `poi_mikolaj/` and point consumers at `poi/`.
+
+| Path | Source (ETL) | License | Contents |
+|------|--------------|---------|----------|
+| `poi_mikolaj/transit.geojson` | `lokalizacja-przystanow-komunikacji-miejskiej` (`etl_przystanki.py`) + [GTFS Warszawa](https://mkuran.pl/gtfs/warsaw.zip) (`etl_gtfs_przystanki.py`) | CC BY — Urząd m.st. Warszawy; ZTM (dane), M. Kuranowski (GTFS), © OSM | 4322 słupki (`meta.linie`, `tryby`, `odjazdy_dzien` na dzień roboczy 2026-10-19) + 38 stacji metra + 43 stacje kolei (SKM/KM) |
+| `poi_mikolaj/amenities.geojson` | `toalety`, `lokalizacja-defibryzatorow-aed`, `eko-punkty`, `wolne-miejsca-parkingowe` | CC BY — Urząd m.st. Warszawy | 691 toalet, 709 AED, 773 eko-punktów, 18 parkingów |
+| `poi_mikolaj/culture.geojson` | `kalendarz-wydarzen` (`etl_wydarzenia.py`) | CC BY — Urząd m.st. Warszawy | 384 punkty z 350 wydarzeń (z terminami ISO 8601) |
+| `poi_mikolaj/sport.geojson` | `otwarte-boiska` (`etl_boiska.py`), `zajecia-sportowe` (`etl_zajecia_sportowe.py`) | CC BY — Urząd m.st. Warszawy | 308 szkół z otwartymi boiskami (1227 wierszy pogrupowanych), 513 zajęć sportowych |
+| `poi_mikolaj/environment.geojson` | `monitoring-jakosci-powietrza`, `pogoda` | CC BY — Urząd m.st. Warszawy | 141 czujników (PM2.5, PM10, NO2…; 30 spoza miasta), 16 stacji pogodowych |
+| `poi_mikolaj/future.geojson` | `budzet-obywatelski` (`etl_budzet_obywatelski.py`) | CC BY — Urząd m.st. Warszawy | 4769 punktów z 3239 projektów BO 2019–2027 (1050 w realizacji, 3719 zrealizowanych), `meta.koszt_zl`; bez autorów (RODO) |
+| `lines/utrudnienia.geojson` | `utrudnienia-w-ruchu-drogowym` | CC BY — Urząd m.st. Warszawy | 61 utrudnień (linie/punkty) z `cell_ids` |
+| `lines/trasy_turystyczne.geojson` | `trasy-turystyczne` | CC BY — Urząd m.st. Warszawy | 9 tras |
+| `grid/czasy_przejazdu.geojson` | GTFS (`etl_czasy_przejazdu.py`, `transit_router.py`) | jak GTFS | 13 318 komórek 200 m: `t.{centrum,rondo_daszynskiego,sluzewiec}.{wszystkie,autobus,tramwaj,metro,kolej} = [średnia, min, max, n]` min, przyjazd 07:30–09:00 w dzień roboczy. Bez KM/WKD (Wesoła, Wawer, Ursus zawyżone) |
+
+**What is committed vs. ignored.** Committed: the files above (~19 MB), boundaries, samples, scripts, and the app-facing outputs in `application/public/data/`. Ignored and rebuildable: siatka outputs in `poi/` and `grid/` (OSM layers: education, clinics, pharmacies, supermarkets, gastronomy, parks/forests, playgrounds; city WFS libraries/metro entrances), API caches in `raw/` (BO dumps contain authors' names, GTFS zip ~100 MB), noise contours cache, `_local_backup/`.
+
 ## Inventory — siatka ETL
 
 <!-- siatka:inventory:start -->

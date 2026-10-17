@@ -10,5 +10,15 @@
 !scripts/**
 !boundaries/
 !boundaries/**
+# Imported from origin/mikolaj (ETL outputs without personal data; raw/ stays ignored)
+!poi_mikolaj/
+!poi_mikolaj/**
+!lines/
+!lines/**
+# Travel times (mikolaj) and noise shares; other grid outputs (siatka) stay ignored
+!grid/
+!grid/czasy_przejazdu.geojson
+# Local backups of ignored outputs
+_local_backup/
 # Python bytecode (overrides the !scripts/** re-include above)
 __pycache__/
