@@ -2,10 +2,14 @@ import * as maplibregl from 'maplibre-gl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   loadHackathonData,
+  loadPoiLayers,
   type CellMetricsFile,
   type GridFeatureCollection,
   type PersonaId,
+  type PoiFeatureCollection,
 } from '../lib/hackathonData'
+import { poiPopupHtml } from '../lib/poiPopup'
+import { POI_SUBTYPES, poiColorExpression, subtypeStyle } from '../lib/poiStyles'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
 const PERSONAS: { id: PersonaId; label: string }[] = [
@@ -32,10 +36,13 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
   const mapRef = useRef<maplibregl.Map | null>(null)
   const gridClickBound = useRef(false)
 
-  const { manifest, grid, cellMetrics, poiLayers } = useMemo(() => loadHackathonData(), [])
+  const { manifest, grid, cellMetrics } = useMemo(() => loadHackathonData(), [])
   const [persona, setPersona] = useState<PersonaId>(initialPersona)
   const [selectedCellId, setSelectedCellId] = useState<string | null>(null)
   const [showPoi, setShowPoi] = useState(true)
+  const [poiLayers, setPoiLayers] = useState<PoiFeatureCollection[]>([])
+  const [poiIsSample, setPoiIsSample] = useState(false)
+  const [hiddenSubtypes, setHiddenSubtypes] = useState<Set<string>>(() => new Set())
   const [mapLoaded, setMapLoaded] = useState(false)
   const [mapError, setMapError] = useState<string | null>(null)
 
@@ -44,6 +51,18 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
     [grid, cellMetrics, persona],
   )
 
+  useEffect(() => {
+    let cancelled = false
+    loadPoiLayers(manifest).then(({ layers, isSample }) => {
+      if (cancelled) return
+      setPoiLayers(layers)
+      setPoiIsSample(isSample)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [manifest])
+
   const poiCollection = useMemo(
     () => ({
       type: 'FeatureCollection' as const,
@@ -51,6 +70,26 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
     }),
     [poiLayers],
   )
+
+  const subtypeCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const f of poiCollection.features) {
+      counts.set(f.properties.subtype, (counts.get(f.properties.subtype) ?? 0) + 1)
+    }
+    const order = Object.keys(POI_SUBTYPES)
+    return [...counts.entries()].sort(([a], [b]) => {
+      const ia = order.indexOf(a)
+      const ib = order.indexOf(b)
+      return (ia < 0 ? order.length : ia) - (ib < 0 ? order.length : ib)
+    })
+  }, [poiCollection])
+
+  const toggleSubtype = (subtype: string) =>
+    setHiddenSubtypes((prev) => {
+      const next = new Set(prev)
+      if (!next.delete(subtype)) next.add(subtype)
+      return next
+    })
 
   const selectedDetail = selectedCellId ? cellMetrics.cells[selectedCellId] : null
 
@@ -134,22 +173,8 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
         type: 'circle',
         source: POI_SOURCE,
         paint: {
-          'circle-radius': 7,
-          'circle-color': [
-            'match',
-            ['get', 'category'],
-            'transit',
-            '#ffffff',
-            'amenity',
-            '#f0c674',
-            'sport',
-            '#9bcf7f',
-            'environment',
-            '#7eb8da',
-            'culture',
-            '#e8a87c',
-            '#cccccc',
-          ],
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 2.5, 13, 4.5, 16, 8],
+          'circle-color': poiColorExpression,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#1a1a24',
         },
@@ -168,8 +193,24 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
       if (!gridClickBound.current) {
         gridClickBound.current = true
         map.on('click', GRID_FILL_LAYER, (e) => {
+          // A POI on top of the cell gets the click instead.
+          if (map.queryRenderedFeatures(e.point, { layers: [POI_LAYER] }).length) return
           const id = e.features?.[0]?.properties?.id as string | undefined
           setSelectedCellId(id ?? null)
+        })
+        map.on('click', POI_LAYER, (e) => {
+          const feature = e.features?.[0]
+          if (!feature || feature.geometry.type !== 'Point') return
+          new maplibregl.Popup({ maxWidth: '320px', className: 'poi-popup-container' })
+            .setLngLat(feature.geometry.coordinates as [number, number])
+            .setHTML(poiPopupHtml(feature.properties))
+            .addTo(map)
+        })
+        map.on('mouseenter', POI_LAYER, () => {
+          map.getCanvas().style.cursor = 'pointer'
+        })
+        map.on('mouseleave', POI_LAYER, () => {
+          map.getCanvas().style.cursor = ''
         })
         map.on('mouseenter', GRID_FILL_LAYER, () => {
           map.getCanvas().style.cursor = 'pointer'
@@ -209,10 +250,16 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
     const visibility = showPoi ? 'visible' : 'none'
     if (map.getLayer(POI_LAYER)) {
       map.setLayoutProperty(POI_LAYER, 'visibility', visibility)
+      map.setFilter(
+        POI_LAYER,
+        hiddenSubtypes.size
+          ? ['!', ['in', ['get', 'subtype'], ['literal', [...hiddenSubtypes]]]]
+          : null,
+      )
     }
     const poiSource = map.getSource(POI_SOURCE) as maplibregl.GeoJSONSource | undefined
     poiSource?.setData(poiCollection)
-  }, [poiCollection, showPoi, mapLoaded])
+  }, [poiCollection, showPoi, hiddenSubtypes, mapLoaded])
 
   return (
     <div className="grid-map">
@@ -237,9 +284,34 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
             checked={showPoi}
             onChange={(e) => setShowPoi(e.target.checked)}
           />
-          POI (sample)
+          POI{poiIsSample ? ' (próbka)' : ''}
         </label>
       </header>
+
+      {showPoi && subtypeCounts.length > 0 && (
+        <aside className="grid-map__legend" aria-label="Warstwy POI">
+          <h2>Punkty{poiIsSample ? ' (próbka)' : ''}</h2>
+          <ul>
+            {subtypeCounts.map(([subtype, count]) => {
+              const style = subtypeStyle(subtype)
+              return (
+                <li key={subtype}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={!hiddenSubtypes.has(subtype)}
+                      onChange={() => toggleSubtype(subtype)}
+                    />
+                    <span className="grid-map__swatch" style={{ background: style.color }} />
+                    <span>{style.label}</span>
+                    <span className="grid-map__count">{count}</span>
+                  </label>
+                </li>
+              )
+            })}
+          </ul>
+        </aside>
+      )}
 
       {selectedCellId && selectedDetail && (
         <aside className="grid-map__panel">

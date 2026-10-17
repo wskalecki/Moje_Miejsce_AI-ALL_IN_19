@@ -1,10 +1,17 @@
 {
   "schemaVersion": 1,
-  "description": "Dev sample paths; production replaces grid/metrics with full Warsaw exports.",
+  "description": "Dev sample paths; production replaces grid/metrics with full Warsaw exports. POI files come from data/scripts/etl_*.py (gitignored); the app falls back to poiFallback when none are present.",
   "files": {
     "grid": "samples/warsaw_grid_sample.geojson",
     "cellMetrics": "samples/cell_metrics_sample.json",
-    "poi": ["samples/poi_sample.geojson"]
+    "poi": [
+      "poi/transit.geojson",
+      "poi/amenities.geojson",
+      "poi/sport.geojson",
+      "poi/culture.geojson",
+      "poi/environment.geojson"
+    ],
+    "poiFallback": ["samples/poi_sample.geojson"]
   },
   "bbox": [20.98, 52.18, 21.06, 52.24]
 }
