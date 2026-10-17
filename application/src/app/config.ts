@@ -39,4 +39,4 @@ export const STORAGE_KEY = 'okolica.mock.v2'
 export const MATCHING_DURATION_MS = 1800
 
 export const DEMO_NOTE =
-  'Wersja demonstracyjna — profile wyróżnionych osiedli przygotowane ręcznie na podstawie otwartych danych'
+  'Wersja demonstracyjna — liczby policzone z otwartych danych bez ręcznych korekt; szacunki są oznaczone'

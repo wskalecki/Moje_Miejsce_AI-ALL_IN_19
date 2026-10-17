@@ -457,7 +457,8 @@ def main() -> int:
                 desc = f"{desc} Ok. {greens[h['green']]['area_ha']:.0f} ha." if greens[h["green"]]["area_ha"] >= 1.5 \
                     else desc
             highlights.append({
-                "id": h["id"], "name": h["name"], "category": h["category"], "coord": h["coord"],
+                # parks / forests: marker at the nearest edge point (where the walk ends), not the centroid
+                "id": h["id"], "name": h["name"], "category": h["category"], "coord": target,
                 "description": desc, "distanceM": int(round(r["distance"])), "walkMin": minutes(r["duration"]),
                 **({"distanceTo": "skraj"} if h.get("green") else {}),
                 "source": f"OSM {h['osm']}" if not h["osm"].startswith("ztm:") else f"GTFS ZTM, przystanek {h['osm'][4:]}",

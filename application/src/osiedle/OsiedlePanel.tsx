@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Medal } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Badge } from '../components/ui/Badge'
@@ -86,7 +86,9 @@ function PanelBody({
   const titleRef = useRef<HTMLHeadingElement>(null)
   const headRef = useRef<HTMLDivElement>(null)
   const prios = (priorities?.length ? priorities : [...DEFAULT_PRIORITIES[profile]]).slice(0, 4)
-  const isBest = osiedle.profile === profile
+  // Real rank among the 143 osiedla (default weights of the profile); the crown only for a true #1.
+  const rank = osiedle.rank?.[profile]
+  const isBest = rank === 1
   const msiName = MSI_NAMES[osiedle.msiId]
 
   // Timeline (spec §4.6): full for `stale`; for `chwila` a teaser whose "Pokaż prognozę" switches the
@@ -238,7 +240,13 @@ function PanelBody({
               {osiedle.name}
             </h1>
             <p className="op-head__tagline">{osiedle.tagline}</p>
-            {isBest && <Badge className="op-head__badge" />}
+            {isBest ? (
+              <Badge className="op-head__badge" />
+            ) : rank != null && rank <= 10 ? (
+              <Badge className="op-head__badge" icon={Medal}>
+                {rank}. miejsce na 143 osiedla
+              </Badge>
+            ) : null}
           </div>
           <div className="op-head__match">
             <Ring value={match} size={88} duration={900} />

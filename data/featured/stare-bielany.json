@@ -32,17 +32,6 @@
       "description": "Park na Bielanach."
     },
     {
-      "id": "kameduli",
-      "name": "Kościół pokamedulski na Bielanach",
-      "category": "kultura",
-      "coord": [
-        20.96011,
-        52.29585
-      ],
-      "osm": "way/173130486",
-      "description": "Kościół Niepokalanego Poczęcia NMP, ul. Dewajtis 3."
-    },
-    {
       "id": "biblioteka-12",
       "name": "Wypożyczalnia nr 12",
       "category": "kultura",
@@ -273,17 +262,14 @@
       "year": 2026,
       "yearUncertain": false,
       "yearNote": "„Zakończenie wszystkich działań planowane jest na koniec listopada” (IX 2026).",
-      "coord": [
-        20.97568,
-        52.28874
-      ],
       "sourceUrl": "https://terazwarszawa.pl/nowa-era-dla-szlaku-pieszo-rowerowego-w-lesie-bielanskim/",
       "sourceTitle": "Nowa era dla szlaku pieszo-rowerowego w Lesie Bielańskim (Teraz Warszawa)",
       "sourceDate": "2026-09-25",
       "statusEvidence": "Umowa podpisana 29.07.2026 (komunikat dzielnicy Bielany), wykonawca Wegarten; prace trwają, część szlaku czasowo zamknięta (IX 2026).",
       "checkedAt": "2026-10-17",
       "effect": null,
-      "effectNote": "Remont istniejącej trasy przy istniejącym lesie; współrzędna orientacyjna (od strony ul. Gwiaździstej) → brak wpływu na wskaźniki zieleni."
+      "effectNote": "Remont istniejącej trasy przy istniejącym lesie; współrzędna orientacyjna (od strony ul. Gwiaździstej) → brak wpływu na wskaźniki zieleni.",
+      "coordNote": "brak dokładnej lokalizacji w źródle (szlak wzdłuż Lasu Bielańskiego), bez znacznika na mapie"
     },
     {
       "id": "zeromskiego-przebudowa",
