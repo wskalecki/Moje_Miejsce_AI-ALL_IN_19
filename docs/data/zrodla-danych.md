@@ -98,3 +98,41 @@ Warunki: https://architektura.um.warszawa.pl/warunki-ponownego-wykorzystania. Cz
 | Utrudnienia | portal, liczba unikalnych w promieniu 1 km | Linie mają wiele wierzchołków |
 | Hałas | zbiór Wojtka (EEA 2022) | Nie dublujemy pracy. WMS 2017 jest starszy |
 | Ceny | RCN (portal), obecnie błąd 500 | Kontrakt przewiduje `rcn_m2_median_district` |
+
+## 5. Mock: 3 osiedla
+
+Treści 3 wyróżnionych osiedli w `application/src/mock/osiedla.ts` (Powiśle, Miasteczko Wilanów, Saska Kępa). Stan na październik 2026. To wartości poglądowe, nie dane na żywo.
+
+**Ceny (zł/m², oferty z rynku wtórnego, chyba że zaznaczono inaczej).** Źródła podają bardzo różne liczby: transakcje są o 10–25% niższe niż oferty, a próby bywają małe. Wybraliśmy wartość ze środka zakresu.
+
+| Osiedle | Zakup (wybrane) | Zakres w źródłach | Najem (wybrane) | Źródła |
+|---|---|---|---|---|
+| Powiśle | 23 800 | 21 650 (SonarHome, transakcje) – 23 813 (Domiporta, X 2026, 1709 ofert). Otodom podaje 29 674, to wygląda na błąd | 105 zł/m², 2 pok. 4 900 zł | [SonarHome](https://sonarhome.pl/ceny-mieszkan/warszawa/srodmiescie/powisle), [Domiporta](https://www.domiporta.pl/mieszkanie/sprzedam/mazowieckie/warszawa/powisle), [Adresowo](https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/powisle-u/) |
+| Miasteczko Wilanów | 19 900 | Wilanów 17 850–20 128. Samo Miasteczko „od 20 000” (Domus Global, VI 2026) | 84 zł/m², 2 pok. 4 200 zł | [Domus Global](https://www.domusglobal.pl/post/wilanow-dzielnica-warszawy), [Domiporta najem](http://www.domiporta.pl/ceny/mieszkanie/wynajem/wtorny/mazowieckie/warszawa/wilanow) (84 zł/m², IX 2026), [otodom](https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/wilanow) (86 zł/m²) |
+| Saska Kępa | 19 500 | 15 354 (Domiporta, 44 oferty) – 16 506 (SonarHome, transakcje) – 19 550 (Adresowo, VIII 2026) – 22 693 (otodom) | 88 zł/m², 2 pok. 4 100 zł | [SonarHome](https://sonarhome.pl/ceny-mieszkan/warszawa/praga-poludnie/saska-kepa), [Adresowo](https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/saska-kepa/), [znajdznajem.pl](https://znajdznajem.pl/warszawa/raport) (mediana Pragi-Południe 3 388 zł) |
+| Warszawa (porównanie) | 17 975 | NBP II kw. 2026, transakcje: 16 723 (wtórny), 16 783 (pierwotny) | 84 zł/m², mediana 3 200 zł | [Adresowo](https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/), [znajdznajem.pl](https://znajdznajem.pl/warszawa/raport) (X 2026) |
+
+**Inwestycje na osi czasu 2026–2030.**
+
+| Osiedle | Rok | Inwestycja | Status i źródło |
+|---|---|---|---|
+| Powiśle | 2026 | Plan miejscowy Powiśla Północnego | Ponowne wyłożenie. [architektura.um.warszawa.pl](https://architektura.um.warszawa.pl/-/jaki-plan-miejscowy-dla-powisla-polnocnego-wylozenie-ponowne) |
+| Powiśle | 2027 | Modernizacja Parku Kazimierzowskiego (4,3 ha) i skweru „Agatona” (2,2 ha) | Konkurs ZZW, protesty mieszkańców. Rok realizacji to nasze założenie. [TVP Warszawa](https://warszawa.tvp.pl/86552696/warszawa-zielone-powisle-konkurs-na-projekt-parku-i-skweru) |
+| Powiśle | 2029 | Arkady z zielenią pod mostem średnicowym, ostatni odcinek bulwarów | Koncepcja bez finansowania, rok umowny. [Raport Warszawski](https://www.raportwarszawski.pl/artykul/3025,bulwary-wislane-co-dalej-z-ostatnim-odcinkiem-nie-ma-finansowania-do-tego-zmienil-sie-pomysl) |
+| Powiśle | 2030 | Przebudowa linii średnicowej: przystanki Nowy Świat i Solec, likwidacja Powiśla | PKP PLK, prace główne po 2030. [tvn24](https://tvn24.pl/tvnwarszawa/srodmiescie/warszawa-przebudowa-linii-srednicowej-powody-przesuniecia-harmonogramu-prac-co-zostanie-przebudowane-koszty-st8562055), [Super Express](https://www.se.pl/warszawa/pociagiem-na-bulwary-przy-wislostradzie-powstanie-nowa-stacja-pkp-aa-LNTR-oJgj-cYcD.html) |
+| Wilanów | 2026 | Adaptacja SP nr 300 | Przetarg dzielnicy, oferty do 31.08.2026. [wilanow.um.warszawa.pl](https://wilanow.um.warszawa.pl/zamowienia-publiczne1) |
+| Wilanów | 2028 | Wilanów Park: park ponad 2,2 ha i centrum handlowe | Otwarcie planowane na 2028. [westate.pl](https://westate.pl/blog/wilanow-park-w-warszawie-nowe-centrum-handlowe-i-park-juz-w-2028-roku) |
+| Wilanów | 2029 | Przedłużenie tramwaju o ok. 500 m (Uprawna / al. Rzeczypospolitej) | Projekt dewelopera do IV kw. 2028, termin budowy nieznany. [muratorplus](https://muratorplus.pl/inwestycje/inwestycje-publiczne/czy-tramwaj-do-wilanowa-dotrze-az-za-poludniowa-obwodnice-warszawy-sa-plany-przedluzenia-trasy-aa-bxcr-pHKt-VBF3.html) |
+| Wilanów | 2030 | Metro M4 Tarchomin–Wilanów w projektowaniu | Studium do XI 2027, projekt od 2028. [Architektura-Murator](https://architektura.muratorplus.pl/projekty/bedzie-metro-do-wilanowa-dowiezie-do-centrum-w-18-minut-kiedy-budowa-aa-S9B9-gqtY-rikr.html) |
+| Saska Kępa | 2026 | Koniec przebudowy Trasy Łazienkowskiej (wiadukty nad Paryską) | Aneks z terminem na lipiec 2026, możliwe opóźnienie. [naszemiasto](https://warszawa.naszemiasto.pl/komunikacyjny-spokoj-na-saskiej-kepie-coraz-blizej-koncza-sie-prace-nad-inwestycja-warta-ponad-100-milionow-zlotych/ar/c1p2-28084393), [muratorplus](https://www.muratorplus.pl/inwestycje/inwestycje-publiczne/remont-trasy-lazienkowskiej-w-warszawie-opoznia-sie-kiedy-koniec-utrudnien-na-saskiej-kepie-aa-qU6p-RdAd-YAKt.html) |
+| Saska Kępa | 2027 / 2030 | Tramwaj na Gocław (3,6 km) przez Saską Kępę | Budowa najwcześniej od IV kw. 2027, koniec w III kw. 2030. [muratorplus](https://www.muratorplus.pl/inwestycje/inwestycje-publiczne/tramwajem-na-goclaw-juz-w-2030-r-zlikwiduja-pod-niego-ogrodki-dzialkowe-aa-bbaj-XWii-5q8v.html), [um.warszawa.pl](https://um.warszawa.pl/-/tramwaj-coraz-blizej-goclawia) |
+| Saska Kępa | 2028 | Metro M3 Stadion Narodowy–Gocław (8,1 km, 6 nowych stacji) | Start budowy planowany na 2028, otwarcie ok. 2032, brak zapewnionego finansowania. [um.warszawa.pl](https://um.warszawa.pl/-/kiedy-pojedziemy-trzecia-linia-metra-), [Architektura-Murator](https://architektura.muratorplus.pl/krytyka/budowa-3-linii-metra-zagrozona-pieniedzy-wciaz-brak-choc-start-juz-za-2-lata-aa-u6V3-z76Y-RU2P.html) |
+
+Uwaga: tramwaj do Miasteczka Wilanów już działa (otwarty w 2024 r., 6,5 km), więc nie ma go na osi czasu.
+
+**Pozostałe dane w mocku:**
+- Trasy (`routes[].geometry`) pochodzą z OSRM FOSSGIS (`https://routing.openstreetmap.de/routed-foot/route/v1/driving/{lon,lat;lon,lat}?overview=full&geometries=geojson`, wariant `routed-bike` dla roweru), dane © OpenStreetMap (ODbL). Publiczne demo `router.project-osrm.org` ma tylko profil samochodowy i ignoruje `foot`.
+- Szkoły, przedszkola i przychodnie wybraliśmy z OSM (Overpass, Nominatim). Overpass w X 2026 często zwraca błędy 502 i 500, wtedy Nominatim (`?q=…&format=json`) wystarcza do pojedynczych punktów.
+- Korki (`traffic`) i czasy dojazdu (`commute`) to nasze szacunki typowego dnia roboczego, a nie pomiar.
+- Zdjęcia pochodzą z Wikimedia Commons, autorów i licencje podajemy w `application/public/osiedla/credits.json`. Commons przy pobieraniu oryginałów szybko zwraca HTTP 429, dlatego pobieraj miniatury `iiurlwidth=1920` (`thumburl`) z przerwą kilku sekund między plikami.
+- Wyszukiwanie w portalach: w otodom Saska Kępa ma ścieżkę `praga--poludnie/saska-kepa` (podwójny myślnik), a Miasteczko Wilanów to `wilanow/blonia-wilanowskie`. Morizon używa krótkich ścieżek: `/mieszkania/warszawa/powisle/`, `/saska-kepa/`, `/blonia-wilanowskie/`.
