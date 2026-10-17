@@ -102,6 +102,7 @@ Trzeci poziom hierarchii: dzielnica (18) → obszar MSI (143) → kwartał, czyl
   - `data/boundaries/warszawa_osiedla_fine.geojson` (cała Warszawa, 12,5 MB),
   - `application/public/data/fine/<msi_id>.geojson` (jeden plik na obszar MSI, 1–380 KB, ładowany po wejściu w obszar),
   - `fine/index.json` (liczba kwartałów, bbox i rozmiar pliku dla każdego obszaru).
+- **Fakty o kwartałach** (ceny RCN, budynki, usługi w pobliżu, hałas, dojazd): `application/public/data/fine-metrics/<msi_id>.json`, skrypt `data/scripts/build_kwartal_metrics.py`. Opis w §3a i w `raport-danych.md` („Kwartały — status danych”).
 - **Właściwości:** `id` (`<msi_id>--<slug nazwy>`), `name`, `name_source`, `osiedle`, `msi_id`, `district`, `area_km2`, `residential` (`residential=*` z OSM albo `apartments`/`houses` z mediany kondygnacji), `buildings`, `floors_max`, `source`.
 - **Licencja:** ODbL (OSM, podać „© współtwórcy OpenStreetMap”) oraz dane m.st. Warszawy (budynki i MSI, podać „Urząd m.st. Warszawy”).
 
@@ -122,9 +123,9 @@ Trzeci poziom hierarchii: dzielnica (18) → obszar MSI (143) → kwartał, czyl
 | **GIOŚ HAŁAS API** `https://dane.gios.gov.pl/api/halas/v1/zasiegi-halasu` | kontury Lden SMH 2022 (dane 2021), drogi i kolej (kolej **zawiera tramwaje**) | ✅ | CC BY 4.0, bez klucza. Parametry: `wojewodztwo=MAZOWIECKIE`, `rundaMapowania=4 Runda Mapowania`, `zrodloHalasu=Hałas drogowy wewnątrz aglomeracji` (lub `kolejowy`), `wskaznik=LDWN`, `liczbaElementowNaStronie=50`, `numerStrony` od 0. Zwraca MultiPolygon w **EPSG:2180, bez deklaracji CRS**. Mazowsze: drogi 120 obiektów (~200 MB, **ostatnia strona ma 115 MB**, pobieranie trwa kilka minut), kolej 92 (~28 MB). Brak pola aglomeracji, więc przycinamy do granicy Warszawy. Pasma są rozłączne (`Lden5559` … `LdenGreaterThan80`). Kontrola z `/v1/informacja-o-powierzchni-terenu`: drogi ≥ 60 dB 146,40 km² (GIOŚ 146,59), kolej ≥ 60 dB 20,10 km² (20,13). Skrypty: `data/scripts/noise/` (źródła opisuje `noise/sources.md` na `feat/noise-dataset`) |
 | RSPO | rejestr szkół | ⚠️ | API wymaga wniosku (do 14 dni). Eksport CSV z wyszukiwarki działa |
 
-## 3a. Ceny transakcyjne mieszkań (RCN) ✔️
+## 3a. Ceny transakcyjne mieszkań (RCN) ✅
 
-Od 13 II 2026 RCN jest bezpłatny (art. 40a ust. 2 pkt 1 lit. k PGiK). Dla Warszawy oba źródła niżej mają **te same rekordy** z Biura Geodezji i Katastru (przestrzeń nazw `PL.PZGiK.5346.RCN`). Jeden rekord to jeden lokal: cena, powierzchnia użytkowa, izby, kondygnacja, data aktu, rynek pierwotny lub wtórny, ulica i numer budynku oraz punkt budynku. Wystarcza to do agregacji na kwartały (`warszawa_osiedla_fine`). Sprawdzone 2026-10-17, jeszcze nieużyte.
+Od 13 II 2026 RCN jest bezpłatny (art. 40a ust. 2 pkt 1 lit. k PGiK). Dla Warszawy oba źródła niżej mają **te same rekordy** z Biura Geodezji i Katastru (przestrzeń nazw `PL.PZGiK.5346.RCN`). Jeden rekord to jeden lokal: cena, powierzchnia użytkowa, izby, kondygnacja, data aktu, rynek pierwotny lub wtórny, ulica i numer budynku oraz punkt budynku. Wystarcza to do agregacji na kwartały (`warszawa_osiedla_fine`). Sprawdzone 2026-10-17. **Użyte: paczki miasta 2023–2026** (świeższe niż WFS), patrz „Pobranie i użycie” niżej.
 
 **GUGiK WFS `https://mapy.geoportal.gov.pl/wss/service/rcn`** (MapServer, WFS 2.0.0 i WMS 1.3.0, bez klucza, `Fees: none`):
 - Warstwy: `ms:lokale`, `ms:budynki`, `ms:dzialki`. `ms:powiaty` to tylko zasięg, bez atrybutów.
@@ -148,6 +149,28 @@ Od 13 II 2026 RCN jest bezpłatny (art. 40a ust. 2 pkt 1 lit. k PGiK). Dla Warsz
 - EPSG:2178 w kolejności northing easting. Kody są liczbowe (`rodzajRynku` 1 = pierwotny, 2 = wtórny; `funkcjaLokalu` 1 = mieszkalna). Kody ustaliliśmy z proporcji, potwierdź je w załączniku do rozporządzenia z 27.07.2021.
 - 2026: 11 971 lokali, w tym 9450 mieszkalnych z udziałem 1/1, mediana 16 611 zł/m² (NBP II kw. 2026: 16,7 tys.). Dane gęste do IV 2026.
 - Licencja: warunki ponownego wykorzystania m.st. Warszawy, podać źródło „Urząd m.st. Warszawy”.
+
+**Pobranie i użycie (2026-10-17):**
+- **Wybór źródła:** paczki GML miasta, bo są świeższe (akty gęsto do IV 2026, WFS tylko do ok. II 2026) i jeden plik obejmuje całe miasto. Pobrane: `zbior_danych_rcn_2023/2024/2025.zip` i `zbior_danych_rciwn_2026_20261005.zip` (razem 158 MB, ok. 1 min parsowania strumieniowego).
+- **Skrypt:** `data/scripts/siatka/.venv/bin/python -I data/scripts/rcn/fetch_rcn.py [--years 2023,2024,2025,2026] [--refresh]`. Linki do paczek bierze ze strony miasta. Cache: `data/raw/rcn/*.zip`. Wynik (git-ignored): `data/rcn/lokale_mieszkalne.csv` (86 978 wierszy, 12,6 MB) i `data/rcn/summary.json` (liczby po każdym filtrze).
+- **Kolumny wyniku:** `date, year, market (pierwotny/wtorny), vat, lokal_id, building_id, lon, lat, area_m2, rooms, floor, price_pln, price_m2, street, number`. **Bez danych osobowych:** `tworcaDokumentu` (notariusz), `oznaczenieDokumentu` (repertorium) i typy stron są pomijane już przy parsowaniu.
+- **Filtry:** `funkcjaLokalu=1` i `rodzajNieruchomosci=4`, udział `1/1` lub pusty, `rodzajTransakcji=1` (wolnorynkowa), `cenaLokaluBrutto` (cena lokalu, nie całej transakcji), pow. ≥ 15 m², 3–60 tys. zł/m², data aktu w wybranych latach, deduplikacja (transakcja, lokal, data, cena).
+- **Kody (ustalone z proporcji, 2023–2026, 114,8 tys. lokali w transakcjach):**
+  - `funkcjaLokalu`: 1 = mieszkalny (89,7 tys., mediana 48,7 m²), 5 = garaż (20,3 tys., to hale garażowe: mediana tysiące m², kondygnacja −1, 0 izb, sprzedawane w udziałach), 2, 3, 6 = inne.
+  - `rodzajRynku`: 1 = pierwotny. Potwierdza to `kwotaPodatkuVAT`, wypełniona w 17% transakcji z kodem 1 i w 0,8% z kodem 2.
+  - `rodzajTransakcji`: prawie zawsze 1. Kody 2, 3, 4, 6 to łącznie 144 lokale, odrzucone.
+- **Pułapki:**
+  - Literówki w dacie aktu (`0203-…`, `2230-…`), więc sprawdzaj zakres.
+  - Paczka roku X zawiera też pojedyncze akty z lat wcześniejszych. Liczymy po dacie aktu.
+  - **Punkt `georeferencja` lokalu zawsze leży w obrysie budynku** (próba 3000: 100% w obrysie, mediana 6 m od środka).
+  - Przedrostek `idLokalu` (`…_BUD`) pasuje do `ID_BUDYNKU` w rejestrze miasta tylko dla 67% lokali. Rekordy z lat 2023–2024 mają często **stary numer budynku** (obręb.działka.nr, np. `146502_8.1111.21/8.3_BUD`), którego nie ma w obecnym rejestrze. Wtedy przypisujemy po punkcie, co daje ten sam wynik.
+  - W 2026 r. akty są gęste do IV (I 2402, II 2288, III 2703, IV 1907, V 89).
+- **Kontrola:**
+  - Mediana miasta: 2023 r. 12 942 zł/m² (n=22 737), 2024 r. 15 380 (23 693), 2025 r. 15 534 (31 111), 2026 r. 16 612 (9437; NBP II kw. 2026: 16,7 tys.).
+  - Powiśle (poligon MSI), od 2024 r.: n=193, mediana 23 421 zł/m² (WFS, prostokąt: 22 973).
+- **Licencja:** RCN jest bezpłatny (art. 40a PGiK). W UI podać „Rejestr Cen Nieruchomości, Urząd m.st. Warszawy”. Te same rekordy publikuje GUGiK (WFS `ms:lokale`), ponowne wykorzystanie bez opłat.
+- **Rejestr budynków nie ma roku budowy.** `wfs:budynki` ma tylko `ID_BUDYNKU`, `RODZAJ`, `KONDYGNACJE_NADZIEMNE`, `KONDYGNACJE_PODZIEMNE` (sprawdzone `DescribeFeatureType`). Budynki niemieszkalne pobieramy jak mieszkalne, z `cql_filter=RODZAJ<>'m'` (73 971 obiektów, 32 MB, 12 s, `data/raw/city_wfs/budynki_niemieszkalne.json`). Rozkład kodów: `i` 29 747, `t` 24 484, `h` 7168, `b` 3331, `g` 3259, `k` 2119, `s` 2078, `p` 1212, `z` 573.
+- **Agregacja na kwartały:** `data/scripts/build_kwartal_metrics.py`, metoda w `raport-danych.md` („Kwartały — status danych”).
 
 **Bez danych o cenach:** WMS `wms.um.warszawa.pl` (213 warstw), GeoServer `wms2.um.warszawa.pl`, `mapa.um.warszawa.pl/rcn-szukaj/` (tylko interfejs) i dane.gov.pl. NBP podaje tylko średnie dla miasta.
 

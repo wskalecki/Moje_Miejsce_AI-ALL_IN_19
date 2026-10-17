@@ -261,3 +261,42 @@ Nic nie jest strojone ręcznie. Ponowne uruchomienie (`--offline` korzysta z cac
 Otwarte sprawy:
 - Oś czasu w UI kończy się na 2030 r. Wydarzenia z 2031, 2040 i 2044 są w danych, ale suwak ich jeszcze nie pokazuje (zadanie I2-7). Etykieta „w toku” dla wydarzeń z 2026 r. wynika z logiki osi czasu, a nie ze statusu w danych.
 - Wykres „Korki w ciągu doby” ma progi 35 i 65 oraz podpowiedź „Wyjedź o…”, zaprojektowane pod dawny indeks. Na prawdziwym spowolnieniu z rozkładu (maksymalnie 12–17%) wykres zawsze pokazuje „płynnie” i podpowiedź „Tu rzadko stoi się w korkach”. To prawda dla rozkładu autobusów i tramwajów, ale nie dla ruchu aut. Do przeprojektowania razem z warstwą korków (I2-6).
+
+## Kwartały — status danych
+
+Trzeci poziom mapy, czyli kwartał: kilka budynków między ulicami, `application/public/data/fine/<msi_id>.geojson`. Fakty dla każdego kwartału są w `application/public/data/fine-metrics/<msi_id>.json` (`{<id kwartału>: {...}}`). Schemat, źródła i podsumowanie dla każdego obszaru MSI są w `fine-metrics/index.json`. Skrypt: `data/scripts/siatka/.venv/bin/python -I data/scripts/build_kwartal_metrics.py [--only muranow,natolin]` (ok. 20 s dla całego miasta).
+
+Zakres: wszystkie 14 576 kwartałów w 143 obszarach MSI. Pliki mają 1–430 KB, razem 13 MB. Trzy największe (Zacisze, Zerzeń, Radość, po 410–430 KB) to obszary z setkami małych kwartałów domów jednorodzinnych. **Nic nie jest wymyślone ani uzupełniane.** Gdy brakuje danych, pole jest puste albo go nie ma.
+
+| Pole | Status | Źródło | Metoda |
+|---|---|---|---|
+| `price.med`, `p25`, `p75`, `n` | **PRAWDZIWE** (mediana z rekordów) | RCN, paczki m.st. Warszawy 2023–2026 (`rcn/fetch_rcn.py`, §3a w `zrodla-danych.md`) | Cena brutto lokalu / pow. użytkowa. Tylko całe mieszkania (udział 1/1), sprzedaż wolnorynkowa, ≥ 15 m², 3–60 tys. zł/m². Okres główny: akty od 1.01.2024 do ostatniego (gęsto do IV 2026). Lokal przypisany do kwartału przez środek budynku z rejestru miasta (`idLokalu` → `ID_BUDYNKU`, 67%), w pozostałych przypadkach przez punkt RCN (zawsze leży w obrysie budynku). Kwartyle tylko dla n ≥ 4 |
+| `price.scope` | **POCHODNE** | j.w. | `kwartal`, gdy w kwartale jest ≥ 5 transakcji w okresie głównym. W innym razie `radius300`: transakcje w 300 m od punktu kwartału plus te w kwartale. `low_n: true`, gdy próba nadal ma < 5 transakcji. `n_kw` to zawsze liczba transakcji w samym kwartale |
+| `price.years` | **PRAWDZIWE** | j.w. | `{rok: [n, mediana]}` dla 2023–2026, tylko w kwartale. Mediana dopiero od n ≥ 3, poniżej samo `[n]` |
+| `price.primary` / `secondary` | **PRAWDZIWE** | j.w. (`rodzajRynku` 1/2) | `[n, mediana]` w użytej próbie, mediana od n ≥ 3 |
+| `price.area_med`, `rooms_med` | **PRAWDZIWE** | j.w. | Mediana pow. użytkowej i liczby izb (izby > 0) w użytej próbie |
+| `bld.res`, `other`, `fl_max`, `fl_med`, `res_share` | **PRAWDZIWE / POCHODNE** | Rejestr budynków m.st. Warszawy (`wfs:budynki`, EGiB) | Budynki, których środek leży w kwartale. Kondygnacje (`KONDYGNACJE_NADZIEMNE`) tylko mieszkalnych. `res_share` = powierzchnia zabudowy mieszkalnej / całej zabudowy. **Roku budowy nie ma w rejestrze**, więc go nie podajemy |
+| `near.<typ>` | **PRAWDZIWE** (obiekt) + **POCHODNE** (odległość) | OSM (`data/poi/*`: przedszkole, szkoła podstawowa, średnia, uczelnia, przychodnia, apteka, supermarket; parki i lasy ≥ 1 ha), ZTM (`data/poi_mikolaj/transit.geojson`: słupek, słupek z tramwajem, metro, SKM) | Najbliższy obiekt od punktu kwartału, czyli środka ciężkości (albo punktu na powierzchni, gdy środek wypada poza kwartał). Odległość w linii prostej w EPSG:2180, zaokrąglona do 10 m. Dla parku i lasu liczymy do krawędzi poligonu (0 w środku). Powyżej 3 km zapisujemy samą odległość bez nazwy. **Czasu pieszo nie liczymy.** Reguła dla UI: odległość × 1,3 / 78 m/min (jak w `czasy_przejazdu`) |
+| `n500.<typ>` | **POCHODNE** | j.w. | Liczba obiektów w promieniu 500 m (brak klucza = 0) |
+| `dep400` | **POCHODNE** | ZTM GTFS, rozkład na pon. 19.10.2026 (`odjazdy_dzien`) | Suma odjazdów w ciągu doby ze wszystkich słupków, stacji metra i SKM w promieniu 400 m |
+| `noise` | **POCHODNE** | GIOŚ HAŁAS API, SMH 2022 (dane 2021), CC BY 4.0 (`data/scripts/noise/`) | Udział powierzchni kwartału z Lden ≥ 55, ≥ 60, ≥ 65 dB od dróg albo kolei i tramwajów. Mapy strategiczne nie mają konturów poniżej 55 dB |
+| `travel.centrum`, `daszynskiego`, `sluzewiec` | **POCHODNE** | `data/grid/czasy_przejazdu.geojson` (GTFS, router z gałęzi `mikolaj`) | Komórka 200 m, w której leży punkt kwartału. `[średnia, min]` minut przy przyjeździe 07:30–09:00 (10 terminów). Trzecia wartość pojawia się, gdy nie wszystkie terminy są osiągalne |
+
+**Pokrycie cenami (cała Warszawa, akty 2024–IV 2026):**
+- 2336 z 14 576 kwartałów (16%) ma ≥ 5 własnych transakcji.
+- 7688 ma ≥ 5 transakcji w promieniu 300 m.
+- 4552 (głównie domy jednorodzinne na obrzeżach) ma `low_n`.
+
+**Trzy wyróżnione obszary:**
+
+| Obszar MSI | Kwartały | ≥ 5 transakcji w kwartale | Mediana MSI (n) | Mediany kwartałów z n ≥ 5 |
+|---|---|---|---|---|
+| Muranów | 38 | 30 | 18 719 zł/m² (521) | 15 036 – 27 028 |
+| Stare Bielany | 99 | 19 | 16 683 zł/m² (281) | 12 678 – 18 228 |
+| Natolin | 140 | 26 | 16 088 zł/m² (394) | 12 276 – 19 640 (7 kwartałów z `low_n`) |
+
+Zastrzeżenia:
+- Mediana z kilkunastu transakcji może odzwierciedlać jedną inwestycję deweloperską. Pola `primary` i `secondary` pokazują ten podział.
+- RCN ma ok. 6 miesięcy opóźnienia (ostatnie gęste dane z IV 2026).
+- POI z OSM mogą być niekompletne. Szkoły i przedszkola nie są sprawdzone w RSPO.
+- Hałas to stan z 2021 r. Nie obejmuje lotniska ani przemysłu.
