@@ -29,7 +29,7 @@ osiedla) of its metrics (CATEGORY_METRICS), then percentile-ranked again -> 0-10
 Profile match = weighted mean of the 10 category scores with PROFILE_WEIGHTS
 from application/src/app/dictionary.ts.
 
-Heatmaps: 250 m lattice inside Warsaw; the same metrics per lattice point
+Heatmaps: centres of the team grid cells (generate_grid.py) inside Warsaw; the same metrics per lattice point
 (counts within 1 km, distances, noise/green share of the surrounding 1 km x 1 km),
 percentile-ranked across lattice points.
 
@@ -60,6 +60,8 @@ from shapely.geometry import Point, Polygon, shape
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "data/scripts/noise"))
+sys.path.insert(0, str(ROOT / "data/scripts"))
+import generate_grid  # noqa: E402
 import gios_noise  # noqa: E402
 
 OSIEDLA = ROOT / "data/boundaries/warszawa_osiedla.geojson"
@@ -74,9 +76,9 @@ OUT = ROOT / "application/public/data"
 PROFILES = ("student", "rodzina", "senior")
 CATS = ("cisza", "zielen", "komunikacja", "gastronomia", "sport",
         "kultura", "edukacja", "zdrowie", "zakupy", "zycieNocne")
-FEATURED = ("powisle", "blonia-wilanowskie", "saska-kepa")
+FEATURED = ("muranow", "natolin", "stare-bielany")
 R = 1000.0           # "nearby" radius
-HEAT_STEP = 250.0    # heat lattice spacing (m)
+HEAT_STEP = float(generate_grid.CELL_SIZE_M)  # heat points = centres of the team grid cells
 RASTER = 50.0        # raster for noise/green share around heat points
 EVENT_DAYS = 30
 MIN_GREEN_M2 = 10_000  # parks/forests >= 1 ha (same as siatka)
@@ -106,7 +108,7 @@ SOURCES = {
                      "file": "data/lines/utrudnienia.geojson"},
     "gtfs_travel": {"name": "GTFS Warszawa, routing Mikołaja (przyjazd 07:30–09:00, dzień roboczy)",
                     "license": "ZTM Warszawa (dane), M. Kuranowski (GTFS)", "file": "data/grid/czasy_przejazdu.geojson"},
-    "gios_noise": {"name": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden, drogi + kolej z tramwajem",
+    "gios_noise": {"name": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem",
                    "license": "CC BY 4.0 — Główny Inspektorat Ochrony Środowiska", "file": "data/raw/noise/ (cache)"},
 }
 METHODS = {
@@ -119,7 +121,7 @@ METHODS = {
     "area_share": "udział powierzchni osiedla (%)",
     "area_share_1km": "udział powierzchni koła o promieniu 1 km wokół punktu odniesienia (%)",
     "nearest_value": "wartość z najbliższego czujnika",
-    "median_cells": "mediana z komórek 200 m, których środek leży w osiedlu",
+    "median_cells": f"mediana z komórek siatki {generate_grid.CELL_SIZE_M} m, których środek leży w osiedlu",
 }
 
 # ------------------------------------------------------------------ helpers
@@ -333,20 +335,27 @@ def load():
     roadworks = [geom_2180(shape(f["geometry"])) for f in read_features(ROADWORKS)]
     rw_tree = shapely.STRtree(roadworks)
 
-    noise = None
+    # Noise is required: "cisza" is defined only by the strategic noise maps, never by proxies.
     try:
-        noise = gios_noise.load_unions()
-        for d in noise.values():
-            for g in d.values():
-                shapely.prepare(g)
+        noise = gios_noise.load_unions("LDWN")
+        noise_night = gios_noise.load_unions("LN")
     except FileNotFoundError as exc:
-        print(f"  noise: unavailable ({exc}) -> noise metrics null, cisza without noise")
+        raise SystemExit(f"noise unavailable: {exc}")
+    for d in (*noise.values(), *noise_night.values()):
+        for g in d.values():
+            shapely.prepare(g)
 
     print("  " + ", ".join(f"{k} {len(v)}" for k, v in L.items()))
+    # A failed download must not turn into "0 objects nearby": missing data is not zero.
+    empty = [k for k, v in L.items() if len(v) == 0] + [k for k, v in (("addresses", ax), ("green", green),
+                                                                       ("travel cells", cells)) if len(v) == 0]
+    if empty:
+        raise SystemExit(f"empty input layers {empty}: re-run the ETL that produces them instead of writing zeros")
     print(f"  addresses {len(ax)}, green polygons {len(green)}, travel cells {len(cells)}, road works {len(roadworks)}, "
           f"events window {ref_day}..{end_day}")
     return dict(osiedla=osiedla, L=L, ax=ax, ay=ay, green=green, green_union=green_union, green_tree=green_tree,
-                travel=travel, roadworks=roadworks, rw_tree=rw_tree, noise=noise, ref_day=ref_day, air_time=air_time)
+                travel=travel, roadworks=roadworks, rw_tree=rw_tree, noise=noise, noise_night=noise_night, ref_day=ref_day,
+                air_time=air_time)
 
 
 def assign(osiedla, x, y) -> np.ndarray:
@@ -420,6 +429,8 @@ for t in (55, 60, 65, 70):
     mdef(f"noise_lden{t}_share", f"Hałas drogowy lub kolejowy (z tramwajem) Lden ≥ {t} dB", "%", "gios_noise", "area_share")
 mdef("noise_road_lden60_share", "Hałas drogowy Lden ≥ 60 dB", "%", "gios_noise", "area_share")
 mdef("noise_rail_lden60_share", "Hałas kolejowy i tramwajowy Lden ≥ 60 dB", "%", "gios_noise", "area_share")
+for t in (50, 55, 60):
+    mdef(f"noise_lnight{t}_share", f"Hałas nocny drogowy lub kolejowy (z tramwajem) Lnight ≥ {t} dB", "%", "gios_noise", "area_share")
 for mode in ("wszystkie", "autobus", "tramwaj", "metro", "kolej"):
     mdef(f"travel_centrum_{mode}_min", f"Dojazd do centrum (Rondo Dmowskiego), {mode}", "min", "gtfs_travel", "median_cells")
 mdef("roadworks_in", "Utrudnienia w ruchu (aktualne)", "szt.", "um_roadworks", "count_in")
@@ -427,8 +438,9 @@ mdef("roadworks_1km", "Utrudnienia w ruchu (aktualne) w 1 km", "szt.", "um_roadw
 
 # category -> [(metric, higher_is_better, weight)]
 CATEGORY_METRICS = {
-    "cisza": [("noise_lden60_share", False, 0.45), ("noise_lden65_share", False, 0.25),
-              ("gastronomy_1km", False, 0.15), ("departures_1km", False, 0.15)],
+    # only noise from the strategic noise maps: day-evening-night and night, two thresholds each, equal weights
+    "cisza": [("noise_lden60_share", False, 0.25), ("noise_lden65_share", False, 0.25),
+              ("noise_lnight50_share", False, 0.25), ("noise_lnight55_share", False, 0.25)],
     "zielen": [("green_share", True, 0.4), ("green_share_1km", True, 0.3), ("green_dist_m", False, 0.3)],
     "komunikacja": [("departures_1km", True, 0.3), ("lines_1km", True, 0.1), ("metro_dist_m", False, 0.2),
                     ("rail_dist_m", False, 0.1), ("travel_centrum_wszystkie_min", False, 0.3)],
@@ -518,13 +530,13 @@ def osiedle_metrics(D):
     M["green_share"] = np.array([100 * o["poly"].intersection(gu).area / o["poly"].area for o in os_])
     circles = [Point(x, y).buffer(R, quad_segs=32) for x, y in anchors]
     M["green_share_1km"] = np.array([100 * c.intersection(gu).area / c.area for c in circles])
-    noise = D["noise"]
+    noise, night = D["noise"], D["noise_night"]
     for t in (55, 60, 65, 70):
-        M[f"noise_lden{t}_share"] = (np.array([100 * o["poly"].intersection(noise["any"][t]).area / o["poly"].area for o in os_])
-                                     if noise else np.full(n, np.nan))
+        M[f"noise_lden{t}_share"] = np.array([100 * o["poly"].intersection(noise["any"][t]).area / o["poly"].area for o in os_])
     for s in ("road", "rail"):
-        M[f"noise_{s}_lden60_share"] = (np.array([100 * o["poly"].intersection(noise[s][60]).area / o["poly"].area for o in os_])
-                                        if noise else np.full(n, np.nan))
+        M[f"noise_{s}_lden60_share"] = np.array([100 * o["poly"].intersection(noise[s][60]).area / o["poly"].area for o in os_])
+    for t in (50, 55, 60):
+        M[f"noise_lnight{t}_share"] = np.array([100 * o["poly"].intersection(night["any"][t]).area / o["poly"].area for o in os_])
 
     # travel times: median of cells whose centre lies in the osiedle
     tv = D["travel"]
@@ -587,7 +599,10 @@ def heat(D, weights):
     os_ = D["osiedla"]
     union = shapely.union_all([o["poly"] for o in os_])
     x0, y0, x1, y1 = union.bounds
-    x0, y0 = np.floor(x0 / HEAT_STEP) * HEAT_STEP, np.floor(y0 / HEAT_STEP) * HEAT_STEP
+    # align to the team grid so every heat point is the centre of one grid cell (cell_id)
+    e0, n0 = generate_grid.ORIGIN_E, generate_grid.ORIGIN_N
+    x0 = e0 + np.floor((x0 - e0) / HEAT_STEP) * HEAT_STEP
+    y0 = n0 + np.floor((y0 - n0) / HEAT_STEP) * HEAT_STEP
     xs = np.arange(x0 + HEAT_STEP / 2, x1, HEAT_STEP)
     ys = np.arange(y0 + HEAT_STEP / 2, y1, HEAT_STEP)
     gx, gy = np.meshgrid(xs, ys)
@@ -599,10 +614,10 @@ def heat(D, weights):
     bbox = (x0 - 1000, y0 - 1000, x1 + 1000, y1 + 1000)
     M["green_share"] = window_share(raster_share(D["green_union"], bbox), px, py)
     M["green_share_1km"] = M["green_share"]
-    noise = D["noise"]
     for t in (60, 65):
-        M[f"noise_lden{t}_share"] = (window_share(raster_share(noise["any"][t], bbox), px, py)
-                                     if noise else np.full(len(px), np.nan))
+        M[f"noise_lden{t}_share"] = window_share(raster_share(D["noise"]["any"][t], bbox), px, py)
+    for t in (50, 55):
+        M[f"noise_lnight{t}_share"] = window_share(raster_share(D["noise_night"]["any"][t], bbox), px, py)
     tv = D["travel"]
     cell_layer = Layer([])
     cell_layer.x, cell_layer.y = tv["x"], tv["y"]
@@ -615,7 +630,8 @@ def heat(D, weights):
         s = sum(weights[p][c] * cats[c] for c in CATS) / sum(weights[p].values())
         prof[p] = pct_rank(s)
     lng, lat = TO_4326.transform(px, py)
-    return lng, lat, cats, prof, union
+    cells = [generate_grid.cell_id(int((y - n0) // HEAT_STEP), int((x - e0) // HEAT_STEP)) for x, y in zip(px, py)]
+    return lng, lat, cats, prof, union, cells
 
 
 # ------------------------------------------------------------------ blurbs
@@ -744,7 +760,7 @@ def main() -> int:
     }
 
     # heat
-    lng, lat, hcats, hprof, union = heat(D, weights)
+    lng, lat, hcats, hprof, union, cells = heat(D, weights)
     keep = np.maximum.reduce([hprof[p] ** 2 for p in PROFILES]) >= 0.05
     heat_pts = [[round(float(lng[i]), 5), round(float(lat[i]), 5), *[round(float(hprof[p][i] ** 2), 2) for p in PROFILES]]
                 for i in np.where(keep)[0]]
@@ -757,6 +773,10 @@ def main() -> int:
               "method": "percentyl kategorii wśród punktów siatki 250 m (0–1), te same metryki co dla osiedli, liczone od punktu",
               "points": [[round(float(lng[i]), 5), round(float(lat[i]), 5), *[round(float(hcats[c][i]), 2) for c in CATS]]
                          for i in range(len(lng))]}
+    grid_meta = {"version": generate_grid.GRID_VERSION, "crs": generate_grid.GRID_CRS,
+                 "cellSizeM": generate_grid.CELL_SIZE_M, "origin": [generate_grid.ORIGIN_E, generate_grid.ORIGIN_N]}
+    heat_out.update(grid=grid_meta, cell_ids=[cells[i] for i in np.where(keep)[0]])
+    hc_out.update(grid=grid_meta, cell_ids=cells)
 
     OUT.mkdir(parents=True, exist_ok=True)
     paths = {

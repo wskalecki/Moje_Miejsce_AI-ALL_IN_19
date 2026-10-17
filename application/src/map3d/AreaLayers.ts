@@ -12,7 +12,7 @@ import type { ExpressionSpecification, Map as MlMap } from 'maplibre-gl'
 import { roadCurbLayer, roadSurfaceLayer, ROADS_MIN_ZOOM } from '../lib/osm3d/roadStyle'
 import type { BuildingKind } from '../lib/osm3d/buildingStyle'
 import type { AreaData } from './areaData'
-import { kindColorExpr } from './kinds'
+import { kindColorExpr, type BuildingColorMode } from './kinds'
 import { TRAFFIC_SURFACE_COLOR, trafficAtHour } from './trafficStyle'
 
 export const M3D_PREFIX = 'm3d-'
@@ -34,6 +34,7 @@ export class AreaLayers {
   private readonly src: { bld: string; roads: string; green: string }
   private visible = false
   private focusKey = ''
+  private colorMode: BuildingColorMode = 'base'
   private trafficOn = false
   private lastCg = new Map<number, number | null>()
   private selected: number | null = null
@@ -121,12 +122,23 @@ export class AreaLayers {
     if (!on) this.select(null)
   }
 
-  /** Highlight these kinds (others muted); `null` = all in their colours. */
+  setColorMode(mode: BuildingColorMode) {
+    if (mode === this.colorMode) return
+    this.colorMode = mode
+    this.focusKey = ''
+    this.repaintBuildings(null)
+  }
+
+  /** Highlight these kinds (others muted); `null` = uniform base (or full palette in `byKind` mode). */
   setFocus(kinds: readonly BuildingKind[] | null) {
-    const key = kinds?.length ? [...kinds].sort().join(',') : ''
+    const key = `${this.colorMode}|${kinds?.length ? [...kinds].sort().join(',') : ''}`
     if (key === this.focusKey) return
     this.focusKey = key
-    this.paint(this.ids.bld, 'fill-extrusion-color', kindColorExpr(key ? kinds : null))
+    this.repaintBuildings(kinds)
+  }
+
+  private repaintBuildings(kinds: readonly BuildingKind[] | null) {
+    this.paint(this.ids.bld, 'fill-extrusion-color', kindColorExpr(kinds, this.colorMode))
   }
 
   /** Colour the road surfaces by congestion at `hour` (fractional allowed); `null` = plain asphalt. */

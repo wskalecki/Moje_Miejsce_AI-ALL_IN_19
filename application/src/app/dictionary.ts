@@ -67,6 +67,12 @@ export interface CategoryDef {
   plural: boolean
 }
 
+/**
+ * Categories with weight sliders in the left filter panel (map heat).
+ * Other categories stay at profile defaults; POIs show via "Obiekty na mapie".
+ */
+export const FILTER_PANEL_CATEGORIES: readonly CategoryKey[] = ['cisza', 'zielen', 'kultura', 'gastronomia']
+
 /** Order = order of tiles in survey step 2. */
 export const CATEGORY_ORDER: readonly CategoryKey[] = [
   'cisza',
@@ -122,9 +128,9 @@ export const PROFILE_WEIGHTS: Record<ProfileId, Record<CategoryKey, number>> = {
 
 /** Default step-2 selection per profile, in this order (spec §3.3). */
 export const DEFAULT_PRIORITIES: Record<ProfileId, readonly CategoryKey[]> = {
-  student: ['komunikacja', 'gastronomia', 'zycieNocne', 'sport'],
-  rodzina: ['edukacja', 'zielen', 'cisza', 'zakupy'],
-  senior: ['zdrowie', 'zakupy', 'cisza', 'kultura'],
+  student: ['gastronomia', 'kultura', 'zielen'],
+  rodzina: ['zielen', 'cisza', 'kultura'],
+  senior: ['cisza', 'zielen', 'kultura'],
 }
 
 /** Categories sorted by profile weight, highest first (ties keep tile order). */
@@ -145,15 +151,15 @@ export const HORIZON_ORDER: readonly Horizon[] = ['chwila', 'stale']
 export const HORIZONS: Record<Horizon, HorizonDef> = {
   chwila: {
     id: 'chwila',
-    title: 'Na chwilę',
-    fragment: 'na chwilę',
-    description: 'Wynajem — pokażemy ceny najmu.',
+    title: 'Wynajem',
+    fragment: 'wynajem',
+    description: 'Pokażemy orientacyjne ceny najmu w okolicy.',
   },
   stale: {
     id: 'stale',
-    title: 'Na stałe',
-    fragment: 'na stałe',
-    description: 'Kupno — pokażemy ceny zakupu i to, jak okolica zmieni się do\u00a02040\u00a0roku.',
+    title: 'Kupno',
+    fragment: 'kupno',
+    description: 'Pokażemy ceny zakupu i to, jak okolica zmieni się do\u00a02040\u00a0roku.',
   },
 }
 

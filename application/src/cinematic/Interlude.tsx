@@ -52,7 +52,13 @@ export function Interlude({ osiedle, open, showTitle, playMedia, onCovered, onDo
   // honest match and rank for the user's current weights (same numbers as the map and the panel)
   const { match, rank, isTop } = useMatch(osiedle.msiId)
   const fit =
-    match == null ? null : isTop ? `Najlepsze dopasowanie · ${match}%` : rank != null ? `#${rank} dla Twoich wag · ${match}%` : `${match}% dopasowania`
+    match == null
+      ? null
+      : isTop
+        ? `Najlepiej pod Twoje potrzeby · ${match}%`
+        : rank != null
+          ? `#${rank} na liście · ${match}% dopasowania`
+          : `${match}% dopasowania`
   const photos = osiedle.heroImages.slice(0, 2)
 
   const finish = () => {

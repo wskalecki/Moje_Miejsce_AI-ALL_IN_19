@@ -2,6 +2,7 @@
  * Shared domain types for the mock (spec §3, §6.2, §9).
  * Category keys follow the data files (`zycieNocne`, camelCase).
  */
+import type { FilterSections } from '../map/categoryFilterRows.ts'
 
 export type ProfileId = 'student' | 'rodzina' | 'senior'
 /** Alias kept for readability in components. */
@@ -38,6 +39,14 @@ export interface AppState {
   timelineYear: number
   /** Featured slugs whose cinematic interlude was already shown this session. */
   visited: string[]
+  /** Optional POI subtypes to show on the map (filter panel checkboxes). Empty = none. */
+  poiInterests: string[]
+  /** Gastronomy cuisines included in personal gastronomia score + map markers (default: all). */
+  gastronomyCuisines: string[]
+  /** Score vs map-preview sections in the filter panel (drag between lists). */
+  filterSections: FilterSections
+  /** @deprecated use filterSections — kept for sessionStorage migration */
+  filterRowOrder?: CategoryKey[]
 }
 
 /** Props contract for `src/map/MapView.tsx` (owned by the map agent). */

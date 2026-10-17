@@ -254,52 +254,16 @@
       ]
     }
   ],
-  "prices": {
-    "buyPerM2": 17382,
-    "rentPerM2": 66,
-    "rent2PokAvg": 3000,
-    "cityBuyPerM2": 17975,
-    "cityRentPerM2": 84,
-    "asOf": "2026-10",
-    "sourceNote": "Średnia z 91 ofert sprzedaży i 67 ofert najmu na Otodom (rynek wtórny, ceny ofertowe, odczyt 17.10.2026). Transakcje (RCN, od I 2025): mediana 15 632 zł/m², 171 lokali. Warszawa: Adresowo IX 2026 (sprzedaż), Znajdź Najem X 2026 (najem).",
-    "estimate": false,
-    "buy": {
-      "meanPerM2": 17382,
-      "medianPerM2": 17000,
-      "n": 91,
-      "sourceUrls": [
-        "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin?limit=72&page=1"
-      ],
-      "scrapedAt": "2026-10-17"
-    },
-    "rent": {
-      "meanPerM2": 66,
-      "medianPerM2": 62,
-      "n": 67,
-      "medianMonthly": 3200,
-      "sourceUrls": [
-        "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin?limit=72&page=1"
-      ],
-      "scrapedAt": "2026-10-17"
-    },
-    "citySource": "Adresowo, Średnie ceny mieszkań Warszawa, wrzesień 2026, 1 870 ogłoszeń z rynku wtórnego (średnia 17 975, mediana 17 683 zł/m²): https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/ (odczyt 2026-10-17) | Znajdź Najem, Indeks Najmu Warszawa, październik 2026, próba 46 410 ofert: średnia 84 zł/m², mediana czynszu 3 200 zł/mies.: https://znajdznajem.pl/warszawa/raport (odczyt 2026-10-17)",
-    "rcnNote": "RCN (GUGiK WFS ms:lokale), lokale mieszkalne w poligonie MSI, 2025-01-01–2026-01-29: mediana 15 632 zł/m², n=171 (170 wtórny / 1 pierwotny); 2024: mediana 16 480 zł/m², n=170.",
-    "areaNote": "Lokalizacja otodom „Natolin (Ursynów)” (ursynow/natolin); granice lokalizacji otodom nie są publikowane i mogą się różnić od obszaru MSI. Ulice w próbie sprawdzone ręcznie (plik raw: pole street)."
-  },
   "portals": [
     {
       "name": "Otodom",
       "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin",
-      "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin",
-      "rentCount": 70,
-      "buyCount": 108
+      "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin"
     },
     {
       "name": "Morizon",
       "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/natolin/",
-      "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/natolin/",
-      "rentCount": 15,
-      "buyCount": 35
+      "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/natolin/"
     }
   ],
   "timeline": [
@@ -321,15 +285,7 @@
       "sourceDate": "2026-06-25",
       "statusEvidence": "Odcinki 2, 4, 5 otwarte (IV 2025, IX 2025, VI 2026), odcinek 6 ukończony XI 2025, na odcinku 1 „Trwają prace”. Otwarcie odcinka Lanciego–Rosoła: https://haloursynow.pl/pl/11_wiadomosci/740_inwestycje/42446_ursynow-otwarto-kolejny-odcinek-parku-nad-pow-powstanie-tam-cos-jeszcze.html",
       "checkedAt": "2026-10-17",
-      "effect": {
-        "type": "park",
-        "coord": [
-          21.05738,
-          52.14819
-        ],
-        "area_ha": 12.5
-      },
-      "effectNote": "Punkt = środek odcinka Lanciego–Rosoła (ok. 0,9 km od punktu odniesienia); park jest pasem ok. 2 km, więc przybliżenie kołem 12,5 ha jest zgrubne. W lokalnym cache OSM (data/raw/osm) parku jeszcze nie ma, więc efekt nie dubluje istniejącej zieleni."
+      "effectNote": "Wpływu na wskaźniki nie liczymy: brak oficjalnego poligonu parku (pas ok. 2 km wzdłuż Płaskowickiej), a przybliżenie kołem 12,5 ha byłoby geometrią zmyśloną."
     },
     {
       "id": "rolkowisko-lodowisko-pow",

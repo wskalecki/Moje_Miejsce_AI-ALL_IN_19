@@ -258,52 +258,16 @@
       ]
     }
   ],
-  "prices": {
-    "buyPerM2": 21200,
-    "rentPerM2": 85,
-    "rent2PokAvg": 3700,
-    "cityBuyPerM2": 17975,
-    "cityRentPerM2": 84,
-    "asOf": "2026-10",
-    "sourceNote": "Średnia z 140 ofert sprzedaży i 152 ofert najmu na Otodom (rynek wtórny, ceny ofertowe, odczyt 17.10.2026). Transakcje (RCN, od I 2025): mediana 18 844 zł/m², 273 lokale. Warszawa: Adresowo IX 2026 (sprzedaż), Znajdź Najem X 2026 (najem).",
-    "estimate": false,
-    "buy": {
-      "meanPerM2": 21200,
-      "medianPerM2": 20100,
-      "n": 140,
-      "sourceUrls": [
-        "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow?limit=72&page=1"
-      ],
-      "scrapedAt": "2026-10-17"
-    },
-    "rent": {
-      "meanPerM2": 85,
-      "medianPerM2": 83,
-      "n": 152,
-      "medianMonthly": 4225,
-      "sourceUrls": [
-        "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow?limit=72&page=1"
-      ],
-      "scrapedAt": "2026-10-17"
-    },
-    "citySource": "Adresowo, Średnie ceny mieszkań Warszawa, wrzesień 2026, 1 870 ogłoszeń z rynku wtórnego (średnia 17 975, mediana 17 683 zł/m²): https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/ (odczyt 2026-10-17) | Znajdź Najem, Indeks Najmu Warszawa, październik 2026, próba 46 410 ofert: średnia 84 zł/m², mediana czynszu 3 200 zł/mies.: https://znajdznajem.pl/warszawa/raport (odczyt 2026-10-17)",
-    "rcnNote": "RCN (GUGiK WFS ms:lokale), lokale mieszkalne w poligonie MSI, 2025-01-01–2026-04-24: mediana 18 844 zł/m², n=273 (240 wtórny / 33 pierwotny); 2024: mediana 18 458 zł/m², n=188.",
-    "areaNote": "Lokalizacja otodom „Muranów (Śródmieście)” (srodmiescie/muranow); granice lokalizacji otodom nie są publikowane i mogą się różnić od obszaru MSI. Ulice w próbie sprawdzone ręcznie (plik raw: pole street)."
-  },
   "portals": [
     {
       "name": "Otodom",
       "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow",
-      "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow",
-      "rentCount": 159,
-      "buyCount": 284
+      "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow"
     },
     {
       "name": "Morizon",
       "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/muranow/",
-      "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/muranow/",
-      "rentCount": 44,
-      "buyCount": 63
+      "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/muranow/"
     }
   ],
   "timeline": [

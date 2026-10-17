@@ -17,9 +17,13 @@ const ramp = (t: { soft: string; mid: string; base: string; deep: string }) =>
 /** Bottom-left legend: what the colour means (weighted match or one category), zoom hint, method tooltip. */
 export function Legend({ profile, zoomedIn, solo, heatSource }: LegendProps) {
   const a = ACCENTS[profile]
-  const title = solo ? (solo === 'cisza' ? 'Cisza (mniej hałasu)' : `Dostępność: ${categoryLabel(solo).toLowerCase()}`) : 'Dopasowanie do Twoich wag'
-  const low = solo ? (solo === 'cisza' ? 'głośniej' : 'mniej') : 'niższe'
-  const high = solo ? (solo === 'cisza' ? 'ciszej' : 'więcej') : 'wyższe'
+  const title = solo
+    ? solo === 'cisza'
+      ? 'Cisza w okolicy'
+      : `Na mapie: ${categoryLabel(solo).toLowerCase()}`
+    : 'Jak dobrze pasuje do Ciebie'
+  const low = solo ? (solo === 'cisza' ? 'głośniej' : 'mniej') : 'mniej pasuje'
+  const high = solo ? (solo === 'cisza' ? 'ciszej' : 'więcej') : 'lepiej pasuje'
   return (
     <div className={['smap-legend', solo ? 'is-solo' : ''].filter(Boolean).join(' ')} role="note" aria-label="Legenda mapy">
       <div className="smap-legend__title">
@@ -34,17 +38,20 @@ export function Legend({ profile, zoomedIn, solo, heatSource }: LegendProps) {
           <span id="smap-legend-tip" role="tooltip" className="smap-legend__tip">
             {solo ? (
               <>
-                Kolor pokazuje tylko kategorię „{categoryLabel(solo)}”: ocenę 0–100 każdego osiedla na tle całej Warszawy.
-                {solo !== 'cisza' && ' Punkty to konkretne obiekty z danych (OpenStreetMap, dane m.st. Warszawy).'}
+                Kolor pokazuje wyłącznie „{categoryLabel(solo)}” — jak dana okolica wypada na tle całej Warszawy.
+                {solo === 'zielen' &&
+                  ' Zielone kropki to parki i lasy — włącz je w filtrach kategorii „Zieleń” (Podgląd na mapie).'}
+                {solo && solo !== 'cisza' && solo !== 'zielen' &&
+                  ' Kropki to konkretne miejsca w okolicy (np. szkoły, sklepy, przystanki).'}
               </>
             ) : (
               <>
-                Każde osiedle ma ocenę 0–100 w 10 kategoriach (na tle wszystkich osiedli Warszawy, z danych OSM i m.st.
-                Warszawy). Kolor to średnia tych ocen ważona Twoimi suwakami — im ciemniej, tym lepiej pasuje. Jasne
-                miejsca nie są „złe”, tylko słabsze od typowych dla Twoich wag.
+                Porównujemy okolice w dziesięciu sprawach, które ustawiasz suwakami po lewej. Im ciemniejszy kolor, tym
+                lepiej pasuje do Twoich priorytetów. Jasne obszary nie są złe — po prostu mniej trafiają w to, co dla
+                Ciebie ważne.
               </>
             )}
-            {heatSource === 'poi' && ' Siatka między osiedlami: tymczasowo z gęstości punktów POI.'}
+            {heatSource === 'poi' && ' Obszary między osiedlami: orientacyjnie, z liczby pobliskich miejsc.'}
           </span>
         </span>
       </div>
@@ -63,7 +70,9 @@ export function Legend({ profile, zoomedIn, solo, heatSource }: LegendProps) {
         <span style={{ color: solo ? categoryTones(solo).deep : a.deep }}>{high}</span>
       </div>
       <p className="smap-legend__hint" key={zoomedIn ? 'in' : 'out'}>
-        {zoomedIn ? 'Najedź na osiedle, żeby zobaczyć szczegóły' : 'Przybliż, żeby zobaczyć osiedla'}
+        {zoomedIn
+          ? 'Najedź na okolicę — zobaczysz liczby i krótki opis'
+          : 'Przybliż mapę — pojawią się nazwy okolic i więcej szczegółów'}
       </p>
     </div>
   )

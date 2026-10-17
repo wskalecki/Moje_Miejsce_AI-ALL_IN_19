@@ -1,34 +1,29 @@
 /**
  * App shell: store + mini-router + screen switcher (spec §4, §9).
  *
- * intro (/) → ankieta (/ankieta?krok=1..3) → dopasowanie (overlay) → mapa (/mapa, /mapa/:slug)
- * The map is mounted once (from the matching screen onward) and never unmounted;
- * intro and survey are opaque overlays above it.
+ * intro (/) → mapa (/mapa) with preferences modal + dopasowanie overlay.
+ * Legacy `/ankieta` redirects to `/mapa`.
  */
 import { AnimatePresence, LazyMotion } from 'motion/react'
 import * as m from 'motion/react-m'
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { isHorizon, isProfileId } from './dictionary'
 import { navigate, useRouter } from './router'
 import { AppStoreProvider } from './store'
 import { useAppStore } from './useAppStore'
 import { IntroScreen } from '../screens/Intro/IntroScreen'
-import { SurveyScreen } from '../screens/Survey/SurveyScreen'
 import { MapScreen } from '../screens/MapScreen/MapScreen'
-import { MatchingScreen } from '../screens/Matching/MatchingScreen'
 
 const DevUiScreen = import.meta.env.DEV ? lazy(() => import('../screens/dev/DevUiScreen')) : null
 
 function Shell() {
   const { route, query } = useRouter()
-  const store = useAppStore()
-  const { state, setProfile, setHorizon, reset } = store
-  const [mapMounted, setMapMounted] = useState(route.name === 'map')
-  const [matching, setMatching] = useState(false)
+  const { setProfile, setHorizon, reset } = useAppStore()
 
-  if (route.name === 'map' && !mapMounted) setMapMounted(true)
+  useEffect(() => {
+    if (route.name === 'survey') navigate('/mapa', { replace: true })
+  }, [route.name])
 
-  // Presenter shortcut: ?profil=student|rodzina|senior&horyzont=chwila|stale → map.
   const qProfile = query.get('profil')
   const qHorizon = query.get('horyzont')
   useEffect(() => {
@@ -40,16 +35,6 @@ function Shell() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [qProfile, qHorizon])
 
-  // Entering the map without a profile → rodzina / stale (spec §9).
-  const onMap = route.name === 'map'
-  useEffect(() => {
-    if (!onMap || isProfileId(qProfile)) return
-    if (!state.profile) setProfile('rodzina')
-    else if (!state.horizon) setHorizon('stale')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onMap, state.profile, state.horizon])
-
-  // Shift+R → reset to intro.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!e.shiftKey || e.metaKey || e.ctrlKey || e.altKey || e.key.toLowerCase() !== 'r') return
@@ -63,38 +48,24 @@ function Shell() {
     return () => window.removeEventListener('keydown', onKey)
   }, [reset])
 
-  const overlayKey = route.name === 'intro' ? 'intro' : route.name === 'survey' ? 'survey' : null
-
   return (
     <>
-      {mapMounted && <MapScreen slug={route.name === 'map' ? route.slug : null} hidden={route.name !== 'map'} />}
+      {route.name === 'map' && <MapScreen slug={route.slug} />}
 
       <AnimatePresence initial={false}>
-        {overlayKey && (
+        {route.name === 'intro' && (
           <m.div
-            key={overlayKey}
+            key="intro"
             className="screen-layer"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.32, ease: [0.2, 0.8, 0.2, 1] }}
           >
-            {overlayKey === 'intro' && <IntroScreen />}
-            {overlayKey === 'survey' && route.name === 'survey' && (
-              <SurveyScreen
-                step={route.step}
-                onFinish={() => {
-                  setMatching(true)
-                  setMapMounted(true)
-                  navigate('/mapa')
-                }}
-              />
-            )}
+            <IntroScreen />
           </m.div>
         )}
       </AnimatePresence>
-
-      <AnimatePresence>{matching && <MatchingScreen key="matching" onDone={() => setMatching(false)} />}</AnimatePresence>
 
       {route.name === 'devUi' && DevUiScreen && (
         <Suspense fallback={null}>
@@ -107,7 +78,6 @@ function Shell() {
   )
 }
 
-/** Motion's feature bundle (~30 KB gzip) loads after first paint; `m.*` components animate once it lands. */
 const loadMotionFeatures = () => import('./motionFeatures').then((mod) => mod.default)
 
 export default function App() {

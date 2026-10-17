@@ -13,6 +13,8 @@ interface TrafficControlProps {
   onHour: (hour: number) => void
   enabled: boolean
   onEnabled: (on: boolean) => void
+  /** Inside the advanced panel (no absolute positioning). */
+  nested?: boolean
 }
 
 /** Same clock format as the panel's traffic chart ("8:00"). */
@@ -23,7 +25,7 @@ const fmtSpeed = (v: number) => v.toFixed(0)
  * Hour slider (0–23, default = now) with a play button that runs through the day; drives the road
  * colours and the shared `useTrafficHour()` store (the panel's traffic chart can follow it).
  */
-export function TrafficControl({ doc, onHour, enabled, onEnabled }: TrafficControlProps) {
+export function TrafficControl({ doc, onHour, enabled, onEnabled, nested = false }: TrafficControlProps) {
   const [hour, setHour] = useTrafficHour()
   const [playing, setPlaying] = useState(false)
   const sliderId = useId()
@@ -65,7 +67,10 @@ export function TrafficControl({ doc, onHour, enabled, onEnabled }: TrafficContr
   const slower = median == null ? null : Math.round(median * 100)
 
   return (
-    <section className={`m3d-card m3d-traffic${enabled ? '' : ' is-off'}`} aria-label="Korki na drogach">
+    <section
+      className={`${nested ? '' : 'm3d-card '}m3d-traffic${enabled ? '' : ' is-off'}${nested ? ' m3d-traffic--nested' : ''}`}
+      aria-label="Korki na drogach"
+    >
       <div className="m3d-traffic__row">
         <button
           type="button"
@@ -108,14 +113,6 @@ export function TrafficControl({ doc, onHour, enabled, onEnabled }: TrafficContr
             ))}
           </div>
         </div>
-        <label className="m3d-switch">
-          <input type="checkbox" checked={enabled} onChange={(e) => {
-            setPlaying(false)
-            onEnabled(e.target.checked)
-          }} />
-          <span className="m3d-switch__track" aria-hidden />
-          <span className="m3d-switch__text">Pokaż</span>
-        </label>
       </div>
 
       <div className="m3d-traffic__legend">

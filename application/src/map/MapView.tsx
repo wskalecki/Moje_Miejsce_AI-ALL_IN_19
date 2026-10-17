@@ -1,7 +1,18 @@
 import '../lib/maplibreSetup'
 import { Map as MlMap } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import { AnimatePresence } from 'motion/react'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import {
+  categoryHasDetailFilters,
+  categoryHasSlider,
+  CONFIGURABLE_FILTER_CATEGORIES,
+  DEFAULT_FILTER_SECTIONS,
+  poiSubtypesVisibleOnMap,
+  sectionsEqual,
+  type FilterSections,
+} from './categoryFilterRows'
+import { CategoryFilterPanel } from './CategoryFilterPanel'
 import {
   DEMO_NOTE,
   MAP_BOUNDS,
@@ -14,7 +25,7 @@ import {
 import { warmBasemap } from './basemap'
 import { homeCamera, homePadding } from './camera'
 import { loadMapData, type MapData } from './data'
-import { deriveWeights, PRIORITY_WEIGHT, sanitizeWeights } from '../app/weights'
+import { deriveWeights, sanitizeWeights } from '../app/weights'
 import { addFeaturedLayers, applyFeaturedBest } from './featuredLayers'
 import { FeaturedMarkers, type FeaturedRank } from './FeaturedMarkers'
 import { FilterPanel } from './FilterPanel'
@@ -24,8 +35,15 @@ import { addMapLayers, applyMix, applyProfile, LAYER, SOURCE, type Mix } from '.
 import { Legend } from './Legend'
 import { MapControls } from './MapControls'
 import { factsFor, loadMetrics, type MetricsIndex } from './metrics'
+import {
+  ALL_GASTRONOMY_CUISINES,
+  personalGastronomyScore,
+  resetGastronomyNorm,
+  type GastronomyCuisine,
+} from './gastronomyCuisine'
 import { loadPoi, type PoiData } from './poi'
-import { addPoiLayers, applyPoi, POI_LAYER } from './poiLayer'
+import { addPoiLayers, applyPoi, applyPoiEducation, applyPoiInterests, applyPoiTransit, POI_LAYER } from './poiLayer'
+import { weightToUi } from '../app/weights'
 import { Toast } from './Toast'
 import { ACCENTS, CATEGORY_COLORS, CATEGORY_ORDER, topCategories } from './tokens'
 import type { CategoryKey, FeaturedInfo, FeaturedSlug, Horizon, OsiedleInfo, Profile } from './types'
@@ -59,6 +77,7 @@ export interface MapViewProps {
   /** Store `resetWeights`. */
   onResetWeights?: () => void
   horizon?: Horizon
+  onHorizonChange?: (h: Horizon) => void
   /** Slug from `/mapa/:slug`; when set the map chrome fades out and hover is off. */
   selectedSlug?: string | null
   onSelectFeatured: (slug: string) => void
@@ -68,6 +87,13 @@ export interface MapViewProps {
   onProfileChange?: (p: Profile) => void
   /** Hide all overlays (legend, panel, controls) — e.g. while the cinematic transition runs. */
   chrome?: boolean
+  /** Checked POI subtypes (optional filter-panel section). */
+  poiInterests?: readonly string[]
+  onTogglePoiInterest?: (subtype: string) => void
+  gastronomyCuisines?: readonly string[]
+  onToggleGastronomyCuisine?: (cuisine: string) => void
+  filterSections?: FilterSections
+  onFilterSectionsChange?: (sections: FilterSections) => void
   className?: string
 }
 
@@ -94,7 +120,15 @@ export function MapView({
   onSelectFeatured,
   onMapReady,
   onProfileChange,
+  horizon = 'stale',
+  onHorizonChange,
   chrome = true,
+  poiInterests = [],
+  onTogglePoiInterest,
+  gastronomyCuisines = [],
+  onToggleGastronomyCuisine,
+  filterSections: filterSectionsProp,
+  onFilterSectionsChange,
   className,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -128,10 +162,14 @@ export function MapView({
     if (onResetWeights) onResetWeights()
     else setLocalWeights((s) => ({ ...s, w: s.base }))
   }, [onResetWeights])
-  const isDefault = CATEGORY_ORDER.every((c) => weights[c] === defaults[c])
+  const filterSections = filterSectionsProp ?? DEFAULT_FILTER_SECTIONS
+  const isDefault =
+    sectionsEqual(filterSections, DEFAULT_FILTER_SECTIONS) &&
+    CONFIGURABLE_FILTER_CATEGORIES.every((c) => weights[c] === defaults[c])
 
   const [solo, setSolo] = useState<CategoryKey | null>(null)
-  const mix: Mix = useMemo(() => ({ shares: shares(weights, solo), solo }), [weights, solo])
+  const scoreCats = filterSections.score
+  const mix: Mix = useMemo(() => ({ shares: shares(weights, solo, scoreCats), solo }), [weights, solo, scoreCats])
   const mixRef = useRef(mix)
   useLayoutEffect(() => {
     onReadyRef.current = onMapReady
@@ -151,6 +189,17 @@ export function MapView({
   const [panelHover, setPanelHover] = useState<FeaturedSlug | null>(null)
   const [zoomedIn, setZoomedIn] = useState(false)
   const [toastSeq, setToastSeq] = useState(0)
+  const [detailCat, setDetailCat] = useState<CategoryKey | null>(null)
+
+  useEffect(() => {
+    if (detailCat && !categoryHasDetailFilters(detailCat)) setDetailCat(null)
+  }, [detailCat])
+
+  const openDetailCat = detailCat && categoryHasDetailFilters(detailCat) ? detailCat : null
+
+  useEffect(() => {
+    if (!chromeVisible) setDetailCat(null)
+  }, [chromeVisible])
 
   // ---- map lifecycle (one instance per mount) ----
   useEffect(() => {
@@ -177,7 +226,7 @@ export function MapView({
       pitchWithRotate: false,
     })
     map.touchZoomRotate.disableRotation()
-    map.getCanvas().setAttribute('aria-label', 'Mapa dopasowania osiedli Warszawy')
+    map.getCanvas().setAttribute('aria-label', 'Mapa okolic Warszawy — kolory pokazują, jak dobrze pasują do Twoich priorytetów')
     mapRef.current = map
     let cancelled = false
     const dataP = loadMapData()
@@ -232,7 +281,9 @@ export function MapView({
       void loadMetrics().then((m) => !cancelled && setMetrics(m))
       let poiKey: string | undefined
       map.on('mousemove', (e) => {
-        const layers = [POI_LAYER.solo, POI_LAYER.pri].filter((l) => map.getLayer(l) && map.getLayoutProperty(l, 'visibility') !== 'none')
+        const layers = [POI_LAYER.interestsEdu, POI_LAYER.interestsTransit, POI_LAYER.interests, POI_LAYER.solo, POI_LAYER.pri].filter(
+          (l) => map.getLayer(l) && map.getLayoutProperty(l, 'visibility') !== 'none',
+        )
         const f = layers.length && interactiveRef.current ? map.queryRenderedFeatures(e.point, { layers })[0] : undefined
         if (!f) {
           if (poiKey !== undefined) setPoiHover(null)
@@ -302,17 +353,37 @@ export function MapView({
     return () => cancelAnimationFrame(raf)
   }, [mix, data])
 
+  const gastroAllowed = useMemo(() => new Set<GastronomyCuisine>(gastronomyCuisines as GastronomyCuisine[]), [gastronomyCuisines])
+  const gastroPersonalized =
+    gastroAllowed.size > 0 && gastroAllowed.size < ALL_GASTRONOMY_CUISINES.length && weightToUi(weights.gastronomia) > 0
+
+  useEffect(() => {
+    if (!poi || !data) return
+    resetGastronomyNorm(poi, [...data.info.values()].map((o) => o.labelPoint))
+  }, [poi, data])
+
+  const catsForRanking = useCallback(
+    (o: OsiedleInfo): Record<CategoryKey, number> => {
+      if (!gastroPersonalized || !poi) return o.cats
+      return {
+        ...o.cats,
+        gastronomia: personalGastronomyScore(poi, o.labelPoint, gastroAllowed, o.cats.gastronomia),
+      }
+    },
+    [gastroPersonalized, poi, gastroAllowed],
+  )
+
   // ---- honest ranking: weighted match of every osiedle (solo does not change the ranking) ----
   const ranking = useMemo(() => {
     if (!data) return null
     const match = new Map<string, number>()
-    for (const o of data.info.values()) match.set(o.id, weightedMatch(o.cats, weights))
-    const sh = shares(weights)
-    const exact = (o: OsiedleInfo) => CATEGORY_ORDER.reduce((v, c, i) => v + sh[i] * o.cats[c], 0)
+    for (const o of data.info.values()) match.set(o.id, weightedMatch(catsForRanking(o), weights, null, scoreCats))
+    const sh = shares(weights, null, scoreCats)
+    const exact = (o: OsiedleInfo) => CATEGORY_ORDER.reduce((v, c, i) => v + sh[i] * catsForRanking(o)[c], 0)
     const order = [...data.info.values()].map((o) => ({ id: o.id, v: exact(o) })).sort((a, b) => b.v - a.v || a.id.localeCompare(b.id))
     const rank = new Map(order.map((x, i) => [x.id, i + 1]))
     return { match, rank, total: order.length }
-  }, [data, weights])
+  }, [data, weights, catsForRanking, scoreCats])
 
   const featuredRanks = useMemo(() => {
     const out: Record<string, FeaturedRank> = {}
@@ -326,13 +397,26 @@ export function MapView({
     if (map && data) applyFeaturedBest(map, bestSlug)
   }, [bestSlug, data])
 
-  // ---- POI points: solo category at any zoom, priorities (≥ 80 %) from zoom 12 ----
-  const priorityCats = useMemo(() => CATEGORY_ORDER.filter((c) => weights[c] >= PRIORITY_WEIGHT), [weights])
+  const visibleMapSubs = useMemo(
+    () => poiSubtypesVisibleOnMap(poiInterests, filterSections, weights),
+    [poiInterests, filterSections, weights],
+  )
+
+  // ---- POI: tylko zaznaczone typy w szczegółach (+ kuchnie gastronomii) ----
   useEffect(() => {
     const map = mapRef.current
     if (!map || !poi) return
-    applyPoi(map, { solo, priorities: priorityCats, visible: chromeVisible })
-  }, [poi, solo, priorityCats, chromeVisible])
+    const gastroCuisines =
+      weightToUi(weights.gastronomia) > 0 && gastronomyCuisines.length > 0 ? gastronomyCuisines : []
+    applyPoi(map, {
+      solo,
+      visibleSubtypes: visibleMapSubs,
+      visible: chromeVisible,
+    })
+    applyPoiInterests(map, { subtypes: visibleMapSubs, gastroCuisines, visible: chromeVisible })
+    applyPoiTransit(map, { visible: chromeVisible, interestSubtypes: visibleMapSubs })
+    applyPoiEducation(map, { visible: chromeVisible, interestSubtypes: visibleMapSubs })
+  }, [poi, solo, chromeVisible, visibleMapSubs, gastronomyCuisines, weights.gastronomia])
 
   // ---- hover + clicks off while an osiedle is selected ----
   useEffect(() => {
@@ -405,7 +489,9 @@ export function MapView({
 
   return (
     <div
-      className={['smap', chromeVisible ? '' : 'is-chrome-hidden', data ? 'is-ready' : '', className].filter(Boolean).join(' ')}
+      className={['smap', chromeVisible ? '' : 'is-chrome-hidden', openDetailCat ? 'is-detail-open' : '', data ? 'is-ready' : '', className]
+        .filter(Boolean)
+        .join(' ')}
       data-map-profile={profile}
       style={style}
     >
@@ -440,13 +526,38 @@ export function MapView({
           <div className="smap__left">
             <FilterPanel
               weights={weights}
-              profile={profile}
+              horizon={horizon}
+              onHorizonChange={onHorizonChange}
               isDefault={isDefault}
               onWeight={setWeight}
               onReset={resetWeights}
               onSoloChange={setSolo}
-              onProfileChange={onProfileChange}
+              poiInterests={poiInterests}
+              gastronomyCuisines={gastronomyCuisines}
+              detailCat={openDetailCat}
+              onDetailCatChange={setDetailCat}
+              filterSections={filterSections}
+              onFilterSectionsChange={onFilterSectionsChange}
             />
+          </div>
+        )}
+        {data && (
+          <div className="smap__right" data-open={openDetailCat ? '' : undefined}>
+            <AnimatePresence>
+              {openDetailCat && (
+                <CategoryFilterPanel
+                  key={openDetailCat}
+                  category={openDetailCat}
+                  onClose={() => setDetailCat(null)}
+                  filterSections={filterSections}
+                  weight={categoryHasSlider(openDetailCat, filterSections) ? weights[openDetailCat] : 0}
+                  gastronomyCuisines={gastronomyCuisines}
+                  onToggleGastronomyCuisine={onToggleGastronomyCuisine}
+                  poiInterests={poiInterests}
+                  onTogglePoiInterest={onTogglePoiInterest}
+                />
+              )}
+            </AnimatePresence>
           </div>
         )}
         <div className="smap__bl">

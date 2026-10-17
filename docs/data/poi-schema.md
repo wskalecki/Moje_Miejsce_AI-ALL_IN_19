@@ -10,7 +10,6 @@ Points of interest for map layers and per-cell aggregates.
 | `data/poi/amenities.geojson` | Toalety, boiska, etc. |
 | `data/poi/environment.geojson` | AQ sensors |
 | `data/poi/culture.geojson` | Wydarzenia (centroids) |
-| `data/samples/poi_sample.geojson` | Dev sample |
 
 One file per category or a single `poi_all.geojson` — manifest lists all paths.
 
@@ -74,4 +73,4 @@ One file per category or a single `poi_all.geojson` — manifest lists all paths
 1. Fetch raw → `data/raw/{slug}/` (gitignored).
 2. Normalize to this schema; set `cell_id` for every point.
 3. Write GeoJSON; validate with `data/scripts/validate_data.py`.
-4. Update `data/manifest.json` and `data/README.md` inventory.
+4. Register the dataset and file in `data/catalog.json`, then `python3 data/scripts/data_catalog.py --render`.

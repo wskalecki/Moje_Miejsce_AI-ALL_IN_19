@@ -1,6 +1,6 @@
 # Koncept aplikacji — wybór miejsca na życie w Warszawie
 
-**Robocza nazwa:** **Siatka** (mapa komórek 200 × 200 m pomagająca zaplanować mieszkanie pod przyszłość rodziny)
+**Robocza nazwa:** **Siatka** (mapa komórek 250 × 250 m pomagająca zaplanować mieszkanie pod przyszłość rodziny)
 
 **Wyzwanie hackathonu:** W3 „Warszawa: Twój ruch!” — aplikacja wspiera **świadomy wybór lokalizacji** (gdzie mieszkać, jak się poruszać, jak żyć w mieście na lata).
 
@@ -22,18 +22,18 @@ Młode osoby i młode rodziny planujące mieszkanie w Warszawie dostają setki o
 
 ---
 
-## Główna idea UX: mapa kwadratów 200 m × 200 m
+## Główna idea UX: mapa kwadratów 250 m × 250 m
 
 | Element | Opis |
 |--------|------|
-| **Komórka siatki** | Stały podział Warszawy na kwadraty 200 m × 200 m w układzie EPSG:2180 (PL-1992), liczone od punktu E 620000, N 470000 (definicja: [`grid-schema.md`](../data/grid-schema.md)). Jedna komórka = jeden „kafelek oceny życia”. |
+| **Komórka siatki** | Stały podział Warszawy na kwadraty 250 m × 250 m w układzie EPSG:2180 (PL-1992), liczone od punktu E 620000, N 470000 (definicja: [`grid-schema.md`](../data/grid-schema.md)). Jedna komórka = jeden „kafelek oceny życia”. |
 | **Kolor / intensywność** | Wynik **profilu użytkownika** (wagi warstw) — nie jedna „prawda”, tylko dopasowanie do persony i filtrów. |
 | **Klik w komórkę** | Panel szczegółów: liczniki w rejonie, najbliższe POI, szacowany dojazd do pracy, mini-wykres jakości powietrza, link do trendu cen (dzielnica). |
 | **Pin pracy** | Użytkownik zaznacza **miejsce pracy** → komórki poza limitem czasu dojazdu **wyciszane** (szary overlay) lub odfiltrowane. |
 | **Tryb warstw** | Włącz/wyłącz: edukacja, sport, kultura, środowisko, transport, bezpieczeństwo (wg dostępności danych). |
 | **„Plamy” (heatmapy zagregowane)** | Zamiast setek pinów: **gęstość** w komórce — sport, wydarzenia kulturowe, restauracje (proxy), zieleń — czytelne na skali miasta. |
 
-**Dlaczego 200 m:** komórka obejmuje kilka kwartałów, więc odróżnia **cichą ulicę od ruchliwej arterii** (hałas, dojście do przystanku). Na skali miasta ok. 13 tys. komórek nadal czyta się jak heatmapę, a **dzielnice** porównujemy na wyższym poziomie agregacji.
+**Dlaczego 250 m:** komórka obejmuje kilka kwartałów, więc odróżnia **cichą ulicę od ruchliwej arterii** (hałas, dojście do przystanku). Na skali miasta ok. 8,6 tys. komórek nadal czyta się jak heatmapę, a **dzielnice** porównujemy na wyższym poziomie agregacji.
 
 ---
 
@@ -160,7 +160,7 @@ Młode osoby i młode rodziny planujące mieszkanie w Warszawie dostają setki o
 
 ### W zakresie (must have)
 
-- Siatka 200 m z **kolorowaniem** pod 3 persony.
+- Siatka 250 m z **kolorowaniem** pod 3 persony.
 - **Pin pracy** + prosty filtr czasu dojazdu (heurystyka OK).
 - Warstwy z katalogu: **przystanki**, **powietrze**, **toalety**, **boiska**, **zajęcia sportowe**, **wydarzenia**, **utrudnienia**, **RCN** (po dzielnicy).
 - Panel komórki z **liczbami** i 3 zdaniami „dlaczego tu”.
@@ -226,7 +226,7 @@ Młode osoby i młode rodziny planujące mieszkanie w Warszawie dostają setki o
 | Temat | Propozycja |
 |-------|------------|
 | Nazwa produktu | Siatka / inna? |
-| Dokładność siatki | **Ustalone: 200 m** (kwadraty w EPSG:2180, [`grid-schema.md`](../data/grid-schema.md)) |
+| Dokładność siatki | **Ustalone: 250 m** (kwadraty w EPSG:2180, [`grid-schema.md`](../data/grid-schema.md)) |
 | Źródło szkół | RSPO vs ręczny CSV |
 | Etyka mapy przestępczości | Pokazać w MVP czy tylko w roadmapie |
 | W3 „Twój ruch” | Akcent na **dojazd + transport + codzienne trasy rodziny** |

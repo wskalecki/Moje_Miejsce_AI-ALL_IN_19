@@ -4,7 +4,10 @@ import assert from 'node:assert/strict'
 import { INITIAL_STATE, parseState, reducer, type Action } from './appState.ts'
 import { CATEGORY_ORDER, DEFAULT_PRIORITIES } from './dictionary.ts'
 import { baseWeights, deriveWeights } from './weights.ts'
+import { applyFilterDrop, DEFAULT_FILTER_SECTIONS } from '../map/categoryFilterRows.ts'
+import { ALL_GASTRONOMY_CUISINES } from '../map/gastronomyCuisine.ts'
 import type { AppState } from './types.ts'
+import { uiToWeight } from './weights.ts'
 
 const run = (...actions: Action[]): AppState => actions.reduce(reducer, INITIAL_STATE)
 
@@ -13,6 +16,26 @@ test('setProfile initialises priorities, weights and horizon from the profile', 
   assert.deepEqual(s.priorities, DEFAULT_PRIORITIES.rodzina)
   assert.deepEqual(s.weights, deriveWeights('rodzina', DEFAULT_PRIORITIES.rodzina))
   assert.equal(s.horizon, 'stale')
+})
+
+test('setProfile resets map filter choices when switching profile', () => {
+  const tuned = run(
+    { type: 'setProfile', profile: 'rodzina' },
+    { type: 'togglePoiInterest', subtype: 'playground' },
+    { type: 'toggleGastronomyCuisine', cuisine: 'italian' },
+    {
+      type: 'setFilterSections',
+      sections: applyFilterDrop(DEFAULT_FILTER_SECTIONS, 'sport', 'preview', { section: 'score', index: 4 }),
+    },
+  )
+  assert.ok(tuned.filterSections.score.includes('sport'))
+  assert.ok(tuned.poiInterests.includes('playground'))
+  const student = reducer(tuned, { type: 'setProfile', profile: 'student' })
+  assert.deepEqual(student.filterSections, DEFAULT_FILTER_SECTIONS)
+  assert.deepEqual(student.poiInterests, [])
+  assert.deepEqual(student.gastronomyCuisines, [])
+  assert.deepEqual(student.priorities, [...DEFAULT_PRIORITIES.student])
+  assert.deepEqual(student.weights, deriveWeights('student', DEFAULT_PRIORITIES.student))
 })
 
 test('setProfile with keepChoices keeps tuned weights for the same profile', () => {
@@ -81,4 +104,28 @@ test('parseState round-trips and repairs bad storage', () => {
   // priorities whose stored weight is < 80 are dropped (invariant)
   const bad = parseState(JSON.stringify({ ...s, weights: { ...s.weights, edukacja: 10 } }))
   assert.ok(!bad.priorities.includes('edukacja'))
+  const interests = run({ type: 'togglePoiInterest', subtype: 'pitch' }, { type: 'togglePoiInterest', subtype: 'clinic' })
+  assert.deepEqual(parseState(JSON.stringify(interests)).poiInterests, ['pitch', 'clinic'])
+  assert.deepEqual(parseState(JSON.stringify({ poiInterests: ['pitch', 'bogus'] })).poiInterests, ['pitch'])
+  assert.deepEqual(INITIAL_STATE.gastronomyCuisines, [])
+  const gastro = run({ type: 'toggleGastronomyCuisine', cuisine: 'indian' })
+  assert.ok(gastro.gastronomyCuisines.includes('indian'))
+  assert.deepEqual(parseState(JSON.stringify({ gastronomyCuisines: [...ALL_GASTRONOMY_CUISINES] })).gastronomyCuisines, [])
+  assert.deepEqual(parseState(JSON.stringify(gastro)).gastronomyCuisines, gastro.gastronomyCuisines)
+  const moved = run(
+    { type: 'setProfile', profile: 'rodzina' },
+    { type: 'setWeight', category: 'sport', value: 0 },
+    {
+      type: 'setFilterSections',
+      sections: applyFilterDrop(DEFAULT_FILTER_SECTIONS, 'sport', 'preview', { section: 'score', index: 4 }),
+    },
+  )
+  assert.ok(moved.filterSections.score.includes('sport'))
+  assert.equal(moved.weights.sport, uiToWeight(1))
+  const demoted = reducer(moved, {
+    type: 'setFilterSections',
+    sections: applyFilterDrop(moved.filterSections, 'sport', 'score', { section: 'preview', index: 0 }),
+  })
+  assert.ok(!demoted.filterSections.score.includes('sport'))
+  assert.equal(demoted.weights.sport, 0)
 })

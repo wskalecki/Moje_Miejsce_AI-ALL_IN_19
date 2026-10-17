@@ -14,8 +14,24 @@ export type Weights = Record<CategoryKey, number>
 
 export const WEIGHT_MIN = 0
 export const WEIGHT_MAX = 100
+/** Filter panel slider range (stored weights remain 0–100). 0 = wyłączone z mieszanki na mapie. */
+export const UI_WEIGHT_MIN = 0
+export const UI_WEIGHT_MAX = 5
+
+export function weightToUi(weight: number): number {
+  const w = clampWeight(weight)
+  return Math.max(UI_WEIGHT_MIN, Math.min(UI_WEIGHT_MAX, Math.round(w / 20)))
+}
+
+export function uiToWeight(ui: number): number {
+  if (!Number.isFinite(ui)) return WEIGHT_MIN
+  const u = Math.max(UI_WEIGHT_MIN, Math.min(UI_WEIGHT_MAX, Math.round(ui)))
+  return clampWeight(u * 20)
+}
 /** Minimum weight of a category the user marked as a priority. */
 export const PRIORITY_WEIGHT = 80
+/** From this stored weight (slider ≥ 1) score-section POIs appear on the map when zoomed in. */
+export const POI_MAP_WEIGHT = 20
 export const NEUTRAL_WEIGHT = 50
 
 export function clampWeight(value: number): number {

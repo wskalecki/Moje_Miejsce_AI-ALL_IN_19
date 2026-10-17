@@ -1,14 +1,15 @@
 // Run: npm test  (node --test, native TS type stripping)
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { DEFAULT_PRIORITIES } from '../app/dictionary.ts'
 import { buildSentence, othersLabel, sentenceToString } from './sentence.ts'
 
 const s = (input: Parameters<typeof buildSentence>[0]) => sentenceToString(buildSentence(input))
 
 test('rodzina with defaults matches acceptance criterion 4', () => {
   assert.equal(
-    s({ profile: 'rodzina', priorities: ['edukacja', 'zielen', 'cisza', 'zakupy'], horizon: 'stale' }),
-    'Mamy rodzinę, liczą się dla nas przedszkola i szkoły, zieleń, cisza i zakupy, szukamy miejsca na stałe.',
+    s({ profile: 'rodzina', priorities: [...DEFAULT_PRIORITIES.rodzina], horizon: 'stale' }),
+    'Mamy rodzinę, liczą się dla nas zieleń, cisza i kultura, szukamy miejsca kupno.',
   )
 })
 
@@ -22,42 +23,41 @@ test('nothing chosen yet', () => {
 
 test('1 priority → singular verb', () => {
   assert.equal(
-    s({ profile: 'senior', priorities: ['zdrowie'], horizon: 'chwila' }),
-    'Jestem na emeryturze, liczy się dla mnie zdrowie, szukam miejsca na chwilę.',
+    s({ profile: 'senior', priorities: ['cisza'], horizon: 'chwila' }),
+    'Jestem na emeryturze, liczy się dla mnie cisza, szukam miejsca wynajem.',
   )
 })
 
 test('"zakupy" as the only priority → plural verb', () => {
   assert.equal(
     s({ profile: 'senior', priorities: ['zakupy'], horizon: 'stale' }),
-    'Jestem na emeryturze, liczą się dla mnie zakupy, szukam miejsca na stałe.',
+    'Jestem na emeryturze, liczą się dla mnie zakupy, szukam miejsca kupno.',
   )
 })
 
 test('4 priorities (student defaults)', () => {
   assert.equal(
-    s({ profile: 'student', priorities: ['komunikacja', 'gastronomia', 'zycieNocne', 'sport'], horizon: 'chwila' }),
-    'Studiuję, liczą się dla mnie komunikacja, gastronomia, życie nocne i sport, szukam miejsca na chwilę.',
+    s({ profile: 'student', priorities: [...DEFAULT_PRIORITIES.student], horizon: 'chwila' }),
+    'Studiuję, liczą się dla mnie gastronomia, kultura i zieleń, szukam miejsca wynajem.',
   )
 })
 
 test('2 priorities joined with "i"', () => {
   assert.equal(
-    s({ profile: 'student', priorities: ['komunikacja', 'gastronomia'], horizon: 'chwila' }),
-    'Studiuję, liczą się dla mnie komunikacja i gastronomia, szukam miejsca na chwilę.',
+    s({ profile: 'student', priorities: ['gastronomia', 'kultura'], horizon: 'chwila' }),
+    'Studiuję, liczą się dla mnie gastronomia i kultura, szukam miejsca wynajem.',
   )
 })
 
 test('maxNamed collapses long priority lists into "jeszcze N inne"', () => {
-  const priorities = ['komunikacja', 'gastronomia', 'zycieNocne', 'sport', 'cisza', 'zielen'] as const
+  const priorities = ['gastronomia', 'kultura', 'zielen', 'cisza', 'sport', 'komunikacja'] as const
   assert.equal(
     s({ profile: 'student', priorities: [...priorities], horizon: 'chwila', maxNamed: 4 }),
-    'Studiuję, liczą się dla mnie komunikacja, gastronomia, życie nocne i jeszcze 3 inne, szukam miejsca na chwilę.',
+    'Studiuję, liczą się dla mnie gastronomia, kultura, zieleń i jeszcze 3 inne, szukam miejsca wynajem.',
   )
-  // exactly maxNamed → all named
   assert.equal(
-    s({ profile: 'rodzina', priorities: ['edukacja', 'zielen', 'cisza', 'zakupy'], horizon: 'stale', maxNamed: 4 }),
-    'Mamy rodzinę, liczą się dla nas przedszkola i szkoły, zieleń, cisza i zakupy, szukamy miejsca na stałe.',
+    s({ profile: 'rodzina', priorities: [...DEFAULT_PRIORITIES.rodzina], horizon: 'stale', maxNamed: 4 }),
+    'Mamy rodzinę, liczą się dla nas zieleń, cisza i kultura, szukamy miejsca kupno.',
   )
 })
 

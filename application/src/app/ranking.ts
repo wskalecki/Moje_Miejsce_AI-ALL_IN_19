@@ -5,7 +5,7 @@
  *
  * Pure module (explicit `.ts` imports, no React) so `node --test` can load it.
  */
-import { CATEGORY_ORDER } from './dictionary.ts'
+import { CATEGORY_ORDER, FILTER_PANEL_CATEGORIES } from './dictionary.ts'
 import type { CategoryKey } from './types.ts'
 import { shares, weightedMatch, type Weights } from '../map/weighting.ts'
 
@@ -42,12 +42,16 @@ export function normCats(raw: ScoreEntry['cats'] | undefined): Record<CategoryKe
  * Ranks every osiedle by its weighted match. Sorting uses the unrounded weighted mean (so two
  * osiedla showing the same rounded % still get distinct places); ties fall back to the id.
  */
-export function rankOsiedla(scores: ScoresFile, weights: Weights): Ranking {
-  const sh = shares(weights)
+export function rankOsiedla(
+  scores: ScoresFile,
+  weights: Weights,
+  scoreCategories: readonly CategoryKey[] = FILTER_PANEL_CATEGORIES,
+): Ranking {
+  const sh = shares(weights, null, scoreCategories)
   const rows = Object.entries(scores).map(([id, e]) => {
     const cats = normCats(e?.cats)
     const exact = CATEGORY_ORDER.reduce((v, c, i) => v + sh[i] * cats[c], 0)
-    return { id, exact, match: weightedMatch(cats, weights) }
+    return { id, exact, match: weightedMatch(cats, weights, null, scoreCategories) }
   })
   rows.sort((a, b) => b.exact - a.exact || a.id.localeCompare(b.id))
   return {

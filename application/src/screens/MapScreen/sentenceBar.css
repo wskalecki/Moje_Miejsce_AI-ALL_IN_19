@@ -24,6 +24,137 @@
     visibility 0s linear 300ms;
 }
 
+.sbar__bar--minimal {
+  gap: 12px;
+  padding-right: 10px;
+  width: 100%;
+  max-width: min(var(--smap-panel-width, 416px), calc(100vw - 48px));
+}
+.sbar__actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex: none;
+}
+
+/* Profile — round trigger + compact icon dropdown */
+.sbar-profile {
+  position: relative;
+  flex: none;
+}
+.sbar-profile__trigger {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 14%, #fff);
+  color: var(--accent-deep);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
+  cursor: pointer;
+  transition:
+    background-color var(--d-base) var(--ease-standard),
+    color var(--d-base) var(--ease-standard),
+    box-shadow var(--d-base) var(--ease-standard),
+    transform var(--d-fast) var(--ease-standard);
+}
+.sbar-profile__trigger:hover {
+  background: color-mix(in srgb, var(--accent) 22%, #fff);
+}
+.sbar-profile__trigger[aria-expanded='true'] {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 6px 16px -8px color-mix(in srgb, var(--accent) 75%, transparent);
+}
+.sbar-profile__trigger:active {
+  transform: scale(0.96);
+}
+.sbar-profile__trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.sbar-profile__menu {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 10px);
+  z-index: 20;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 0 0 1px var(--glass-hairline),
+    var(--shadow-lg);
+  transform: translateY(-50%);
+  transform-origin: center left;
+  animation: sbar-profile-menu-in 200ms var(--ease-emphasized) backwards;
+}
+.sbar-profile__opt {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(22, 22, 29, 0.05);
+  color: var(--color-ink-2);
+  cursor: pointer;
+  transition:
+    background-color var(--d-base) var(--ease-standard),
+    color var(--d-base) var(--ease-standard),
+    transform var(--d-fast) var(--ease-standard);
+}
+.sbar-profile__opt:hover {
+  background: color-mix(in srgb, var(--accent) 12%, #fff);
+  color: var(--accent-deep);
+}
+.sbar-profile__opt.is-active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 25%, transparent);
+}
+.sbar-profile__opt:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.sbar__brand {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin-left: 2px;
+}
+.sbar__prefs {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: rgba(22, 22, 29, 0.06);
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-ink, #16161d);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sbar__prefs:hover {
+  background: rgba(22, 22, 29, 0.1);
+}
+
 .sbar__bar {
   display: flex;
   align-items: center;
@@ -168,7 +299,7 @@
   top: calc(100% + 10px);
   left: 0;
   /* same width as the filter panel below it (src/map/map.css .smap-flt) so nothing peeks out */
-  width: 360px;
+  width: var(--smap-panel-width, 416px);
   padding: 14px 8px 8px;
   border-radius: var(--r-lg);
   background: rgba(255, 255, 255, 0.94);
@@ -325,6 +456,12 @@
     transform: translateY(-6px) scale(0.97);
   }
 }
+@keyframes sbar-profile-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-6px) scale(0.97);
+  }
+}
 
 /* compact: drop connector words, then the long profile fragment */
 @media (max-width: 1279px) {
@@ -380,13 +517,25 @@
     display: inline;
   }
   .sbar-pop {
-    width: min(360px, calc(100vw - 24px));
+    width: min(var(--smap-panel-width, 416px), calc(100vw - 24px));
+  }
+  .sbar-profile__menu {
+    top: calc(100% + 8px);
+    left: auto;
+    right: 0;
+    transform: none;
+    transform-origin: top right;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .sbar,
-  .sbar-pop {
+  .sbar-pop,
+  .sbar-profile__menu {
+    animation: none;
+  }
+  .sbar-profile__menu {
+    transform: translateY(-50%);
     animation: none;
   }
 }

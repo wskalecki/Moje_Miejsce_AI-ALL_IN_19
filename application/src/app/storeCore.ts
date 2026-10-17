@@ -2,6 +2,7 @@
 import { createContext } from 'react'
 import { STORAGE_KEY } from './config'
 import { parseState } from './appState'
+import type { FilterSections } from '../map/categoryFilterRows.ts'
 import type { AppState, CategoryKey, Horizon, ProfileId } from './types'
 
 export { INITIAL_STATE, reducer, parseState, type Action } from './appState'
@@ -41,6 +42,9 @@ export interface AppStore {
   setHorizon: (horizon: Horizon) => void
   setYear: (year: number) => void
   markVisited: (slug: string) => void
+  togglePoiInterest: (subtype: string) => void
+  toggleGastronomyCuisine: (cuisine: string) => void
+  setFilterSections: (sections: FilterSections) => void
   reset: () => void
 }
 

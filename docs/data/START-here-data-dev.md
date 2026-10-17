@@ -1,6 +1,6 @@
 # Start here — data developer
 
-**Cel:** dostarczyć pliki z [`manifest.json`](../../data/manifest.json), żeby mapa mogła pokazać siatkę i POI w całej Warszawie.
+**Cel:** dostarczyć prawdziwe dane dla aplikacji (`application/public/data/`), każde zarejestrowane w [`catalog.json`](../../data/catalog.json) (widok: [`katalog-danych.md`](katalog-danych.md)).
 
 ## 1. Przeczytaj (15 min)
 
@@ -15,8 +15,8 @@ Koncept produktu: [`docs/core/koncept-aplikacji.md`](../core/koncept-aplikacji.m
 ## 2. Narzędzia w repo
 
 ```bash
-# Siatka 200 m w EPSG:2180 (pełna Warszawa → data/grid/, 7,6 MB, nie commitujemy;
-# --warsaw-only zostawia tylko komórki w granicach miasta: 13 318 komórek, 4,5 MB)
+# Siatka 250 m w EPSG:2180 (pełna Warszawa → data/grid/, 4,9 MB, nie commitujemy;
+# --warsaw-only zostawia tylko komórki w granicach miasta: 8 572 komórki, 2,9 MB)
 uv run data/scripts/generate_grid.py -o data/grid/warsaw_grid.geojson
 
 # Walidacja po każdym ETL
@@ -34,12 +34,12 @@ cell_id = assign_cell(lon, lat)
 
 ## 3. Kolejność pracy (MVP)
 
-1. Pełna siatka + zaktualizowany `manifest.json` (`files.grid`, `bbox`).
+1. Pełna siatka (`generate_grid.py`) i wpis w `data/catalog.json`.
 2. POI z katalogu UM → `data/poi/*.geojson` (przystanki, toalety, AQ, sport, wydarzenia).
 3. `data/grid/cell_metrics.json` — agregaty i `scores` dla `kasia`, `marek`, `ania_tomek`.
 4. Wiersze w [`data/README.md`](../../data/README.md) (źródło, licencja, data).
 
-**Surowe API:** `data/raw/` (gitignored). **Małe próbki:** już są w `data/samples/`.
+**Surowe API:** `data/raw/` (gitignored). **Próbka siatki:** `data/samples/warsaw_grid_sample.geojson` (sama geometria; bez syntetycznych metryk).
 
 ## 4. Frontend (ktoś inny / później)
 

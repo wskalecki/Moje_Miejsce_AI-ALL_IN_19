@@ -15,9 +15,13 @@ dist
 dist-ssr
 *.local
 
+# Accidental tsc emit next to .ts/.tsx sources
+src/**/*.js
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 .idea
 .DS_Store
 *.suo
