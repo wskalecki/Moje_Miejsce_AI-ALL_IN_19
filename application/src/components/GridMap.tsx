@@ -1,5 +1,3 @@
-import { MapboxOverlay } from '@deck.gl/mapbox'
-import { GeoJsonLayer, ScatterplotLayer } from '@deck.gl/layers'
 import * as maplibregl from 'maplibre-gl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -8,7 +6,6 @@ import {
   type GridFeatureCollection,
   type PersonaId,
 } from '../lib/hackathonData'
-import { scoreToRgba } from '../lib/scoreColor'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
 const PERSONAS: { id: PersonaId; label: string }[] = [
@@ -17,9 +14,14 @@ const PERSONAS: { id: PersonaId; label: string }[] = [
   { id: 'ania_tomek', label: 'Ania & Tomek — rodzina' },
 ]
 
-/** Global basemap (no API key). Demotiles do not cover Warsaw. */
 const DEFAULT_STYLE =
   'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json'
+
+const GRID_SOURCE = 'siatka-grid'
+const GRID_FILL_LAYER = 'siatka-grid-fill'
+const GRID_LINE_LAYER = 'siatka-grid-line'
+const POI_SOURCE = 'siatka-poi'
+const POI_LAYER = 'siatka-poi-circles'
 
 type Props = {
   initialPersona?: PersonaId
@@ -28,7 +30,7 @@ type Props = {
 export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
-  const overlayRef = useRef<MapboxOverlay | null>(null)
+  const gridClickBound = useRef(false)
 
   const { manifest, grid, cellMetrics, poiLayers } = useMemo(() => loadHackathonData(), [])
   const [persona, setPersona] = useState<PersonaId>(initialPersona)
@@ -40,6 +42,14 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
   const enrichedGrid = useMemo(
     () => enrichGridWithScores(grid, cellMetrics, persona),
     [grid, cellMetrics, persona],
+  )
+
+  const poiCollection = useMemo(
+    () => ({
+      type: 'FeatureCollection' as const,
+      features: poiLayers.flatMap((fc) => fc.features),
+    }),
+    [poiLayers],
   )
 
   const selectedDetail = selectedCellId ? cellMetrics.cells[selectedCellId] : null
@@ -66,49 +76,107 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
       setMapError(msg)
     })
 
-    const overlay = new MapboxOverlay({ interleaved: false, layers: [] })
-    overlayRef.current = overlay
     mapRef.current = map
 
     map.on('load', () => {
       setMapError(null)
       setMapLoaded(true)
       map.resize()
-      map.addControl(overlay as unknown as maplibregl.IControl)
-      const layers = map.getStyle().layers ?? []
-      const labelLayerId = layers.find(
-        (l: maplibregl.LayerSpecification) =>
-          l.type === 'symbol' && 'layout' in l && l.layout?.['text-field'],
-      )?.id
-      const buildingLayer = layers.find(
-        (l: maplibregl.LayerSpecification) => l.id.includes('building') && l.type === 'fill',
-      ) as maplibregl.FillLayerSpecification | undefined
-      if (buildingLayer?.source) {
-        map.addLayer(
-          {
-            id: '3d-buildings',
-            type: 'fill-extrusion',
-            source: buildingLayer.source,
-            'source-layer': buildingLayer['source-layer'],
-            filter: ['==', ['get', 'extrude'], 'true'],
-            minzoom: 14,
-            paint: {
-              'fill-extrusion-color': [
-                'interpolate',
-                ['linear'],
-                ['get', 'height'],
-                0,
-                '#c4c4c4',
-                80,
-                '#e8e4dc',
-              ],
-              'fill-extrusion-height': ['get', 'height'],
-              'fill-extrusion-base': ['get', 'min_height'],
-              'fill-extrusion-opacity': 0.85,
-            },
-          },
-          labelLayerId,
-        )
+
+      map.addSource(GRID_SOURCE, {
+        type: 'geojson',
+        data: enrichedGrid,
+        generateId: true,
+      })
+
+      map.addLayer({
+        id: GRID_FILL_LAYER,
+        type: 'fill',
+        source: GRID_SOURCE,
+        paint: {
+          'fill-color': [
+            'interpolate',
+            ['linear'],
+            ['coalesce', ['get', 'score'], 0],
+            0,
+            '#3d4f6f',
+            25,
+            '#5a7a8c',
+            50,
+            '#4a9b7f',
+            75,
+            '#9bb86a',
+            100,
+            '#c9e265',
+          ],
+          'fill-opacity': 0.72,
+        },
+      })
+
+      map.addLayer({
+        id: GRID_LINE_LAYER,
+        type: 'line',
+        source: GRID_SOURCE,
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': 1.5,
+          'line-opacity': 0.85,
+        },
+      })
+
+      map.addSource(POI_SOURCE, {
+        type: 'geojson',
+        data: poiCollection,
+      })
+
+      map.addLayer({
+        id: POI_LAYER,
+        type: 'circle',
+        source: POI_SOURCE,
+        paint: {
+          'circle-radius': 7,
+          'circle-color': [
+            'match',
+            ['get', 'category'],
+            'transit',
+            '#ffffff',
+            'amenity',
+            '#f0c674',
+            'sport',
+            '#9bcf7f',
+            'environment',
+            '#7eb8da',
+            'culture',
+            '#e8a87c',
+            '#cccccc',
+          ],
+          'circle-stroke-width': 1,
+          'circle-stroke-color': '#1a1a24',
+        },
+      })
+
+      add3dBuildingsIfAvailable(map)
+
+      map.fitBounds(
+        [
+          [manifest.bbox[0], manifest.bbox[1]],
+          [manifest.bbox[2], manifest.bbox[3]],
+        ],
+        { padding: 48, pitch: 45, duration: 0 },
+      )
+
+      if (!gridClickBound.current) {
+        gridClickBound.current = true
+        map.on('click', GRID_FILL_LAYER, (e) => {
+          const id = e.features?.[0]?.properties?.id as string | undefined
+          setSelectedCellId(id ?? null)
+        })
+        map.on('mouseenter', GRID_FILL_LAYER, () => {
+          map.getCanvas().style.cursor = 'pointer'
+        })
+        map.on('mouseleave', GRID_FILL_LAYER, () => {
+          map.getCanvas().style.cursor = ''
+        })
       }
     })
 
@@ -117,55 +185,34 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
 
     return () => {
       ro.disconnect()
-      overlay.setProps({ layers: [] })
+      gridClickBound.current = false
       setMapLoaded(false)
       map.remove()
       mapRef.current = null
-      overlayRef.current = null
     }
+    // enrichedGrid applied in separate effect after load
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- init map once
   }, [manifest.bbox])
 
   useEffect(() => {
-    const overlay = overlayRef.current
-    if (!overlay || !mapLoaded) return
+    const map = mapRef.current
+    if (!map || !mapLoaded) return
 
-    const gridLayer = new GeoJsonLayer({
-      id: 'grid-cells',
-      data: enrichedGrid,
-      pickable: true,
-      stroked: true,
-      filled: true,
-      extruded: false,
-      getFillColor: (f) => scoreToRgba(f.properties?.score, 0.58),
-      getLineColor: [255, 255, 255, 80],
-      lineWidthUnits: 'pixels',
-      getLineWidth: 1,
-      onClick: (info) => {
-        const id = info.object?.properties?.id as string | undefined
-        setSelectedCellId(id ?? null)
-      },
-      updateTriggers: {
-        getFillColor: [persona],
-      },
-    })
+    const gridSource = map.getSource(GRID_SOURCE) as maplibregl.GeoJSONSource | undefined
+    gridSource?.setData(enrichedGrid)
+  }, [enrichedGrid, mapLoaded])
 
-    const poiPoints = showPoi
-      ? poiLayers.flatMap((fc) => fc.features)
-      : []
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapLoaded) return
 
-    const poiLayer = new ScatterplotLayer({
-      id: 'poi-points',
-      data: poiPoints,
-      pickable: true,
-      radiusUnits: 'pixels',
-      getRadius: 6,
-      getPosition: (d) => (d.geometry as GeoJSON.Point).coordinates as [number, number],
-      getFillColor: (d) => poiColor(d.properties?.category as string),
-    })
-
-    overlay.setProps({ layers: [gridLayer, poiLayer] })
-    mapRef.current?.triggerRepaint()
-  }, [enrichedGrid, persona, poiLayers, showPoi, mapLoaded])
+    const visibility = showPoi ? 'visible' : 'none'
+    if (map.getLayer(POI_LAYER)) {
+      map.setLayoutProperty(POI_LAYER, 'visibility', visibility)
+    }
+    const poiSource = map.getSource(POI_SOURCE) as maplibregl.GeoJSONSource | undefined
+    poiSource?.setData(poiCollection)
+  }, [poiCollection, showPoi, mapLoaded])
 
   return (
     <div className="grid-map">
@@ -224,16 +271,14 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
       {mapError && (
         <p className="grid-map__hint grid-map__hint--error">
           Błąd mapy: {mapError}. Sprawdź <code>VITE_MAP_STYLE_URL</code> w{' '}
-          <code>application/.env</code> lub usuń tę linię (użyjemy Carto).
+          <code>application/.env</code>.
         </p>
       )}
 
-      {!import.meta.env.VITE_MAP_STYLE_URL?.trim() && !mapError && (
-        <p className="grid-map__hint">
-          Domyślnie: Carto Voyager (cała Warszawa). Dla budynków 3D ustaw MapTiler w{' '}
-          <code>VITE_MAP_STYLE_URL</code>.
-        </p>
-      )}
+      <p className="grid-map__hint">
+        Kolorowe kwadraty ~1 km (próbka Mokotów). Oddal mapę — zobaczysz całą Warszawę, ale siatka
+        jest tylko w obszarze danych demo.
+      </p>
     </div>
   )
 }
@@ -245,9 +290,9 @@ function enrichGridWithScores(
 ): GridFeatureCollection {
   return {
     ...grid,
-    features: grid.features.map((f) => {
+    features: grid.features.map((f: GridFeatureCollection['features'][number]) => {
       const id = f.properties.id
-      const score = metrics.cells[id]?.scores[persona] ?? null
+      const score = metrics.cells[id]?.scores[persona] ?? 0
       return {
         ...f,
         properties: { ...f.properties, score },
@@ -256,19 +301,40 @@ function enrichGridWithScores(
   }
 }
 
-function poiColor(category: string): [number, number, number, number] {
-  switch (category) {
-    case 'transit':
-      return [255, 255, 255, 220]
-    case 'amenity':
-      return [240, 198, 116, 220]
-    case 'sport':
-      return [155, 207, 127, 220]
-    case 'environment':
-      return [126, 184, 218, 220]
-    case 'culture':
-      return [232, 168, 124, 220]
-    default:
-      return [200, 200, 200, 200]
-  }
+function add3dBuildingsIfAvailable(map: maplibregl.Map) {
+  const layers = map.getStyle().layers ?? []
+  const labelLayerId = layers.find(
+    (l) => l.type === 'symbol' && 'layout' in l && l.layout?.['text-field'],
+  )?.id
+  const buildingLayer = layers.find(
+    (l) => l.id.includes('building') && l.type === 'fill',
+  ) as maplibregl.FillLayerSpecification | undefined
+
+  if (!buildingLayer?.source || map.getLayer('3d-buildings')) return
+
+  map.addLayer(
+    {
+      id: '3d-buildings',
+      type: 'fill-extrusion',
+      source: buildingLayer.source,
+      'source-layer': buildingLayer['source-layer'],
+      filter: ['==', ['get', 'extrude'], 'true'],
+      minzoom: 14,
+      paint: {
+        'fill-extrusion-color': [
+          'interpolate',
+          ['linear'],
+          ['get', 'height'],
+          0,
+          '#c4c4c4',
+          80,
+          '#e8e4dc',
+        ],
+        'fill-extrusion-height': ['get', 'height'],
+        'fill-extrusion-base': ['get', 'min_height'],
+        'fill-extrusion-opacity': 0.85,
+      },
+    },
+    labelLayerId,
+  )
 }

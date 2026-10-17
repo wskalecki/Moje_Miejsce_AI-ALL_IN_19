@@ -1,10 +1,11 @@
+import type { FeatureCollection, Polygon } from 'geojson'
 import manifest from '@data/manifest.json'
 import metricsSample from '@data/samples/cell_metrics_sample.json'
 import gridSampleRaw from '@data/samples/warsaw_grid_sample.geojson?raw'
 import poiSampleRaw from '@data/samples/poi_sample.geojson?raw'
 
 const gridSample = JSON.parse(gridSampleRaw) as GridFeatureCollection
-const poiSample = JSON.parse(poiSampleRaw) as GeoJSON.FeatureCollection
+const poiSample = JSON.parse(poiSampleRaw) as FeatureCollection
 
 export type PersonaId = 'kasia' | 'marek' | 'ania_tomek'
 
@@ -32,9 +33,9 @@ export type CellMetricsFile = {
   >
 }
 
-export type GridFeatureCollection = GeoJSON.FeatureCollection<
-  GeoJSON.Polygon,
-  { id: string; row: number; col: number; center: [number, number] }
+export type GridFeatureCollection = FeatureCollection<
+  Polygon,
+  { id: string; row: number; col: number; center: [number, number]; score?: number }
 >
 
 const GRID_BY_PATH: Record<string, GridFeatureCollection> = {
@@ -45,8 +46,8 @@ const METRICS_BY_PATH: Record<string, CellMetricsFile> = {
   'samples/cell_metrics_sample.json': metricsSample as CellMetricsFile,
 }
 
-const POI_BY_PATH: Record<string, GeoJSON.FeatureCollection> = {
-  'samples/poi_sample.geojson': poiSample as GeoJSON.FeatureCollection,
+const POI_BY_PATH: Record<string, FeatureCollection> = {
+  'samples/poi_sample.geojson': poiSample as FeatureCollection,
 }
 
 export function loadHackathonData() {
