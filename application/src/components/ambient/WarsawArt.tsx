@@ -32,7 +32,7 @@ const ProfileLayer = memo(function ProfileLayer({ profile }: { profile: ProfileI
  * Warsaw district outlines + the real match grid (downsampled heat points),
  * one layer per profile. Only the active layer is visible; layers crossfade.
  */
-export function WarsawArt({ profile, className }: { profile: ProfileId | null; className?: string }) {
+export const WarsawArt = memo(function WarsawArt({ profile, className }: { profile: ProfileId | null; className?: string }) {
   return (
     <svg
       className={['warsaw-art', className].filter(Boolean).join(' ')}
@@ -51,4 +51,4 @@ export function WarsawArt({ profile, className }: { profile: ProfileId | null; c
       <path className="warsaw-art__outline" d={DISTRICTS_PATH} />
     </svg>
   )
-}
+})

@@ -1,0 +1,500 @@
+.survey {
+  --survey-w: min(1120px, calc(100vw - 96px));
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  overflow: hidden auto;
+  isolation: isolate;
+}
+
+.survey > .ambient {
+  position: fixed;
+  z-index: -1;
+}
+
+/* Top bar */
+.survey__top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 20px 32px;
+}
+
+.survey__back {
+  justify-self: start;
+}
+
+.survey__logo {
+  justify-self: end;
+}
+
+.survey__progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.survey__segments {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.survey__segment {
+  position: relative;
+  width: 56px;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: rgba(22, 22, 29, 0.1);
+  overflow: hidden;
+}
+
+.survey__segment i {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--accent);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition:
+    transform var(--d-slower) var(--ease-emphasized),
+    background-color var(--d-slower) var(--ease-standard);
+}
+
+.survey__segment[data-state='done'] i,
+.survey__segment[data-state='current'] i {
+  transform: scaleX(1);
+}
+
+.survey__segment[data-state='done'] i {
+  opacity: 0.55;
+}
+
+.survey__step-label {
+  color: var(--color-ink-2);
+  min-width: 72px;
+}
+
+/* Body */
+.survey__body {
+  width: var(--survey-w);
+  margin: 0 auto;
+  padding-top: clamp(16px, 6vh, 64px);
+}
+
+.survey__sentence {
+  max-width: 1000px;
+  min-height: calc(2 * 1.42em);
+}
+
+.survey__stage {
+  margin-top: clamp(24px, 5vh, 52px);
+}
+
+.survey__question {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.survey__question h1 {
+  outline: none;
+}
+
+.survey__sub {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.survey__counter {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    background-color var(--d-base) var(--ease-standard),
+    color var(--d-base) var(--ease-standard);
+}
+
+.survey__counter[data-full] {
+  background: var(--accent);
+  color: #fff;
+}
+
+.survey__footer {
+  width: var(--survey-w);
+  margin: 0 auto;
+  padding: 28px 0 clamp(24px, 5vh, 48px);
+  display: flex;
+  justify-content: flex-end;
+  align-self: start;
+}
+
+.survey__next[data-hidden] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.survey__hint-slot {
+  min-height: 34px;
+  padding-top: 14px;
+}
+
+.survey__hint {
+  color: var(--accent-deep);
+}
+
+/* Shared choice card (profile + horizon) */
+.choice-card {
+  position: relative;
+  border-radius: var(--r-xl);
+  background: var(--glass-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow:
+    inset 0 0 0 1px var(--glass-hairline),
+    var(--shadow-md);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    transform var(--d-slow) var(--ease-emphasized),
+    box-shadow var(--d-slow) var(--ease-standard),
+    opacity var(--d-slow) var(--ease-standard),
+    background-color var(--d-slow) var(--ease-standard);
+}
+
+.choice-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    inset 0 0 0 1px var(--glass-hairline),
+    var(--shadow-lg);
+}
+
+.choice-card:active {
+  transform: translateY(-1px) scale(0.995);
+}
+
+.choice-card[data-selected] {
+  background: var(--color-surface);
+  box-shadow:
+    inset 0 0 0 2px var(--accent),
+    0 18px 44px -14px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.choice-card[data-dimmed]:not(:hover):not(:focus-visible) {
+  opacity: 0.62;
+}
+
+.choice-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.choice-card__check {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 12px -2px color-mix(in srgb, var(--accent) 60%, transparent);
+  opacity: 0;
+  transform: scale(0.4);
+  transition:
+    opacity var(--d-base) var(--ease-standard),
+    transform var(--d-slow) var(--ease-emphasized);
+}
+
+.choice-card[data-selected] .choice-card__check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Step 1 — profile cards */
+.profile-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 340px;
+  padding: 12px;
+}
+
+.profile-card__art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 196px;
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(120% 90% at 50% 100%, color-mix(in srgb, var(--accent-soft) 90%, white), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--accent-soft) 55%, white), color-mix(in srgb, var(--accent-soft) 100%, white));
+  overflow: hidden;
+}
+
+.dot-patch {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: var(--accent);
+  opacity: 0.55;
+  transition:
+    opacity var(--d-slower) var(--ease-standard),
+    transform 1200ms var(--ease-emphasized);
+}
+
+.profile-card:hover .dot-patch,
+.profile-card[data-selected] .dot-patch {
+  opacity: 0.85;
+  transform: scale(1.04);
+}
+
+.profile-card__halo {
+  position: absolute;
+  width: 152px;
+  height: 152px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent-soft) 100%, white) 55%, transparent 72%);
+}
+
+.profile-card__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--accent-deep);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 16%, transparent),
+    0 14px 30px -12px color-mix(in srgb, var(--accent) 55%, transparent);
+  transition: transform var(--d-slow) var(--ease-emphasized);
+}
+
+.profile-card:hover .profile-card__icon,
+.profile-card[data-selected] .profile-card__icon {
+  transform: translateY(-3px) scale(1.03);
+}
+
+.profile-card__text {
+  display: grid;
+  gap: 6px;
+  padding: 20px 12px 12px;
+}
+
+.profile-card__title {
+  color: var(--color-ink);
+}
+
+/* Step 2 — priority tiles */
+.priority-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.priority-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 124px;
+  padding: 16px 16px 16px;
+  border-radius: var(--r-lg);
+  background: var(--glass-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow:
+    inset 0 0 0 1px var(--glass-hairline),
+    var(--shadow-sm);
+  text-align: left;
+  transition:
+    box-shadow var(--d-base) var(--ease-standard),
+    background-color var(--d-base) var(--ease-standard),
+    translate var(--d-slow) var(--ease-emphasized);
+}
+
+.priority-tile:hover {
+  translate: 0 -2px;
+  box-shadow:
+    inset 0 0 0 1px var(--glass-hairline),
+    var(--shadow-md);
+}
+
+.priority-tile[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--accent-soft) 80%, white);
+  box-shadow:
+    inset 0 0 0 2px var(--accent),
+    0 12px 28px -14px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.priority-tile__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  background: rgba(22, 22, 29, 0.05);
+  color: var(--color-ink-2);
+  transition:
+    background-color var(--d-base) var(--ease-standard),
+    color var(--d-base) var(--ease-standard);
+}
+
+.priority-tile[aria-pressed='true'] .priority-tile__icon {
+  background: var(--accent);
+  color: #fff;
+}
+
+.priority-tile__label {
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--color-ink);
+  letter-spacing: -0.005em;
+}
+
+.priority-tile[aria-pressed='true'] .priority-tile__label {
+  color: var(--accent-deep);
+}
+
+.priority-tile__order {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Step 3 — horizon cards */
+.horizon-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.horizon-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  min-height: 176px;
+  padding: 32px 56px 32px 32px;
+}
+
+.horizon-card__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  transition:
+    background-color var(--d-base) var(--ease-standard),
+    color var(--d-base) var(--ease-standard);
+}
+
+.horizon-card[data-selected] .horizon-card__icon {
+  background: var(--accent);
+  color: #fff;
+}
+
+.horizon-card__text {
+  display: grid;
+  gap: 8px;
+  padding-top: 6px;
+}
+
+.horizon-card__text .t-body {
+  max-width: 36ch;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .priority-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .survey {
+    --survey-w: calc(100vw - 48px);
+  }
+  .survey__top {
+    padding: 16px 16px;
+  }
+  .survey__logo {
+    display: none;
+  }
+  .profile-cards,
+  .horizon-cards {
+    grid-template-columns: 1fr;
+  }
+  .profile-card {
+    min-height: 0;
+    flex-direction: row;
+    align-items: center;
+  }
+  .profile-card__art {
+    width: 112px;
+    height: 112px;
+    flex: none;
+  }
+  .profile-card__icon {
+    width: 72px;
+    height: 72px;
+  }
+  .profile-card__icon svg {
+    width: 34px;
+    height: 34px;
+  }
+  .profile-card__halo {
+    display: none;
+  }
+  .priority-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .priority-tile {
+    min-height: 92px;
+  }
+  .horizon-card {
+    min-height: 0;
+    padding: 22px 48px 22px 22px;
+  }
+  .survey__footer {
+    position: sticky;
+    bottom: 0;
+    padding-bottom: 20px;
+  }
+  .survey__footer .ui-btn {
+    width: 100%;
+  }
+}

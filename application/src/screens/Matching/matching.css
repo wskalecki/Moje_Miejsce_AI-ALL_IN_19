@@ -1,0 +1,129 @@
+.matching {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-cinema);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  cursor: default;
+}
+
+.matching__art {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.matching__art svg {
+  height: min(110vh, 1100px);
+  width: auto;
+  opacity: 0.32;
+}
+
+.matching__content {
+  position: relative;
+  width: min(680px, calc(100vw - 48px));
+  padding: 40px 44px 36px;
+  border-radius: var(--r-xl);
+  background: var(--glass-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 0 0 1px var(--glass-hairline),
+    var(--shadow-lg);
+  overflow: hidden;
+}
+
+.matching__eyebrow {
+  color: var(--accent-deep);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.matching__sentence {
+  color: var(--color-ink-2);
+}
+
+.matching__lines {
+  list-style: none;
+  margin: 28px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  min-height: calc(3 * 24px + 2 * 12px);
+}
+
+.matching__line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-ink-2);
+  transition: color var(--d-base) var(--ease-standard);
+}
+
+.matching__line[data-done] {
+  color: var(--color-ink);
+}
+
+.matching__icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 50%;
+  color: var(--accent);
+  background: var(--accent-soft);
+  transition:
+    background-color var(--d-base) var(--ease-standard),
+    color var(--d-base) var(--ease-standard);
+}
+
+.matching__icon > span {
+  display: grid;
+  place-items: center;
+}
+
+.matching__line[data-done] .matching__icon {
+  background: var(--accent);
+  color: #fff;
+}
+
+.matching__spinner {
+  animation: matching-spin 0.8s linear infinite;
+}
+
+.matching__bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.matching__bar i {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform-origin: left center;
+  animation: matching-bar linear forwards;
+}
+
+@keyframes matching-bar {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes matching-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

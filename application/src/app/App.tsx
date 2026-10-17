@@ -14,6 +14,7 @@ import { useAppStore } from './useAppStore'
 import { IntroScreen } from '../screens/Intro/IntroScreen'
 import { SurveyScreen } from '../screens/Survey/SurveyScreen'
 import { MapScreen } from '../screens/MapScreen/MapScreen'
+import { MatchingScreen } from '../screens/Matching/MatchingScreen'
 
 const DevUiScreen = import.meta.env.DEV ? lazy(() => import('../screens/dev/DevUiScreen')) : null
 
@@ -22,6 +23,7 @@ function Shell() {
   const store = useAppStore()
   const { state, setProfile, setHorizon, reset } = store
   const [mapMounted, setMapMounted] = useState(route.name === 'map')
+  const [matching, setMatching] = useState(false)
 
   if (route.name === 'map' && !mapMounted) setMapMounted(true)
 
@@ -50,7 +52,7 @@ function Shell() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!e.shiftKey || e.metaKey || e.ctrlKey || e.altKey || e.key.toLowerCase() !== 'r') return
-      const t = e.target as HTMLElement | null
+      const t = e.target instanceof Element ? e.target : null
       if (t?.closest('input, textarea, [contenteditable="true"]')) return
       e.preventDefault()
       reset()
@@ -77,10 +79,21 @@ function Shell() {
             transition={{ duration: 0.32, ease: [0.2, 0.8, 0.2, 1] }}
           >
             {overlayKey === 'intro' && <IntroScreen />}
-            {overlayKey === 'survey' && route.name === 'survey' && <SurveyScreen step={route.step} />}
+            {overlayKey === 'survey' && route.name === 'survey' && (
+              <SurveyScreen
+                step={route.step}
+                onFinish={() => {
+                  setMatching(true)
+                  setMapMounted(true)
+                  navigate('/mapa')
+                }}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>{matching && <MatchingScreen key="matching" onDone={() => setMatching(false)} />}</AnimatePresence>
 
       {route.name === 'devUi' && DevUiScreen && (
         <Suspense fallback={null}>

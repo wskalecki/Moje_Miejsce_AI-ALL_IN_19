@@ -65,8 +65,21 @@ function emit() {
   listeners.forEach((l) => l())
 }
 
+/** In-app history depth, stored in history.state so back() knows if it can pop. */
+function currentIndex(): number {
+  const st = window.history.state as { idx?: number } | null
+  return typeof st?.idx === 'number' ? st.idx : 0
+}
+let lastIndex = currentIndex()
+if (window.history.state?.idx === undefined) window.history.replaceState({ idx: 0 }, '')
+/** hrefs by history index (only for entries created in this page load). */
+const stack: (string | undefined)[] = []
+stack[lastIndex] = window.location.pathname + window.location.search
+
 window.addEventListener('popstate', () => {
-  lastDirection = -1
+  const idx = currentIndex()
+  lastDirection = idx < lastIndex ? -1 : 1
+  lastIndex = idx
   emit()
 })
 
@@ -81,14 +94,26 @@ export function navigate(to: string | Route, opts: NavigateOptions = {}): void {
   const current = window.location.pathname + window.location.search
   if (href === current) return
   lastDirection = opts.direction ?? 1
-  if (opts.replace) window.history.replaceState(null, '', href)
-  else window.history.pushState(null, '', href)
+  if (opts.replace) {
+    window.history.replaceState({ idx: lastIndex }, '', href)
+  } else {
+    lastIndex += 1
+    stack.length = lastIndex
+    window.history.pushState({ idx: lastIndex }, '', href)
+  }
+  stack[lastIndex] = href
   emit()
 }
 
-export function back(fallback: string | Route = '/'): void {
-  if (window.history.length > 1) window.history.back()
-  else navigate(fallback, { replace: true, direction: -1 })
+/**
+ * Go back to `target`: pops browser history when the previous entry is exactly
+ * `target` (so the browser back button stays consistent), otherwise replaces
+ * the current entry with `target`.
+ */
+export function back(target: string | Route = '/'): void {
+  const href = typeof target === 'string' ? target : routeToPath(target)
+  if (lastIndex > 0 && stack[lastIndex - 1] === href) window.history.back()
+  else navigate(href, { replace: true, direction: -1 })
 }
 
 function subscribe(cb: () => void) {

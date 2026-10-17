@@ -37,7 +37,7 @@ export function IntroScreen() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Enter' || e.defaultPrevented) return
-      const t = e.target as HTMLElement | null
+      const t = e.target instanceof Element ? e.target : null
       if (t && t !== document.body && t.closest('button, a, input')) return
       e.preventDefault()
       start()

@@ -1,5 +1,5 @@
 /** App store provider: Context + useReducer + sessionStorage (spec §9). */
-import { useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, type ReactNode } from 'react'
 import { MAX_PRIORITIES } from './config'
 import { AppStoreContext, loadState, reducer, saveState, type AppStore, type TogglePriorityResult } from './storeCore'
 
@@ -12,8 +12,9 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     saveState(state)
   }, [state])
 
-  // Tint the whole UI with the active profile accent.
-  useEffect(() => {
+  // Tint the whole UI with the active profile accent (before paint, so a
+  // reload does not animate from the neutral accent).
+  useLayoutEffect(() => {
     document.documentElement.dataset.profile = state.profile ?? 'none'
   }, [state.profile])
 
