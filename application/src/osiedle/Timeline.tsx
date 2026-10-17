@@ -83,6 +83,7 @@ export function Timeline({ osiedle, profile, year, onYear }: TimelineProps) {
     <section className="op-sec op-tl" aria-labelledby="op-tl-title" data-section="Oś czasu 2026 → 2030">
       <SectionHead
         id="op-tl-title"
+        focusable
         title="Oś czasu 2026 → 2030"
         aside={
           <span className="op-tl__badge">

@@ -89,9 +89,24 @@ function PanelBody({
   const isBest = osiedle.profile === profile
   const msiName = MSI_NAMES[osiedle.msiId]
 
-  // Timeline (spec §4.6): full for `stale`; for `chwila` a teaser that can expand in place.
+  // Timeline (spec §4.6): full for `stale`; for `chwila` a teaser whose "Pokaż prognozę" switches the
+  // horizon to `stale` (store) and opens the timeline in place right away, even before the prop flips.
   const [expanded, setExpanded] = useState(false)
   const timelineOn = horizon === 'stale' || expanded
+  const focusTimeline = useRef(false)
+  const expandTimeline = () => {
+    onHorizonChange?.('stale')
+    setExpanded(true)
+    focusTimeline.current = true
+  }
+  // The button disappears with the teaser: move focus to the timeline heading and bring it into view.
+  useEffect(() => {
+    if (!timelineOn || !focusTimeline.current) return
+    focusTimeline.current = false
+    const head = document.getElementById('op-tl-title')
+    head?.focus({ preventScroll: true })
+    head?.closest('section')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+  }, [timelineOn, reduce])
   const [ownYear, setOwnYear] = useState<TimelineYear>(toTimelineYear(timelineYear ?? FIRST_YEAR))
   const year = timelineYear != null ? toTimelineYear(timelineYear) : ownYear
   const onYearRef = useRef(onTimelineYear)
@@ -247,13 +262,7 @@ function PanelBody({
         {timelineOn ? (
           <Timeline osiedle={osiedle} profile={profile} year={year} onYear={setYear} />
         ) : (
-          <TimelineTeaser
-            name={osiedle.name}
-            onExpand={() => {
-              setExpanded(true)
-              onHorizonChange?.('stale')
-            }}
-          />
+          <TimelineTeaser name={osiedle.name} onExpand={expandTimeline} />
         )}
 
         <footer className="op-foot">

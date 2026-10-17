@@ -70,15 +70,18 @@ export function SectionHead({
   icon: Icon,
   title,
   aside,
+  focusable,
 }: {
   id: string
   icon?: LucideIcon
   title: ReactNode
   aside?: ReactNode
+  /** Heading can take programmatic focus (tabindex −1), e.g. after the section opens. */
+  focusable?: boolean
 }) {
   return (
     <header className="op-sec__head">
-      <h2 id={id} className="op-sec__title">
+      <h2 id={id} className="op-sec__title" tabIndex={focusable ? -1 : undefined}>
         {Icon && <Icon size={18} strokeWidth={2} aria-hidden className="op-sec__icon" />}
         {title}
       </h2>

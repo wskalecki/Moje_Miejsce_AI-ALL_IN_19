@@ -539,6 +539,8 @@
 /* ---------- Sections ---------- */
 
 .op-sec {
+  /* Clears the sticky compact header when a section is scrolled into view. */
+  scroll-margin-top: 64px;
   padding: 28px 12px;
   border-top: 1px solid var(--op-line);
 }
@@ -602,6 +604,8 @@
 }
 
 .op-ai + .op-sec {
+  /* Clears the sticky compact header when a section is scrolled into view. */
+  scroll-margin-top: 64px;
   border-top: 0;
 }
 
