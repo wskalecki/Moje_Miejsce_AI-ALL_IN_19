@@ -6,6 +6,7 @@ Canonical schemas and ETL conventions for **Siatka** (200 m grid in EPSG:2180 + 
 
 | Document | Contents |
 |----------|----------|
+| **[`katalog-danych.md`](katalog-danych.md)** | **Kanoniczny spis źródeł, zbiorów, metryk (z definicjami), założeń i plików z danymi.** Generowany z [`data/catalog.json`](../../data/catalog.json); zgodność sprawdza `python3 data/scripts/validate_data.py` |
 | **[`START-here-data-dev.md`](START-here-data-dev.md)** | Onboarding — kolejność zadań dla data dev |
 | [`grid-schema.md`](grid-schema.md) | Grid geometry, cell IDs, metrics, persona scores |
 | [`poi-schema.md`](poi-schema.md) | POI GeoJSON fields, categories, catalog slug mapping |

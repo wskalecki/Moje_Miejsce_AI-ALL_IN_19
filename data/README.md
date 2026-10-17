@@ -37,17 +37,7 @@ python3 data/scripts/validate_data.py
 
 ## Inventory
 
-| Path | Source | License | Notes |
-|------|--------|---------|-------|
-| `boundaries/warszawa_dzielnice.geojson` | [WFS m.st. Warszawy `GRANICE_DZIELNIC`](https://wfs.um.warszawa.pl/serwis) | Ponowne wykorzystanie bezpłatne, źródło: Urząd m.st. Warszawy | 18 dzielnic, WGS84, uproszczone ~5 m; pobrane 2026-10-17 |
-| `boundaries/warszawa_osiedla.geojson` | [WFS m.st. Warszawy `MSI`](https://wfs.um.warszawa.pl/serwis) | Ponowne wykorzystanie bezpłatne, źródło: Urząd m.st. Warszawy | 143 obszary MSI (osiedla), WGS84, `coverage_simplify` 4 m; kopia w `application/public/data/osiedla.geojson`; pobrane 2026-10-17 |
-| `samples/warsaw_grid_sample.geojson` | generated | n/a | 917 cells (200 m), Mokotów / Śródmieście patch |
-| `samples/cell_metrics_sample.json` | generated demo | n/a | Synthetic persona scores for 897 of the 917 sample cells (re-keyed from the 1 km demo; 20 cells on the southern edge have no entry) |
-| `samples/poi_sample.geojson` | synthetic | n/a | 3 POI for layer spike |
-| _TBD_ `poi/transit.geojson` | `lokalizacja-przystanow-komunikacji-miejskiej` | UM open data | |
-| _TBD_ `grid/cell_metrics.json` | ETL aggregates | n/a | Production metrics |
-
-Raw API dumps → `data/raw/` (gitignored). Large exports: LFS or external link.
+Kanoniczny spis wszystkich plików z danymi, ich źródeł, licencji i metryk: [`docs/data/katalog-danych.md`](../docs/data/katalog-danych.md), generowany z [`catalog.json`](catalog.json). Każdy commitowany plik `.json`/`.geojson` w `data/` i `application/public/data/` musi być tam zarejestrowany (sprawdza `python3 data/scripts/validate_data.py`).
 
 ## Imported from `origin/mikolaj` (city-wide real data)
 

@@ -2,6 +2,8 @@
 
 Zweryfikowane **2026-10-17** (Mati + agent). Najpierw sprawdź tutaj, zanim zaczniesz szukać danych od zera. Gdy znajdziesz coś nowego albo coś przestanie działać, dopisz wiersz.
 
+> Ten plik opisuje, jak wywoływać API i jakie mają pułapki. **Spis źródeł, zbiorów i metryk używanych w produkcie** jest w [`katalog-danych.md`](katalog-danych.md) (generowany z `data/catalog.json`).
+
 Legenda: ✅ działa i jest użyte w `data/scripts/siatka` · ✔️ działa, jeszcze nieużyte · ⚠️ działa z zastrzeżeniami · ❌ nie działa / brak dostępu
 
 ## 1. Portal dane.um.warszawa.pl (wymagany przez regulamin)

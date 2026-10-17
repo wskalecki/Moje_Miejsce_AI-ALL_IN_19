@@ -29,7 +29,7 @@ You own files under `data/` and schemas in `docs/data/`. The React app loads pat
 
 1. Run `python3 data/scripts/validate_data.py`.
 2. Update [`data/manifest.json`](../../data/manifest.json) `files` and `bbox` if needed.
-3. Add a row to [`data/README.md`](../../data/README.md) inventory (source URL, license, date).
+3. Register the source, dataset, metrics and output files in [`data/catalog.json`](../../data/catalog.json), then run `python3 data/scripts/data_catalog.py --render` (writes `docs/data/katalog-danych.md`). No scraped, synthetic or hand-tuned values.
 4. Map API fields to catalog **`source`** slug — see poi-schema mapping table.
 
 ## Rules

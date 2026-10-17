@@ -4,6 +4,8 @@
 !README.md
 !.gitkeep
 !manifest.json
+# Data catalog: sources, datasets, metrics, outputs (docs/data/katalog-danych.md)
+!catalog.json
 !samples/
 !samples/**
 !scripts/

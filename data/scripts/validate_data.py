@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Basic validation for grid, metrics, POI, and manifest."""
+"""Basic validation for grid, metrics, POI, and manifest, plus the data catalog checks."""
 
 from __future__ import annotations
 
@@ -7,10 +7,13 @@ import json
 import sys
 from pathlib import Path
 
+from data_catalog import CATALOG_PATH, check_repo
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "data"
 
-PERSONAS = ("kasia", "marek", "ania_tomek")
+# Personas are defined once, in the catalog policy.
+PERSONAS = tuple(json.loads((REPO_ROOT / CATALOG_PATH).read_text(encoding="utf-8"))["policy"]["personas"])
 POI_CATEGORIES = {
     "transit",
     "education",
@@ -121,6 +124,8 @@ def main() -> int:
             if poi_path.exists():
                 validate_poi(poi_path, errors)
         validate_manifest(manifest_path, errors)
+
+    errors += check_repo(REPO_ROOT)
 
     if errors:
         for e in errors:

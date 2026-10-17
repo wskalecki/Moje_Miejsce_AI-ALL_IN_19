@@ -1,0 +1,2826 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-10-17",
+  "policy": {
+    "allowedSourceKinds": [
+      "city",
+      "public",
+      "open"
+    ],
+    "allowedStatuses": [
+      "REAL",
+      "DERIVED"
+    ],
+    "forbiddenKeys": [
+      "scrapedAt",
+      "rentCount",
+      "buyCount"
+    ],
+    "forbiddenSourceNames": [
+      "otodom",
+      "adresowo",
+      "domiporta",
+      "sonarhome",
+      "znajdznajem",
+      "znajdź najem",
+      "morizon",
+      "domus global",
+      "domusglobal"
+    ],
+    "personas": [
+      "student",
+      "rodzina",
+      "senior"
+    ]
+  },
+  "sources": [
+    {
+      "id": "um_portal",
+      "name": "Portal otwartych danych m.st. Warszawy (API)",
+      "publisher": "Urząd m.st. Warszawy",
+      "kind": "city",
+      "url": "https://dane.um.warszawa.pl",
+      "licence": "CC BY — Urząd m.st. Warszawy",
+      "access": "POST https://dane.um.warszawa.pl/api/action/get_<akcja>, nagłówek Authorization: <klucz> (UM_WARSZAWA_API_KEY)"
+    },
+    {
+      "id": "um_wfs",
+      "name": "Usługi mapowe m.st. Warszawy (WFS)",
+      "publisher": "Urząd m.st. Warszawy",
+      "kind": "city",
+      "url": "https://wfs.um.warszawa.pl/serwis",
+      "licence": "Ponowne wykorzystanie bezpłatne; podać źródło: Urząd m.st. Warszawy",
+      "access": "WFS bez klucza"
+    },
+    {
+      "id": "um_rcn",
+      "name": "Rejestr Cen Nieruchomości m.st. Warszawy (paczki GML)",
+      "publisher": "Urząd m.st. Warszawy, Biuro Geodezji i Katastru",
+      "kind": "city",
+      "url": "https://architektura.um.warszawa.pl/udostepniane-dane-rcn1",
+      "licence": "Bezpłatny od 13.02.2026 (art. 40a ust. 2 pkt 1 lit. k PGiK); podać źródło"
+    },
+    {
+      "id": "gugik",
+      "name": "Główny Urząd Geodezji i Kartografii (WFS RCN ms:lokale)",
+      "publisher": "GUGiK",
+      "kind": "public",
+      "url": "https://www.geoportal.gov.pl",
+      "licence": "Bezpłatny od 13.02.2026; podać źródło"
+    },
+    {
+      "id": "gios",
+      "name": "GIOŚ HAŁAS API (strategiczne mapy hałasu)",
+      "publisher": "Główny Inspektorat Ochrony Środowiska",
+      "kind": "public",
+      "url": "https://dane.gios.gov.pl/api/halas/v1/zasiegi-halasu",
+      "licence": "CC BY 4.0 — GIOŚ"
+    },
+    {
+      "id": "ztm_gtfs",
+      "name": "Rozkład jazdy ZTM Warszawa w formacie GTFS (mirror M. Kuranowskiego)",
+      "publisher": "ZTM Warszawa (dane), Mikołaj Kuranowski (konwersja GTFS)",
+      "kind": "public",
+      "url": "https://mkuran.pl/gtfs/warsaw.zip",
+      "licence": "Dane ZTM Warszawa; podać ZTM i autora konwersji",
+      "notes": "Społecznościowa konwersja oficjalnego rozkładu ZTM. Do potwierdzenia przez zespół, czy szukamy feedu publikowanego przez ZTM."
+    },
+    {
+      "id": "osm",
+      "name": "OpenStreetMap (Overpass API)",
+      "publisher": "Fundacja OpenStreetMap i współtwórcy",
+      "kind": "open",
+      "url": "https://www.openstreetmap.org/copyright",
+      "licence": "ODbL 1.0 — © współtwórcy OpenStreetMap",
+      "notes": "Tylko tam, gdzie miasto nie ma aktualnej warstwy (szkoły, przychodnie, apteki, sklepy, zieleń, gastronomia); uzasadnienia w docs/data/zrodla-danych.md §4."
+    },
+    {
+      "id": "osm_geofabrik",
+      "name": "OpenStreetMap, wyciąg Geofabrik mazowieckie-latest.osm.pbf",
+      "publisher": "Geofabrik GmbH (wyciąg), współtwórcy OpenStreetMap",
+      "kind": "open",
+      "url": "https://download.geofabrik.de/europe/poland/mazowieckie-latest.osm.pbf",
+      "licence": "ODbL 1.0 — © współtwórcy OpenStreetMap"
+    },
+    {
+      "id": "osrm",
+      "name": "OSRM FOSSGIS (routing.openstreetmap.de, profile foot i bike)",
+      "publisher": "FOSSGIS e.V.",
+      "kind": "open",
+      "url": "https://routing.openstreetmap.de",
+      "licence": "ODbL 1.0 — © współtwórcy OpenStreetMap (dane drogowe)"
+    },
+    {
+      "id": "nominatim",
+      "name": "Nominatim (geokoder OpenStreetMap)",
+      "publisher": "Fundacja OpenStreetMap",
+      "kind": "open",
+      "url": "https://nominatim.openstreetmap.org",
+      "licence": "ODbL 1.0 — © współtwórcy OpenStreetMap"
+    },
+    {
+      "id": "wikimedia",
+      "name": "Wikimedia Commons (zdjęcia osiedli)",
+      "publisher": "Wikimedia Foundation i autorzy",
+      "kind": "open",
+      "url": "https://commons.wikimedia.org",
+      "licence": "Licencje CC wg pliku; autor i licencja w application/public/osiedla/credits.json"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "um_stops",
+      "source": "um_portal",
+      "title": "Lokalizacja przystanków komunikacji miejskiej",
+      "access": "zbiór lokalizacja-przystankow-komunikacji-miejskiej, akcja get_ztm_przystanki_komunikacji_miejskiej",
+      "script": "data/scripts/etl_przystanki.py",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "um_toilets",
+      "source": "um_portal",
+      "title": "Toalety publiczne",
+      "access": "zbiór toalety, akcja get_m_toalety",
+      "script": "data/scripts/etl_toalety.py",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "um_aed",
+      "source": "um_portal",
+      "title": "Lokalizacja defibrylatorów AED",
+      "access": "zbiór lokalizacja-defibryzatorow-aed, akcja get_scb_lokalizacja_defibrylatorow",
+      "script": "data/scripts/etl_aed.py",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "um_pitches",
+      "source": "um_portal",
+      "title": "Otwarte boiska szkolne",
+      "access": "zbiór otwarte-boiska, akcja get_be_otwarte_boiska",
+      "script": "data/scripts/etl_boiska.py",
+      "period": "pobrano 2026-10-17",
+      "notes": "Brak współrzędnych w źródle; geokodowane miejskimi punktami adresowymi (wfs_address_points)."
+    },
+    {
+      "id": "um_sport_classes",
+      "source": "um_portal",
+      "title": "Zajęcia sportowe",
+      "access": "zbiór zajecia-sportowe, akcja get_bmm_zajecia_sportowe",
+      "script": "data/scripts/etl_zajecia_sportowe.py",
+      "period": "pobrano 2026-10-17",
+      "notes": "Geokodowane adresem w dzielnicy zajęć (wfs_address_points); zajęcia z samą dzielnicą są pomijane."
+    },
+    {
+      "id": "um_air_quality",
+      "source": "um_portal",
+      "title": "Monitoring jakości powietrza",
+      "access": "zbiór monitoring-jakosci-powietrza, akcja get_bopipk_monitoring_jakosci_powietrza",
+      "script": "data/scripts/etl_powietrze.py",
+      "period": "pomiar 2026-10-17T16:30:00",
+      "notes": "Stan bieżący (ostatnia godzina), bez historii."
+    },
+    {
+      "id": "um_events",
+      "source": "um_portal",
+      "title": "Kalendarz wydarzeń",
+      "access": "zbiór kalendarz-wydarzen, akcja get_bmm_kalendarz_wydarzen",
+      "script": "data/scripts/etl_wydarzenia.py",
+      "period": "okno 2026-10-17 – 2026-11-16"
+    },
+    {
+      "id": "um_road_works",
+      "source": "um_portal",
+      "title": "Utrudnienia w ruchu drogowym",
+      "access": "zbiór utrudnienia-w-ruchu-drogowym, akcja get_bin_utrudnienia_drogowe",
+      "script": "data/scripts/etl_utrudnienia.py",
+      "period": "stan 2026-10-17",
+      "notes": "Roboty i zdarzenia drogowe, nie natężenie ruchu."
+    },
+    {
+      "id": "um_bo",
+      "source": "um_portal",
+      "title": "Budżet obywatelski 2019–2027",
+      "access": "zbiór budzet-obywatelski, akcja get_cks_budzet_obywatelski",
+      "script": "data/scripts/etl_budzet_obywatelski.py",
+      "period": "edycje 2019–2027",
+      "notes": "Tylko projekty w realizacji i zrealizowane. Surowe dane zawierają nazwiska autorów (RODO): w repo tylko oczyszczony wynik."
+    },
+    {
+      "id": "um_tourist_routes",
+      "source": "um_portal",
+      "title": "Trasy turystyczne",
+      "access": "zbiór trasy-turystyczne, akcja get_sbt_trasy_turystyczne",
+      "script": "data/scripts/etl_trasy_turystyczne.py",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "um_ecopoints",
+      "source": "um_portal",
+      "title": "Eko-punkty",
+      "access": "zbiór eko-punkty, akcja get_bos_ekopunkty",
+      "script": "data/scripts/etl_ekopunkty.py",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "um_parking",
+      "source": "um_portal",
+      "title": "Wolne miejsca parkingowe",
+      "access": "zbiór wolne-miejsca-parkingowe, akcja get_m_parkingi_wolne_miejsca",
+      "script": "data/scripts/etl_parkingi.py",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "um_weather",
+      "source": "um_portal",
+      "title": "Pogoda (stacje ZOM)",
+      "access": "zbiór pogoda, akcja get_zom_pogoda",
+      "script": "data/scripts/etl_pogoda.py",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "wfs_districts",
+      "source": "um_wfs",
+      "title": "Granice dzielnic",
+      "access": "warstwa ns92528565:GRANICE_DZIELNIC",
+      "script": "data/scripts/fetch_district_boundaries.py",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "wfs_msi",
+      "source": "um_wfs",
+      "title": "Obszary Miejskiego Systemu Informacji (osiedla)",
+      "access": "warstwa ns92528565:MSI",
+      "script": "data/scripts/fetch_osiedla_boundaries.py",
+      "period": "aktualność maj 2026"
+    },
+    {
+      "id": "wfs_libraries",
+      "source": "um_wfs",
+      "title": "Biblioteki",
+      "access": "warstwa ns92528565:BIBLIOTEKI",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "wfs_utw",
+      "source": "um_wfs",
+      "title": "Uniwersytety trzeciego wieku",
+      "access": "warstwa ns92528565:UNIWERSYTETY_TRZECIEGO_WIEKU",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "wfs_metro_entrances",
+      "source": "um_wfs",
+      "title": "Wejścia do metra",
+      "access": "warstwa wfs:METRO_WEJSCIA",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "wfs_address_points",
+      "source": "um_wfs",
+      "title": "Punkty adresowe",
+      "access": "warstwa wfs:punkty_adresowe",
+      "script": "data/scripts/geocode_address.py",
+      "period": "pobrano 2026-10-17",
+      "notes": "Geokodowanie adresów i punkt odniesienia osiedla."
+    },
+    {
+      "id": "wfs_buildings",
+      "source": "um_wfs",
+      "title": "Rejestr budynków (EGiB)",
+      "access": "warstwa wfs:budynki",
+      "script": "data/scripts/build_kwartal_metrics.py",
+      "period": "pobrano 2026-10-17",
+      "notes": "Brak roku budowy w rejestrze."
+    },
+    {
+      "id": "rcn_city",
+      "source": "um_rcn",
+      "title": "Transakcje lokali mieszkalnych (RCN)",
+      "access": "paczki zbior_danych_rciwn_2026_20261005.zip, zbior_danych_rcn_2023.zip, zbior_danych_rcn_2024.zip, zbior_danych_rcn_2025.zip",
+      "script": "data/scripts/rcn/fetch_rcn.py",
+      "period": "akty 2023 – IV 2026 (ok. 6 miesięcy opóźnienia)",
+      "notes": "Filtry: lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2"
+    },
+    {
+      "id": "rcn_gugik",
+      "source": "gugik",
+      "title": "Transakcje lokali (RCN, WFS ms:lokale)",
+      "access": "WFS ms:lokale, pobieranie po BBOX w EPSG:2180",
+      "script": "data/scripts/rcn/fetch_rcn.py",
+      "period": "akty od 2024",
+      "notes": "Te same rekordy co paczki miasta; użyte dla poligonów MSI wyróżnionych osiedli."
+    },
+    {
+      "id": "gios_noise_lden",
+      "source": "gios",
+      "title": "Zasięgi hałasu Lden (SMH 2022, 4. runda), drogi i kolej z tramwajem",
+      "access": "wojewodztwo=MAZOWIECKIE, rundaMapowania=4 Runda Mapowania, wskaznik=LDWN, zrodloHalasu=Hałas drogowy / kolejowy wewnątrz aglomeracji",
+      "script": "data/scripts/noise/fetch_gios_noise.py",
+      "period": "dane 2021 (runda 2022)",
+      "notes": "Model, nie pomiar; wysokość 4 m; poniżej 55 dB brak konturów; 2021 to rok pandemii; brak warstw lotniska i przemysłu w użyciu."
+    },
+    {
+      "id": "gtfs_warsaw",
+      "source": "ztm_gtfs",
+      "title": "Rozkład jazdy ZTM (GTFS)",
+      "access": "warsaw.zip",
+      "script": "data/scripts/gtfs_feed.py",
+      "period": "feed z 2026-10-17, dzień roboczy 2026-10-19"
+    },
+    {
+      "id": "osm_kindergarten",
+      "source": "osm",
+      "title": "Przedszkola",
+      "access": "Overpass: amenity=kindergarten, obszar Warszawy",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "osm_school_primary",
+      "source": "osm",
+      "title": "Szkoły podstawowe",
+      "access": "Overpass: amenity=school, nazwa zawiera „podstawow” lub „SP <nr>” albo isced:level zawiera 1, obszar Warszawy",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "osm_school_secondary",
+      "source": "osm",
+      "title": "Szkoły średnie",
+      "access": "Overpass: amenity=school, nazwa zawiera „liceum”, „technikum” lub „LO”, obszar Warszawy",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "osm_university",
+      "source": "osm",
+      "title": "Uczelnie",
+      "access": "Overpass: amenity=university, obszar Warszawy",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "osm_clinic",
+      "source": "osm",
+      "title": "Przychodnie i gabinety lekarskie",
+      "access": "Overpass: amenity=clinic lub amenity=doctors, obszar Warszawy",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17",
+      "notes": "Miejska warstwa jest z 2017 r."
+    },
+    {
+      "id": "osm_pharmacy",
+      "source": "osm",
+      "title": "Apteki",
+      "access": "Overpass: amenity=pharmacy, obszar Warszawy",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17",
+      "notes": "Miejska warstwa jest z 2017 r."
+    },
+    {
+      "id": "osm_supermarket",
+      "source": "osm",
+      "title": "Supermarkety",
+      "access": "Overpass: shop=supermarket, obszar Warszawy",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "osm_playground",
+      "source": "osm",
+      "title": "Place zabaw",
+      "access": "Overpass: leisure=playground, obszar Warszawy",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "osm_parks",
+      "source": "osm",
+      "title": "Parki i lasy",
+      "access": "Overpass: leisure=park, landuse=forest, natural=wood; poligony ≥ 1 ha, obszar Warszawy",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "osm_gastronomy",
+      "source": "osm",
+      "title": "Gastronomia",
+      "access": "Overpass: amenity=restaurant|cafe|bar|pub, obszar Warszawy",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "osm_tram_stops",
+      "source": "osm",
+      "title": "Przystanki tramwajowe",
+      "access": "Overpass: railway=tram_stop, obszar Warszawy",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "osm_planned_rail",
+      "source": "osm",
+      "title": "Planowane linie metra i tramwaju",
+      "access": "Overpass: railway=construction|proposed, obszar Warszawy",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "osm_streets",
+      "source": "osm",
+      "title": "Sieć ulic, kolej i rzeki (do wyznaczenia kwartałów)",
+      "access": "Overpass: highway motorway…living_street + pedestrian, railway, waterway river|canal",
+      "script": "data/scripts/fetch_osiedla_fine.py",
+      "period": "pobrano 2026-10-17"
+    },
+    {
+      "id": "osm_3d",
+      "source": "osm_geofabrik",
+      "title": "Budynki, drogi, zieleń i woda dla 3 osiedli (widok 3D)",
+      "access": "mazowieckie-latest.osm.pbf, przycięte do obszarów",
+      "script": "data/scripts/osm3d/extract_osm.py",
+      "period": "wyciąg z 2026-10-17"
+    },
+    {
+      "id": "osrm_routes",
+      "source": "osrm",
+      "title": "Trasy piesze i rowerowe dla wyróżnionych osiedli",
+      "access": "routed-foot, routed-bike",
+      "script": "data/scripts/build_featured_content.py",
+      "period": "zapytania 2026-10-17"
+    },
+    {
+      "id": "nominatim_places",
+      "source": "nominatim",
+      "title": "Nazwy i adresy miejsc wyróżnionych osiedli",
+      "access": "wyszukiwanie po nazwie i współrzędnych",
+      "script": "data/scripts/build_featured_content.py",
+      "period": "zapytania 2026-10-17"
+    },
+    {
+      "id": "commons_photos",
+      "source": "wikimedia",
+      "title": "Zdjęcia wyróżnionych osiedli",
+      "access": "API Commons (miniatury 1600 px)",
+      "script": "ręcznie, metadane w application/public/osiedla/credits.json",
+      "period": "pobrano 2026-10-17"
+    }
+  ],
+  "methods": [
+    {
+      "id": "count_in",
+      "definition": "liczba obiektów wewnątrz granicy osiedla (MSI)"
+    },
+    {
+      "id": "count_1km",
+      "definition": "liczba obiektów w promieniu 1 km od punktu odniesienia osiedla (punkt adresowy najbliższy średniej wszystkich punktów adresowych osiedla)"
+    },
+    {
+      "id": "sum_1km",
+      "definition": "suma wartości obiektów w promieniu 1 km od punktu odniesienia"
+    },
+    {
+      "id": "sum_in",
+      "definition": "suma wartości obiektów wewnątrz granicy osiedla"
+    },
+    {
+      "id": "unique_1km",
+      "definition": "liczba unikalnych wartości w promieniu 1 km od punktu odniesienia"
+    },
+    {
+      "id": "nearest_m",
+      "definition": "odległość w linii prostej od punktu odniesienia do najbliższego obiektu (m)"
+    },
+    {
+      "id": "area_share",
+      "definition": "udział powierzchni osiedla (%)"
+    },
+    {
+      "id": "area_share_1km",
+      "definition": "udział powierzchni koła o promieniu 1 km wokół punktu odniesienia (%)"
+    },
+    {
+      "id": "nearest_value",
+      "definition": "wartość z najbliższego czujnika"
+    },
+    {
+      "id": "median_cells",
+      "definition": "mediana z komórek 200 m, których środek leży w osiedlu"
+    },
+    {
+      "id": "percentile_rank",
+      "definition": "ranga percentylowa (0–100) wartości wśród 143 osiedli (albo punktów heatmapy), kierunek wg higher_is_better"
+    },
+    {
+      "id": "weighted_mean",
+      "definition": "średnia ważona składowych z wagami podanymi w definicji"
+    },
+    {
+      "id": "template",
+      "definition": "stały szablon zdań wypełniany liczbami z metryk (bez ręcznie pisanych treści)"
+    },
+    {
+      "id": "kwartal_field",
+      "definition": "wartość liczona dla kwartału od jego punktu odniesienia (środek ciężkości albo punkt na powierzchni)"
+    },
+    {
+      "id": "gtfs_routing",
+      "definition": "router na rozkładzie GTFS: najpóźniejszy wyjazd z komórki pozwalający dojechać na termin; czas = termin − wyjazd"
+    },
+    {
+      "id": "schedule_slowdown",
+      "definition": "spowolnienie rozkładowe: 1 − prędkość w danej godzinie / najwyższa godzinowa prędkość odcinka, z rozkładu ZTM"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "osiedle.kindergartens_in",
+      "label": "Przedszkola",
+      "definition": "Liczba przedszkoli (OSM amenity=kindergarten) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "osm_kindergarten",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.kindergartens_1km",
+      "label": "Przedszkola",
+      "definition": "Liczba przedszkoli (OSM amenity=kindergarten) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "osm_kindergarten",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.schools_in",
+      "label": "Szkoły podstawowe",
+      "definition": "Liczba szkół podstawowych (OSM amenity=school; nazwa „podstawow”/„SP <nr>” albo isced:level 1) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "osm_school_primary",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.schools_1km",
+      "label": "Szkoły podstawowe",
+      "definition": "Liczba szkół podstawowych (OSM amenity=school; nazwa „podstawow”/„SP <nr>” albo isced:level 1) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "osm_school_primary",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.high_schools_in",
+      "label": "Szkoły średnie",
+      "definition": "Liczba szkół średnich (OSM amenity=school; nazwa „liceum”, „technikum” albo „LO”) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "osm_school_secondary",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.high_schools_1km",
+      "label": "Szkoły średnie",
+      "definition": "Liczba szkół średnich (OSM amenity=school; nazwa „liceum”, „technikum” albo „LO”) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "osm_school_secondary",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.universities_in",
+      "label": "Uczelnie",
+      "definition": "Liczba uczelni (OSM amenity=university) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "osm_university",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.universities_1km",
+      "label": "Uczelnie",
+      "definition": "Liczba uczelni (OSM amenity=university) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "osm_university",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.clinics_in",
+      "label": "Przychodnie i gabinety lekarskie",
+      "definition": "Liczba przychodni i gabinetów lekarskich (OSM amenity=clinic lub doctors) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "osm_clinic",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.clinics_1km",
+      "label": "Przychodnie i gabinety lekarskie",
+      "definition": "Liczba przychodni i gabinetów lekarskich (OSM amenity=clinic lub doctors) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "osm_clinic",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.pharmacies_in",
+      "label": "Apteki",
+      "definition": "Liczba aptek (OSM amenity=pharmacy) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "osm_pharmacy",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.pharmacies_1km",
+      "label": "Apteki",
+      "definition": "Liczba aptek (OSM amenity=pharmacy) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "osm_pharmacy",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.supermarkets_in",
+      "label": "Supermarkety",
+      "definition": "Liczba supermarketów (OSM shop=supermarket) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "osm_supermarket",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.supermarkets_1km",
+      "label": "Supermarkety",
+      "definition": "Liczba supermarketów (OSM shop=supermarket) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "osm_supermarket",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.gastronomy_in",
+      "label": "Gastronomia (restauracje, kawiarnie, bary, puby)",
+      "definition": "Liczba lokali gastronomicznych (OSM amenity=restaurant, cafe, bar lub pub) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "osm_gastronomy",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.gastronomy_1km",
+      "label": "Gastronomia (restauracje, kawiarnie, bary, puby)",
+      "definition": "Liczba lokali gastronomicznych (OSM amenity=restaurant, cafe, bar lub pub) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "osm_gastronomy",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.bars_pubs_in",
+      "label": "Bary i puby",
+      "definition": "Liczba barów i pubów (OSM amenity=bar lub pub) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "osm_gastronomy",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.bars_pubs_1km",
+      "label": "Bary i puby",
+      "definition": "Liczba barów i pubów (OSM amenity=bar lub pub) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "osm_gastronomy",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.playgrounds_in",
+      "label": "Place zabaw",
+      "definition": "Liczba placów zabaw (OSM leisure=playground) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "osm_playground",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.playgrounds_1km",
+      "label": "Place zabaw",
+      "definition": "Liczba placów zabaw (OSM leisure=playground) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "osm_playground",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.libraries_in",
+      "label": "Biblioteki",
+      "definition": "Liczba bibliotek (WFS miasta, BIBLIOTEKI) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "wfs_libraries",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.libraries_1km",
+      "label": "Biblioteki",
+      "definition": "Liczba bibliotek (WFS miasta, BIBLIOTEKI) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "wfs_address_points",
+        "wfs_libraries",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.utw_in",
+      "label": "Uniwersytety trzeciego wieku",
+      "definition": "Liczba uniwersytetów trzeciego wieku (WFS miasta, UNIWERSYTETY_TRZECIEGO_WIEKU) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.utw_1km",
+      "label": "Uniwersytety trzeciego wieku",
+      "definition": "Liczba uniwersytetów trzeciego wieku (WFS miasta, UNIWERSYTETY_TRZECIEGO_WIEKU) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "wfs_address_points",
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.events_30d_in",
+      "label": "Punkty wydarzeń w ciągu 30 dni",
+      "definition": "Liczba punktów wydarzeń z kalendarza miasta w oknie 2026-10-17 – 2026-11-16 wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "um_events",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.events_30d_1km",
+      "label": "Punkty wydarzeń w ciągu 30 dni",
+      "definition": "Liczba punktów wydarzeń z kalendarza miasta w oknie 2026-10-17 – 2026-11-16 w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "um_events",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.aed_in",
+      "label": "Defibrylatory AED",
+      "definition": "Liczba defibrylatorów AED (portal miasta) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "um_aed",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.aed_1km",
+      "label": "Defibrylatory AED",
+      "definition": "Liczba defibrylatorów AED (portal miasta) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "um_aed",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.stops_in",
+      "label": "Przystanki (słupki) autobus/tramwaj",
+      "definition": "Liczba słupków przystankowych autobusów i tramwajów (portal miasta) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "gtfs_warsaw",
+        "um_stops",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.stops_1km",
+      "label": "Przystanki (słupki) autobus/tramwaj",
+      "definition": "Liczba słupków przystankowych autobusów i tramwajów (portal miasta) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "gtfs_warsaw",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.pitches_in",
+      "label": "Szkoły z otwartymi boiskami",
+      "definition": "Liczba szkół z otwartymi boiskami (portal miasta, geokodowane punktami adresowymi) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "um_pitches",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.pitches_1km",
+      "label": "Szkoły z otwartymi boiskami",
+      "definition": "Liczba szkół z otwartymi boiskami (portal miasta, geokodowane punktami adresowymi) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "um_pitches",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.sports_classes_in",
+      "label": "Zajęcia sportowe (oferty)",
+      "definition": "Liczba ofert zajęć sportowych z adresem (portal miasta, geokodowane punktami adresowymi) wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "um_sport_classes",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.sports_classes_1km",
+      "label": "Zajęcia sportowe (oferty)",
+      "definition": "Liczba ofert zajęć sportowych z adresem (portal miasta, geokodowane punktami adresowymi) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "um_sport_classes",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.bo_projects_in",
+      "label": "Projekty budżetu obywatelskiego 2019–2027 (lokalizacje)",
+      "definition": "Liczba lokalizacji projektów budżetu obywatelskiego 2019–2027 w realizacji lub zrealizowanych wewnątrz granicy osiedla (obszar MSI).",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "um_bo",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.bo_projects_1km",
+      "label": "Projekty budżetu obywatelskiego 2019–2027 (lokalizacje)",
+      "definition": "Liczba lokalizacji projektów budżetu obywatelskiego 2019–2027 w realizacji lub zrealizowanych w promieniu 1 km (linia prosta) od punktu odniesienia osiedla.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "um_bo",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.metro_dist_m",
+      "label": "Najbliższa stacja metra",
+      "definition": "Odległość w linii prostej od punktu odniesienia osiedla do najbliższej stacji metra (ZTM GTFS).",
+      "unit": "m",
+      "method": "nearest_m",
+      "datasets": [
+        "gtfs_warsaw",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.rail_dist_m",
+      "label": "Najbliższa stacja kolei (SKM/KM)",
+      "definition": "Odległość w linii prostej od punktu odniesienia osiedla do najbliższej stacji SKM lub KM (ZTM GTFS).",
+      "unit": "m",
+      "method": "nearest_m",
+      "datasets": [
+        "gtfs_warsaw",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.kindergarten_dist_m",
+      "label": "Najbliższe przedszkole",
+      "definition": "Odległość w linii prostej od punktu odniesienia do najbliższego przedszkola (OSM).",
+      "unit": "m",
+      "method": "nearest_m",
+      "datasets": [
+        "osm_kindergarten",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.school_dist_m",
+      "label": "Najbliższa szkoła podstawowa",
+      "definition": "Odległość w linii prostej od punktu odniesienia do najbliższej szkoły podstawowej (OSM).",
+      "unit": "m",
+      "method": "nearest_m",
+      "datasets": [
+        "osm_school_primary",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.clinic_dist_m",
+      "label": "Najbliższa przychodnia",
+      "definition": "Odległość w linii prostej od punktu odniesienia do najbliższej przychodni lub gabinetu (OSM).",
+      "unit": "m",
+      "method": "nearest_m",
+      "datasets": [
+        "osm_clinic",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.pharmacy_dist_m",
+      "label": "Najbliższa apteka",
+      "definition": "Odległość w linii prostej od punktu odniesienia do najbliższej apteki (OSM).",
+      "unit": "m",
+      "method": "nearest_m",
+      "datasets": [
+        "osm_pharmacy",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.supermarket_dist_m",
+      "label": "Najbliższy supermarket",
+      "definition": "Odległość w linii prostej od punktu odniesienia do najbliższego supermarketu (OSM).",
+      "unit": "m",
+      "method": "nearest_m",
+      "datasets": [
+        "osm_supermarket",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.departures_1km",
+      "label": "Odjazdy w dzień roboczy z przystanków w 1 km",
+      "definition": "Suma odjazdów w dniu roboczym 2026-10-19 ze wszystkich słupków w promieniu 1 km od punktu odniesienia (rozkład ZTM).",
+      "unit": "odjazdy/dzień",
+      "method": "sum_1km",
+      "datasets": [
+        "gtfs_warsaw",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.departures_in",
+      "label": "Odjazdy w dzień roboczy z przystanków w osiedlu",
+      "definition": "Suma odjazdów w dniu roboczym 2026-10-19 ze słupków wewnątrz granicy osiedla (rozkład ZTM).",
+      "unit": "odjazdy/dzień",
+      "method": "sum_in",
+      "datasets": [
+        "gtfs_warsaw",
+        "um_stops",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.lines_1km",
+      "label": "Linie autobusowe i tramwajowe w 1 km",
+      "definition": "Liczba różnych linii autobusowych i tramwajowych zatrzymujących się na słupkach w promieniu 1 km.",
+      "unit": "linie",
+      "method": "unique_1km",
+      "datasets": [
+        "gtfs_warsaw",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.sport_venues_1km",
+      "label": "Miejsca zajęć sportowych",
+      "definition": "Liczba różnych adresów zajęć sportowych w promieniu 1 km od punktu odniesienia.",
+      "unit": "szt.",
+      "method": "unique_1km",
+      "datasets": [
+        "um_sport_classes",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.pitch_objects_1km",
+      "label": "Boiska w szkołach (obiekty)",
+      "definition": "Suma obiektów sportowych (boisk) w szkołach z otwartymi boiskami w promieniu 1 km.",
+      "unit": "szt.",
+      "method": "sum_1km",
+      "datasets": [
+        "um_pitches",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.bo_cost_in_zl",
+      "label": "Koszt projektów BO w osiedlu",
+      "definition": "Suma kosztów projektów budżetu obywatelskiego 2019–2027 (w realizacji i zrealizowanych) zlokalizowanych w osiedlu.",
+      "unit": "zł",
+      "method": "sum_in",
+      "datasets": [
+        "um_bo",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.bo_cost_1km_zl",
+      "label": "Koszt projektów BO w 1 km",
+      "definition": "Suma kosztów projektów budżetu obywatelskiego 2019–2027 w promieniu 1 km od punktu odniesienia.",
+      "unit": "zł",
+      "method": "sum_1km",
+      "datasets": [
+        "um_bo",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.green_share",
+      "label": "Parki i lasy (≥ 1 ha)",
+      "definition": "Udział powierzchni osiedla pokrytej parkami i lasami OSM o powierzchni ≥ 1 ha.",
+      "unit": "%",
+      "method": "area_share",
+      "datasets": [
+        "osm_parks",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.green_share_1km",
+      "label": "Parki i lasy (≥ 1 ha) w 1 km",
+      "definition": "Udział powierzchni koła o promieniu 1 km wokół punktu odniesienia pokrytej parkami i lasami ≥ 1 ha.",
+      "unit": "%",
+      "method": "area_share_1km",
+      "datasets": [
+        "osm_parks",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.green_dist_m",
+      "label": "Najbliższy park lub las (krawędź, ≥ 1 ha)",
+      "definition": "Odległość w linii prostej od punktu odniesienia do krawędzi najbliższego parku lub lasu ≥ 1 ha (0 w środku).",
+      "unit": "m",
+      "method": "nearest_m",
+      "datasets": [
+        "osm_parks",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+    },
+    {
+      "id": "osiedle.pm25_ugm3",
+      "label": "PM2.5",
+      "definition": "Stężenie PM2.5 z najbliższego czujnika, pomiar godzinowy 2026-10-17T16:30:00.",
+      "unit": "µg/m³",
+      "method": "nearest_value",
+      "datasets": [
+        "um_air_quality",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Jeden pomiar godzinowy, bez uśrednienia."
+    },
+    {
+      "id": "osiedle.pm25_sensor_dist_m",
+      "label": "Odległość do czujnika PM2.5",
+      "definition": "Odległość w linii prostej od punktu odniesienia do najbliższego czujnika PM2.5.",
+      "unit": "m",
+      "method": "nearest_m",
+      "datasets": [
+        "um_air_quality",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Jeden pomiar godzinowy, bez uśrednienia."
+    },
+    {
+      "id": "osiedle.noise_lden55_share",
+      "label": "Hałas drogowy lub kolejowy (z tramwajem) Lden ≥ 55 dB",
+      "definition": "Udział powierzchni osiedla z hałasem Lden ≥ 55 dB od dróg lub kolei (z tramwajem), suma zasięgów obu źródeł.",
+      "unit": "%",
+      "method": "area_share",
+      "datasets": [
+        "gios_noise_lden",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+    },
+    {
+      "id": "osiedle.noise_lden60_share",
+      "label": "Hałas drogowy lub kolejowy (z tramwajem) Lden ≥ 60 dB",
+      "definition": "Udział powierzchni osiedla z hałasem Lden ≥ 60 dB od dróg lub kolei (z tramwajem), suma zasięgów obu źródeł.",
+      "unit": "%",
+      "method": "area_share",
+      "datasets": [
+        "gios_noise_lden",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+    },
+    {
+      "id": "osiedle.noise_lden65_share",
+      "label": "Hałas drogowy lub kolejowy (z tramwajem) Lden ≥ 65 dB",
+      "definition": "Udział powierzchni osiedla z hałasem Lden ≥ 65 dB od dróg lub kolei (z tramwajem), suma zasięgów obu źródeł.",
+      "unit": "%",
+      "method": "area_share",
+      "datasets": [
+        "gios_noise_lden",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+    },
+    {
+      "id": "osiedle.noise_lden70_share",
+      "label": "Hałas drogowy lub kolejowy (z tramwajem) Lden ≥ 70 dB",
+      "definition": "Udział powierzchni osiedla z hałasem Lden ≥ 70 dB od dróg lub kolei (z tramwajem), suma zasięgów obu źródeł.",
+      "unit": "%",
+      "method": "area_share",
+      "datasets": [
+        "gios_noise_lden",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+    },
+    {
+      "id": "osiedle.noise_road_lden60_share",
+      "label": "Hałas drogowy Lden ≥ 60 dB",
+      "definition": "Udział powierzchni osiedla z hałasem drogowym Lden ≥ 60 dB.",
+      "unit": "%",
+      "method": "area_share",
+      "datasets": [
+        "gios_noise_lden",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+    },
+    {
+      "id": "osiedle.noise_rail_lden60_share",
+      "label": "Hałas kolejowy i tramwajowy Lden ≥ 60 dB",
+      "definition": "Udział powierzchni osiedla z hałasem kolejowym i tramwajowym Lden ≥ 60 dB.",
+      "unit": "%",
+      "method": "area_share",
+      "datasets": [
+        "gios_noise_lden",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+    },
+    {
+      "id": "osiedle.travel_centrum_wszystkie_min",
+      "label": "Dojazd do centrum (Rondo Dmowskiego), wszystkie",
+      "definition": "Mediana średniego czasu dojazdu komunikacją miejską (dowolnym środkiem) do Ronda Dmowskiego przy przyjeździe 07:30–09:00 w dniu roboczym, z komórek siatki, których środek leży w osiedlu.",
+      "unit": "min",
+      "method": "median_cells",
+      "datasets": [
+        "gtfs_warsaw",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Bez czekania na pierwszy pojazd; bez KM i WKD (Wesoła, Wawer, Ursus zawyżone)."
+    },
+    {
+      "id": "osiedle.travel_centrum_autobus_min",
+      "label": "Dojazd do centrum (Rondo Dmowskiego), autobus",
+      "definition": "Mediana średniego czasu dojazdu komunikacją miejską (tylko autobusem) do Ronda Dmowskiego przy przyjeździe 07:30–09:00 w dniu roboczym, z komórek siatki, których środek leży w osiedlu.",
+      "unit": "min",
+      "method": "median_cells",
+      "datasets": [
+        "gtfs_warsaw",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Bez czekania na pierwszy pojazd; bez KM i WKD (Wesoła, Wawer, Ursus zawyżone)."
+    },
+    {
+      "id": "osiedle.travel_centrum_tramwaj_min",
+      "label": "Dojazd do centrum (Rondo Dmowskiego), tramwaj",
+      "definition": "Mediana średniego czasu dojazdu komunikacją miejską (tylko tramwajem) do Ronda Dmowskiego przy przyjeździe 07:30–09:00 w dniu roboczym, z komórek siatki, których środek leży w osiedlu.",
+      "unit": "min",
+      "method": "median_cells",
+      "datasets": [
+        "gtfs_warsaw",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Bez czekania na pierwszy pojazd; bez KM i WKD (Wesoła, Wawer, Ursus zawyżone)."
+    },
+    {
+      "id": "osiedle.travel_centrum_metro_min",
+      "label": "Dojazd do centrum (Rondo Dmowskiego), metro",
+      "definition": "Mediana średniego czasu dojazdu komunikacją miejską (z użyciem metra) do Ronda Dmowskiego przy przyjeździe 07:30–09:00 w dniu roboczym, z komórek siatki, których środek leży w osiedlu.",
+      "unit": "min",
+      "method": "median_cells",
+      "datasets": [
+        "gtfs_warsaw",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Bez czekania na pierwszy pojazd; bez KM i WKD (Wesoła, Wawer, Ursus zawyżone)."
+    },
+    {
+      "id": "osiedle.travel_centrum_kolej_min",
+      "label": "Dojazd do centrum (Rondo Dmowskiego), kolej",
+      "definition": "Mediana średniego czasu dojazdu komunikacją miejską (z użyciem kolei) do Ronda Dmowskiego przy przyjeździe 07:30–09:00 w dniu roboczym, z komórek siatki, których środek leży w osiedlu.",
+      "unit": "min",
+      "method": "median_cells",
+      "datasets": [
+        "gtfs_warsaw",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Bez czekania na pierwszy pojazd; bez KM i WKD (Wesoła, Wawer, Ursus zawyżone)."
+    },
+    {
+      "id": "osiedle.roadworks_in",
+      "label": "Utrudnienia w ruchu (aktualne)",
+      "definition": "Liczba aktualnych utrudnień w ruchu drogowym wewnątrz granicy osiedla, liczonych raz na utrudnienie.",
+      "unit": "szt.",
+      "method": "count_in",
+      "datasets": [
+        "um_road_works",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.roadworks_1km",
+      "label": "Utrudnienia w ruchu (aktualne) w 1 km",
+      "definition": "Liczba aktualnych utrudnień w ruchu drogowym w promieniu 1 km, liczonych raz na utrudnienie.",
+      "unit": "szt.",
+      "method": "count_1km",
+      "datasets": [
+        "um_road_works",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "osiedle.blurb",
+      "label": "Zdanie w dymku osiedla",
+      "definition": "Dwie kategorie o największym wkładzie (waga profilu × wynik) i najsłabsza kategoria, wstawione w stały szablon zdań z liczbami z metryk.",
+      "unit": "tekst",
+      "method": "template",
+      "datasets": [
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Sformułowania pochodzą z szablonu, liczby z metryk osiedla."
+    },
+    {
+      "id": "kategoria.cisza",
+      "label": "Cisza",
+      "definition": "Ranga percentylowa (0–100, wśród 143 osiedli) średniej ważonej rang percentylowych metryk: noise_lden60_share × 0.45 (mniej = lepiej); noise_lden65_share × 0.25 (mniej = lepiej); gastronomy_1km × 0.15 (mniej = lepiej); departures_1km × 0.15 (mniej = lepiej).",
+      "unit": "0–100",
+      "method": "percentile_rank",
+      "datasets": [
+        "gios_noise_lden",
+        "gtfs_warsaw",
+        "osm_gastronomy",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Do zmiany (krok 4 planu): 30% wagi to zastępniki (gastronomia, odjazdy), nie pomiar hałasu; brak Lnight."
+    },
+    {
+      "id": "kategoria.zielen",
+      "label": "Zieleń",
+      "definition": "Ranga percentylowa (0–100, wśród 143 osiedli) średniej ważonej rang percentylowych metryk: green_share × 0.4 (więcej = lepiej); green_share_1km × 0.3 (więcej = lepiej); green_dist_m × 0.3 (mniej = lepiej).",
+      "unit": "0–100",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_parks",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "kategoria.komunikacja",
+      "label": "Komunikacja",
+      "definition": "Ranga percentylowa (0–100, wśród 143 osiedli) średniej ważonej rang percentylowych metryk: departures_1km × 0.3 (więcej = lepiej); lines_1km × 0.1 (więcej = lepiej); metro_dist_m × 0.2 (mniej = lepiej); rail_dist_m × 0.1 (mniej = lepiej); travel_centrum_wszystkie_min × 0.3 (mniej = lepiej).",
+      "unit": "0–100",
+      "method": "percentile_rank",
+      "datasets": [
+        "gtfs_warsaw",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "kategoria.gastronomia",
+      "label": "Gastronomia",
+      "definition": "Ranga percentylowa (0–100, wśród 143 osiedli) średniej ważonej rang percentylowych metryk: gastronomy_1km × 1.0 (więcej = lepiej).",
+      "unit": "0–100",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_gastronomy",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "kategoria.sport",
+      "label": "Sport",
+      "definition": "Ranga percentylowa (0–100, wśród 143 osiedli) średniej ważonej rang percentylowych metryk: pitches_1km × 0.45 (więcej = lepiej); sport_venues_1km × 0.35 (więcej = lepiej); playgrounds_1km × 0.2 (więcej = lepiej).",
+      "unit": "0–100",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_playground",
+        "um_pitches",
+        "um_sport_classes",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "kategoria.kultura",
+      "label": "Kultura",
+      "definition": "Ranga percentylowa (0–100, wśród 143 osiedli) średniej ważonej rang percentylowych metryk: libraries_1km × 0.4 (więcej = lepiej); events_30d_1km × 0.45 (więcej = lepiej); utw_1km × 0.15 (więcej = lepiej).",
+      "unit": "0–100",
+      "method": "percentile_rank",
+      "datasets": [
+        "um_events",
+        "wfs_address_points",
+        "wfs_libraries",
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "kategoria.edukacja",
+      "label": "Edukacja",
+      "definition": "Ranga percentylowa (0–100, wśród 143 osiedli) średniej ważonej rang percentylowych metryk: kindergartens_1km × 0.35 (więcej = lepiej); schools_1km × 0.35 (więcej = lepiej); high_schools_1km × 0.15 (więcej = lepiej); kindergarten_dist_m × 0.075 (mniej = lepiej); school_dist_m × 0.075 (mniej = lepiej).",
+      "unit": "0–100",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_kindergarten",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "kategoria.zdrowie",
+      "label": "Zdrowie",
+      "definition": "Ranga percentylowa (0–100, wśród 143 osiedli) średniej ważonej rang percentylowych metryk: clinics_1km × 0.4 (więcej = lepiej); pharmacies_1km × 0.35 (więcej = lepiej); clinic_dist_m × 0.1 (mniej = lepiej); aed_1km × 0.15 (więcej = lepiej).",
+      "unit": "0–100",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_clinic",
+        "osm_pharmacy",
+        "um_aed",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "kategoria.zakupy",
+      "label": "Zakupy",
+      "definition": "Ranga percentylowa (0–100, wśród 143 osiedli) średniej ważonej rang percentylowych metryk: supermarkets_1km × 0.7 (więcej = lepiej); supermarket_dist_m × 0.3 (mniej = lepiej).",
+      "unit": "0–100",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_supermarket",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "kategoria.zycieNocne",
+      "label": "Życie nocne",
+      "definition": "Ranga percentylowa (0–100, wśród 143 osiedli) średniej ważonej rang percentylowych metryk: bars_pubs_1km × 0.5 (więcej = lepiej); gastronomy_1km × 0.2 (więcej = lepiej); universities_1km × 0.15 (więcej = lepiej); events_30d_1km × 0.15 (więcej = lepiej).",
+      "unit": "0–100",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_gastronomy",
+        "osm_university",
+        "um_events",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": null
+    },
+    {
+      "id": "profil.student",
+      "label": "Dopasowanie profilu „student”",
+      "definition": "Średnia ważona 10 kategorii z wagami PROFILE_WEIGHTS: cisza 0.02, zielen 0.04, komunikacja 0.22, gastronomia 0.16, sport 0.1, kultura 0.12, edukacja 0.12, zdrowie 0.02, zakupy 0.06, zycieNocne 0.14.",
+      "unit": "0–100",
+      "method": "weighted_mean",
+      "datasets": [
+        "gios_noise_lden",
+        "gtfs_warsaw",
+        "osm_clinic",
+        "osm_gastronomy",
+        "osm_kindergarten",
+        "osm_parks",
+        "osm_pharmacy",
+        "osm_playground",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_supermarket",
+        "osm_university",
+        "um_aed",
+        "um_events",
+        "um_pitches",
+        "um_sport_classes",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_libraries",
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "status": "DERIVED",
+      "caveats": "Wagi to założenie produktowe (assumptions: profile_weights)."
+    },
+    {
+      "id": "profil.rodzina",
+      "label": "Dopasowanie profilu „rodzina”",
+      "definition": "Średnia ważona 10 kategorii z wagami PROFILE_WEIGHTS: cisza 0.14, zielen 0.18, komunikacja 0.1, gastronomia 0.02, sport 0.1, kultura 0.04, edukacja 0.22, zdrowie 0.1, zakupy 0.1.",
+      "unit": "0–100",
+      "method": "weighted_mean",
+      "datasets": [
+        "gios_noise_lden",
+        "gtfs_warsaw",
+        "osm_clinic",
+        "osm_gastronomy",
+        "osm_kindergarten",
+        "osm_parks",
+        "osm_pharmacy",
+        "osm_playground",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_supermarket",
+        "osm_university",
+        "um_aed",
+        "um_events",
+        "um_pitches",
+        "um_sport_classes",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_libraries",
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "status": "DERIVED",
+      "caveats": "Wagi to założenie produktowe (assumptions: profile_weights)."
+    },
+    {
+      "id": "profil.senior",
+      "label": "Dopasowanie profilu „senior”",
+      "definition": "Średnia ważona 10 kategorii z wagami PROFILE_WEIGHTS: cisza 0.16, zielen 0.14, komunikacja 0.12, gastronomia 0.04, sport 0.02, kultura 0.12, zdrowie 0.22, zakupy 0.16, zycieNocne 0.02.",
+      "unit": "0–100",
+      "method": "weighted_mean",
+      "datasets": [
+        "gios_noise_lden",
+        "gtfs_warsaw",
+        "osm_clinic",
+        "osm_gastronomy",
+        "osm_kindergarten",
+        "osm_parks",
+        "osm_pharmacy",
+        "osm_playground",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_supermarket",
+        "osm_university",
+        "um_aed",
+        "um_events",
+        "um_pitches",
+        "um_sport_classes",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_libraries",
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "status": "DERIVED",
+      "caveats": "Wagi to założenie produktowe (assumptions: profile_weights)."
+    },
+    {
+      "id": "heat.student",
+      "label": "Heatmapa profilu „student”",
+      "definition": "Ranga percentylowa dopasowania profilu wśród punktów sieci 250 m (te same metryki co dla osiedli, liczone od punktu, udziały z kwadratu 1 × 1 km), podniesiona do kwadratu; punkty < 0,05 pominięte.",
+      "unit": "0–1",
+      "method": "percentile_rank",
+      "datasets": [
+        "gios_noise_lden",
+        "gtfs_warsaw",
+        "osm_clinic",
+        "osm_gastronomy",
+        "osm_kindergarten",
+        "osm_parks",
+        "osm_pharmacy",
+        "osm_playground",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_supermarket",
+        "osm_university",
+        "um_aed",
+        "um_air_quality",
+        "um_bo",
+        "um_events",
+        "um_pitches",
+        "um_road_works",
+        "um_sport_classes",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_libraries",
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "status": "DERIVED",
+      "caveats": "Kwadrat rangi to przekształcenie wizualne (assumptions: heat_contrast)."
+    },
+    {
+      "id": "heat.rodzina",
+      "label": "Heatmapa profilu „rodzina”",
+      "definition": "Ranga percentylowa dopasowania profilu wśród punktów sieci 250 m (te same metryki co dla osiedli, liczone od punktu, udziały z kwadratu 1 × 1 km), podniesiona do kwadratu; punkty < 0,05 pominięte.",
+      "unit": "0–1",
+      "method": "percentile_rank",
+      "datasets": [
+        "gios_noise_lden",
+        "gtfs_warsaw",
+        "osm_clinic",
+        "osm_gastronomy",
+        "osm_kindergarten",
+        "osm_parks",
+        "osm_pharmacy",
+        "osm_playground",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_supermarket",
+        "osm_university",
+        "um_aed",
+        "um_air_quality",
+        "um_bo",
+        "um_events",
+        "um_pitches",
+        "um_road_works",
+        "um_sport_classes",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_libraries",
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "status": "DERIVED",
+      "caveats": "Kwadrat rangi to przekształcenie wizualne (assumptions: heat_contrast)."
+    },
+    {
+      "id": "heat.senior",
+      "label": "Heatmapa profilu „senior”",
+      "definition": "Ranga percentylowa dopasowania profilu wśród punktów sieci 250 m (te same metryki co dla osiedli, liczone od punktu, udziały z kwadratu 1 × 1 km), podniesiona do kwadratu; punkty < 0,05 pominięte.",
+      "unit": "0–1",
+      "method": "percentile_rank",
+      "datasets": [
+        "gios_noise_lden",
+        "gtfs_warsaw",
+        "osm_clinic",
+        "osm_gastronomy",
+        "osm_kindergarten",
+        "osm_parks",
+        "osm_pharmacy",
+        "osm_playground",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_supermarket",
+        "osm_university",
+        "um_aed",
+        "um_air_quality",
+        "um_bo",
+        "um_events",
+        "um_pitches",
+        "um_road_works",
+        "um_sport_classes",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_libraries",
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "status": "DERIVED",
+      "caveats": "Kwadrat rangi to przekształcenie wizualne (assumptions: heat_contrast)."
+    },
+    {
+      "id": "heat.kategoria.cisza",
+      "label": "Heatmapa kategorii „Cisza”",
+      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "unit": "0–1",
+      "method": "percentile_rank",
+      "datasets": [
+        "gios_noise_lden",
+        "gtfs_warsaw",
+        "osm_gastronomy",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED"
+    },
+    {
+      "id": "heat.kategoria.zielen",
+      "label": "Heatmapa kategorii „Zieleń”",
+      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "unit": "0–1",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_parks",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED"
+    },
+    {
+      "id": "heat.kategoria.komunikacja",
+      "label": "Heatmapa kategorii „Komunikacja”",
+      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "unit": "0–1",
+      "method": "percentile_rank",
+      "datasets": [
+        "gtfs_warsaw",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED"
+    },
+    {
+      "id": "heat.kategoria.gastronomia",
+      "label": "Heatmapa kategorii „Gastronomia”",
+      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "unit": "0–1",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_gastronomy",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED"
+    },
+    {
+      "id": "heat.kategoria.sport",
+      "label": "Heatmapa kategorii „Sport”",
+      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "unit": "0–1",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_playground",
+        "um_pitches",
+        "um_sport_classes",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED"
+    },
+    {
+      "id": "heat.kategoria.kultura",
+      "label": "Heatmapa kategorii „Kultura”",
+      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "unit": "0–1",
+      "method": "percentile_rank",
+      "datasets": [
+        "um_events",
+        "wfs_address_points",
+        "wfs_libraries",
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "status": "DERIVED"
+    },
+    {
+      "id": "heat.kategoria.edukacja",
+      "label": "Heatmapa kategorii „Edukacja”",
+      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "unit": "0–1",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_kindergarten",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED"
+    },
+    {
+      "id": "heat.kategoria.zdrowie",
+      "label": "Heatmapa kategorii „Zdrowie”",
+      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "unit": "0–1",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_clinic",
+        "osm_pharmacy",
+        "um_aed",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED"
+    },
+    {
+      "id": "heat.kategoria.zakupy",
+      "label": "Heatmapa kategorii „Zakupy”",
+      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "unit": "0–1",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_supermarket",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED"
+    },
+    {
+      "id": "heat.kategoria.zycieNocne",
+      "label": "Heatmapa kategorii „Życie nocne”",
+      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "unit": "0–1",
+      "method": "percentile_rank",
+      "datasets": [
+        "osm_gastronomy",
+        "osm_university",
+        "um_events",
+        "wfs_address_points",
+        "wfs_msi"
+      ],
+      "status": "DERIVED"
+    },
+    {
+      "id": "kwartal.price.scope",
+      "label": "Zakres próby cen",
+      "definition": "„kwartal” przy ≥ 5 transakcjach w kwartale w okresie głównym, w innym razie „radius300” (transakcje w 300 m od punktu kwartału i w kwartale).",
+      "unit": "kategoria",
+      "method": "kwartal_field",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "RCN ma ok. 6 miesięcy opóźnienia; mediana z kilkunastu transakcji może odzwierciedlać jedną inwestycję."
+    },
+    {
+      "id": "kwartal.price.n",
+      "label": "Liczba transakcji",
+      "definition": "Liczba transakcji lokali mieszkalnych w użytej próbie (okres główny od 2024-01-01).",
+      "unit": "szt.",
+      "method": "kwartal_field",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "RCN ma ok. 6 miesięcy opóźnienia; mediana z kilkunastu transakcji może odzwierciedlać jedną inwestycję."
+    },
+    {
+      "id": "kwartal.price.med",
+      "label": "Mediana ceny transakcyjnej",
+      "definition": "Mediana ceny brutto lokalu podzielonej przez powierzchnię użytkową w użytej próbie.",
+      "unit": "zł/m²",
+      "method": "kwartal_field",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "RCN ma ok. 6 miesięcy opóźnienia; mediana z kilkunastu transakcji może odzwierciedlać jedną inwestycję."
+    },
+    {
+      "id": "kwartal.price.p25",
+      "label": "Dolny kwartyl ceny",
+      "definition": "25. percentyl ceny zł/m² w użytej próbie (tylko n ≥ 4).",
+      "unit": "zł/m²",
+      "method": "kwartal_field",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "RCN ma ok. 6 miesięcy opóźnienia; mediana z kilkunastu transakcji może odzwierciedlać jedną inwestycję."
+    },
+    {
+      "id": "kwartal.price.p75",
+      "label": "Górny kwartyl ceny",
+      "definition": "75. percentyl ceny zł/m² w użytej próbie (tylko n ≥ 4).",
+      "unit": "zł/m²",
+      "method": "kwartal_field",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "RCN ma ok. 6 miesięcy opóźnienia; mediana z kilkunastu transakcji może odzwierciedlać jedną inwestycję."
+    },
+    {
+      "id": "kwartal.price.n_kw",
+      "label": "Transakcje w samym kwartale",
+      "definition": "Liczba transakcji w granicy kwartału w okresie głównym.",
+      "unit": "szt.",
+      "method": "kwartal_field",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "RCN ma ok. 6 miesięcy opóźnienia; mediana z kilkunastu transakcji może odzwierciedlać jedną inwestycję."
+    },
+    {
+      "id": "kwartal.price.low_n",
+      "label": "Mała próba",
+      "definition": "true, gdy użyta próba ma mniej niż 5 transakcji.",
+      "unit": "tak/nie",
+      "method": "kwartal_field",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "RCN ma ok. 6 miesięcy opóźnienia; mediana z kilkunastu transakcji może odzwierciedlać jedną inwestycję."
+    },
+    {
+      "id": "kwartal.price.years",
+      "label": "Ceny w latach",
+      "definition": "{rok: [n, mediana]} dla 2023–2026, tylko transakcje w kwartale; mediana od n ≥ 3.",
+      "unit": "zł/m²",
+      "method": "kwartal_field",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "RCN ma ok. 6 miesięcy opóźnienia; mediana z kilkunastu transakcji może odzwierciedlać jedną inwestycję."
+    },
+    {
+      "id": "kwartal.price.primary",
+      "label": "Rynek pierwotny",
+      "definition": "[n, mediana zł/m²] transakcji z rynku pierwotnego w użytej próbie (mediana od n ≥ 3).",
+      "unit": "zł/m²",
+      "method": "kwartal_field",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "RCN ma ok. 6 miesięcy opóźnienia; mediana z kilkunastu transakcji może odzwierciedlać jedną inwestycję."
+    },
+    {
+      "id": "kwartal.price.secondary",
+      "label": "Rynek wtórny",
+      "definition": "[n, mediana zł/m²] transakcji z rynku wtórnego w użytej próbie (mediana od n ≥ 3).",
+      "unit": "zł/m²",
+      "method": "kwartal_field",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "RCN ma ok. 6 miesięcy opóźnienia; mediana z kilkunastu transakcji może odzwierciedlać jedną inwestycję."
+    },
+    {
+      "id": "kwartal.price.area_med",
+      "label": "Mediana powierzchni",
+      "definition": "Mediana powierzchni użytkowej lokali w użytej próbie.",
+      "unit": "m²",
+      "method": "kwartal_field",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "RCN ma ok. 6 miesięcy opóźnienia; mediana z kilkunastu transakcji może odzwierciedlać jedną inwestycję."
+    },
+    {
+      "id": "kwartal.price.rooms_med",
+      "label": "Mediana liczby izb",
+      "definition": "Mediana liczby izb (izby > 0) w użytej próbie.",
+      "unit": "izby",
+      "method": "kwartal_field",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "RCN ma ok. 6 miesięcy opóźnienia; mediana z kilkunastu transakcji może odzwierciedlać jedną inwestycję."
+    },
+    {
+      "id": "kwartal.bld.res",
+      "label": "Budynki mieszkalne",
+      "definition": "Liczba budynków mieszkalnych z rejestru miasta, których środek leży w kwartale.",
+      "unit": "szt.",
+      "method": "kwartal_field",
+      "datasets": [
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "REAL",
+      "caveats": "Brak roku budowy w rejestrze."
+    },
+    {
+      "id": "kwartal.bld.other",
+      "label": "Pozostałe budynki",
+      "definition": "Liczba pozostałych budynków z rejestru miasta, których środek leży w kwartale.",
+      "unit": "szt.",
+      "method": "kwartal_field",
+      "datasets": [
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "REAL",
+      "caveats": "Brak roku budowy w rejestrze."
+    },
+    {
+      "id": "kwartal.bld.fl_max",
+      "label": "Najwyższa zabudowa",
+      "definition": "Największa liczba kondygnacji nadziemnych budynków mieszkalnych w kwartale.",
+      "unit": "kondygnacje",
+      "method": "kwartal_field",
+      "datasets": [
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "REAL",
+      "caveats": "Brak roku budowy w rejestrze."
+    },
+    {
+      "id": "kwartal.bld.fl_med",
+      "label": "Typowa wysokość",
+      "definition": "Mediana liczby kondygnacji nadziemnych budynków mieszkalnych w kwartale.",
+      "unit": "kondygnacje",
+      "method": "kwartal_field",
+      "datasets": [
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "REAL",
+      "caveats": "Brak roku budowy w rejestrze."
+    },
+    {
+      "id": "kwartal.bld.res_share",
+      "label": "Udział zabudowy mieszkalnej",
+      "definition": "Powierzchnia zabudowy budynków mieszkalnych / powierzchnia całej zabudowy kwartału.",
+      "unit": "0–1",
+      "method": "kwartal_field",
+      "datasets": [
+        "wfs_buildings",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Brak roku budowy w rejestrze."
+    },
+    {
+      "id": "kwartal.near.*",
+      "label": "Najbliższy obiekt danego typu",
+      "definition": "[nazwa albo null, odległość w linii prostej w m zaokrąglona do 10] od punktu kwartału do najbliższego obiektu typu: kindergarten = przedszkole (OSM); school = szkoła podstawowa (OSM); high_school = szkoła średnia (OSM); university = uczelnia (OSM); clinic = przychodnia (OSM); pharmacy = apteka (OSM); supermarket = supermarket (OSM); park = park >= 1 ha, odległość do krawędzi (OSM, e39479af49a915ad.json); forest = las >= 1 ha, odległość do krawędzi (OSM); stop = słupek ZTM (dane.um.warszawa.pl); tram = słupek z tramwajem (ZTM GTFS); metro = stacja metra (ZTM GTFS); skm = stacja SKM (ZTM GTFS). Powyżej 3 km sama odległość.",
+      "unit": "m",
+      "method": "kwartal_field",
+      "datasets": [
+        "osm_kindergarten",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_university",
+        "osm_clinic",
+        "osm_pharmacy",
+        "osm_supermarket",
+        "osm_parks",
+        "um_stops",
+        "gtfs_warsaw",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Odległość w linii prostej; czas pieszo liczy UI regułą z assumptions (walk_rule)."
+    },
+    {
+      "id": "kwartal.n500.*",
+      "label": "Obiekty w 500 m",
+      "definition": "Liczba obiektów danego typu (kindergarten, school, high_school, clinic, pharmacy, supermarket, stop) w promieniu 500 m od punktu kwartału; brak klucza = 0.",
+      "unit": "szt.",
+      "method": "kwartal_field",
+      "datasets": [
+        "osm_kindergarten",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_university",
+        "osm_clinic",
+        "osm_pharmacy",
+        "osm_supermarket",
+        "osm_parks",
+        "um_stops",
+        "gtfs_warsaw",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED"
+    },
+    {
+      "id": "kwartal.dep400",
+      "label": "Odjazdy w 400 m",
+      "definition": "Suma odjazdów w dniu roboczym 2026-10-19 ze wszystkich słupków, stacji metra i SKM w promieniu 400 m od punktu kwartału.",
+      "unit": "odjazdy/dzień",
+      "method": "kwartal_field",
+      "datasets": [
+        "um_stops",
+        "gtfs_warsaw",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED"
+    },
+    {
+      "id": "kwartal.noise",
+      "label": "Hałas w kwartale",
+      "definition": "[udział ≥ 55, ≥ 60, ≥ 65 dB] powierzchni kwartału z hałasem Lden od dróg lub kolei (z tramwajem).",
+      "unit": "0–1",
+      "method": "kwartal_field",
+      "datasets": [
+        "gios_noise_lden",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Model SMH 2022 (stan 2021, rok pandemii), wysokość 4 m; tylko drogi i kolej z tramwajem; poniżej 55 dB brak konturów."
+    },
+    {
+      "id": "kwartal.travel.*",
+      "label": "Dojazd komunikacją",
+      "definition": "[średnia, min] minut dojazdu do celu (centrum, daszynskiego, sluzewiec) przy przyjeździe 07:30–09:00 (10 terminów co 10 min), z komórki siatki zawierającej punkt kwartału; trzecia wartość = liczba osiągalnych terminów, gdy < 10.",
+      "unit": "min",
+      "method": "gtfs_routing",
+      "datasets": [
+        "gtfs_warsaw",
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Bez czekania na pierwszy pojazd."
+    },
+    {
+      "id": "komorka.travel.centrum.*",
+      "label": "Dojazd do: Centrum (Rondo Dmowskiego)",
+      "definition": "[średnia, min, max, liczba osiągalnych terminów] minut dojazdu z komórki siatki do punktu Centrum (Rondo Dmowskiego) (52.2297, 21.0122) przy przyjeździe 07:30–09:00 co 10 min w dniu 20261019, osobno dla trybów: wszystkie, autobus, tramwaj, metro, kolej.",
+      "unit": "min",
+      "method": "gtfs_routing",
+      "datasets": [
+        "gtfs_warsaw"
+      ],
+      "status": "DERIVED",
+      "caveats": "Bez czekania na pierwszy pojazd; bez KM i WKD."
+    },
+    {
+      "id": "komorka.travel.rondo_daszynskiego.*",
+      "label": "Dojazd do: Rondo Daszyńskiego (biurowce Woli)",
+      "definition": "[średnia, min, max, liczba osiągalnych terminów] minut dojazdu z komórki siatki do punktu Rondo Daszyńskiego (biurowce Woli) (52.23, 20.983) przy przyjeździe 07:30–09:00 co 10 min w dniu 20261019, osobno dla trybów: wszystkie, autobus, tramwaj, metro, kolej.",
+      "unit": "min",
+      "method": "gtfs_routing",
+      "datasets": [
+        "gtfs_warsaw"
+      ],
+      "status": "DERIVED",
+      "caveats": "Bez czekania na pierwszy pojazd; bez KM i WKD."
+    },
+    {
+      "id": "komorka.travel.sluzewiec.*",
+      "label": "Dojazd do: Służewiec (biurowce, Domaniewska)",
+      "definition": "[średnia, min, max, liczba osiągalnych terminów] minut dojazdu z komórki siatki do punktu Służewiec (biurowce, Domaniewska) (52.18, 21.001) przy przyjeździe 07:30–09:00 co 10 min w dniu 20261019, osobno dla trybów: wszystkie, autobus, tramwaj, metro, kolej.",
+      "unit": "min",
+      "method": "gtfs_routing",
+      "datasets": [
+        "gtfs_warsaw"
+      ],
+      "status": "DERIVED",
+      "caveats": "Bez czekania na pierwszy pojazd; bez KM i WKD."
+    },
+    {
+      "id": "odcinek.spowolnienie_rozkladowe",
+      "label": "Spowolnienie komunikacji w ciągu doby",
+      "definition": "Dla każdej godziny: 1 − rozkładowa prędkość autobusów i tramwajów na odcinku / najwyższa godzinowa prędkość tego odcinka (rozkład ZTM, jeden dzień roboczy), przypisane do osi dróg OSM; null = brak kursów lub za mało kursów.",
+      "unit": "0–1",
+      "method": "schedule_slowdown",
+      "datasets": [
+        "gtfs_warsaw",
+        "osm_3d"
+      ],
+      "status": "DERIVED",
+      "caveats": "Planowe spowolnienie z rozkładu, nie ruch samochodów na żywo."
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "anchor_point",
+      "description": "Punkt odniesienia osiedla = punkt adresowy najbliższy średniej wszystkich punktów adresowych w osiedlu.",
+      "justification": "Środek zabudowy, zawsze wewnątrz poligonu; ta sama reguła dla 143 osiedli.",
+      "where": "data/scripts/build_osiedle_metrics.py"
+    },
+    {
+      "id": "radius_1km",
+      "description": "Metryki *_1km liczą obiekty w promieniu 1 km w linii prostej.",
+      "justification": "Typowy zasięg codziennego dojścia; jednakowy dla wszystkich osiedli.",
+      "where": "data/scripts/build_osiedle_metrics.py"
+    },
+    {
+      "id": "straight_line",
+      "description": "Odległości w linii prostej w EPSG:2180.",
+      "justification": "Bez routingu dla 143 osiedli i 14 576 kwartałów; trasy piesze tylko dla wyróżnionych osiedli (OSRM).",
+      "where": "build_osiedle_metrics.py, build_kwartal_metrics.py"
+    },
+    {
+      "id": "category_weights",
+      "description": "Wagi metryk w kategoriach (category_metrics).",
+      "justification": "Deklaracja produktowa, jawna i jednakowa dla wszystkich osiedli; wynik to pozycja względna (percentyle).",
+      "where": "data/scripts/build_osiedle_metrics.py (CATEGORY_METRICS)"
+    },
+    {
+      "id": "profile_weights",
+      "description": "Wagi kategorii dla profili student, rodzina, senior (PROFILE_WEIGHTS).",
+      "justification": "Preferencje profili z ankiety produktu; nie faworyzują konkretnych osiedli.",
+      "where": "application/src/app/dictionary.ts"
+    },
+    {
+      "id": "heat_contrast",
+      "description": "Heatmapa profilu: ranga percentylowa podniesiona do kwadratu, punkty < 0,05 pominięte.",
+      "justification": "Przekształcenie wizualne stosowane jednakowo do całej mapy; nie zmienia kolejności punktów.",
+      "where": "data/scripts/build_osiedle_metrics.py"
+    },
+    {
+      "id": "blurb_template",
+      "description": "Zdania w dymku i „W skrócie” powstają ze stałego szablonu.",
+      "justification": "Treść wynika wyłącznie z liczb metryk; bez ręcznie pisanych opisów.",
+      "where": "build_osiedle_metrics.py, build_featured_content.py"
+    },
+    {
+      "id": "kwartal_ref_point",
+      "description": "Punkt kwartału = środek ciężkości albo punkt na powierzchni, gdy środek wypada poza kwartał.",
+      "justification": "Zawsze wewnątrz kwartału.",
+      "where": "data/scripts/build_kwartal_metrics.py"
+    },
+    {
+      "id": "rcn_filters",
+      "description": "RCN: tylko lokale mieszkalne, udział 1/1, sprzedaż wolnorynkowa, ≥ 15 m², 3–60 tys. zł/m²; próba „radius300”, gdy w kwartale < 5 transakcji.",
+      "justification": "Odrzuca transakcje nierynkowe i błędne rekordy; mała próba jest oznaczana (low_n).",
+      "where": "data/scripts/build_kwartal_metrics.py"
+    },
+    {
+      "id": "walk_rule",
+      "description": "Czas pieszo w UI = odległość × 1,3 / 78 m/min.",
+      "justification": "Ta sama reguła co w czasach przejazdu (objazd 1,3, chód 1,3 m/s).",
+      "where": "application (UI), fine-metrics/index.json"
+    },
+    {
+      "id": "travel_assumptions",
+      "description": "Czasy przejazdu: chod_m_s = 1.3, objazd = 1.3, dojscie_max_m = 800, przesiadka_pieszo_max_m = 400, przesiadka_min_s = 60; przyjazd 07:30–09:00, dzień 20261019.",
+      "justification": "Parametry routera zapisane w metadanych pliku; jednakowe dla wszystkich komórek.",
+      "where": "data/scripts/etl_czasy_przejazdu.py"
+    },
+    {
+      "id": "noise_union",
+      "description": "Hałas „drogi lub kolej” = suma zasięgów Lden obu źródeł (najgłośniejsze źródło w danym miejscu).",
+      "justification": "Pasma 5 dB nie pozwalają zsumować poziomów energetycznie; suma zasięgów to dolna granica hałasu łącznego.",
+      "where": "data/scripts/noise/gios_noise.py"
+    },
+    {
+      "id": "green_min_area",
+      "description": "Zieleń liczona z parków i lasów OSM o powierzchni ≥ 1 ha, odległość do krawędzi.",
+      "justification": "Odległość od środka zaniżałaby oceny obok dużych lasów.",
+      "where": "build_osiedle_metrics.py, siatka"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "application/public/data/osiedla-metrics.json",
+      "kind": "osiedla-metrics",
+      "script": "data/scripts/build_osiedle_metrics.py",
+      "datasets": [
+        "gios_noise_lden",
+        "gtfs_warsaw",
+        "osm_clinic",
+        "osm_gastronomy",
+        "osm_kindergarten",
+        "osm_parks",
+        "osm_pharmacy",
+        "osm_playground",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_supermarket",
+        "osm_university",
+        "um_aed",
+        "um_air_quality",
+        "um_bo",
+        "um_events",
+        "um_pitches",
+        "um_road_works",
+        "um_sport_classes",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_libraries",
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "description": "Metryki 143 osiedli z wartością, jednostką, źródłem i metodą."
+    },
+    {
+      "path": "application/public/data/osiedla-scores.json",
+      "kind": "osiedla-scores",
+      "script": "data/scripts/build_osiedle_metrics.py",
+      "datasets": [
+        "gios_noise_lden",
+        "gtfs_warsaw",
+        "osm_clinic",
+        "osm_gastronomy",
+        "osm_kindergarten",
+        "osm_parks",
+        "osm_pharmacy",
+        "osm_playground",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_supermarket",
+        "osm_university",
+        "um_aed",
+        "um_air_quality",
+        "um_bo",
+        "um_events",
+        "um_pitches",
+        "um_road_works",
+        "um_sport_classes",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_libraries",
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "description": "Kategorie 0–100, dopasowanie profili i zdania w dymku."
+    },
+    {
+      "path": "application/public/data/heat.json",
+      "kind": "heat",
+      "script": "data/scripts/build_osiedle_metrics.py",
+      "datasets": [
+        "gios_noise_lden",
+        "gtfs_warsaw",
+        "osm_clinic",
+        "osm_gastronomy",
+        "osm_kindergarten",
+        "osm_parks",
+        "osm_pharmacy",
+        "osm_playground",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_supermarket",
+        "osm_university",
+        "um_aed",
+        "um_air_quality",
+        "um_bo",
+        "um_events",
+        "um_pitches",
+        "um_road_works",
+        "um_sport_classes",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_libraries",
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "description": "Heatmapa profili na sieci 250 m."
+    },
+    {
+      "path": "application/public/data/heat-categories.json",
+      "kind": "heat-categories",
+      "script": "data/scripts/build_osiedle_metrics.py",
+      "datasets": [
+        "gios_noise_lden",
+        "gtfs_warsaw",
+        "osm_clinic",
+        "osm_gastronomy",
+        "osm_kindergarten",
+        "osm_parks",
+        "osm_pharmacy",
+        "osm_playground",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_supermarket",
+        "osm_university",
+        "um_aed",
+        "um_air_quality",
+        "um_bo",
+        "um_events",
+        "um_pitches",
+        "um_road_works",
+        "um_sport_classes",
+        "um_stops",
+        "wfs_address_points",
+        "wfs_libraries",
+        "wfs_msi",
+        "wfs_utw"
+      ],
+      "description": "Heatmapy kategorii na sieci 250 m."
+    },
+    {
+      "path": "application/public/data/osiedla.geojson",
+      "kind": "geometry",
+      "script": "data/scripts/fetch_osiedla_boundaries.py",
+      "datasets": [
+        "wfs_msi"
+      ],
+      "description": "Kopia granic osiedli dla aplikacji."
+    },
+    {
+      "path": "application/public/data/fine/*.geojson",
+      "kind": "geometry",
+      "script": "data/scripts/fetch_osiedla_fine.py",
+      "datasets": [
+        "osm_streets",
+        "wfs_msi",
+        "wfs_buildings"
+      ],
+      "description": "Kwartały: bloki ulic w obszarach MSI."
+    },
+    {
+      "path": "application/public/data/fine/index.json",
+      "kind": "schema",
+      "script": "data/scripts/fetch_osiedla_fine.py",
+      "datasets": [
+        "osm_streets",
+        "wfs_msi"
+      ],
+      "description": "Spis kwartałów: liczba, bbox i rozmiar pliku na obszar MSI."
+    },
+    {
+      "path": "application/public/data/fine-metrics/*.json",
+      "exclude": [
+        "application/public/data/fine-metrics/index.json"
+      ],
+      "kind": "kwartal-metrics",
+      "script": "data/scripts/build_kwartal_metrics.py",
+      "datasets": [
+        "gios_noise_lden",
+        "gtfs_warsaw",
+        "osm_clinic",
+        "osm_kindergarten",
+        "osm_parks",
+        "osm_pharmacy",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_streets",
+        "osm_supermarket",
+        "osm_university",
+        "rcn_city",
+        "um_stops",
+        "wfs_buildings",
+        "wfs_msi"
+      ],
+      "description": "Fakty o kwartałach (ceny RCN, budynki, obiekty w pobliżu, hałas, dojazd)."
+    },
+    {
+      "path": "application/public/data/fine-metrics/index.json",
+      "kind": "schema",
+      "script": "data/scripts/build_kwartal_metrics.py",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings"
+      ],
+      "description": "Schemat i podsumowanie kwartałów."
+    },
+    {
+      "path": "application/public/data/poi/*.json",
+      "kind": "poi-layer",
+      "script": "data/scripts/build_poi_layers.py",
+      "datasets": [
+        "gtfs_warsaw",
+        "osm_clinic",
+        "osm_gastronomy",
+        "osm_kindergarten",
+        "osm_parks",
+        "osm_pharmacy",
+        "osm_playground",
+        "osm_school_primary",
+        "osm_school_secondary",
+        "osm_supermarket",
+        "osm_tram_stops",
+        "osm_university",
+        "um_events",
+        "um_pitches",
+        "um_sport_classes",
+        "um_stops",
+        "wfs_libraries",
+        "wfs_utw"
+      ],
+      "description": "Warstwy POI dla filtrów kategorii na mapie."
+    },
+    {
+      "path": "application/public/data/3d/*/traffic.json",
+      "kind": "traffic",
+      "script": "data/scripts/osm3d/build_traffic.py",
+      "datasets": [
+        "gtfs_warsaw",
+        "osm_3d"
+      ],
+      "description": "Spowolnienie rozkładowe na drogach wyróżnionych osiedli."
+    },
+    {
+      "path": "application/public/data/3d/*/*.geojson",
+      "kind": "geometry",
+      "script": "data/scripts/osm3d/build_osm3d.py",
+      "datasets": [
+        "osm_3d"
+      ],
+      "description": "Budynki, drogi, zieleń i woda do widoku 3D."
+    },
+    {
+      "path": "data/boundaries/warszawa_dzielnice.geojson",
+      "kind": "geometry",
+      "script": "data/scripts/fetch_district_boundaries.py",
+      "datasets": [
+        "wfs_districts"
+      ],
+      "description": "18 dzielnic."
+    },
+    {
+      "path": "data/boundaries/warszawa_osiedla.geojson",
+      "kind": "geometry",
+      "script": "data/scripts/fetch_osiedla_boundaries.py",
+      "datasets": [
+        "wfs_msi"
+      ],
+      "description": "143 obszary MSI."
+    },
+    {
+      "path": "data/boundaries/warszawa_osiedla_fine.geojson",
+      "kind": "geometry",
+      "script": "data/scripts/fetch_osiedla_fine.py",
+      "datasets": [
+        "osm_streets",
+        "wfs_msi",
+        "wfs_buildings"
+      ],
+      "description": "Kwartały całego miasta."
+    },
+    {
+      "path": "data/featured/*.json",
+      "kind": "curated",
+      "script": "ręcznie; każdy fakt z polem sourceUrl/checkedAt, wejście build_featured_content.py",
+      "datasets": [
+        "osm_kindergarten",
+        "osm_school_primary",
+        "osm_parks",
+        "osrm_routes",
+        "nominatim_places",
+        "rcn_gugik",
+        "commons_photos",
+        "osm_planned_rail"
+      ],
+      "description": "Opisane źródłami treści 3 wyróżnionych osiedli (miejsca, trasy, oś czasu, ceny, zdjęcia)."
+    },
+    {
+      "path": "data/grid/czasy_przejazdu.geojson",
+      "kind": "travel-grid",
+      "script": "data/scripts/etl_czasy_przejazdu.py",
+      "datasets": [
+        "gtfs_warsaw"
+      ],
+      "description": "Czasy dojazdu komunikacją z każdej komórki siatki."
+    },
+    {
+      "path": "data/lines/utrudnienia.geojson",
+      "kind": "geometry",
+      "script": "data/scripts/etl_utrudnienia.py",
+      "datasets": [
+        "um_road_works"
+      ],
+      "description": "Utrudnienia w ruchu drogowym."
+    },
+    {
+      "path": "data/lines/trasy_turystyczne.geojson",
+      "kind": "geometry",
+      "script": "data/scripts/etl_trasy_turystyczne.py",
+      "datasets": [
+        "um_tourist_routes"
+      ],
+      "description": "Trasy turystyczne."
+    },
+    {
+      "path": "data/poi_mikolaj/transit.geojson",
+      "kind": "poi",
+      "script": "data/scripts/etl_przystanki.py, data/scripts/etl_gtfs_przystanki.py",
+      "datasets": [
+        "um_stops",
+        "gtfs_warsaw"
+      ],
+      "description": "Słupki ZTM z liniami i odjazdami, stacje metra i kolei."
+    },
+    {
+      "path": "data/poi_mikolaj/amenities.geojson",
+      "kind": "poi",
+      "script": "data/scripts/etl_toalety.py, etl_aed.py, etl_ekopunkty.py, etl_parkingi.py",
+      "datasets": [
+        "um_toilets",
+        "um_aed",
+        "um_ecopoints",
+        "um_parking"
+      ],
+      "description": "Toalety, AED, eko-punkty, parkingi."
+    },
+    {
+      "path": "data/poi_mikolaj/culture.geojson",
+      "kind": "poi",
+      "script": "data/scripts/etl_wydarzenia.py",
+      "datasets": [
+        "um_events"
+      ],
+      "description": "Wydarzenia z terminami."
+    },
+    {
+      "path": "data/poi_mikolaj/sport.geojson",
+      "kind": "poi",
+      "script": "data/scripts/etl_boiska.py, etl_zajecia_sportowe.py",
+      "datasets": [
+        "um_pitches",
+        "um_sport_classes",
+        "wfs_address_points"
+      ],
+      "description": "Otwarte boiska i zajęcia sportowe."
+    },
+    {
+      "path": "data/poi_mikolaj/environment.geojson",
+      "kind": "poi",
+      "script": "data/scripts/etl_powietrze.py, etl_pogoda.py",
+      "datasets": [
+        "um_air_quality",
+        "um_weather"
+      ],
+      "description": "Czujniki jakości powietrza i stacje pogodowe."
+    },
+    {
+      "path": "data/poi_mikolaj/future.geojson",
+      "kind": "poi",
+      "script": "data/scripts/etl_budzet_obywatelski.py",
+      "datasets": [
+        "um_bo"
+      ],
+      "description": "Projekty budżetu obywatelskiego (bez autorów)."
+    },
+    {
+      "path": "data/samples/warsaw_grid_sample.geojson",
+      "kind": "geometry",
+      "script": "data/scripts/generate_grid.py --bbox 20.98 52.18 21.06 52.24",
+      "datasets": [
+        "wfs_districts"
+      ],
+      "description": "Próbka siatki (geometria) dla lokalnego rozwoju; bez metryk."
+    }
+  ]
+}
