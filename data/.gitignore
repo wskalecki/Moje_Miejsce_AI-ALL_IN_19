@@ -10,3 +10,5 @@
 !scripts/**
 !boundaries/
 !boundaries/**
+# Python bytecode (overrides the !scripts/** re-include above)
+__pycache__/

@@ -191,7 +191,9 @@ def generate_grid(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate Warsaw 1 km grid GeoJSON")
+    parser = argparse.ArgumentParser(
+        description="Generate the Warsaw grid GeoJSON (200 m cells in EPSG:2180)"
+    )
     parser.add_argument(
         "--bbox",
         nargs=4,
@@ -216,7 +218,7 @@ def main() -> None:
     geojson = generate_grid(*bbox, warsaw_only=args.warsaw_only)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8") as f:
-        json.dump(geojson, f, ensure_ascii=False, indent=2)
+        json.dump(geojson, f, ensure_ascii=False, separators=(",", ":"))
     print(f"Wrote {len(geojson['features'])} cells to {args.output}")
 
 
