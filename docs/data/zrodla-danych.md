@@ -84,6 +84,7 @@ Warunki: https://architektura.um.warszawa.pl/warunki-ponownego-wykorzystania. Cz
 | GUGiK BDOT10k (powiat 1465) | pokrycie terenu | ✔️ | https://opendata.geoportal.gov.pl/bdot10k/schemat2021/GPKG/14/1465_GPKG.zip (ok. 88 MB) |
 | GUGiK LoD2 | modele 3D budynków (CityGML) | ✔️ | Do wizualizacji. W aplikacji 3D budynki biorą się z kafelków MapTiler |
 | EEA END 2022 | kontury hałasu | 🔄 | Robi Wojtek na `feat/noise-dataset` (siatka 500 m + dzielnice) |
+| **GIOŚ HAŁAS API** `https://dane.gios.gov.pl/api/halas/v1/zasiegi-halasu` | kontury Lden SMH 2022 (dane 2021), drogi i kolej (kolej **zawiera tramwaje**) | ✅ | CC BY 4.0, bez klucza. Parametry: `wojewodztwo=MAZOWIECKIE`, `rundaMapowania=4 Runda Mapowania`, `zrodloHalasu=Hałas drogowy wewnątrz aglomeracji` (lub `kolejowy`), `wskaznik=LDWN`, `liczbaElementowNaStronie=50`, `numerStrony` od 0. Zwraca MultiPolygon w **EPSG:2180, bez deklaracji CRS**. Mazowsze: drogi 120 obiektów (~200 MB, **ostatnia strona ma 115 MB**, pobieranie trwa kilka minut), kolej 92 (~28 MB). Brak pola aglomeracji, więc przycinamy do granicy Warszawy. Pasma są rozłączne (`Lden5559` … `LdenGreaterThan80`). Kontrola z `/v1/informacja-o-powierzchni-terenu`: drogi ≥ 60 dB 146,40 km² (GIOŚ 146,59), kolej ≥ 60 dB 20,10 km² (20,13). Skrypty: `data/scripts/noise/` (źródła opisuje `noise/sources.md` na `feat/noise-dataset`) |
 | RSPO | rejestr szkół | ⚠️ | API wymaga wniosku (do 14 dni). Eksport CSV z wyszukiwarki działa |
 
 ## 4. Decyzje o danych (dlaczego to źródło)
@@ -96,7 +97,7 @@ Warunki: https://architektura.um.warszawa.pl/warunki-ponownego-wykorzystania. Cz
 | Boiska | portal + geokoder z punktów adresowych | Portal nie podaje współrzędnych |
 | Jakość powietrza | portal, PM2.5, interpolacja IDW (do 5 km) | 141 stacji daje ciągłą mapę. To pomiar z jednej godziny, w UI oznaczony jako „pomiar z dziś” |
 | Utrudnienia | portal, liczba unikalnych w promieniu 1 km | Linie mają wiele wierzchołków |
-| Hałas | zbiór Wojtka (EEA 2022) | Nie dublujemy pracy. WMS 2017 jest starszy |
+| Hałas | GIOŚ HAŁAS API (SMH 2022), udział powierzchni osiedla z Lden ≥ 60 / 65 dB | Rekomendacja Wojtka z `noise/sources.md`: ta sama geometria co EEA, ale licencja CC BY 4.0 i natywny EPSG:2180. Pakiet `warsaw_noise` wymaga geopandas, więc liczymy samym shapely |
 | Ceny | RCN (portal), obecnie błąd 500 | Kontrakt przewiduje `rcn_m2_median_district` |
 
 ## 5. Mock: 3 osiedla
