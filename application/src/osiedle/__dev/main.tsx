@@ -11,6 +11,8 @@ import { OsiedlePanel } from '../OsiedlePanel'
 import './dev.css'
 
 const params = new URLSearchParams(location.search)
+/** `?bg=busy` puts a high-contrast backdrop (fake 3D buildings + glow line) behind the glass panel. */
+const busy = params.get('bg') === 'busy'
 
 function Harness() {
   const [slug, setSlug] = useState<OsiedleSlug>((params.get('slug') as OsiedleSlug) || 'powisle')
@@ -36,7 +38,7 @@ function Harness() {
   )
 
   return (
-    <div className={`dev dev--${layout}`}>
+    <div className={`dev dev--${layout}${busy ? ' dev--busy' : ''}`}>
       <div className="dev-map">
         <div className="dev-controls">
           <strong>Panel osiedla — harness</strong>
