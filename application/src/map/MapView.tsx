@@ -13,7 +13,7 @@ import {
   type FilterSections,
 } from './categoryFilterRows'
 import { CategoryFilterPanel } from './CategoryFilterPanel'
-import { CommutePanel } from './CommutePanel'
+import { CommutePanel, type CommuteState } from './CommutePanel'
 import {
   DEMO_NOTE,
   MAP_BOUNDS,
@@ -143,6 +143,7 @@ export function MapView({
   const interactiveRef = useRef(true)
   /** Set by CommutePanel while it waits for a point; a map click then goes there instead. */
   const commutePickRef = useRef<((lngLat: [number, number]) => void) | null>(null)
+  const [commute, setCommute] = useState<CommuteState>('off')
   const chromeVisible = chrome && !selectedSlug
   const chromeRef = useRef(chromeVisible)
 
@@ -496,7 +497,7 @@ export function MapView({
 
   return (
     <div
-      className={['smap', chromeVisible ? '' : 'is-chrome-hidden', openDetailCat ? 'is-detail-open' : '', data ? 'is-ready' : '', className]
+      className={['smap', chromeVisible ? '' : 'is-chrome-hidden', openDetailCat ? 'is-detail-open' : '', commute === 'shown' ? 'is-commute' : '', commute !== 'off' ? 'is-commute-on' : '', data ? 'is-ready' : '', className]
         .filter(Boolean)
         .join(' ')}
       data-map-profile={profile}
@@ -546,7 +547,11 @@ export function MapView({
               filterSections={filterSections}
               onFilterSectionsChange={onFilterSectionsChange}
             />
-            <CommutePanel map={mapInst} pickRef={commutePickRef} />
+          </div>
+        )}
+        {data && (
+          <div className="smap__commute">
+            <CommutePanel map={mapInst} pickRef={commutePickRef} onStateChange={setCommute} />
           </div>
         )}
         {data && (

@@ -1,8 +1,23 @@
-/* "Dojazd do pracy" card under the filter panel; same glass and type as .smap-flt */
+/* "Dojazd do pracy": own card top right, next to the map controls (the left column belongs to
+   the filter panel); same glass and type as .smap-flt */
+.smap__commute {
+  position: absolute;
+  top: var(--smap-edge);
+  right: calc(var(--smap-edge) + 52px);
+  width: 340px;
+  max-height: calc(100% - var(--smap-edge) - 72px);
+  overflow-y: auto;
+  border-radius: var(--r-xl, 28px);
+  z-index: var(--z-panel, 24);
+}
+/* the category detail panel opens on the right; the score legend means nothing while the
+   travel-time map replaces the score heat */
+.smap.is-detail-open .smap__commute,
+.smap.is-commute .smap__bl {
+  visibility: hidden;
+}
 .smap-commute {
-  flex-shrink: 0;
-  margin-top: 10px;
-  padding: 14px 16px 14px;
+  padding: 12px 16px 14px;
   border-radius: var(--r-xl, 28px);
   background: var(--smap-glass-strong);
   -webkit-backdrop-filter: var(--smap-blur);
@@ -95,6 +110,13 @@
 .smap-commute__seg button {
   flex: 1;
 }
+.smap-commute__limits {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+.smap-commute__limits button {
+  padding: 0;
+}
 .smap-commute__seg button.is-on,
 .smap-commute__limits button.is-on,
 .smap-commute__pick.is-on {
@@ -129,20 +151,85 @@
   margin-top: 8px;
 }
 .smap-commute__legend {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  font-size: 11px;
+  gap: 4px 10px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--smap-ink);
+}
+.smap-commute__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.smap-commute__legend i {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  opacity: 0.8;
+}
+.smap-commute__legend .is-unit {
   color: var(--smap-ink-3, rgba(22, 22, 29, 0.55));
 }
-.smap-commute__ramp {
-  grid-column: 1 / -1;
-  height: 8px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #0c4a6e, #0284c7, #38bdf8, #bae6fd);
+.smap-commute__how {
+  margin: 6px 0 0;
+  font-size: 11.5px;
+  line-height: 16px;
+  color: var(--smap-ink-2, rgba(22, 22, 29, 0.7));
 }
-.smap-commute__legend span:nth-child(3) {
-  justify-self: end;
+
+/* hovered cell: minutes */
+.smap-commute-tip .maplibregl-popup-content {
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 4px 14px rgba(22, 22, 29, 0.18);
+  font-family: var(--smap-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--smap-ink);
+  pointer-events: none;
+}
+.smap-commute-tip .maplibregl-popup-tip {
+  display: none;
+}
+
+/* phones and tablets: a slim strip above the filter sheet; switched on, the card takes the
+   sheet's place (the sliders do not change the travel-time map) */
+@media (max-width: 1023px) {
+  .smap__commute {
+    position: static;
+    order: 1;
+    width: auto;
+    max-height: none;
+    overflow: visible;
+    margin: 0 var(--smap-edge) 8px;
+  }
+  .smap-commute {
+    padding: 10px 14px;
+  }
+  .smap-commute__copy {
+    display: none;
+  }
+  .smap.is-commute-on .smap__left {
+    display: none;
+  }
+  .smap.is-commute-on .smap__commute {
+    order: 2;
+    max-height: 62vh;
+    overflow-y: auto;
+    margin: 0;
+    border-radius: 24px 24px 0 0;
+  }
+  .smap.is-commute-on .smap-commute {
+    padding: 14px 16px 16px;
+    border-radius: 24px 24px 0 0;
+    border-bottom: 0;
+  }
 }
