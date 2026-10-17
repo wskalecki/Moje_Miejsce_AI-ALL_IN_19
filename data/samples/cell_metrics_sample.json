@@ -1,0 +1,1103 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-17T12:00:00Z",
+  "personas": [
+    "kasia",
+    "marek",
+    "ania_tomek"
+  ],
+  "cells": {
+    "cell_r009_c009": {
+      "scores": {
+        "kasia": 50,
+        "marek": 35,
+        "ania_tomek": 45
+      },
+      "metrics": {
+        "transit_stops_count": 0,
+        "tram_lines_nearby": 0,
+        "aq_pm25_nearest": 12.0,
+        "toilets_with_changing_table": 0,
+        "sport_places": 0,
+        "events_30d": 0,
+        "rcn_m2_median_district": 11000
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r009_c009: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 20
+      }
+    },
+    "cell_r009_c010": {
+      "scores": {
+        "kasia": 57,
+        "marek": 57,
+        "ania_tomek": 52
+      },
+      "metrics": {
+        "transit_stops_count": 3,
+        "tram_lines_nearby": 1,
+        "aq_pm25_nearest": 14.5,
+        "toilets_with_changing_table": 1,
+        "sport_places": 1,
+        "events_30d": 1,
+        "rcn_m2_median_district": 11800
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r009_c010: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 21
+      }
+    },
+    "cell_r009_c011": {
+      "scores": {
+        "kasia": 64,
+        "marek": 79,
+        "ania_tomek": 59
+      },
+      "metrics": {
+        "transit_stops_count": 6,
+        "tram_lines_nearby": 2,
+        "aq_pm25_nearest": 17.0,
+        "toilets_with_changing_table": 2,
+        "sport_places": 2,
+        "events_30d": 2,
+        "rcn_m2_median_district": 12600
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r009_c011: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 22
+      }
+    },
+    "cell_r009_c012": {
+      "scores": {
+        "kasia": 71,
+        "marek": 56,
+        "ania_tomek": 66
+      },
+      "metrics": {
+        "transit_stops_count": 9,
+        "tram_lines_nearby": 3,
+        "aq_pm25_nearest": 19.5,
+        "toilets_with_changing_table": 0,
+        "sport_places": 3,
+        "events_30d": 3,
+        "rcn_m2_median_district": 13400
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r009_c012: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 23
+      }
+    },
+    "cell_r009_c013": {
+      "scores": {
+        "kasia": 78,
+        "marek": 78,
+        "ania_tomek": 73
+      },
+      "metrics": {
+        "transit_stops_count": 12,
+        "tram_lines_nearby": 4,
+        "aq_pm25_nearest": 22.0,
+        "toilets_with_changing_table": 1,
+        "sport_places": 4,
+        "events_30d": 4,
+        "rcn_m2_median_district": 14200
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r009_c013: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 24
+      }
+    },
+    "cell_r009_c014": {
+      "scores": {
+        "kasia": 85,
+        "marek": 100,
+        "ania_tomek": 80
+      },
+      "metrics": {
+        "transit_stops_count": 15,
+        "tram_lines_nearby": 5,
+        "aq_pm25_nearest": 24.5,
+        "toilets_with_changing_table": 2,
+        "sport_places": 0,
+        "events_30d": 5,
+        "rcn_m2_median_district": 15000
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r009_c014: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 25
+      }
+    },
+    "cell_r010_c009": {
+      "scores": {
+        "kasia": 92,
+        "marek": 77,
+        "ania_tomek": 87
+      },
+      "metrics": {
+        "transit_stops_count": 18,
+        "tram_lines_nearby": 0,
+        "aq_pm25_nearest": 27.0,
+        "toilets_with_changing_table": 0,
+        "sport_places": 1,
+        "events_30d": 6,
+        "rcn_m2_median_district": 15800
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r010_c009: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 26
+      }
+    },
+    "cell_r010_c010": {
+      "scores": {
+        "kasia": 99,
+        "marek": 99,
+        "ania_tomek": 94
+      },
+      "metrics": {
+        "transit_stops_count": 1,
+        "tram_lines_nearby": 1,
+        "aq_pm25_nearest": 29.5,
+        "toilets_with_changing_table": 1,
+        "sport_places": 2,
+        "events_30d": 7,
+        "rcn_m2_median_district": 11000
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r010_c010: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 27
+      }
+    },
+    "cell_r010_c011": {
+      "scores": {
+        "kasia": 51,
+        "marek": 66,
+        "ania_tomek": 46
+      },
+      "metrics": {
+        "transit_stops_count": 4,
+        "tram_lines_nearby": 2,
+        "aq_pm25_nearest": 12.0,
+        "toilets_with_changing_table": 2,
+        "sport_places": 3,
+        "events_30d": 8,
+        "rcn_m2_median_district": 11800
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r010_c011: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 28
+      }
+    },
+    "cell_r010_c012": {
+      "scores": {
+        "kasia": 58,
+        "marek": 43,
+        "ania_tomek": 53
+      },
+      "metrics": {
+        "transit_stops_count": 7,
+        "tram_lines_nearby": 3,
+        "aq_pm25_nearest": 14.5,
+        "toilets_with_changing_table": 0,
+        "sport_places": 4,
+        "events_30d": 9,
+        "rcn_m2_median_district": 12600
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r010_c012: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 29
+      }
+    },
+    "cell_r010_c013": {
+      "scores": {
+        "kasia": 65,
+        "marek": 65,
+        "ania_tomek": 60
+      },
+      "metrics": {
+        "transit_stops_count": 10,
+        "tram_lines_nearby": 4,
+        "aq_pm25_nearest": 17.0,
+        "toilets_with_changing_table": 1,
+        "sport_places": 0,
+        "events_30d": 0,
+        "rcn_m2_median_district": 13400
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r010_c013: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 30
+      }
+    },
+    "cell_r010_c014": {
+      "scores": {
+        "kasia": 72,
+        "marek": 87,
+        "ania_tomek": 67
+      },
+      "metrics": {
+        "transit_stops_count": 13,
+        "tram_lines_nearby": 5,
+        "aq_pm25_nearest": 19.5,
+        "toilets_with_changing_table": 2,
+        "sport_places": 1,
+        "events_30d": 1,
+        "rcn_m2_median_district": 14200
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r010_c014: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 31
+      }
+    },
+    "cell_r011_c009": {
+      "scores": {
+        "kasia": 79,
+        "marek": 64,
+        "ania_tomek": 74
+      },
+      "metrics": {
+        "transit_stops_count": 16,
+        "tram_lines_nearby": 0,
+        "aq_pm25_nearest": 22.0,
+        "toilets_with_changing_table": 0,
+        "sport_places": 2,
+        "events_30d": 2,
+        "rcn_m2_median_district": 15000
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r011_c009: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 32
+      }
+    },
+    "cell_r011_c010": {
+      "scores": {
+        "kasia": 86,
+        "marek": 86,
+        "ania_tomek": 81
+      },
+      "metrics": {
+        "transit_stops_count": 19,
+        "tram_lines_nearby": 1,
+        "aq_pm25_nearest": 24.5,
+        "toilets_with_changing_table": 1,
+        "sport_places": 3,
+        "events_30d": 3,
+        "rcn_m2_median_district": 15800
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r011_c010: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 33
+      }
+    },
+    "cell_r011_c011": {
+      "scores": {
+        "kasia": 93,
+        "marek": 100,
+        "ania_tomek": 88
+      },
+      "metrics": {
+        "transit_stops_count": 2,
+        "tram_lines_nearby": 2,
+        "aq_pm25_nearest": 27.0,
+        "toilets_with_changing_table": 2,
+        "sport_places": 4,
+        "events_30d": 4,
+        "rcn_m2_median_district": 11000
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r011_c011: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 34
+      }
+    },
+    "cell_r011_c012": {
+      "scores": {
+        "kasia": 100,
+        "marek": 85,
+        "ania_tomek": 95
+      },
+      "metrics": {
+        "transit_stops_count": 5,
+        "tram_lines_nearby": 3,
+        "aq_pm25_nearest": 29.5,
+        "toilets_with_changing_table": 0,
+        "sport_places": 0,
+        "events_30d": 5,
+        "rcn_m2_median_district": 11800
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r011_c012: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 35
+      }
+    },
+    "cell_r011_c013": {
+      "scores": {
+        "kasia": 52,
+        "marek": 52,
+        "ania_tomek": 47
+      },
+      "metrics": {
+        "transit_stops_count": 8,
+        "tram_lines_nearby": 4,
+        "aq_pm25_nearest": 12.0,
+        "toilets_with_changing_table": 1,
+        "sport_places": 1,
+        "events_30d": 6,
+        "rcn_m2_median_district": 12600
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r011_c013: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 36
+      }
+    },
+    "cell_r011_c014": {
+      "scores": {
+        "kasia": 59,
+        "marek": 74,
+        "ania_tomek": 54
+      },
+      "metrics": {
+        "transit_stops_count": 11,
+        "tram_lines_nearby": 5,
+        "aq_pm25_nearest": 14.5,
+        "toilets_with_changing_table": 2,
+        "sport_places": 2,
+        "events_30d": 7,
+        "rcn_m2_median_district": 13400
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r011_c014: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 37
+      }
+    },
+    "cell_r012_c009": {
+      "scores": {
+        "kasia": 66,
+        "marek": 51,
+        "ania_tomek": 61
+      },
+      "metrics": {
+        "transit_stops_count": 14,
+        "tram_lines_nearby": 0,
+        "aq_pm25_nearest": 17.0,
+        "toilets_with_changing_table": 0,
+        "sport_places": 3,
+        "events_30d": 8,
+        "rcn_m2_median_district": 14200
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r012_c009: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 38
+      }
+    },
+    "cell_r012_c010": {
+      "scores": {
+        "kasia": 73,
+        "marek": 73,
+        "ania_tomek": 68
+      },
+      "metrics": {
+        "transit_stops_count": 17,
+        "tram_lines_nearby": 1,
+        "aq_pm25_nearest": 19.5,
+        "toilets_with_changing_table": 1,
+        "sport_places": 4,
+        "events_30d": 9,
+        "rcn_m2_median_district": 15000
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r012_c010: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 39
+      }
+    },
+    "cell_r012_c011": {
+      "scores": {
+        "kasia": 80,
+        "marek": 95,
+        "ania_tomek": 75
+      },
+      "metrics": {
+        "transit_stops_count": 0,
+        "tram_lines_nearby": 2,
+        "aq_pm25_nearest": 22.0,
+        "toilets_with_changing_table": 2,
+        "sport_places": 0,
+        "events_30d": 0,
+        "rcn_m2_median_district": 15800
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r012_c011: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 40
+      }
+    },
+    "cell_r012_c012": {
+      "scores": {
+        "kasia": 87,
+        "marek": 72,
+        "ania_tomek": 82
+      },
+      "metrics": {
+        "transit_stops_count": 3,
+        "tram_lines_nearby": 3,
+        "aq_pm25_nearest": 24.5,
+        "toilets_with_changing_table": 0,
+        "sport_places": 1,
+        "events_30d": 1,
+        "rcn_m2_median_district": 11000
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r012_c012: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 41
+      }
+    },
+    "cell_r012_c013": {
+      "scores": {
+        "kasia": 94,
+        "marek": 94,
+        "ania_tomek": 89
+      },
+      "metrics": {
+        "transit_stops_count": 6,
+        "tram_lines_nearby": 4,
+        "aq_pm25_nearest": 27.0,
+        "toilets_with_changing_table": 1,
+        "sport_places": 2,
+        "events_30d": 2,
+        "rcn_m2_median_district": 11800
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r012_c013: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 42
+      }
+    },
+    "cell_r012_c014": {
+      "scores": {
+        "kasia": 100,
+        "marek": 100,
+        "ania_tomek": 96
+      },
+      "metrics": {
+        "transit_stops_count": 9,
+        "tram_lines_nearby": 5,
+        "aq_pm25_nearest": 29.5,
+        "toilets_with_changing_table": 2,
+        "sport_places": 3,
+        "events_30d": 3,
+        "rcn_m2_median_district": 12600
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r012_c014: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 43
+      }
+    },
+    "cell_r013_c009": {
+      "scores": {
+        "kasia": 53,
+        "marek": 38,
+        "ania_tomek": 48
+      },
+      "metrics": {
+        "transit_stops_count": 12,
+        "tram_lines_nearby": 0,
+        "aq_pm25_nearest": 12.0,
+        "toilets_with_changing_table": 0,
+        "sport_places": 4,
+        "events_30d": 4,
+        "rcn_m2_median_district": 13400
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r013_c009: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 44
+      }
+    },
+    "cell_r013_c010": {
+      "scores": {
+        "kasia": 60,
+        "marek": 60,
+        "ania_tomek": 55
+      },
+      "metrics": {
+        "transit_stops_count": 15,
+        "tram_lines_nearby": 1,
+        "aq_pm25_nearest": 14.5,
+        "toilets_with_changing_table": 1,
+        "sport_places": 0,
+        "events_30d": 5,
+        "rcn_m2_median_district": 14200
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r013_c010: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 20
+      }
+    },
+    "cell_r013_c011": {
+      "scores": {
+        "kasia": 67,
+        "marek": 82,
+        "ania_tomek": 62
+      },
+      "metrics": {
+        "transit_stops_count": 18,
+        "tram_lines_nearby": 2,
+        "aq_pm25_nearest": 17.0,
+        "toilets_with_changing_table": 2,
+        "sport_places": 1,
+        "events_30d": 6,
+        "rcn_m2_median_district": 15000
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r013_c011: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 21
+      }
+    },
+    "cell_r013_c012": {
+      "scores": {
+        "kasia": 74,
+        "marek": 59,
+        "ania_tomek": 69
+      },
+      "metrics": {
+        "transit_stops_count": 1,
+        "tram_lines_nearby": 3,
+        "aq_pm25_nearest": 19.5,
+        "toilets_with_changing_table": 0,
+        "sport_places": 2,
+        "events_30d": 7,
+        "rcn_m2_median_district": 15800
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r013_c012: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 22
+      }
+    },
+    "cell_r013_c013": {
+      "scores": {
+        "kasia": 81,
+        "marek": 81,
+        "ania_tomek": 76
+      },
+      "metrics": {
+        "transit_stops_count": 4,
+        "tram_lines_nearby": 4,
+        "aq_pm25_nearest": 22.0,
+        "toilets_with_changing_table": 1,
+        "sport_places": 3,
+        "events_30d": 8,
+        "rcn_m2_median_district": 11000
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r013_c013: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 23
+      }
+    },
+    "cell_r013_c014": {
+      "scores": {
+        "kasia": 88,
+        "marek": 100,
+        "ania_tomek": 83
+      },
+      "metrics": {
+        "transit_stops_count": 7,
+        "tram_lines_nearby": 5,
+        "aq_pm25_nearest": 24.5,
+        "toilets_with_changing_table": 2,
+        "sport_places": 4,
+        "events_30d": 9,
+        "rcn_m2_median_district": 11800
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r013_c014: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 24
+      }
+    },
+    "cell_r014_c009": {
+      "scores": {
+        "kasia": 95,
+        "marek": 80,
+        "ania_tomek": 90
+      },
+      "metrics": {
+        "transit_stops_count": 10,
+        "tram_lines_nearby": 0,
+        "aq_pm25_nearest": 27.0,
+        "toilets_with_changing_table": 0,
+        "sport_places": 0,
+        "events_30d": 0,
+        "rcn_m2_median_district": 12600
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r014_c009: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 25
+      }
+    },
+    "cell_r014_c010": {
+      "scores": {
+        "kasia": 100,
+        "marek": 100,
+        "ania_tomek": 97
+      },
+      "metrics": {
+        "transit_stops_count": 13,
+        "tram_lines_nearby": 1,
+        "aq_pm25_nearest": 29.5,
+        "toilets_with_changing_table": 1,
+        "sport_places": 1,
+        "events_30d": 1,
+        "rcn_m2_median_district": 13400
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r014_c010: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 26
+      }
+    },
+    "cell_r014_c011": {
+      "scores": {
+        "kasia": 54,
+        "marek": 69,
+        "ania_tomek": 49
+      },
+      "metrics": {
+        "transit_stops_count": 16,
+        "tram_lines_nearby": 2,
+        "aq_pm25_nearest": 12.0,
+        "toilets_with_changing_table": 2,
+        "sport_places": 2,
+        "events_30d": 2,
+        "rcn_m2_median_district": 14200
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r014_c011: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 27
+      }
+    },
+    "cell_r014_c012": {
+      "scores": {
+        "kasia": 61,
+        "marek": 46,
+        "ania_tomek": 56
+      },
+      "metrics": {
+        "transit_stops_count": 19,
+        "tram_lines_nearby": 3,
+        "aq_pm25_nearest": 14.5,
+        "toilets_with_changing_table": 0,
+        "sport_places": 3,
+        "events_30d": 3,
+        "rcn_m2_median_district": 15000
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r014_c012: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 28
+      }
+    },
+    "cell_r014_c013": {
+      "scores": {
+        "kasia": 68,
+        "marek": 68,
+        "ania_tomek": 63
+      },
+      "metrics": {
+        "transit_stops_count": 2,
+        "tram_lines_nearby": 4,
+        "aq_pm25_nearest": 17.0,
+        "toilets_with_changing_table": 1,
+        "sport_places": 4,
+        "events_30d": 4,
+        "rcn_m2_median_district": 15800
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r014_c013: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 29
+      }
+    },
+    "cell_r014_c014": {
+      "scores": {
+        "kasia": 75,
+        "marek": 90,
+        "ania_tomek": 70
+      },
+      "metrics": {
+        "transit_stops_count": 5,
+        "tram_lines_nearby": 5,
+        "aq_pm25_nearest": 19.5,
+        "toilets_with_changing_table": 2,
+        "sport_places": 0,
+        "events_30d": 5,
+        "rcn_m2_median_district": 11000
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r014_c014: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 30
+      }
+    },
+    "cell_r015_c009": {
+      "scores": {
+        "kasia": 82,
+        "marek": 67,
+        "ania_tomek": 77
+      },
+      "metrics": {
+        "transit_stops_count": 8,
+        "tram_lines_nearby": 0,
+        "aq_pm25_nearest": 22.0,
+        "toilets_with_changing_table": 0,
+        "sport_places": 1,
+        "events_30d": 6,
+        "rcn_m2_median_district": 11800
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r015_c009: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 31
+      }
+    },
+    "cell_r015_c010": {
+      "scores": {
+        "kasia": 89,
+        "marek": 89,
+        "ania_tomek": 84
+      },
+      "metrics": {
+        "transit_stops_count": 11,
+        "tram_lines_nearby": 1,
+        "aq_pm25_nearest": 24.5,
+        "toilets_with_changing_table": 1,
+        "sport_places": 2,
+        "events_30d": 7,
+        "rcn_m2_median_district": 12600
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r015_c010: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 32
+      }
+    },
+    "cell_r015_c011": {
+      "scores": {
+        "kasia": 96,
+        "marek": 100,
+        "ania_tomek": 91
+      },
+      "metrics": {
+        "transit_stops_count": 14,
+        "tram_lines_nearby": 2,
+        "aq_pm25_nearest": 27.0,
+        "toilets_with_changing_table": 2,
+        "sport_places": 3,
+        "events_30d": 8,
+        "rcn_m2_median_district": 13400
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r015_c011: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 33
+      }
+    },
+    "cell_r015_c012": {
+      "scores": {
+        "kasia": 100,
+        "marek": 88,
+        "ania_tomek": 98
+      },
+      "metrics": {
+        "transit_stops_count": 17,
+        "tram_lines_nearby": 3,
+        "aq_pm25_nearest": 29.5,
+        "toilets_with_changing_table": 0,
+        "sport_places": 4,
+        "events_30d": 9,
+        "rcn_m2_median_district": 14200
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r015_c012: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 34
+      }
+    },
+    "cell_r015_c013": {
+      "scores": {
+        "kasia": 55,
+        "marek": 55,
+        "ania_tomek": 50
+      },
+      "metrics": {
+        "transit_stops_count": 0,
+        "tram_lines_nearby": 4,
+        "aq_pm25_nearest": 12.0,
+        "toilets_with_changing_table": 1,
+        "sport_places": 0,
+        "events_30d": 0,
+        "rcn_m2_median_district": 15000
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r015_c013: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 35
+      }
+    },
+    "cell_r015_c014": {
+      "scores": {
+        "kasia": 62,
+        "marek": 77,
+        "ania_tomek": 57
+      },
+      "metrics": {
+        "transit_stops_count": 3,
+        "tram_lines_nearby": 5,
+        "aq_pm25_nearest": 14.5,
+        "toilets_with_changing_table": 2,
+        "sport_places": 1,
+        "events_30d": 1,
+        "rcn_m2_median_district": 15800
+      },
+      "narrative": {
+        "pl": [
+          "Komórka cell_r015_c014: dobra dostępność transportu dla persony demo.",
+          "W promieniu codziennych potrzeb są przystanki i usługi.",
+          "Sprawdź warstwy edukacji i sportu przed decyzją."
+        ]
+      },
+      "commute_heuristic_min": {
+        "mokotow_demo": 36
+      }
+    }
+  }
+}

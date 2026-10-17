@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Team workstreams
+    url: https://github.com/wskalecki/wwa42hackathon_ai_all_in/blob/master/docs/team/workstreams.md
+    about: Roles and merge order for the hackathon
+  - name: Data schemas
+    url: https://github.com/wskalecki/wwa42hackathon_ai_all_in/blob/master/docs/data/README.md
+    about: Grid and POI contracts

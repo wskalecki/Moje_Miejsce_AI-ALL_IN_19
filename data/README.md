@@ -1,20 +1,39 @@
 # Data
 
-**Owner:** _assign data developer_
+**Owner:** data team (see [`docs/team/workstreams.md`](../docs/team/workstreams.md))
 
-This folder holds hackathon datasets: raw downloads, cleaned tables, GeoJSON, CSV exports, and small samples for local dev.
+Datasets for **Siatka**: 1 km grid, per-cell metrics, POI GeoJSON.
 
-## Conventions
+## Schemas
 
-1. Document each dataset below (name, source URL, license, last updated).
-2. Prefer subfolders by topic, e.g. `transit/`, `environment/`.
-3. Do not commit secrets or credentials.
-4. Large files: use Git LFS or host externally and link here.
+- [`docs/data/grid-schema.md`](../docs/data/grid-schema.md)
+- [`docs/data/poi-schema.md`](../docs/data/poi-schema.md)
+- Agent rule: [`.cursor/rules/data-developer.mdc`](../.cursor/rules/data-developer.mdc)
+
+## Manifest
+
+[`manifest.json`](manifest.json) — paths loaded by the React app.
+
+## Scripts
+
+```bash
+# Full Warsaw grid (large)
+python3 data/scripts/generate_grid.py -o data/grid/warsaw_grid_1km.geojson
+
+# Sample bbox (committed)
+python3 data/scripts/generate_grid.py --bbox 20.98 52.18 21.06 52.24 -o data/samples/warsaw_grid_sample.geojson
+
+python3 data/scripts/validate_data.py
+```
 
 ## Inventory
 
 | Path | Source | License | Notes |
 |------|--------|---------|-------|
-| _TBD_ | | | |
+| `samples/warsaw_grid_sample.geojson` | generated | n/a | 42 cells, Mokotów patch |
+| `samples/cell_metrics_sample.json` | generated demo | n/a | Persona scores for sample grid |
+| `samples/poi_sample.geojson` | synthetic | n/a | 3 POI for layer spike |
+| _TBD_ `poi/transit.geojson` | `lokalizacja-przystanow-komunikacji-miejskiej` | UM open data | |
+| _TBD_ `grid/cell_metrics.json` | ETL aggregates | n/a | Production metrics |
 
-The React app should read paths documented here (or load via Supabase Storage after import).
+Raw API dumps → `data/raw/` (gitignored). Large exports: LFS or external link.
