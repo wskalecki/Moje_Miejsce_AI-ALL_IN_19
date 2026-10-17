@@ -333,11 +333,6 @@
   color: var(--color-ink);
   font-variant-numeric: tabular-nums;
 }
-.cin-title__district {
-  font: 500 14px/20px var(--font-ui, 'Inter Variable', system-ui, sans-serif);
-  color: rgba(255, 255, 255, 0.8);
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
-}
 .cin-title__name {
   margin: 0;
   font-family: var(--font-display, 'Plus Jakarta Sans Variable', system-ui, sans-serif);

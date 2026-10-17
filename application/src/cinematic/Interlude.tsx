@@ -224,7 +224,6 @@ export function Interlude({ osiedle, fit, open, showTitle, playMedia, onCovered,
                   <span className="cin-fit__pct">{match}%</span>
                 </span>
               )}
-              <span className="cin-title__district">{osiedle.district}</span>
             </motion.div>
             <h2 className="cin-title__name" aria-label={osiedle.name}>
               {letters.map((word, wi) => (
