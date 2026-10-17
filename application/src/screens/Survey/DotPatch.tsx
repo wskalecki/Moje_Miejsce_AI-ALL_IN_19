@@ -1,4 +1,4 @@
-/** Small decorative dot grid ("siatka") with a deterministic radial falloff. */
+/** Small decorative dot grid with a deterministic radial falloff. */
 export function DotPatch({ seed = 0, cols = 13, rows = 7 }: { seed?: number; cols?: number; rows?: number }) {
   const cx = (cols - 1) * (0.5 + 0.12 * Math.sin(seed * 2.1))
   const cy = (rows - 1) * (0.5 + 0.18 * Math.cos(seed * 1.7))

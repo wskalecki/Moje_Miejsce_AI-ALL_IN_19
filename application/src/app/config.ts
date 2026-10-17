@@ -1,6 +1,6 @@
 /** App-wide constants (spec §4.0, §4.3, §15). */
 
-export const APP_NAME = 'Siatka'
+export const APP_NAME = 'Okolica'
 
 export const APP_TAGLINE =
   'Znajdź okolicę w Warszawie, która pasuje do Twojego życia — zanim zaczniesz szukać mieszkania.'

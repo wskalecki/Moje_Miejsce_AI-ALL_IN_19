@@ -2,10 +2,11 @@
  * Map sentence bar (spec §4.3, crit. 13): logo → intro, the survey sentence shortened to three
  * pills, and a profile popover that switches the profile live (presenter mode).
  *
- *   [Siatka] | [Mamy rodzinę ⌄], liczą się [🎓 🌳 🔇 🛒], szukamy [na stałe].
+ *   [Okolica] | [Mamy rodzinę ⌄], liczą się [🎓 🌳 🔇 🛒], szukamy [na stałe].
  */
 import { ArrowRight, Check, ChevronDown } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
+import { APP_NAME } from '../../app/config'
 import { CATEGORIES, HORIZONS, PROFILE_ORDER, PROFILES } from '../../app/dictionary'
 import { CATEGORY_ICONS, PROFILE_ICONS } from '../../app/icons'
 import { navigate } from '../../app/router'
@@ -79,7 +80,7 @@ export function SentenceBar({ profile, priorities, horizon, onProfileChange, hid
       inert={hidden || undefined}
     >
       <nav className="sbar__bar" aria-label="Twoje odpowiedzi">
-        <button type="button" className="sbar__logo" onClick={() => navigate('/', { direction: -1 })} aria-label="Siatka — wróć na start">
+        <button type="button" className="sbar__logo" onClick={() => navigate('/', { direction: -1 })} aria-label={`${APP_NAME} — wróć na start`}>
           <Logo />
         </button>
         <span className="sbar__div" aria-hidden />

@@ -727,6 +727,7 @@ Każde zadanie to **jeden commit** na gałęzi funkcji (zgodnie z `CLAUDE.md`), 
 |---|---|
 | 2026-10-17 | Zwrot z mapy siatki z personami na mock: ankieta (3 kroki) → mapa (gradient → osiedla MSI) → 3 wyróżnione osiedla → przejście kinowe 3D → panel osiedla |
 | 2026-10-17 | Nazwa produktu bez zmian: „Siatka” (stała `APP_NAME`) |
+| 2026-10-17 | Iteracja 2: nazwa produktu zmieniona na „Okolica” (`APP_NAME`); znak logo bez zmian w idei — „Twoja” komórka w akcencie i jej 8 sąsiadów, zaokrąglonych na zewnątrz tak, że tworzą literę „O” |
 | 2026-10-17 | Fragmenty zdania w ankiecie neutralne płciowo („Studiuję”, „Mamy rodzinę”, „Jestem na emeryturze”) |
 | 2026-10-17 | Statystyki kategorii jako paski, bez radaru |
 | 2026-10-17 | „Miasteczko Wilanów” = poligon MSI „Błonia Wilanowskie” z nadpisaną nazwą |
