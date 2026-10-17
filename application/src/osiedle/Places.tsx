@@ -1,4 +1,6 @@
 import { MapPin } from 'lucide-react'
+import type { CSSProperties } from 'react'
+import { CATEGORY_COLORS } from '../app/dictionary'
 import { CATEGORY_ICONS } from '../app/icons'
 import type { Highlight } from '../mock/osiedla'
 import { formatMin } from '../lib/format'
@@ -34,7 +36,9 @@ export function Places({ places, activeId, onSelect, onHover, hasMap }: PlacesPr
             <li key={p.id}>
               <button
                 type="button"
-                className={`op-place${active ? ' is-active' : ''}`}
+                className={`op-place chrome-row${active ? ' is-active' : ''}`}
+                style={{ '--cat': CATEGORY_COLORS[p.category] } as CSSProperties}
+                title={p.description}
                 aria-pressed={active}
                 onClick={() => onSelect(p)}
                 onPointerEnter={() => onHover?.(p.id)}
@@ -42,13 +46,12 @@ export function Places({ places, activeId, onSelect, onHover, hasMap }: PlacesPr
                 onFocus={() => onHover?.(p.id)}
                 onBlur={() => onHover?.(null)}
               >
-                <span className="op-place__icon" aria-hidden>
-                  <Icon size={17} strokeWidth={2} />
+                <span className="op-place__icon chrome-icon" aria-hidden>
+                  <Icon size={15} strokeWidth={2.1} />
                 </span>
                 <span className="op-place__body">
                   <span className="op-place__name">{p.name}</span>
-                  <span className="op-place__desc">{p.description}</span>
-                  {dist && <span className="op-place__meta">{dist}</span>}
+                  <span className="op-place__meta">{dist ?? p.description}</span>
                 </span>
                 {hasMap && (
                   <span className="op-place__go" aria-hidden>
