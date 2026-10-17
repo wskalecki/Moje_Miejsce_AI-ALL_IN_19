@@ -42,22 +42,26 @@ export const NIGHT: BasemapPalette = {
   halo: 'rgba(11,14,23,0.9)',
 }
 
-/** Golden hour (flyover renders): ground in soft shade, sunlit roofs pop, teal water. */
+/**
+ * Golden hour (flyover renders): neutral, slightly cool ground in shade so the sunlit ivory roofs
+ * carry the warmth; natural greens and a deep blue river. The ffmpeg grade in
+ * scripts/record-flyovers.mjs adds the warm highlights / cool shadows split on top.
+ */
 export const GOLDEN: BasemapPalette = {
-  background: '#BDB3A8',
-  water: '#5E8196',
-  waterLine: '#6A8CA0',
-  park: '#8E9E76',
-  wood: '#84966E',
-  residential: '#B9AEA2',
-  building: '#C9BDAF',
-  buildingOutline: '#BFB2A3',
-  roadMajor: '#F1DFC6',
-  roadMinor: '#D9C9B6',
-  roadCasing: '#B4A797',
-  rail: '#A99C8C',
-  label: 'rgba(60,40,24,0.5)',
-  halo: 'rgba(250,238,220,0.85)',
+  background: '#9C9D98',
+  water: '#34607F',
+  waterLine: '#3E6987',
+  park: '#6E8565',
+  wood: '#627A5C',
+  residential: '#A1A29C',
+  building: '#E4DFD4',
+  buildingOutline: '#D2CCC0',
+  roadMajor: '#EEE7DA',
+  roadMinor: '#B6B6AF',
+  roadCasing: '#8E908C',
+  rail: '#8F918D',
+  label: 'rgba(40,36,30,0.5)',
+  halo: 'rgba(246,242,234,0.85)',
 }
 
 export type SkyPreset = Required<
@@ -85,19 +89,19 @@ export const SKY: Record<'day' | 'night' | 'golden', SkyPreset> = {
     'fog-ground-blend': 0.25,
   },
   golden: {
-    'sky-color': '#7E9BC0',
-    'horizon-color': '#FFCB94',
-    'fog-color': '#F3C79C',
-    'sky-horizon-blend': 0.75,
-    'horizon-fog-blend': 0.7,
-    'fog-ground-blend': 0.42,
+    'sky-color': '#6F97C4',
+    'horizon-color': '#F6D7B4',
+    'fog-color': '#DCD4C8',
+    'sky-horizon-blend': 0.7,
+    'horizon-fog-blend': 0.65,
+    'fog-ground-blend': 0.8,
   },
 }
 
 export const LIGHT = {
   day: { anchor: 'map', position: [1.4, 200, 35], color: '#FFF4E6', intensity: 0.35 },
   night: { anchor: 'map', position: [1.4, 200, 35], color: '#C9D4FF', intensity: 0.45 },
-  golden: { anchor: 'map', position: [1.5, 235, 52], color: '#FFD3AE', intensity: 0.48 },
+  golden: { anchor: 'map', position: [1.5, 215, 40], color: '#FFEEDC', intensity: 0.5 },
 } as const
 
 /** Dim mask (world with an osiedle-shaped hole). */
@@ -140,8 +144,8 @@ export function buildingRamp(look: 'day' | 'night' | 'golden', owner: ProfileId)
   }
   if (look === 'golden') {
     return {
-      inside: [mix('#F6EEE6', a.soft, 0.5), '#FFFFFF'] as const,
-      outside: ['#E8DED2', '#F6F0E8'] as const,
+      inside: [mix('#FFF8EC', a.soft, 0.3), '#FFFDF7'] as const,
+      outside: ['#F8F1E4', '#FFFAF0'] as const,
     }
   }
   return {

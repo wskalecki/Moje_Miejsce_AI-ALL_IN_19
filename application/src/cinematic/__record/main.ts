@@ -15,6 +15,7 @@ import '../../lib/maplibreSetup'
 import { DATA_URLS, MAP_STYLE_URL } from '../../app/config'
 import { warmBasemap } from '../../map/basemap'
 import { OSIEDLA, OSIEDLA_BY_SLUG, type OsiedleSlug } from '../../mock/osiedla'
+import { LIGHT } from '../palette'
 import { CinemaScene, type SceneTarget } from '../scene'
 
 const params = new URLSearchParams(location.search)
@@ -30,6 +31,8 @@ const zoom0 = o.cameraZoom ?? 16
 const PITCH0 = 60
 /** Drone move: the clip starts on the camera where the live fly-in ends, then orbits and pushes in. */
 const MOVE = { bearing: 30, zoom: 0.35, pitch: 8 }
+/** Key-light azimuth relative to the camera bearing (degrees; `?sun=` overrides for look tests). */
+const SUN_FROM_FRAME_DEG = Number(params.get('sun') ?? 300)
 
 function cameraAt(i: number) {
   const t = i / CLIP
@@ -82,6 +85,12 @@ window.__ready = new Promise<void>((resolve) => {
     const target: SceneTarget = { slug: o.slug, owner: o.profile, center: o.center, bearing: o.cameraBearing, zoom: zoom0, shape }
     const scene = new CinemaScene(map, [target], { dayLook: 'golden', overlays: false })
     scene.setLook('golden', o.slug, 0)
+    // Key light from the upper right of the frame (where the graded sun glow sits): sunlit roofs and
+    // right-facing walls, walls towards the camera and the left in soft shade. Fixed to the map, so
+    // it stays put while the camera orbits.
+    const L = LIGHT.golden
+    const sunAzimuth = (o.cameraBearing + MOVE.bearing / 2 + SUN_FROM_FRAME_DEG + 360) % 360
+    map.setLight({ anchor: L.anchor, position: [L.position[0], sunAzimuth, L.position[2]], color: L.color, intensity: L.intensity })
     scene.traceOutline(0, { glint: false })
     await idle()
     // second pass: tiles requested by the first frame (sky, far tiles) have arrived
