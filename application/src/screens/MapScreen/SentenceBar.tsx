@@ -23,6 +23,9 @@ export interface SentenceBarProps {
   hidden?: boolean
 }
 
+/** Priorities are unlimited — the pill shows the first few icons and "+N". */
+const MAX_ICONS = 4
+
 function listLabel(priorities: readonly CategoryKey[]): string {
   const labels = priorities.map((c) => CATEGORIES[c].sentenceLabel)
   if (labels.length <= 1) return labels.join('')
@@ -111,10 +114,13 @@ export function SentenceBar({ profile, priorities, horizon, onProfileChange, hid
             title={list ? `${list} — zmień` : 'Wybierz priorytety'}
           >
             {priorities.length ? (
-              priorities.map((c) => {
-                const Icon = CATEGORY_ICONS[c]
-                return <Icon key={c} size={16} strokeWidth={2.1} aria-hidden />
-              })
+              <>
+                {priorities.slice(0, MAX_ICONS).map((c) => {
+                  const Icon = CATEGORY_ICONS[c]
+                  return <Icon key={c} size={16} strokeWidth={2.1} aria-hidden />
+                })}
+                {priorities.length > MAX_ICONS && <span className="sbar__more tabular">+{priorities.length - MAX_ICONS}</span>}
+              </>
             ) : (
               <span>…</span>
             )}

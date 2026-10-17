@@ -154,6 +154,12 @@
   display: none;
 }
 
+.sbar__more {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 /* ---------- popover ---------- */
 
 .sbar-pop {

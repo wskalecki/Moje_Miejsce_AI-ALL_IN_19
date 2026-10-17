@@ -78,7 +78,7 @@ export function MatchingScreen({ onDone }: { onDone: () => void }) {
   }, [])
 
   const parts = useMemo(
-    () => buildSentence({ profile: state.profile, priorities: state.priorities, horizon: state.horizon }),
+    () => buildSentence({ profile: state.profile, priorities: state.priorities, horizon: state.horizon, maxNamed: 4 }),
     [state.profile, state.priorities, state.horizon],
   )
 

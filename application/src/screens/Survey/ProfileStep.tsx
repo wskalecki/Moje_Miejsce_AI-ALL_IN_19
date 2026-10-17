@@ -1,10 +1,9 @@
 import { Check } from 'lucide-react'
 import { useEffect, useRef, useState, type KeyboardEvent, type RefObject } from 'react'
 import { PROFILE_ORDER, PROFILES } from '../../app/dictionary'
-import { PROFILE_ICONS } from '../../app/icons'
 import { useAppStore } from '../../app/useAppStore'
 import type { ProfileId } from '../../app/types'
-import { DotPatch } from './DotPatch'
+import { PROFILE_PHOTOS } from './photos'
 
 const ADVANCE_MS = 400
 
@@ -56,7 +55,7 @@ export function ProfileStep({
       <div className="profile-cards" role="radiogroup" aria-labelledby="q-profile">
         {PROFILE_ORDER.map((p, i) => {
           const def = PROFILES[p]
-          const Icon = PROFILE_ICONS[p]
+          const photo = PROFILE_PHOTOS[p]
           const selected = state.profile === p
           return (
             <div
@@ -66,6 +65,7 @@ export function ProfileStep({
               }}
               role="radio"
               aria-checked={selected}
+              aria-label={`${def.title}. ${def.description}`}
               tabIndex={i === focusIdx ? 0 : -1}
               className={`choice-card profile-card accent-${p}`}
               data-selected={selected || undefined}
@@ -80,16 +80,15 @@ export function ProfileStep({
               <span className="choice-card__check" aria-hidden>
                 <Check size={14} strokeWidth={3} />
               </span>
-              <span className="profile-card__art" aria-hidden>
-                <DotPatch seed={i} />
-                <span className="profile-card__halo" />
-                <span className="profile-card__icon">
-                  <Icon size={52} strokeWidth={1.6} />
-                </span>
+              <span className="profile-card__art">
+                <img src={photo.src} alt="" width={720} height={450} decoding="async" draggable={false} />
               </span>
               <span className="profile-card__text">
                 <span className="t-h2 profile-card__title">{def.title}</span>
                 <span className="t-body t-secondary">{def.description}</span>
+                <span className="profile-card__credit">
+                  {photo.place}, {photo.credit}
+                </span>
               </span>
             </div>
           )

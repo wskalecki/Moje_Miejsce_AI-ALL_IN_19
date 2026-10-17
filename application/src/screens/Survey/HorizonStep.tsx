@@ -1,7 +1,6 @@
 import { Check } from 'lucide-react'
 import { useRef, type KeyboardEvent, type RefObject } from 'react'
 import { HORIZON_ORDER, HORIZONS } from '../../app/dictionary'
-import { HORIZON_ICONS } from '../../app/icons'
 import { useAppStore } from '../../app/useAppStore'
 
 export function HorizonStep({ headingRef }: { headingRef: RefObject<HTMLHeadingElement | null> }) {
@@ -35,7 +34,6 @@ export function HorizonStep({ headingRef }: { headingRef: RefObject<HTMLHeadingE
       <div className="horizon-cards" role="radiogroup" aria-labelledby="q-horizon">
         {HORIZON_ORDER.map((h, i) => {
           const def = HORIZONS[h]
-          const Icon = HORIZON_ICONS[h]
           const selected = state.horizon === h
           return (
             <div
@@ -53,9 +51,6 @@ export function HorizonStep({ headingRef }: { headingRef: RefObject<HTMLHeadingE
             >
               <span className="choice-card__check" aria-hidden>
                 <Check size={14} strokeWidth={3} />
-              </span>
-              <span className="horizon-card__icon" aria-hidden>
-                <Icon size={30} strokeWidth={1.7} />
               </span>
               <span className="horizon-card__text">
                 <span className="t-h2">{def.title}</span>

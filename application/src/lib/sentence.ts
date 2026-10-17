@@ -18,6 +18,17 @@ export interface SentenceInput {
   profile: ProfileId | null
   priorities: readonly CategoryKey[]
   horizon: Horizon | null
+  /** Name at most this many priorities; beyond that the last ones collapse to
+   *  "jeszcze N inne" (priorities are unlimited since iteration 2). */
+  maxNamed?: number
+}
+
+/** "jeszcze 2 inne" / "jeszcze 5 innych" (Polish plural after a numeral). */
+export function othersLabel(n: number): string {
+  const mod10 = n % 10
+  const mod100 = n % 100
+  const few = mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+  return `jeszcze ${n} ${few ? 'inne' : 'innych'}`
 }
 
 /** "liczą się" for ≥ 2 categories or a single plural one (zakupy, przedszkola i szkoły). */
@@ -39,13 +50,18 @@ export function buildSentence(input: SentenceInput): SentencePart[] {
   if (input.priorities.length === 0) {
     parts.push({ type: 'slot', key: 'priority-empty', slot: 'priority', text: null })
   } else {
-    input.priorities.forEach((c, i) => {
-      if (i > 0) {
-        const sep = i === input.priorities.length - 1 ? ' i ' : ', '
-        parts.push({ type: 'text', key: `t-sep-${c}`, text: sep })
-      }
+    const max = Math.max(2, input.maxNamed ?? Infinity)
+    const collapse = input.priorities.length > max
+    const named = collapse ? input.priorities.slice(0, max - 1) : input.priorities
+    const total = named.length + (collapse ? 1 : 0)
+    named.forEach((c, i) => {
+      if (i > 0) parts.push({ type: 'text', key: `t-sep-${c}`, text: i === total - 1 ? ' i ' : ', ' })
       parts.push({ type: 'slot', key: `priority-${c}`, slot: 'priority', text: CATEGORIES[c].sentenceLabel, category: c })
     })
+    if (collapse) {
+      parts.push({ type: 'text', key: 't-sep-others', text: ' i ' })
+      parts.push({ type: 'slot', key: 'priority-others', slot: 'priority', text: othersLabel(input.priorities.length - named.length) })
+    }
   }
 
   parts.push({ type: 'text', key: 't-search', text: `, ${verb} miejsca ` })

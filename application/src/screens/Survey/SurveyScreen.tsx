@@ -20,6 +20,9 @@ import { PrioritiesStep } from './PrioritiesStep'
 import { HorizonStep } from './HorizonStep'
 import './survey.css'
 
+/** Long priority lists collapse to "… i jeszcze N inne" so the sentence stays ≤ 3 lines. */
+const SENTENCE_MAX_NAMED = 4
+
 const STEP_SLOT: Record<SurveyStep, SlotKind> = { 1: 'profile', 2: 'priority', 3: 'horizon' }
 
 export interface SurveyScreenProps {
@@ -51,7 +54,7 @@ export function SurveyScreen({ step, onFinish }: SurveyScreenProps) {
   }
   const goNext = () => {
     if (step === 1 && state.profile) navigate('/ankieta?krok=2')
-    else if (step === 2 && state.priorities.length > 0) navigate('/ankieta?krok=3')
+    else if (step === 2) navigate('/ankieta?krok=3')
     else if (step === 3 && state.horizon) {
       if (onFinish) onFinish()
       else navigate('/mapa')
@@ -91,7 +94,7 @@ export function SurveyScreen({ step, onFinish }: SurveyScreenProps) {
   }, [step])
 
   const parts = useMemo(
-    () => buildSentence({ profile: state.profile, priorities: state.priorities, horizon: state.horizon }),
+    () => buildSentence({ profile: state.profile, priorities: state.priorities, horizon: state.horizon, maxNamed: SENTENCE_MAX_NAMED }),
     [state.profile, state.priorities, state.horizon],
   )
 
@@ -104,7 +107,7 @@ export function SurveyScreen({ step, onFinish }: SurveyScreenProps) {
 
   return (
     <main className="survey">
-      <AmbientBackground intensity={0.55} />
+      <AmbientBackground intensity={0.3} />
 
       <header className="survey__top">
         <Button variant="ghost" iconLeft={ArrowLeft} onClick={goBack} className="survey__back">
@@ -153,7 +156,7 @@ export function SurveyScreen({ step, onFinish }: SurveyScreenProps) {
           </Button>
         )}
         {step === 2 && (
-          <Button size="lg" iconRight={ArrowRight} onClick={goNext} disabled={state.priorities.length === 0}>
+          <Button size="lg" iconRight={ArrowRight} onClick={goNext}>
             Dalej
           </Button>
         )}

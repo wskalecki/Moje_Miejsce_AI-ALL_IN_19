@@ -1,7 +1,7 @@
 // Run: npm test  (node --test, native TS type stripping)
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { buildSentence, sentenceToString } from './sentence.ts'
+import { buildSentence, othersLabel, sentenceToString } from './sentence.ts'
 
 const s = (input: Parameters<typeof buildSentence>[0]) => sentenceToString(buildSentence(input))
 
@@ -46,4 +46,24 @@ test('2 priorities joined with "i"', () => {
     s({ profile: 'student', priorities: ['komunikacja', 'gastronomia'], horizon: 'chwila' }),
     'Studiuję, liczą się dla mnie komunikacja i gastronomia, szukam miejsca na chwilę.',
   )
+})
+
+test('maxNamed collapses long priority lists into "jeszcze N inne"', () => {
+  const priorities = ['komunikacja', 'gastronomia', 'zycieNocne', 'sport', 'cisza', 'zielen'] as const
+  assert.equal(
+    s({ profile: 'student', priorities: [...priorities], horizon: 'chwila', maxNamed: 4 }),
+    'Studiuję, liczą się dla mnie komunikacja, gastronomia, życie nocne i jeszcze 3 inne, szukam miejsca na chwilę.',
+  )
+  // exactly maxNamed → all named
+  assert.equal(
+    s({ profile: 'rodzina', priorities: ['edukacja', 'zielen', 'cisza', 'zakupy'], horizon: 'stale', maxNamed: 4 }),
+    'Mamy rodzinę, liczą się dla nas przedszkola i szkoły, zieleń, cisza i zakupy, szukamy miejsca na stałe.',
+  )
+})
+
+test('othersLabel follows Polish numeral agreement', () => {
+  assert.equal(othersLabel(2), 'jeszcze 2 inne')
+  assert.equal(othersLabel(4), 'jeszcze 4 inne')
+  assert.equal(othersLabel(5), 'jeszcze 5 innych')
+  assert.equal(othersLabel(7), 'jeszcze 7 innych')
 })
