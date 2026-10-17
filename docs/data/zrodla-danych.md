@@ -24,7 +24,7 @@ Legenda: ✅ działa i jest użyte w `data/scripts/siatka` · ✔️ działa, je
 | lokalizacja-defibryzatorow-aed (sic, literówka w slugu) | `scb_lokalizacja_defibrylatorow` | ✅ | Współrzędne zagnieżdżone `[[lon, lat]]`. `device_availability`: „Całodobowa” / „Ograniczona” |
 | budzet-obywatelski | `cks_budzet_obywatelski` | ⚠️ | **Wymaga `{"rok": RRRR, "status": "w_realizacji"\|"zrealizowane"}`**, bez parametrów zwraca HTTP 500. Tylko projekty zrealizowane i w realizacji (brak odrzuconych i głosowanych). `pins` = `[{lat,lng}]`. **Zawiera imiona i nazwiska autorów, nie publikuj (RODO)** |
 | konsultacje-spoleczne | `cks_konsultacje_spoleczne` | ⚠️ | Tylko bieżące (6 sztuk w dniu testu), nie wszystkie mają `latitude`/`longitude` |
-| rejestr-cen-nieruchomosci | `bgk_rcn` | ❌ | **HTTP 500** (u Mikołaja i u nas, także `bemowo` małą literą). Szukamy źródła zapasowego |
+| rejestr-cen-nieruchomosci | `bgk_rcn` | ❌ | **HTTP 500 `Service unavailable`** (X 2026, 5 wariantów, klucz działa dla innych akcji). Parametry z `bgk_rcn_pa.json`: `dzielnica` (bez polskich znaków, jednym słowem, np. `pragapolnoc`), `rodzajNieruchomosci` (`nieruchomoscLokalowa`), `rodzajRynku` (`rynekPierwotny`/`rynekWtorny`), `rok`. Nie czekamy: te same dane BGiK są w GUGiK WFS i w paczkach GML miasta (sekcja 3a) |
 | pozostałe (parkingi, pogoda ZOM, pojazdy GPS, tabor, odjazdy, segregacja, ekopunkty, trasy) | | ✔️ | Raport Mikołaja: `docs/warsaw-data/raport.md` na gałęzi `mikolaj`. Pogoda ZOM ma **temperaturę nawierzchni**, a tabor ma **rok produkcji i trakcję** |
 
 ## 2. Miejskie usługi mapowe (bez klucza, ponowne wykorzystanie bezpłatne, podać źródło „Urząd m.st. Warszawy”)
@@ -87,6 +87,35 @@ Warunki: https://architektura.um.warszawa.pl/warunki-ponownego-wykorzystania. Cz
 | **GIOŚ HAŁAS API** `https://dane.gios.gov.pl/api/halas/v1/zasiegi-halasu` | kontury Lden SMH 2022 (dane 2021), drogi i kolej (kolej **zawiera tramwaje**) | ✅ | CC BY 4.0, bez klucza. Parametry: `wojewodztwo=MAZOWIECKIE`, `rundaMapowania=4 Runda Mapowania`, `zrodloHalasu=Hałas drogowy wewnątrz aglomeracji` (lub `kolejowy`), `wskaznik=LDWN`, `liczbaElementowNaStronie=50`, `numerStrony` od 0. Zwraca MultiPolygon w **EPSG:2180, bez deklaracji CRS**. Mazowsze: drogi 120 obiektów (~200 MB, **ostatnia strona ma 115 MB**, pobieranie trwa kilka minut), kolej 92 (~28 MB). Brak pola aglomeracji, więc przycinamy do granicy Warszawy. Pasma są rozłączne (`Lden5559` … `LdenGreaterThan80`). Kontrola z `/v1/informacja-o-powierzchni-terenu`: drogi ≥ 60 dB 146,40 km² (GIOŚ 146,59), kolej ≥ 60 dB 20,10 km² (20,13). Skrypty: `data/scripts/noise/` (źródła opisuje `noise/sources.md` na `feat/noise-dataset`) |
 | RSPO | rejestr szkół | ⚠️ | API wymaga wniosku (do 14 dni). Eksport CSV z wyszukiwarki działa |
 
+## 3a. Ceny transakcyjne mieszkań (RCN) ✔️
+
+Od 13 II 2026 RCN jest bezpłatny (art. 40a ust. 2 pkt 1 lit. k PGiK). Dla Warszawy oba źródła niżej mają **te same rekordy** z Biura Geodezji i Katastru (przestrzeń nazw `PL.PZGiK.5346.RCN`). Jeden rekord to jeden lokal: cena, powierzchnia użytkowa, izby, kondygnacja, data aktu, rynek pierwotny lub wtórny, ulica i numer budynku oraz punkt budynku. Wystarcza to do agregacji na kwartały (`warszawa_osiedla_fine`). Sprawdzone 2026-10-17, jeszcze nieużyte.
+
+**GUGiK WFS `https://mapy.geoportal.gov.pl/wss/service/rcn`** (MapServer, WFS 2.0.0 i WMS 1.3.0, bez klucza, `Fees: none`):
+- Warstwy: `ms:lokale`, `ms:budynki`, `ms:dzialki`. `ms:powiaty` to tylko zasięg, bez atrybutów.
+- Przykład: `?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ms:lokale&COUNT=20000&BBOX=52.235,21.02,52.245,21.04,urn:ogc:def:crs:EPSG::4326`. **BBOX w kolejności lat,lon.** Powiśle: 1981 rekordów w 2 s (5 MB).
+- Filtry FES 2.0 w `FILTER=` działają: `TERYT=1465`, `DOK_DATA` (Between), `LOK_FUNKCJA=mieszkalna`. `RESULTTYPE=hits` zwraca liczbę. Stronicowanie przez `STARTINDEX`.
+- **Tylko GML**, domyślnie EPSG:2180 (dozwolone 2176–2179). `SRSNAME=EPSG:4326` daje „Invalid SRS”, więc przeliczaj lokalnie. `gml:pos` w kolejności northing easting.
+- Pola: `TRAN_RODZAJ_RYNKU` (`rynekPierwotny`/`rynekWtorny`), `TRAN_CENA_BRUTTO`, `DOK_DATA`, `NIER_UDZIAL`, `LOK_FUNKCJA` (`mieszkalna`/`garaz`/`inna`/…), `LOK_LICZBA_IZB`, `LOK_NR_KOND`, `LOK_POW_UZYT`, `LOK_CENA_BRUTTO`, `LOK_ADRES` (`MSC:Warszawa;UL:ulica Dobra;NR_PORZ:13`, bez numeru lokalu), `LOK_ID_LOKALU`.
+- Pokrycie Warszawy: ok. 361 tys. lokali od 2006 r., ok. 31–42 tys. rocznie (2016–2025). Gęsto mniej więcej do II 2026, czyli **opóźnienie ok. 8 miesięcy**.
+- Pułapki:
+  - Licz cenę z `LOK_CENA_BRUTTO` (wypełnione w ok. 99%).
+  - Bierz tylko `NIER_UDZIAL` równe `1/1` lub puste. Udziały typu 1/259 psują cenę za m².
+  - Odrzuć garaże i bardzo małe lokale.
+  - `DOK_TWORCA` to nazwisko notariusza, nie publikuj. Strony transakcji są podane tylko jako typ.
+  - Na Powiślu brak rekordów z lat 2017–2019 (lokalna luka), więc sprawdź dane przed liczeniem szeregu czasowego.
+  - WMS GetFeatureInfo zwracał pustą odpowiedź, używaj WFS.
+- Kontrola: Powiśle, lokale mieszkalne od 2024 r.: n=210, mediana **22 973 zł/m²**.
+
+**Paczki GML miasta: https://architektura.um.warszawa.pl/udostepniane-dane-rcn1** (najświeższe):
+- Pliki `zbior_danych_rcn_<lata>.zip`: 2006–2015 (71 MB), 2016–2020 (228 MB), 2021–2025 (43–55 MB rocznie) oraz `zbior_danych_rciwn_2026_20261005.zip` (16 MB, po rozpakowaniu 90 MB, stan na 5 X 2026).
+- Schemat GUGiK RCN 1.4, relacyjny przez `xlink:href`: `RCN_Transakcja` → `RCN_Nieruchomosc` → `RCN_Lokal` → `RCN_Adres`, a data jest w `RCN_Dokument`. **Identyfikatory `gml:id` mają prefiks `PL.PZGIK.1465_`, a odnośniki `PL.PZGiK.5346.RCN_`**, więc łącz po końcówce.
+- EPSG:2178 w kolejności northing easting. Kody są liczbowe (`rodzajRynku` 1 = pierwotny, 2 = wtórny; `funkcjaLokalu` 1 = mieszkalna). Kody ustaliliśmy z proporcji, potwierdź je w załączniku do rozporządzenia z 27.07.2021.
+- 2026: 11 971 lokali, w tym 9450 mieszkalnych z udziałem 1/1, mediana 16 611 zł/m² (NBP II kw. 2026: 16,7 tys.). Dane gęste do IV 2026.
+- Licencja: warunki ponownego wykorzystania m.st. Warszawy, podać źródło „Urząd m.st. Warszawy”.
+
+**Bez danych o cenach:** WMS `wms.um.warszawa.pl` (213 warstw), GeoServer `wms2.um.warszawa.pl`, `mapa.um.warszawa.pl/rcn-szukaj/` (tylko interfejs) i dane.gov.pl. NBP podaje tylko średnie dla miasta.
+
 ## 4. Decyzje o danych (dlaczego to źródło)
 
 | Metryka | Źródło | Dlaczego |
@@ -98,7 +127,7 @@ Warunki: https://architektura.um.warszawa.pl/warunki-ponownego-wykorzystania. Cz
 | Jakość powietrza | portal, PM2.5, interpolacja IDW (do 5 km) | 141 stacji daje ciągłą mapę. To pomiar z jednej godziny, w UI oznaczony jako „pomiar z dziś” |
 | Utrudnienia | portal, liczba unikalnych w promieniu 1 km | Linie mają wiele wierzchołków |
 | Hałas | GIOŚ HAŁAS API (SMH 2022), udział powierzchni osiedla z Lden ≥ 60 / 65 dB | Rekomendacja Wojtka z `noise/sources.md`: ta sama geometria co EEA, ale licencja CC BY 4.0 i natywny EPSG:2180. Pakiet `warsaw_noise` wymaga geopandas, więc liczymy samym shapely |
-| Ceny | RCN (portal), obecnie błąd 500 | Kontrakt przewiduje `rcn_m2_median_district` |
+| Ceny | RCN: GUGiK WFS `ms:lokale` lub paczki GML miasta (sekcja 3a). Portal zwraca błąd 500 | Kontrakt przewiduje `rcn_m2_median_district` |
 
 ## 5. Mock: 3 osiedla
 
@@ -140,9 +169,9 @@ Uwaga: tramwaj do Miasteczka Wilanów już działa (otwarty w 2024 r., 6,5 km), 
 
 ## 6. Budynki, drogi, zieleń 3D dla 3 osiedli (OSM) ✅
 
-- **Co:** `application/public/data/3d/<msiId>/` dla `powisle`, `blonia-wilanowskie`, `saska-kepa` (obszar MSI + bufor 600 m): `buildings.geojson` (`id`, `h`, `mh`, `kind`, `name` tylko dla budynków publicznych, `poi`), `roads.geojson` (bryły jezdni `part=curb|surface`, `highway`, `name`, `way_id`), `roads-lines.geojson` (osie dróg `way_id`, `name`, `highway`, `lanes`, `tn`=tunel), `green.geojson`, `water.geojson`. Ok. 1,6 / 4,0 / 2,3 MB (gzip ok. 4× mniej).
+- **Co:** `application/public/data/3d/<msiId>/` dla `muranow`, `stare-bielany`, `natolin` (obszar MSI + bufor 600 m; inne obszary: `OSM3D_AREAS=powisle,saska-kepa`): `buildings.geojson` (`id`, `h`, `mh`, `kind`, `name` tylko dla budynków publicznych, `poi`), `roads.geojson` (bryły jezdni `part=curb|surface`, `highway`, `name`, `way_id`), `roads-lines.geojson` (osie dróg `way_id`, `name`, `highway`, `lanes`, `tn`=tunel), `green.geojson`, `water.geojson`. Ok. 2,2 / 1,8 / 2,5 MB (gzip ok. 4× mniej).
 - **Źródło:** Geofabrik `mazowieckie-latest.osm.pbf` (ok. 300 MB, ODbL, © OpenStreetMap). **Overpass 17.10 wieczorem odrzucał połączenia** (`overpass-api.de` ECONNREFUSED, gdy w zespole chodziły duże zapytania; `kumi.systems` i `private.coffee` 500, `maps.mail.ru` 504), a jego baza miała znacznik `timestamp_osm_base` z lipca 2026. PBF jest świeższy i nie ma limitów; przejście całego pliku pyosmium trwa ok. 80 s.
 - **Skrypty:** `uv run data/scripts/osm3d/extract_osm.py` (PBF → `data/raw/osm3d/<msiId>.osm.geojson`), potem `uv run data/scripts/osm3d/build_osm3d.py`.
 - **Wysokość:** `height`, inaczej `building:levels` × 3,2 m (+ połowa `roof:levels`), inaczej domyślna wg typu (dom 7 m, blok 15 m, garaż 3 m, inne 9 m). `min_height` / `building:min_level` → `mh`; `building=roof` (wiaty) wisi 1 m nad ziemią. Pomijamy obrysy < 20 m² i budynki pomocnicze (garaże, szopy, altany) < 40 m².
-- **`kind`** (`school`, `kindergarten`, `university`, `college`, `hospital`, `clinic`, `church`, `culture`, `public`, `office`, `retail`, `residential`, `other`): najpierw tag `building`, potem `amenity`/`shop`/`office` na budynku, potem teren usługi, w którym stoi (`amenity=school|university|hospital…` jako poligon, np. „Kampus Główny UW”, SGGW), na końcu punkt POI z `data/poi` (przedszkola, szkoły, uczelnie, przychodnie) wewnątrz obrysu. **Pułapka:** w OSM szkoła to często tylko poligon terenu, a budynek ma `building=yes`; bez kroku „teren usługi” większość szkół i uczelni byłaby `other`. Nowy BUW ma `building=public` + `amenity=library`, więc biblioteka na terenie uczelni dostaje `university`. POI w bloku mieszkalnym albo w budynku wyższym niż 15 m (np. przedszkole na parterze) zapisujemy tylko w `poi`, `kind` zostaje `residential`/`other`.
+- **`kind`** (`school`, `kindergarten`, `university`, `college`, `hospital`, `clinic`, `church`, `culture`, `public`, `office`, `retail`, `residential`, `other`): najpierw tag `building`, potem `amenity`/`shop`/`office` na budynku, potem teren usługi, w którym stoi (`amenity=school|university|hospital…` jako poligon, np. „Kampus Główny UW”, AWF, SGGW, Narodowy Instytut Onkologii), na końcu punkt POI z `data/poi` (przedszkola, szkoły, uczelnie, przychodnie) wewnątrz obrysu. **Pułapka:** w OSM szkoła to często tylko poligon terenu, a budynek ma `building=yes`; bez kroku „teren usługi” większość szkół i uczelni byłaby `other`. Nowy BUW ma `building=public` + `amenity=library`, więc biblioteka na terenie uczelni dostaje `university`. POI w bloku mieszkalnym albo w budynku wyższym niż 15 m (np. przedszkole na parterze) zapisujemy tylko w `poi`, `kind` zostaje `residential`/`other`.
 - **Drogi:** szerokość wg klasy jak w `feat/grid-tile-lab` (motorway 14 … residential 5,5 m, `_link` 6 m); tag `width` (3–40 m) albo `lanes` × 3,2 m ma pierwszeństwo. Krawężnik = w/2 + 0,45 m, nawierzchnia = w/2 + 0,28 m. Tunele (np. tunel Wisłostrady na Powiślu) są tylko w `roads-lines` z `tn=1`, bez bryły.

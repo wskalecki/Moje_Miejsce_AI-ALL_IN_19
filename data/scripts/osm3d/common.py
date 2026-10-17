@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 from pyproj import Transformer
@@ -15,7 +16,9 @@ OUT_ROOT = REPO / "application" / "public" / "data" / "3d"
 BOUNDARIES = REPO / "data" / "boundaries" / "warszawa_osiedla.geojson"
 POI_DIR = REPO / "data" / "poi"
 
-FEATURED_AREAS = ["powisle", "blonia-wilanowskie", "saska-kepa"]
+# Featured MSI areas (after the real-data ranking, 2026-10-17 evening). Override with
+# OSM3D_AREAS=powisle,saska-kepa to build other areas.
+FEATURED_AREAS = [a for a in os.environ.get("OSM3D_AREAS", "muranow,stare-bielany,natolin").split(",") if a]
 AREA_BUFFER_M = 600
 
 # Metric CRS for buffers/areas/distances (PUWG 1992).
