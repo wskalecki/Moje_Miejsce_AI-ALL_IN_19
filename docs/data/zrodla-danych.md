@@ -38,6 +38,7 @@ Warunki: https://architektura.um.warszawa.pl/warunki-ponownego-wykorzystania. Cz
   - warstwy `wfs:*` w **EPSG:4326**, w kolejności lon, lat.
 - **Używane:**
   - `GRANICE_DZIELNIC` → `data/boundaries/`,
+  - `MSI` (obszary MSI, czyli osiedla) → `data/boundaries/warszawa_osiedla.geojson`, opis niżej,
   - `wfs:METRO_WEJSCIA` (233 wejścia, bez nazw stacji),
   - `BIBLIOTEKI` (VI 2026),
   - `UNIWERSYTETY_TRZECIEGO_WIEKU` (2023).
@@ -59,6 +60,15 @@ Warunki: https://architektura.um.warszawa.pl/warunki-ponownego-wykorzystania. Cz
 - hałas: `HALAS_*_{LDWN,LN}_{2017,2022}`. GetFeatureInfo zwraca decybele tylko dla 2017,
 - plany: `MPZP_PRZEZNACZENIE_TERENU` (GetFeatureInfo podaje funkcję terenu i maksymalną wysokość),
 - `UZBROJENIE_SLUPY_LATARNIE`, `DECYZJE_O_POZWOLENIU_NA_BUDOWE`.
+
+### Granice osiedli: obszary MSI (`ns92528565:MSI`) ✅
+
+- **Co:** 143 obszary Miejskiego Systemu Informacji (np. „Powiśle”, „Saska Kępa”, „Błonia Wilanowskie”), pełne pokrycie miasta bez nakładania się (99,99% powierzchni dzielnic). Pola `NAZWA`, `DZIELNICA`, `AKTUALNOSC` (maj 2026), `PODSTAWA_PRAWNA` (uchwała rady dzielnicy).
+- **Wywołanie:** `https://wfs.um.warszawa.pl/serwis?service=WFS&version=1.1.0&request=GetFeature&typeName=ns92528565:MSI` (ok. 1,4 MB GML, kilka sekund).
+- **Pułapki:** EPSG:2178, easting pierwszy (jak `GRANICE_DZIELNIC`). Każdy obszar to jeden `gml:Surface/PolygonPatch` bez dziur. Nazwy są unikalne. **Nie ma osobnego „Miasteczka Wilanów”**: leży w obszarze „Błonia Wilanowskie” (Wilanów).
+- **Upraszczanie:** `shapely.coverage_simplify` (4 m), żeby wspólne granice sąsiadów nie rozjeżdżały się (zwykłe `simplify` per poligon robi szczeliny).
+- **Skrypt:** `uv run data/scripts/fetch_osiedla_boundaries.py` → `data/boundaries/warszawa_osiedla.geojson` i `application/public/data/osiedla.geojson` (326 KB, właściwości `id`, `name`, `district`, `area_km2`).
+- OSM (`admin_level=10/11`, `place=neighbourhood`) jako zapas: niepełne pokrycie i nakładające się poligony, więc MSI jest lepsze.
 
 ## 3. Inne źródła
 

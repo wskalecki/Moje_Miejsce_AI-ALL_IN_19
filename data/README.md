@@ -22,6 +22,9 @@ Datasets for **Siatka**: 200 m grid (squares in EPSG:2180), per-cell metrics, PO
 # Official district boundaries (needed for in_warsaw / district)
 uv run data/scripts/fetch_district_boundaries.py
 
+# Neighbourhood (MSI area) boundaries for the map
+uv run data/scripts/fetch_osiedla_boundaries.py
+
 # Full Warsaw grid (not committed: 7.6 MB, 22 860 cells); add --warsaw-only to drop
 # cells outside the city (4.5 MB, 13 318 cells)
 uv run data/scripts/generate_grid.py -o data/grid/warsaw_grid.geojson
@@ -37,6 +40,7 @@ python3 data/scripts/validate_data.py
 | Path | Source | License | Notes |
 |------|--------|---------|-------|
 | `boundaries/warszawa_dzielnice.geojson` | [WFS m.st. Warszawy `GRANICE_DZIELNIC`](https://wfs.um.warszawa.pl/serwis) | Ponowne wykorzystanie bezpłatne, źródło: Urząd m.st. Warszawy | 18 dzielnic, WGS84, uproszczone ~5 m; pobrane 2026-10-17 |
+| `boundaries/warszawa_osiedla.geojson` | [WFS m.st. Warszawy `MSI`](https://wfs.um.warszawa.pl/serwis) | Ponowne wykorzystanie bezpłatne, źródło: Urząd m.st. Warszawy | 143 obszary MSI (osiedla), WGS84, `coverage_simplify` 4 m; kopia w `application/public/data/osiedla.geojson`; pobrane 2026-10-17 |
 | `samples/warsaw_grid_sample.geojson` | generated | n/a | 917 cells (200 m), Mokotów / Śródmieście patch |
 | `samples/cell_metrics_sample.json` | generated demo | n/a | Synthetic persona scores for 897 of the 917 sample cells (re-keyed from the 1 km demo; 20 cells on the southern edge have no entry) |
 | `samples/poi_sample.geojson` | synthetic | n/a | 3 POI for layer spike |
