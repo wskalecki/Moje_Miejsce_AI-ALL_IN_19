@@ -1,6 +1,7 @@
 /**
- * DEV-only recording stage for the flyover clips (T8): `npx vite` → /record.html?slug=powisle.
- * Renders the 3D map in the "golden hour" look with no UI and exposes a deterministic camera:
+ * DEV-only recording stage for the flyover clips (T8): `npx vite` → /record.html?slug=<slug from src/mock/osiedla.ts>
+ * (default: the first osiedle).
+ * Renders the 3D map in the "golden hour" look with no UI (with the area's OSM 3D layers when it has them) and exposes a deterministic camera:
  *
  *   await window.__ready                 // style, tiles and scene are in place
  *   await window.__seek(i)               // camera for frame i, resolves on the map's 'idle'
@@ -19,7 +20,7 @@ import { LIGHT } from '../palette'
 import { CinemaScene, type SceneTarget } from '../scene'
 
 const params = new URLSearchParams(location.search)
-const slug = (params.get('slug') ?? 'powisle') as OsiedleSlug
+const slug = (params.get('slug') ?? OSIEDLA[0].slug) as OsiedleSlug
 const o = OSIEDLA_BY_SLUG[slug] ?? OSIEDLA[0]
 const FPS = Number(params.get('fps') ?? 30)
 const SECONDS = Number(params.get('seconds') ?? 9)
@@ -82,9 +83,12 @@ window.__ready = new Promise<void>((resolve) => {
     for (const l of map.getStyle().layers) if (l.type === 'symbol') map.setLayoutProperty(l.id, 'visibility', 'none')
     const shapes = (await (await fetch(DATA_URLS.osiedlaGeojson)).json()) as FeatureCollection<Polygon | MultiPolygon>
     const shape = shapes.features.find((f) => f.properties?.id === o.msiId) as Feature<Polygon | MultiPolygon>
-    const target: SceneTarget = { slug: o.slug, owner: o.profile, center: o.center, bearing: o.cameraBearing, zoom: zoom0, shape }
-    const scene = new CinemaScene(map, [target], { dayLook: 'golden', overlays: false })
+    const target: SceneTarget = { slug: o.slug, msiId: o.msiId, owner: o.profile, center: o.center, bearing: o.cameraBearing, zoom: zoom0, shape }
+    // OSM 3D buildings (coloured by kind), asphalt roads and green as in the app; `?osm3d=0` = basemap only
+    const scene = new CinemaScene(map, [target], { dayLook: 'golden', overlays: false, osm3d: params.get('osm3d') !== '0' })
     scene.setLook('golden', o.slug, 0)
+    const area = await scene.ensureArea(o.slug)
+    area?.setVisible(true, 0)
     // Key light from the upper right of the frame (where the graded sun glow sits): sunlit roofs and
     // right-facing walls, walls towards the camera and the left in soft shade. Fixed to the map, so
     // it stays put while the camera orbits.

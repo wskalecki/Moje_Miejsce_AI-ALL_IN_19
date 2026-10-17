@@ -19,6 +19,8 @@ import { ACCENTS } from '../design/tokens'
 import type { ProfileId } from '../app/types'
 import { LAYER } from '../map/layers'
 import { PROFILES } from '../map/types'
+import { AreaLayers } from '../map3d/AreaLayers'
+import { areaHas3d, coverage, loadArea, type Coverage } from '../map3d/areaData'
 import { Director } from './director'
 import { buildingRamp, DIM, GOLDEN, LIGHT, mix, NIGHT, rgba, SKY, type BasemapKey, type BasemapPalette, type SkyPreset } from './palette'
 
@@ -33,6 +35,8 @@ export interface SceneTarget {
   shape: Feature<Polygon | MultiPolygon>
   /** Zoom from which the buildings stand at full height (the panel framing zoom); defaults to `zoom − 0.3`. */
   riseZoom?: number
+  /** MSI area id — key of the OSM 3D files (public/data/3d/<msiId>/), when the area has them. */
+  msiId?: string
 }
 
 export interface LookOptions {
@@ -201,16 +205,24 @@ export class CinemaScene {
   private current: { slug: string | null; look: Look } = { slug: null, look: 'overview' }
   /** Look used for the "day" building layers (`golden` on the recording page). */
   private readonly dayLook: 'day' | 'golden'
+  /** OSM 3D replaces the basemap buildings inside the coverage of areas that have the files. */
+  private readonly osm3d: boolean
+  private readonly rise = new Map<string, { zFlat: number; zFull: number; near: FilterSpecification }>()
+  private readonly cover = new Map<string, Coverage>()
+  private readonly areas = new Map<string, AreaLayers>()
+  private readonly areaLoads = new Map<string, Promise<AreaLayers | null>>()
+  private destroyed = false
 
   readonly map: MlMap
 
   constructor(
     map: MlMap,
     targets: SceneTarget[],
-    opts: { dayLook?: 'day' | 'golden'; overlays?: boolean } = {},
+    opts: { dayLook?: 'day' | 'golden'; overlays?: boolean; osm3d?: boolean } = {},
   ) {
     this.map = map
     this.dayLook = opts.dayLook ?? 'day'
+    this.osm3d = opts.osm3d ?? false
     for (const t of targets) this.targets.set(t.slug, t)
     this.director = new Director(map)
     this.install(opts.overlays ?? true)
@@ -296,6 +308,10 @@ export class CinemaScene {
       // heights rise during the last stretch of the fly-in (and settle back when zooming out)
       const zFull = Math.min(t.zoom - Z_RISE_TO, t.riseZoom ?? Infinity)
       const zFlat = zFull - Z_RISE_SPAN
+      this.rise.set(t.slug, { zFlat, zFull, near })
+      // our own OSM buildings take over inside the coverage in daylight: the basemap's day layer skips it
+      const cov = this.osm3d && areaHas3d(t.msiId) ? coverage(t.shape, t.center, BUILDING_RADIUS_M) : null
+      if (cov) this.cover.set(t.slug, cov)
       const height = (prop: 'render_height' | 'render_min_height', fallback: number): ExpressionSpecification => [
         'interpolate',
         ['linear'],
@@ -323,7 +339,7 @@ export class CinemaScene {
             source: 'openmaptiles',
             'source-layer': 'building',
             minzoom: 13,
-            filter: near,
+            filter: look === 'day' && cov ? (['all', near, ['>', ['distance', cov.polygon], 0]] as FilterSpecification) : near,
             paint: {
               'fill-extrusion-color': ['interpolate', ['linear'], dist, rIn, color(ramp.inside), rIn + LIT_FALLOFF_M, color(ramp.outside)],
               'fill-extrusion-height': height('render_height', 8),
@@ -363,6 +379,49 @@ export class CinemaScene {
     for (const h of ['dragPan', 'scrollZoom', 'boxZoom', 'dragRotate', 'keyboard', 'doubleClickZoom', 'touchZoomRotate'] as const) {
       this.handlers[h] = map[h].isEnabled()
     }
+  }
+
+  // ---------------------------------------------------------------- OSM 3D areas
+
+  /** OSM 3D layers of an osiedle, once loaded (`undefined` while loading or without data). */
+  area(slug: string): AreaLayers | undefined {
+    return this.areas.get(slug)
+  }
+
+  /**
+   * Load and add the OSM 3D layers of an osiedle (once). Resolves `null` when it has no 3D data —
+   * then the basemap extrusion stays as the fallback.
+   */
+  ensureArea(slug: string): Promise<AreaLayers | null> {
+    const t = this.targets.get(slug)
+    const cov = this.cover.get(slug)
+    const rise = this.rise.get(slug)
+    if (!t?.msiId || !cov || !rise) return Promise.resolve(null)
+    const pending = this.areaLoads.get(slug)
+    if (pending) return pending
+    const p = loadArea(t.msiId, cov).then((data) => {
+      if (this.destroyed || !this.map.getStyle()) return null
+      // no files (or no layers) after all: give the basemap its buildings back inside the coverage
+      const fallback = () => {
+        this.cover.delete(slug)
+        if (this.map.getLayer(CIN_LAYER.bld(slug, 'day'))) this.map.setFilter(CIN_LAYER.bld(slug, 'day'), rise.near)
+        this.areaLoads.delete(slug)
+        return null
+      }
+      if (!data) return fallback()
+      let a: AreaLayers
+      try {
+        a = new AreaLayers(this.map, slug, data, { beforeId: CIN_LAYER.routeCasing, zFlat: rise.zFlat, zFull: rise.zFull })
+      } catch {
+        return fallback()
+      }
+      this.areas.set(slug, a)
+      const on = this.current.slug === slug && this.current.look !== 'overview' && this.current.look !== 'night'
+      a.setVisible(on, on ? 700 : 0)
+      return a
+    })
+    this.areaLoads.set(slug, p)
+    return p
   }
 
   // ---------------------------------------------------------------- basemap palette
@@ -570,6 +629,9 @@ export class CinemaScene {
       this.paint(CIN_LAYER.bld(tg.slug, 'day'), 'fill-extrusion-opacity', on && look !== 'night' ? BLD_OPACITY : 0, fade)
     }
 
+    // OSM 3D (daylight only; the night shot keeps the basemap silhouettes)
+    for (const [s, a] of this.areas) a.setVisible(s === shown && look !== 'night', look === 'night' ? Math.min(600, duration) : fade)
+
     // sky + light
     this.tweenSky(look === 'overview' ? SKY.day : SKY[look], duration)
     this.tweenLight(look === 'overview' ? 'day' : look, duration)
@@ -697,6 +759,9 @@ export class CinemaScene {
     cancelAnimationFrame(this.traceRaf)
     cancelAnimationFrame(this.routeRaf)
     this.director.destroy()
+    this.destroyed = true
+    for (const a of this.areas.values()) a.destroy()
+    this.areas.clear()
     const map = this.map
     try {
       for (const l of map.getStyle().layers) if (l.id.startsWith('cin-')) map.removeLayer(l.id)

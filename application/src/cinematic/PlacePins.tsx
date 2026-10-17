@@ -2,9 +2,11 @@ import { Marker, type Map as MlMap } from 'maplibre-gl'
 import { Navigation } from 'lucide-react'
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { CATEGORY_COLORS } from '../app/dictionary'
 import { CATEGORY_ICONS } from '../app/icons'
 import type { CategoryKey } from '../app/types'
 import type { LngLat } from '../mock/osiedla'
+import { mix } from './palette'
 
 export interface Pin {
   id: string
@@ -45,22 +47,22 @@ const NUDGES: [number, number][] = [
 
 type Shift = Record<string, [number, number]>
 
-/** Investment pins step aside (in screen space) from places, route ends and each other. */
+/**
+ * Pins step aside (in screen space) when they would cover another one: route ends stay put, then
+ * places in list order (two places at one address no longer stack), then investments.
+ */
 function computeShifts(map: MlMap, pins: Pin[]): Shift {
-  const fixed: { x: number; y: number }[] = []
-  const inv: { id: string; x: number; y: number }[] = []
-  for (const p of pins) {
-    const s = map.project(p.coord)
-    if (p.kind === 'investment') inv.push({ id: p.id, x: s.x, y: s.y })
-    else fixed.push({ x: s.x, y: s.y })
-  }
+  const rank = (p: Pin) => (p.kind === 'start' || p.kind === 'end' ? 0 : p.kind === 'investment' ? 2 : 1)
+  const order = [...pins].sort((a, b) => rank(a) - rank(b))
+  const placed: { x: number; y: number }[] = []
   const out: Shift = {}
-  const free = (x: number, y: number) => fixed.every((f) => Math.abs(f.x - x) >= CLEAR_X || Math.abs(f.y - y) >= CLEAR_Y)
-  for (const p of inv) {
+  const free = (x: number, y: number) => placed.every((f) => Math.abs(f.x - x) >= CLEAR_X || Math.abs(f.y - y) >= CLEAR_Y)
+  for (const p of order) {
+    const s = map.project(p.coord)
     let d: [number, number] = [0, 0]
-    if (!free(p.x, p.y)) d = NUDGES.find(([dx, dy]) => free(p.x + dx, p.y + dy)) ?? NUDGES[0]
+    if (rank(p) > 0 && !free(s.x, s.y)) d = NUDGES.find(([dx, dy]) => free(s.x + dx, s.y + dy)) ?? NUDGES[0]
     out[p.id] = d
-    fixed.push({ x: p.x + d[0], y: p.y + d[1] })
+    placed.push({ x: s.x + d[0], y: s.y + d[1] })
   }
   return out
 }
@@ -113,7 +115,7 @@ export function PlacePins({ map, pins, accent, deep, activeId, stagger = 80, onP
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, key])
 
-  // keep investment pins clear of the others whenever the camera settles (zoom changes the spacing)
+  // keep the pins clear of each other whenever the camera settles (zoom changes the spacing)
   useEffect(() => {
     const onEnd = () => setShift(computeShifts(map, pinsRef.current))
     map.on('moveend', onEnd)
@@ -141,12 +143,15 @@ export function PlacePins({ map, pins, accent, deep, activeId, stagger = 80, onP
         if (kind === 'start') glyph = <span className="cin-pin__you">Ty</span>
         if (!glyph) glyph = <Navigation size={15} strokeWidth={2.2} aria-hidden />
         const [dx, dy] = shift[p.id] ?? [0, 0]
+        // places take their category colour (same as the map filters, POI and 3D buildings)
+        const pin = p.category && kind !== 'start' ? CATEGORY_COLORS[p.category] : accent
+        const pinDeep = p.category && kind !== 'start' ? mix(pin, '#16161d', 0.38) : deep
         return createPortal(
           <div className="cin-pin-shift" style={{ transform: `translate(${dx}px, ${dy}px)` }}>
             <button
               type="button"
               className={`cin-pin is-${kind}${activeId === p.id ? ' is-active' : ''}${dx || dy ? ' is-nudged' : ''}`}
-              style={{ '--pin': accent, '--pin-deep': deep, '--d': `${delays.current.get(p.id) ?? 0}ms` } as CSSProperties}
+              style={{ '--pin': pin, '--pin-deep': pinDeep, '--d': `${delays.current.get(p.id) ?? 0}ms` } as CSSProperties}
               onClick={() => onPick?.(p)}
               aria-label={p.label}
             >

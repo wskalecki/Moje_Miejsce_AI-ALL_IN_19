@@ -36,10 +36,13 @@ import { Interlude } from './Interlude'
 import { loadPanel } from './panelLoader'
 import { PlacePins, type Pin } from './PlacePins'
 import { prefetchTiles } from './prefetch'
+import type { AreaLayers } from '../map3d/AreaLayers'
+import { categoryKinds } from '../map3d/kinds'
 import { CinemaScene, easeInOutCubic, type SceneTarget } from './scene'
 import './cinematic.css'
 
 const Panel = lazy(loadPanel)
+const Osm3dOverlay = lazy(() => import('../map3d/Osm3dOverlay'))
 
 type Stage = 'idle' | 'flying' | 'interlude' | 'panel' | 'leaving'
 type Mode = 'full' | 'quick' | 'instant'
@@ -60,6 +63,16 @@ const SWAY = 16
 const ORBIT_SWEEP = [-SWAY, -SWAY / 2, 0, SWAY / 2, SWAY]
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+/** True when the page was loaded straight on `/mapa/:slug` (deep link / reload). */
+function openedOnSlug(): boolean {
+  const nav = performance.getEntriesByType?.('navigation')[0] as PerformanceNavigationTiming | undefined
+  try {
+    return /^\/mapa\/[^/]+/.test(new URL(nav?.name ?? window.location.href).pathname)
+  } catch {
+    return true
+  }
+}
 
 function findShape(shapes: FeatureCollection<Polygon | MultiPolygon>, o: Osiedle) {
   return (
@@ -83,7 +96,15 @@ function buildTargets(map: MlMap, shapes: FeatureCollection<Polygon | MultiPolyg
   return OSIEDLA.flatMap((o) => {
     const shape = findShape(shapes, o)
     if (!shape) return []
-    const t: SceneTarget = { slug: o.slug, owner: o.profile, center: o.center, bearing: o.cameraBearing, zoom: o.cameraZoom ?? 16, shape }
+    const t: SceneTarget = {
+      slug: o.slug,
+      msiId: o.msiId,
+      owner: o.profile,
+      center: o.center,
+      bearing: o.cameraBearing,
+      zoom: o.cameraZoom ?? 16,
+      shape,
+    }
     // buildings reach full height by the panel framing zoom (it is wider than the interlude camera)
     t.riseZoom = landing(map, o, t, o.cameraBearing).zoom - 0.1
     return [t]
@@ -118,7 +139,7 @@ export function CinematicLayer(props: CinematicLayerProps) {
   const { map, shapes } = props.api
   const [scene, setScene] = useState<CinemaScene | null>(null)
   useEffect(() => {
-    const s = new CinemaScene(map, buildTargets(map, shapes))
+    const s = new CinemaScene(map, buildTargets(map, shapes), { osm3d: true })
     // the scene is an external system (map layers); React only needs a handle to it
     // eslint-disable-next-line react/set-state-in-effect
     setScene(s)
@@ -164,12 +185,16 @@ function CinematicStage({
   const [hoverPin, setHoverPin] = useState<string | null>(null)
   /** Timeline events of year ≤ Y reported by the panel (spec 4.6). */
   const [events, setEvents] = useState<TimelineEvent[]>([])
+  /** OSM 3D layers of the active osiedle (null while loading or without 3D data). */
+  const [area, setArea] = useState<{ slug: string; layers: AreaLayers } | null>(null)
 
   const timers = useRef<number[]>([])
   const finishRef = useRef<((skipped: boolean) => void) | null>(null)
   const savedCam = useRef<{ center: LngLat; zoom: number } | null>(null)
   const stageRef = useRef<Stage>('idle')
-  const hadOverview = useRef(!slug)
+  // a real deep link is the document's first URL — not a click on the overview that beat the lazy
+  // cinematic chunk (then `slug` is already set on mount, but the full shot must still play)
+  const hadOverview = useRef(!slug || !openedOnSlug())
   const busyRef = useRef(onBusyChange)
   const storeRef = useRef(store)
   useEffect(() => {
@@ -242,6 +267,10 @@ function CinematicStage({
       setDusk('off')
       storeRef.current.setYear(2026)
       scene.showRoute(null, o.profile)
+      // own OSM buildings, roads and traffic for the osiedle (basemap extrusion stays when it has none)
+      // (guarded: a scene instance from before a hot reload may lack the method)
+      const load = typeof scene.ensureArea === 'function' ? scene.ensureArea(o.slug) : Promise.resolve(null)
+      void load.then((layers) => setArea(layers ? { slug: o.slug, layers } : null)).catch(() => setArea(null))
       const camera = { center: t.center, zoom: t.zoom, pitch: PITCH, bearing: t.bearing }
 
       const openPanel = (delay: number) => {
@@ -561,8 +590,16 @@ function CinematicStage({
     [focusPlace],
   )
 
+  // the category of the place hovered in the panel (or its pin) highlights those buildings in 3D
+  const hoverKinds = useMemo(() => {
+    const id = hoverPin ?? activePin
+    const h = id ? active?.highlights.find((x) => x.id === id) : undefined
+    return h ? categoryKinds(h.category) : null
+  }, [hoverPin, activePin, active])
+
   const cinema = stage === 'flying' || stage === 'interlude'
   const showPanel = stage === 'panel' && active
+  const areaLayers = showPanel && area?.slug === active.slug ? area.layers : null
 
   return (
     <div className={`cin-root is-${stage}`}>
@@ -594,6 +631,12 @@ function CinematicStage({
         <button type="button" className="cin-skip cin-skip--floating" onClick={skip}>
           Pomiń
         </button>
+      )}
+
+      {areaLayers && (
+        <Suspense fallback={null}>
+          <Osm3dOverlay area={areaLayers} focusKinds={hoverKinds} />
+        </Suspense>
       )}
 
       <AnimatePresence>
