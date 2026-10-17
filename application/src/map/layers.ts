@@ -77,7 +77,8 @@ function heatOpacity(active: boolean): ExpressionSpecification | number {
 }
 
 function fillOpacity(active: boolean): ExpressionSpecification | number {
-  return active ? ['interpolate', ['linear'], ['zoom'], Z0, 0, Z1, 0.5] : 0
+  // full tint around the 12.5 hand-off, then let outlines carry the map so zoom ≥ 13 is not a wash of colour
+  return active ? ['interpolate', ['linear'], ['zoom'], Z0, 0, Z1, 0.44, 13.5, 0.24, 15, 0.12] : 0
 }
 
 function fillColor(p: Profile): ExpressionSpecification {

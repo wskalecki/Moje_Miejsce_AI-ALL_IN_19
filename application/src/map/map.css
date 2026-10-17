@@ -749,6 +749,34 @@
   transform: translateY(-50%) translateX(2px) scale(1.04);
 }
 
+/* pill to the left of the dot (mirror of .is-right) */
+.smap-fm.is-left .smap-fm__pill {
+  left: auto;
+  right: 14px;
+  bottom: auto;
+  top: 0;
+  transform: translateY(-50%);
+  transform-origin: right center;
+}
+.smap-fm.is-left.is-own .smap-fm__pill {
+  right: 17px;
+}
+.smap-fm.is-left .smap-fm__pill::after {
+  left: auto;
+  right: -5px;
+  top: 50%;
+  bottom: auto;
+  margin: -4px 0 0;
+  border: 0;
+  border-right: 1px solid var(--smap-hairline);
+  border-top: 1px solid var(--smap-hairline);
+  border-radius: 0 2px 0 0;
+}
+.smap-fm.is-left.is-hl .smap-fm__pill,
+.smap-fm.is-left .smap-fm__pill:hover {
+  transform: translateY(-50%) translateX(-2px) scale(1.04);
+}
+
 .smap-fm svg,
 .smap-rec svg,
 .smap-toast svg {

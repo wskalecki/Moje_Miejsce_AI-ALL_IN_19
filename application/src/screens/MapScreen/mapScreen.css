@@ -26,3 +26,13 @@
     opacity: 1;
   }
 }
+
+/* Cinematic transition: featured markers give way to the 3D shot and the place pins. */
+.map-screen[data-cinema] .smap-fm {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 400ms var(--ease-standard),
+    visibility 0s linear 400ms;
+}

@@ -1,0 +1,36 @@
+/**
+ * Loader for the osiedle panel (`src/osiedle/OsiedlePanel.tsx`, built separately).
+ * `import.meta.glob` resolves to an empty object while the file is missing, so the transition
+ * builds and runs with or without the panel.
+ */
+import type { ComponentType } from 'react'
+import type { Horizon, ProfileId, CategoryKey } from '../app/types'
+import type { LngLat, Osiedle, Route } from '../mock/osiedla'
+
+export interface OsiedlePanelProps {
+  osiedle: Osiedle
+  profile: ProfileId
+  horizon: Horizon
+  priorities?: CategoryKey[]
+  layout?: 'overlay' | 'page'
+  onBack: () => void
+  onFocusPlace?: (lngLat: LngLat) => void
+  onHoverPlace?: (id: string | null) => void
+  onShowRoute?: (route: Route | null) => void
+  activePlaceId?: string | null
+  /** Timeline year (spec 4.6) — investments with a coordinate get a pin on the map. */
+  onTimelineYear?: (year: number) => void
+}
+
+type PanelModule = { default?: ComponentType<OsiedlePanelProps>; OsiedlePanel?: ComponentType<OsiedlePanelProps> }
+
+const modules = import.meta.glob<PanelModule>('../osiedle/OsiedlePanel.tsx')
+const loader = modules['../osiedle/OsiedlePanel.tsx'] as (() => Promise<PanelModule>) | undefined
+
+export const hasPanel = Boolean(loader)
+
+export async function loadPanel(): Promise<{ default: ComponentType<OsiedlePanelProps> }> {
+  if (!loader) return { default: () => null }
+  const mod = await loader()
+  return { default: mod.OsiedlePanel ?? mod.default ?? (() => null) }
+}

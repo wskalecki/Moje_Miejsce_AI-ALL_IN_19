@@ -38,6 +38,8 @@ export interface MapApi {
   sources: typeof SOURCE
   featured: FeaturedInfo[]
   info: Map<string, OsiedleInfo>
+  /** Polygons of the 3 featured osiedla (`properties.featured_slug`). */
+  shapes: MapData['featuredShapes']
 }
 
 export interface MapViewProps {
@@ -176,6 +178,7 @@ export function MapView({
         sources: SOURCE,
         featured: d.featured,
         info: d.info,
+        shapes: d.featuredShapes,
       }
       onReadyRef.current?.(map, api)
     })

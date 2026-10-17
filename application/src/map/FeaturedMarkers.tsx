@@ -5,9 +5,12 @@ import { createPortal } from 'react-dom'
 import { ACCENTS } from './tokens'
 import type { FeaturedInfo, FeaturedSlug, Profile } from './types'
 
-/** Pill side per osiedle — Powiśle and Saska Kępa sit ~2 km apart, so their pills must not stack. */
-const PILL_SIDE: Record<FeaturedSlug, 'top' | 'right'> = {
-  powisle: 'top',
+/**
+ * Pill side per osiedle — Powiśle and Saska Kępa sit ~2 km apart (≈ 70 px at the overview zoom),
+ * so their pills point away from each other: Powiśle to the west, Saska Kępa to the east.
+ */
+const PILL_SIDE: Record<FeaturedSlug, 'top' | 'right' | 'left'> = {
+  powisle: 'left',
   'saska-kepa': 'right',
   'miasteczko-wilanow': 'top',
 }

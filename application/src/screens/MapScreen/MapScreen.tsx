@@ -1,11 +1,12 @@
-import { Component, lazy, Suspense, type ReactNode } from 'react'
-import { hasMapView, loadMapView } from '../../app/mapLoader'
-import { navigate } from '../../app/router'
+import { Component, lazy, Suspense, useState, type ReactNode } from 'react'
+import { navigate, useRouter } from '../../app/router'
 import { useAppStore } from '../../app/useAppStore'
 import { Logo } from '../../components/ui'
+import type { MapApi } from '../../map/MapView'
 import './mapScreen.css'
 
-const LazyMapView = hasMapView ? lazy(loadMapView) : null
+const LazyMapView = lazy(() => import('../../map/MapView'))
+const LazyCinema = lazy(() => import('../../cinematic/CinematicLayer'))
 
 class MapErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   state = { error: null as Error | null }
@@ -28,32 +29,53 @@ function MapPlaceholder({ message, loading = false }: { message: string; loading
 }
 
 /**
- * `/mapa` and `/mapa/:slug`. Hosts the single, long-lived MapView instance
- * (src/map/MapView.tsx, built separately). Falls back to a placeholder when
- * the map module is not there yet.
+ * `/mapa` and `/mapa/:slug`. Hosts the single, long-lived MapView instance and the cinematic
+ * transition (src/cinematic) that takes the camera into a featured osiedle and opens its panel.
  */
 export function MapScreen({ slug, hidden = false }: { slug: string | null; hidden?: boolean }) {
-  const { state } = useAppStore()
+  const { state, markVisited } = useAppStore()
+  const { query } = useRouter()
   const profile = state.profile ?? 'rodzina'
   const horizon = state.horizon ?? 'stale'
+  const [api, setApi] = useState<MapApi | null>(null)
+  const [busy, setBusy] = useState(false)
+  const quick = query.get('szybko') === '1'
 
   return (
-    <div className="map-screen" aria-hidden={hidden || undefined} inert={hidden || undefined}>
-      {LazyMapView ? (
-        <MapErrorBoundary>
-          <Suspense fallback={<MapPlaceholder message="Wczytujemy mapę Warszawy…" loading />}>
-            <LazyMapView
+    <div
+      className="map-screen"
+      data-cinema={slug || busy ? '' : undefined}
+      aria-hidden={hidden || undefined}
+      inert={hidden || undefined}
+    >
+      <MapErrorBoundary>
+        <Suspense fallback={<MapPlaceholder message="Wczytujemy mapę Warszawy…" loading />}>
+          <LazyMapView
+            profile={profile}
+            priorities={state.priorities}
+            horizon={horizon}
+            selectedSlug={slug}
+            chrome={!busy}
+            onSelectFeatured={(s) => navigate(`/mapa/${s}${quick ? '?szybko=1' : ''}`)}
+            onMapReady={(_m, a) => setApi(a)}
+          />
+        </Suspense>
+        {api && (
+          <Suspense fallback={null}>
+            <LazyCinema
+              api={api}
+              slug={slug}
               profile={profile}
-              priorities={state.priorities}
               horizon={horizon}
-              selectedSlug={slug}
-              onSelectFeatured={(s) => navigate(`/mapa/${s}`)}
+              priorities={state.priorities}
+              visited={state.visited}
+              quick={quick}
+              markVisited={markVisited}
+              onBusyChange={setBusy}
             />
           </Suspense>
-        </MapErrorBoundary>
-      ) : (
-        <MapPlaceholder message={slug ? `Mapa w przygotowaniu · ${slug}` : 'Mapa w przygotowaniu'} />
-      )}
+        )}
+      </MapErrorBoundary>
     </div>
   )
 }
