@@ -3,7 +3,7 @@
  * Pure data (no React / icon imports) so it can be used by tests and by
  * the map code. Icons live in `./icons.ts`.
  */
-import type { CategoryKey, FeaturedSlug, Horizon, ProfileId } from './types'
+import type { CategoryKey, Horizon, ProfileId } from './types'
 
 export interface ProfileDef {
   id: ProfileId
@@ -15,10 +15,12 @@ export interface ProfileDef {
   pronoun: 'mnie' | 'nas'
   verb: 'szukam' | 'szukamy'
   defaultHorizon: Horizon
-  featured: FeaturedSlug
-  /** Name of the featured osiedle (display). */
-  featuredName: string
 }
+
+/*
+ * Which osiedle is "best" for a profile is not stored here: it follows from the real scores and the
+ * user's current weights — see `useRanking()` / `useMatch()` in ./useMatch.ts.
+ */
 
 export const PROFILE_ORDER: readonly ProfileId[] = ['student', 'rodzina', 'senior']
 
@@ -31,8 +33,6 @@ export const PROFILES: Record<ProfileId, ProfileDef> = {
     pronoun: 'mnie',
     verb: 'szukam',
     defaultHorizon: 'chwila',
-    featured: 'powisle',
-    featuredName: 'Powiśle',
   },
   rodzina: {
     id: 'rodzina',
@@ -42,8 +42,6 @@ export const PROFILES: Record<ProfileId, ProfileDef> = {
     pronoun: 'nas',
     verb: 'szukamy',
     defaultHorizon: 'stale',
-    featured: 'miasteczko-wilanow',
-    featuredName: 'Miasteczko Wilanów',
   },
   senior: {
     id: 'senior',
@@ -53,8 +51,6 @@ export const PROFILES: Record<ProfileId, ProfileDef> = {
     pronoun: 'mnie',
     verb: 'szukam',
     defaultHorizon: 'stale',
-    featured: 'saska-kepa',
-    featuredName: 'Saska Kępa',
   },
 }
 
@@ -92,7 +88,7 @@ export const CATEGORIES: Record<CategoryKey, CategoryDef> = {
   gastronomia: { id: 'gastronomia', label: 'Gastronomia', sentenceLabel: 'gastronomia', strong: 'bogata gastronomia', weak: 'skromny wybór lokali', plural: false },
   sport: { id: 'sport', label: 'Sport', sentenceLabel: 'sport', strong: 'miejsca do sportu', weak: 'mało miejsc do sportu', plural: false },
   kultura: { id: 'kultura', label: 'Kultura', sentenceLabel: 'kultura', strong: 'kultura pod ręką', weak: 'do kultury trzeba dojechać', plural: false },
-  edukacja: { id: 'edukacja', label: 'Edukacja i przedszkola', sentenceLabel: 'przedszkola i szkoły', strong: 'szkoły i przedszkola blisko', weak: 'szkoły dalej', plural: true },
+  edukacja: { id: 'edukacja', label: 'Edukacja i\u00a0przedszkola', sentenceLabel: 'przedszkola i szkoły', strong: 'szkoły i przedszkola blisko', weak: 'szkoły dalej', plural: true },
   zdrowie: { id: 'zdrowie', label: 'Zdrowie', sentenceLabel: 'zdrowie', strong: 'przychodnie i apteki obok', weak: 'do lekarza dalej', plural: false },
   zakupy: { id: 'zakupy', label: 'Zakupy', sentenceLabel: 'zakupy', strong: 'sklepy na co dzień', weak: 'zakupy wymagają dojazdu', plural: true },
   zycieNocne: { id: 'zycieNocne', label: 'Życie nocne', sentenceLabel: 'życie nocne', strong: 'życie po zmroku', weak: 'wieczorami cicho', plural: false },
@@ -157,7 +153,7 @@ export const HORIZONS: Record<Horizon, HorizonDef> = {
     id: 'stale',
     title: 'Na stałe',
     fragment: 'na stałe',
-    description: 'Kupno — pokażemy ceny zakupu i to, jak okolica zmieni się do 2030 roku.',
+    description: 'Kupno — pokażemy ceny zakupu i to, jak okolica zmieni się do\u00a02040\u00a0roku.',
   },
 }
 

@@ -1,16 +1,19 @@
 /**
  * Map sentence bar (spec §4.3, crit. 13): logo → intro, the survey sentence shortened to three
- * pills, and a profile popover that switches the profile live (presenter mode).
+ * pills, and a profile popover that switches the profile live and names each profile's honest #1.
  *
  *   [Okolica] | [Mamy rodzinę ⌄], liczą się [🎓 🌳 🔇 🛒], szukamy [na stałe].
  */
 import { ArrowRight, Check, ChevronDown } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { APP_NAME } from '../../app/config'
-import { CATEGORIES, HORIZONS, PROFILE_ORDER, PROFILES } from '../../app/dictionary'
+import { CATEGORIES, DEFAULT_PRIORITIES, HORIZONS, PROFILE_ORDER, PROFILES } from '../../app/dictionary'
 import { CATEGORY_ICONS, PROFILE_ICONS } from '../../app/icons'
 import { navigate } from '../../app/router'
 import type { CategoryKey, Horizon, ProfileId } from '../../app/types'
+import { useOsiedlaNames, useRanking } from '../../app/useMatch'
+import { useAppStore } from '../../app/useAppStore'
+import { deriveWeights } from '../../app/weights'
 import { Logo } from '../../components/ui'
 import { verbFor } from '../../lib/sentence'
 import './sentenceBar.css'
@@ -25,6 +28,29 @@ export interface SentenceBarProps {
 
 /** Priorities are unlimited — the pill shows the first few icons and "+N". */
 const MAX_ICONS = 4
+
+/** Default weights per profile — what the map switches to when the profile changes. */
+const PROFILE_DEFAULT_WEIGHTS = Object.fromEntries(PROFILE_ORDER.map((p) => [p, deriveWeights(p, DEFAULT_PRIORITIES[p])])) as Record<
+  ProfileId,
+  ReturnType<typeof deriveWeights>
+>
+
+/** "Najlepiej: Muranów · 92%" — the honest #1 for the profile (the current weights for the active one,
+ *  the profile defaults for the others — what the map switches to on a profile change). */
+function BestFor({ profile, active }: { profile: ProfileId; active: boolean }) {
+  const { state } = useAppStore()
+  const ranking = useRanking(active ? state.weights : PROFILE_DEFAULT_WEIGHTS[profile])
+  const names = useOsiedlaNames()
+  const id = ranking?.order[0]
+  const name = id ? names?.get(id) : undefined
+  if (!id || !name) return <span className="sbar-pop__sub">{PROFILES[profile].description}</span>
+  return (
+    <span className="sbar-pop__sub">
+      Najlepiej: <b>{name}</b>
+      <span className="tabular"> · {ranking.match.get(id)}%</span>
+    </span>
+  )
+}
 
 function listLabel(priorities: readonly CategoryKey[]): string {
   const labels = priorities.map((c) => CATEGORIES[c].sentenceLabel)
@@ -142,8 +168,8 @@ export function SentenceBar({ profile, priorities, horizon, onProfileChange, hid
       {open && (
         <div id={popId} className="sbar-pop" role="dialog" aria-label="Zmień profil">
           <div className="sbar-pop__head">
-            <span className="sbar-pop__kicker">Tryb prezentera</span>
-            <p>Przełącz profil — mapa przemaluje się od razu.</p>
+            <span className="sbar-pop__kicker">Twój profil</span>
+            <p>Zmień profil — mapa i ranking przeliczą się od razu.</p>
           </div>
           <div className="sbar-pop__list" role="radiogroup" aria-label="Profil">
             {PROFILE_ORDER.map((p, i) => {
@@ -166,7 +192,7 @@ export function SentenceBar({ profile, priorities, horizon, onProfileChange, hid
                   </span>
                   <span className="sbar-pop__text">
                     <span className="sbar-pop__title">{PROFILES[p].title}</span>
-                    <span className="sbar-pop__sub">Najlepiej: {PROFILES[p].featuredName}</span>
+                    <BestFor profile={p} active={active} />
                   </span>
                   <span className="sbar-pop__check" aria-hidden>
                     <Check size={14} strokeWidth={3} />

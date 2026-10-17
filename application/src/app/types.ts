@@ -23,7 +23,8 @@ export type CategoryId = CategoryKey
 
 export type Horizon = 'chwila' | 'stale'
 
-export type FeaturedSlug = 'powisle' | 'miasteczko-wilanow' | 'saska-kepa'
+/** Slugs of the featured osiedla (src/mock/osiedla.ts). */
+export type FeaturedSlug = 'muranow' | 'natolin' | 'stare-bielany'
 
 /** Persisted app state (sessionStorage `okolica.mock.v2`). */
 export interface AppState {
