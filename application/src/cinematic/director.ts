@@ -8,7 +8,7 @@ const ZERO_PAD: PaddingOptions = { top: 0, bottom: 0, left: 0, right: 0 }
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2)
 
 /**
- * One rAF loop that owns the "living camera" after the fly-in: a slow orbit (bearing), a padding
+ * One rAF loop that owns the "living camera" after the fly-in: a slow orbit or sway (bearing), a padding
  * tween that slides the subject left when the panel opens, and small paint tickers (outline glint).
  * The orbit pauses on any user gesture and while another camera animation runs, then resumes softly.
  */
@@ -17,6 +17,11 @@ export class Director {
   private last = 0
   private orbitSpeed = 0
   private orbitOn = false
+  /** Sway amplitude (deg); 0 = continuous orbit. */
+  private swing = 0
+  private phase = 0
+  private base = 0
+  private reanchor = true
   /** 0..1 orbit throttle — ramps so the orbit never starts or stops with a jerk. */
   private throttle = 0
   private resumeAt = 0
@@ -64,7 +69,18 @@ export class Director {
     if (Math.abs(want - this.throttle) < 0.002) this.throttle = want
 
     const opts: { bearing?: number; padding?: PaddingOptions } = {}
-    if (this.throttle > 0 && !map.isMoving()) opts.bearing = map.getBearing() + this.orbitSpeed * this.throttle * dt
+    if (busy) this.reanchor = true
+    if (this.throttle > 0 && !map.isMoving()) {
+      if (this.swing > 0) {
+        // pendulum around the bearing the camera had when the sway (re)started — the framing holds
+        if (this.reanchor) {
+          this.base = map.getBearing() - this.swing * Math.sin(this.phase)
+          this.reanchor = false
+        }
+        this.phase += (this.orbitSpeed / this.swing) * this.throttle * dt
+        opts.bearing = this.base + this.swing * Math.sin(this.phase)
+      } else opts.bearing = map.getBearing() + this.orbitSpeed * this.throttle * dt
+    }
     if (this.pad && !map.isMoving()) {
       const t = Math.min(1, (now - this.pad.start) / this.pad.dur)
       const k = easeInOut(t)
@@ -82,8 +98,14 @@ export class Director {
     for (const t of this.tickers) t(now, dt)
   }
 
-  startOrbit(degPerSec: number) {
+  /** `swing` > 0: sway ±swing degrees (peak speed `degPerSec`) instead of turning all the way round. */
+  startOrbit(degPerSec: number, swing = 0) {
+    if (swing !== this.swing || !this.orbitOn) {
+      this.phase = 0
+      this.reanchor = true
+    }
     this.orbitSpeed = degPerSec
+    this.swing = swing
     this.orbitOn = true
     this.ensure()
   }
