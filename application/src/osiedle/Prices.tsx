@@ -3,7 +3,8 @@ import { useState } from 'react'
 import type { Horizon } from '../app/types'
 import type { Osiedle } from '../mock/osiedla'
 import { formatNumber, formatPLN } from '../lib/format'
-import { SectionHead, TweenNumber, signed } from './shared'
+import { cityDiffLabel, formatFlatPrice } from './priceFormat'
+import { SectionHead, TweenNumber } from './shared'
 
 type PriceMode = 'najem' | 'kupno'
 
@@ -18,7 +19,7 @@ export function Prices({ osiedle, horizon }: { osiedle: Osiedle; horizon: Horizo
   const rent = mode === 'najem'
   const value = rent ? p.rentPerM2 : p.buyPerM2
   const city = rent ? p.cityRentPerM2 : p.cityBuyPerM2
-  const diff = Math.round(((value - city) / city) * 100)
+  const diff = cityDiffLabel(value, city)
   const max = Math.max(value, city)
 
   return (
@@ -46,8 +47,8 @@ export function Prices({ osiedle, horizon }: { osiedle: Osiedle; horizon: Horizo
         <p className="op-price__sub">
           {rent
             ? `ok. ${formatPLN(p.rentPerM2 * 45)} miesięcznie za 45 m²`
-            : `ok. ${formatNumber((p.buyPerM2 * 55) / 1000)} tys. zł za 55 m²`}
-          <span className="op-chip op-chip--neutral">{`${signed(diff)}% vs Warszawa`}</span>
+            : `ok. ${formatFlatPrice(p.buyPerM2 * 55)} za 55 m²`}
+          <span className="op-chip op-chip--neutral">{diff}</span>
         </p>
 
         <dl className="op-compare" aria-label="Porównanie ze średnią Warszawy">
