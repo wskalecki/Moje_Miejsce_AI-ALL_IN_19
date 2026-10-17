@@ -1,0 +1,25 @@
+[project]
+name = "warsaw-noise"
+version = "0.1.0"
+description = "Warsaw environmental noise geodataset (END strategic noise maps) for flat hunters"
+authors = [
+    { name = "Wojtek Skałecki", email = "wojciechskalecki02@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "geopandas>=1.2.0",
+    "pandas>=3.0.6",
+    "pyarrow>=26.0.0",
+    "pyogrio>=0.13.0",
+    "pyproj>=3.8.0",
+    "shapely>=2.2.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.8.22,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

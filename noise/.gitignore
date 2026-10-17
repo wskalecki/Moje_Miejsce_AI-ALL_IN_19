@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+.pytest_cache/
+# Raw downloads and generated outputs; document them in sources.md instead of committing
+data/
+output/
