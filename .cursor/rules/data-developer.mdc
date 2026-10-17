@@ -12,14 +12,14 @@ You own files under `data/` and schemas in `docs/data/`. The React app loads pat
 ## Before writing output
 
 1. Read [`docs/data/grid-schema.md`](../../docs/data/grid-schema.md) and [`docs/data/poi-schema.md`](../../docs/data/poi-schema.md).
-2. Use **`assign_cell(lon, lat)`** from [`data/scripts/generate_grid.py`](../../data/scripts/generate_grid.py) for every POI `cell_id` (same grid origin and steps).
+2. Use **`assign_cell(lon, lat)`** from [`data/scripts/generate_grid.py`](../../data/scripts/generate_grid.py) for every POI `cell_id` (200 m squares in EPSG:2180 from origin E 620000, N 470000). Importing it needs `pyproj` in the env, e.g. `uv run --with pyproj python your_etl.py`.
 3. POI `id` format: `{source}_{sourceId}`.
 
 ## File layout
 
 | Output | Path |
 |--------|------|
-| Grid | `data/grid/warsaw_grid_1km.geojson` |
+| Grid | `data/grid/warsaw_grid.geojson` |
 | Metrics | `data/grid/cell_metrics.json` |
 | POI | `data/poi/{category}.geojson` |
 | Raw downloads | `data/raw/{slug}/` (gitignored) |
@@ -46,7 +46,7 @@ Slugs live in `warsaw_open_data_catalog.json` (repo parent `hackathon/`). Docume
 
 ## Scripts
 
-- `data/scripts/generate_grid.py` — grid + `assign_cell`
+- `data/scripts/generate_grid.py` — grid + `assign_cell`; run with `uv run data/scripts/generate_grid.py …` (pyproj comes from the script header)
 - `data/scripts/validate_data.py` — schema checks
 
-Do not change grid step sizes without updating `docs/data/grid-schema.md` and regenerating all POI `cell_id`s.
+Changing `CELL_SIZE_M` or the origin changes every cell ID: agree it with the team first, then update `docs/data/grid-schema.md` and regenerate all POI `cell_id`s and metrics.

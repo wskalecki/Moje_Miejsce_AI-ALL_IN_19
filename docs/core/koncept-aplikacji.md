@@ -26,7 +26,7 @@ Młode osoby i młode rodziny planujące mieszkanie w Warszawie dostają setki o
 
 | Element | Opis |
 |--------|------|
-| **Komórka siatki** | Stały podział Warszawy na kwadraty ~1 km (WGS84: ~0,009° szer., ~0,014° dł. przy 52°N). Jedna komórka = jeden „kafelek oceny życia”. |
+| **Komórka siatki** | Stały podział Warszawy na kwadraty 200 m × 200 m w układzie EPSG:2180 (PL-1992), liczone od punktu E 620000, N 470000 (definicja: [`grid-schema.md`](../data/grid-schema.md)). Jedna komórka = jeden „kafelek oceny życia”. |
 | **Kolor / intensywność** | Wynik **profilu użytkownika** (wagi warstw) — nie jedna „prawda”, tylko dopasowanie do persony i filtrów. |
 | **Klik w komórkę** | Panel szczegółów: liczniki w rejonie, najbliższe POI, szacowany dojazd do pracy, mini-wykres jakości powietrza, link do trendu cen (dzielnica). |
 | **Pin pracy** | Użytkownik zaznacza **miejsce pracy** → komórki poza limitem czasu dojazdu **wyciszane** (szary overlay) lub odfiltrowane. |
@@ -226,7 +226,7 @@ Młode osoby i młode rodziny planujące mieszkanie w Warszawie dostają setki o
 | Temat | Propozycja |
 |-------|------------|
 | Nazwa produktu | Siatka / inna? |
-| Dokładność siatki | 1 km vs 500 m |
+| Dokładność siatki | **Ustalone: 200 m** (kwadraty w EPSG:2180, [`grid-schema.md`](../data/grid-schema.md)) |
 | Źródło szkół | RSPO vs ręczny CSV |
 | Etyka mapy przestępczości | Pokazać w MVP czy tylko w roadmapie |
 | W3 „Twój ruch” | Akcent na **dojazd + transport + codzienne trasy rodziny** |
