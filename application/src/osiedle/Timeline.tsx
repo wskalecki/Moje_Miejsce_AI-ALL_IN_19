@@ -6,7 +6,8 @@ import { CATEGORY_ICONS } from '../app/icons'
 import type { CategoryId, ProfileId } from '../app/types'
 import type { Osiedle } from '../mock/osiedla'
 import { Ring } from './Ring'
-import { EASE_EMPHASIZED, SectionHead, TweenNumber, signed } from './shared'
+import { EASE_EMPHASIZED, signed } from './shared'
+import { SectionHead, TweenNumber } from './ui'
 import {
   FIRST_YEAR,
   LAST_YEAR,

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { CATEGORY_ICONS } from '../app/icons'
-import { CATEGORIES, categoriesByWeight } from '../app/dictionary'
+import { CATEGORIES } from '../app/dictionary'
 import type { CategoryId, ProfileId } from '../app/types'
-import { SectionHead, TweenNumber, clamp, signed, useSeenOnce } from './shared'
+import { clamp, orderCategories, signed, useSeenOnce } from './shared'
+import { SectionHead, TweenNumber } from './ui'
 
 interface CategoryBarsProps {
   profile: ProfileId
@@ -11,12 +12,6 @@ interface CategoryBarsProps {
   values: Record<CategoryId, number>
   /** Change vs the 2026 baseline; non-zero entries get a chip. */
   deltas?: Partial<Record<CategoryId, number>>
-}
-
-/** Priorities first (in pick order), then the rest by profile weight (spec §4.5 pkt 3). */
-export function orderCategories(profile: ProfileId, priorities: CategoryId[]): CategoryId[] {
-  const rest = categoriesByWeight(profile).filter((c) => !priorities.includes(c))
-  return [...priorities, ...rest]
 }
 
 /**

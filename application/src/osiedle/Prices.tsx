@@ -4,7 +4,7 @@ import type { Horizon } from '../app/types'
 import type { Osiedle } from '../mock/osiedla'
 import { formatNumber, formatPLN } from '../lib/format'
 import { cityDiffLabel, formatFlatPrice } from './priceFormat'
-import { SectionHead, TweenNumber } from './shared'
+import { SectionHead, TweenNumber } from './ui'
 
 type PriceMode = 'najem' | 'kupno'
 

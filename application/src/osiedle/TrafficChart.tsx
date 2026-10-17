@@ -1,6 +1,7 @@
 import { Lightbulb } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { SectionHead, useElementWidth, useSeenOnce } from './shared'
+import { useElementWidth, useSeenOnce } from './shared'
+import { SectionHead } from './ui'
 import { TRAFFIC_LEVEL_LABEL, formatClock, monotonePath, trafficAt, trafficHint, trafficLevel, trafficTooltip } from './traffic'
 
 interface TrafficChartProps {

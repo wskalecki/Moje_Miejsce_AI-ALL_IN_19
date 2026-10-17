@@ -1,5 +1,6 @@
 import type { Commute as CommuteRow, TravelMode } from '../mock/osiedla'
-import { MODE_META, MODE_ORDER, SectionHead } from './shared'
+import { MODE_META, MODE_ORDER } from './shared'
+import { SectionHead } from './ui'
 
 /** "Dojazd" (spec §4.5 pkt 6): destinations × modes, fastest mode per row in bold. */
 export function Commute({ rows }: { rows: CommuteRow[] }) {

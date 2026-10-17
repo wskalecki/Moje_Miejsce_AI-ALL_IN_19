@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import { CATEGORY_ICONS } from '../app/icons'
 import type { Route, TravelMode } from '../mock/osiedla'
 import { formatKm, formatMin } from '../lib/format'
-import { MODE_META, MODE_ORDER, SectionHead, useElementWidth } from './shared'
+import { MODE_META, availableModes, defaultMode, useElementWidth } from './shared'
+import { SectionHead } from './ui'
 
 interface RoutesProps {
   routes: Route[]
@@ -10,18 +11,6 @@ interface RoutesProps {
   mode: TravelMode
   onSelect: (route: Route) => void
   onMode: (mode: TravelMode) => void
-}
-
-export function availableModes(route: Route): TravelMode[] {
-  return MODE_ORDER.filter((m) => route.minutes[m] != null)
-}
-
-/** Default tab for a destination: walking when it's a short walk (≤ 15 min), otherwise the fastest mode. */
-export function defaultMode(route: Route): TravelMode {
-  const walk = route.minutes.pieszo
-  if (walk != null && walk <= 15) return 'pieszo'
-  const modes = availableModes(route)
-  return modes.reduce((best, m) => ((route.minutes[m] ?? Infinity) < (route.minutes[best] ?? Infinity) ? m : best), modes[0] ?? 'pieszo')
 }
 
 const SKETCH_H = 132

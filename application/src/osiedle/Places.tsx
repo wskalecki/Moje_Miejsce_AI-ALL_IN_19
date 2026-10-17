@@ -2,7 +2,7 @@ import { MapPin } from 'lucide-react'
 import { CATEGORY_ICONS } from '../app/icons'
 import type { Highlight } from '../mock/osiedla'
 import { formatMin } from '../lib/format'
-import { SectionHead } from './shared'
+import { SectionHead } from './ui'
 
 interface PlacesProps {
   places: Highlight[]
