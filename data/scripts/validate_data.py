@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Basic validation for grid, metrics, POI, and manifest."""
+"""Validation of the committed grid sample and POI files, plus the data catalog checks."""
 
 from __future__ import annotations
 
@@ -7,10 +7,10 @@ import json
 import sys
 from pathlib import Path
 
+from data_catalog import check_repo
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "data"
-
-PERSONAS = ("kasia", "marek", "ania_tomek")
 POI_CATEGORIES = {
     "transit",
     "education",
@@ -52,23 +52,6 @@ def validate_grid(path: Path, errors: list[str]) -> set[str]:
     return ids
 
 
-def validate_metrics(path: Path, grid_ids: set[str], errors: list[str]) -> None:
-    data = load_json(path)
-    if data.get("schemaVersion") != 1:
-        errors.append(f"{path}: schemaVersion must be 1")
-    for persona in PERSONAS:
-        if persona not in data.get("personas", []):
-            errors.append(f"{path}: personas must include {persona}")
-    cells = data.get("cells", {})
-    for cid, cell in cells.items():
-        if grid_ids and cid not in grid_ids:
-            errors.append(f"{path}: unknown cell_id {cid}")
-        scores = cell.get("scores", {})
-        for p in PERSONAS:
-            if p not in scores:
-                errors.append(f"{path}: {cid} missing scores.{p}")
-
-
 def validate_poi(path: Path, errors: list[str]) -> None:
     data = load_json(path)
     if data.get("type") != "FeatureCollection":
@@ -86,41 +69,14 @@ def validate_poi(path: Path, errors: list[str]) -> None:
             errors.append(f"{path}: geometry must be Point")
 
 
-def validate_manifest(path: Path, errors: list[str]) -> None:
-    data = load_json(path)
-    if data.get("schemaVersion") != 1:
-        errors.append(f"{path}: schemaVersion must be 1")
-    files = data.get("files", {})
-    for key in ("grid", "cellMetrics"):
-        rel = files.get(key)
-        if not rel:
-            errors.append(f"{path}: files.{key} missing")
-            continue
-        if not (DATA_DIR / rel).exists():
-            errors.append(f"{path}: missing file {rel}")
-
-
 def main() -> int:
     errors: list[str] = []
-    manifest_path = DATA_DIR / "manifest.json"
-    if not manifest_path.exists():
-        errors.append("data/manifest.json not found")
-    else:
-        manifest = load_json(manifest_path)
-        files = manifest.get("files", {})
-        grid_rel = files.get("grid", "")
-        grid_path = DATA_DIR / grid_rel if grid_rel else None
-        grid_ids: set[str] = set()
-        if grid_path and grid_path.exists():
-            grid_ids = validate_grid(grid_path, errors)
-        metrics_path = DATA_DIR / files.get("cellMetrics", "")
-        if metrics_path.exists():
-            validate_metrics(metrics_path, grid_ids, errors)
-        for poi_rel in files.get("poi", []):
-            poi_path = DATA_DIR / poi_rel
-            if poi_path.exists():
-                validate_poi(poi_path, errors)
-        validate_manifest(manifest_path, errors)
+    grid_sample = DATA_DIR / "samples" / "warsaw_grid_sample.geojson"
+    if grid_sample.exists():
+        validate_grid(grid_sample, errors)
+    for poi_path in sorted((DATA_DIR / "poi_mikolaj").glob("*.geojson")):
+        validate_poi(poi_path, errors)
+    errors += check_repo(REPO_ROOT)
 
     if errors:
         for e in errors:

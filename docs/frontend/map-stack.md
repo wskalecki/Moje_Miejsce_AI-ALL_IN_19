@@ -9,7 +9,7 @@
 | Need | Choice |
 |------|--------|
 | Web React app | `maplibre-gl` |
-| 200 m colored grid | MapLibre GeoJSON `fill` + `line` (data-driven `score`) |
+| 250 m colored grid | MapLibre GeoJSON `fill` + `line` (data-driven `score`) |
 | 3D buildings | MapLibre extrusion from style layer `building` |
 | Colorable buildings (MVP) | Data-driven `fill-extrusion-color` by height; stretch: GeoJSON footprints in `data/buildings/` |
 | POI | MapLibre `circle` layer (lub deck.gl później) |
@@ -51,11 +51,11 @@ Use a style that includes 3D buildings (streets-v2 / basic-v2 with building laye
 
 ## Data loading
 
-1. Fetch [`data/manifest.json`](../../data/manifest.json) (dev: import from `@data` alias or `public/data` copy).
+1. Read the generated files in `application/public/data/` (list and definitions: [`docs/data/katalog-danych.md`](../data/katalog-danych.md)).
 2. Load grid GeoJSON + `cell_metrics.json`; join on `cell_id` / feature `id`.
 3. Load POI files listed in manifest.
 
-Paths for local dev: [`data/samples/`](../../data/samples/) via Vite alias `@data` → `../data`.
+There are no synthetic samples: local dev uses the same real files.
 
 ## Camera (demo)
 
@@ -66,8 +66,8 @@ Paths for local dev: [`data/samples/`](../../data/samples/) via Vite alias `@dat
 
 ## Performance
 
-- Full grid ~13 300 polygons (13 318 with `--warsaw-only`; 4.5 MB raw, ≈ 0.5 MB gzip) — still fine as one GeoJSON source.
-- Show the grid `line` layer only from zoom 13 (`minzoom: 13`); below that the 200 m outlines blur into noise and cost draw time. Keep the `fill` layer at all zooms.
+- Full grid 8 572 polygons with `--warsaw-only` (2.9 MB raw, ≈ 0.33 MB gzip) — fine as one GeoJSON source.
+- Show the grid `line` layer only from zoom 13 (`minzoom: 13`); below that the 250 m outlines blur into noise and cost draw time. Keep the `fill` layer at all zooms.
 - If slow: simplify properties, use `updateTriggers`, or switch grid to PMTiles (post-MVP).
 
 ## Code entry

@@ -32,13 +32,14 @@ Use `feat` for new capability, `fix` for bugs. Keep the subject short and impera
 
 ## Data knowledge base
 
+- **Every committed data file, source, dataset and metric is registered in [`data/catalog.json`](data/catalog.json)** (readable view: [`docs/data/katalog-danych.md`](docs/data/katalog-danych.md)). When you add or change data, update the catalog, run `python3 data/scripts/data_catalog.py --render` and `python3 data/scripts/validate_data.py`. No scraped, synthetic or hand-tuned values; missing data is `null` with a reason.
 - Before looking for data, read [`docs/data/zrodla-danych.md`](docs/data/zrodla-danych.md) (verified endpoints, API quirks, licences, decisions).
 - When you verify a source, find a quirk or choose a dataset, **add it there** so other people and agents do not repeat the work.
 - Metrics framework: [`docs/data/siatka-etl.md`](docs/data/siatka-etl.md).
 
 ## Product context
 
-Hackathon W3 — Warsaw open data; map of 200 m cells (EPSG:2180, see `docs/data/grid-schema.md`) to help choose where to live. See `docs/core/koncept-aplikacji.md`.
+Hackathon W3 — Warsaw open data; map of 250 m cells (EPSG:2180, see `docs/data/grid-schema.md`) to help choose where to live. See `docs/core/koncept-aplikacji.md`.
 
 ## Do not
 

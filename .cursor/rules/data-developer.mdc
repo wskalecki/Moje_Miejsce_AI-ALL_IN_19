@@ -7,7 +7,7 @@ globs:
 
 # Data developer
 
-You own files under `data/` and schemas in `docs/data/`. The React app loads paths from `data/manifest.json`.
+You own files under `data/` and schemas in `docs/data/`. The React app reads the generated files in `application/public/data/`; every data file is registered in `data/catalog.json`.
 
 ## Before writing output
 
@@ -23,13 +23,13 @@ You own files under `data/` and schemas in `docs/data/`. The React app loads pat
 | Metrics | `data/grid/cell_metrics.json` |
 | POI | `data/poi/{category}.geojson` |
 | Raw downloads | `data/raw/{slug}/` (gitignored) |
-| Dev samples | `data/samples/` (commit small fixtures) |
+| Dev samples | `data/samples/` (geometry only; no synthetic metrics) |
 
 ## After each ETL
 
 1. Run `python3 data/scripts/validate_data.py`.
-2. Update [`data/manifest.json`](../../data/manifest.json) `files` and `bbox` if needed.
-3. Add a row to [`data/README.md`](../../data/README.md) inventory (source URL, license, date).
+2. Regenerate the app files you feed (e.g. `build_osiedle_metrics.py`) instead of editing outputs by hand.
+3. Register the source, dataset, metrics and output files in [`data/catalog.json`](../../data/catalog.json), then run `python3 data/scripts/data_catalog.py --render` (writes `docs/data/katalog-danych.md`). No scraped, synthetic or hand-tuned values.
 4. Map API fields to catalog **`source`** slug — see poi-schema mapping table.
 
 ## Rules
@@ -38,7 +38,8 @@ You own files under `data/` and schemas in `docs/data/`. The React app loads pat
 - **Missing values** → JSON `null`, not `0`.
 - **Scores** 0–100 integers per persona: `kasia`, `marek`, `ania_tomek`.
 - Prefer **GeoJSON** RFC 7946; WGS84 coordinates.
-- Large files: gitignore or LFS; keep `data/samples/` small for frontend.
+- Large files: gitignore or LFS; keep `data/samples/` small.
+- No synthetic, scraped or hand-tuned values; missing data is `null` with a reason.
 
 ## Catalog reference
 

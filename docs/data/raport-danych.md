@@ -1,5 +1,7 @@
 # Raport pochodzenia danych w mocku (application/)
 
+> **Archiwalny audyt z 17.10.2026.** Aktualny stan źródeł i definicje metryk są w [`katalog-danych.md`](katalog-danych.md); naruszenia (np. ceny scrapowane z portali) wykrywa `python3 data/scripts/validate_data.py`.
+
 Audyt z **17.10.2026**, gałąź `feat/mati-siatka`. Sprawdziliśmy każdą liczbę i każdy fakt widoczny w UI mocka i ustaliliśmy, skąd pochodzi. Kod aplikacji nie był zmieniany.
 
 **Wniosek w jednym zdaniu:** dane bazowe są prawdziwe (granice MSI, OSM, portal miasta, OSRM, Wikimedia Commons). Wszystko, co **wyróżnia** trzy pokazowe osiedla, jest jednak ustawione ręcznie: 1. miejsce, wyniki 94–97%, paski kategorii, korki, czasy dojazdu, „Podsumowanie AI” i zmiany na osi czasu. Kilka faktów w opisach jest nieaktualnych albo błędnych (lista w sekcji 3).

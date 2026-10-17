@@ -1,11 +1,12 @@
-"""Warsaw Lden noise unions from the cached GIOŚ HAŁAS pages (see fetch_gios_noise.py).
+"""Warsaw noise unions (Lden and Lnight) from the cached GIOŚ HAŁAS pages (see fetch_gios_noise.py).
 
-`load_unions()` returns, in EPSG:2180, one (Multi)Polygon per threshold and source:
+`load_unions(indicator)` returns, in EPSG:2180, one (Multi)Polygon per threshold and source:
     {"road": {60: geom, 65: geom}, "rail": {...}, "any": {...}}
-where `geom` is the area with Lden >= threshold from that source ("any" = road OR rail;
-rail includes trams, GIOŚ has no separate tram layer). Contours are clipped to the
-Warsaw boundary (data/boundaries/warszawa_dzielnice.geojson) and repaired with
-make_valid. The result is cached as WKB in data/raw/noise/unions.json.
+where `geom` is the area with the indicator >= threshold from that source ("any" = road OR rail;
+rail includes trams, GIOŚ has no separate tram layer). Indicators: "LDWN" (Lden, thresholds
+55/60/65/70 dB) and "LN" (Lnight, 50/55/60/65 dB). Contours are clipped to the Warsaw boundary
+(data/boundaries/warszawa_dzielnice.geojson) and repaired with make_valid. The result is cached
+as WKB in data/raw/noise/unions.json (LDWN) and unions_LN.json (LN).
 
 Needs shapely>=2 and pyproj (e.g. the data/scripts/siatka venv).
 """
@@ -24,13 +25,14 @@ ROOT = Path(__file__).resolve().parents[3]
 RAW = ROOT / "data/raw/noise"
 CACHE = RAW / "unions.json"
 DISTRICTS = ROOT / "data/boundaries/warszawa_dzielnice.geojson"
-THRESHOLDS = (55, 60, 65, 70)
+INDICATORS = {"LDWN": (55, 60, 65, 70), "LN": (50, 55, 60, 65)}
+THRESHOLDS = INDICATORS["LDWN"]
 SOURCES = ("road", "rail")
 
 
 def band_min_db(przedzial: str) -> int:
-    """'Lden6064' -> 60, 'LdenGreaterThan80' -> 80."""
-    m = re.match(r"Lden(?:GreaterThan)?(\d{2})", przedzial)
+    """'Lden6064' -> 60, 'LdenGreaterThan80' -> 80, 'Lnight5054' -> 50."""
+    m = re.match(r"L(?:den|night)(?:GreaterThan)?(\d{2})", przedzial)
     if not m:
         raise ValueError(przedzial)
     return int(m.group(1))
@@ -45,41 +47,51 @@ def warsaw_2180():
     return shapely.make_valid(shapely.union_all(polys))
 
 
-def available() -> bool:
-    return all(any(RAW.glob(f"gios_{s}_LDWN_p*.json")) for s in SOURCES)
+def available(indicator: str = "LDWN") -> bool:
+    return all(any(RAW.glob(f"gios_{s}_{indicator}_p*.json")) for s in SOURCES)
 
 
-def load_unions() -> dict:
-    if CACHE.exists():
-        raw = json.loads(CACHE.read_text())
+def cache_path(indicator: str) -> Path:
+    return CACHE if indicator == "LDWN" else RAW / f"unions_{indicator}.json"
+
+
+def unions_by_threshold(bands: dict[str, list[tuple[int, object]]], city, thresholds) -> dict:
+    """{source: [(band lower bound dB, geom), ...]} -> {source | "any": {threshold: area >= threshold in the city}}."""
+    out: dict[str, dict[int, object]] = {}
+    for s, items in bands.items():
+        out[s] = {}
+        for t in thresholds:
+            parts = [g for b, g in items if b >= t]
+            u = shapely.union_all(parts) if parts else shapely.Polygon()
+            out[s][t] = shapely.make_valid(u.intersection(city))
+    out["any"] = {t: shapely.make_valid(shapely.union_all([out[s][t] for s in bands])) for t in thresholds}
+    return out
+
+
+def load_unions(indicator: str = "LDWN") -> dict:
+    cache = cache_path(indicator)
+    if cache.exists():
+        raw = json.loads(cache.read_text())
         return {s: {int(t): shapely.from_wkb(bytes.fromhex(h)) for t, h in d.items()} for s, d in raw.items()}
-    if not available():
-        raise FileNotFoundError("run data/scripts/noise/fetch_gios_noise.py first")
+    if not available(indicator):
+        raise FileNotFoundError(f"run data/scripts/noise/fetch_gios_noise.py first ({indicator} pages missing)")
     city = warsaw_2180()
     city_box = shapely.box(*city.bounds)
-    bands: dict[str, dict[int, list]] = {s: {} for s in SOURCES}
+    bands: dict[str, list[tuple[int, object]]] = {s: [] for s in SOURCES}
     for s in SOURCES:
-        for path in sorted(RAW.glob(f"gios_{s}_LDWN_p*.json")):
+        for path in sorted(RAW.glob(f"gios_{s}_{indicator}_p*.json")):
             for f in json.loads(path.read_text())["features"]:
                 g = shape(f["geometry"])
                 if not g.intersects(city_box):
                     continue  # Radom, Płock
-                g = shapely.make_valid(g)
-                bands[s].setdefault(band_min_db(f["properties"]["przedzial"]), []).append(g)
-    out: dict[str, dict[int, object]] = {}
-    for s in SOURCES:
-        out[s] = {}
-        for t in THRESHOLDS:
-            parts = [g for b, gs in bands[s].items() if b >= t for g in gs]
-            u = shapely.union_all(parts) if parts else shapely.Polygon()
-            out[s][t] = shapely.make_valid(u.intersection(city))
-    out["any"] = {t: shapely.make_valid(shapely.union_all([out[s][t] for s in SOURCES])) for t in THRESHOLDS}
-    CACHE.write_text(json.dumps({s: {str(t): shapely.to_wkb(g, hex=True) for t, g in d.items()} for s, d in out.items()}))
+                bands[s].append((band_min_db(f["properties"]["przedzial"]), shapely.make_valid(g)))
+    out = unions_by_threshold(bands, city, INDICATORS[indicator])
+    cache.write_text(json.dumps({s: {str(t): shapely.to_wkb(g, hex=True) for t, g in d.items()} for s, d in out.items()}))
     return out
 
 
 if __name__ == "__main__":
-    u = load_unions()
     city_km2 = warsaw_2180().area / 1e6
-    for s, d in u.items():
-        print(s, "  ".join(f">={t} dB: {g.area / 1e6:6.2f} km²" for t, g in d.items()), f"(city {city_km2:.1f} km²)")
+    for ind in INDICATORS:
+        for s, d in load_unions(ind).items():
+            print(ind, s, "  ".join(f">={t} dB: {g.area / 1e6:6.2f} km²" for t, g in d.items()), f"(city {city_km2:.1f} km²)")
