@@ -22,6 +22,9 @@
   max-height: min(92vh, 880px);
   display: grid;
   grid-template-rows: auto auto 1fr auto;
+  /* minmax(0, …): wide content must not widen the track, or the header (close button) gets clipped */
+  grid-template-columns: minmax(0, 1fr);
+  container-type: inline-size;
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.8);
@@ -49,6 +52,10 @@
   background: rgba(22, 22, 29, 0.06);
   color: var(--color-ink, #16161d);
   cursor: pointer;
+}
+.prefs-modal__close:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 .prefs-modal__progress {
   display: flex;
@@ -83,13 +90,51 @@
   position: static;
   inset: auto;
   display: block;
-  overflow: visible;
+  /* the sheet clips (overflow: hidden), so the body has to scroll on short screens */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .prefs-modal__body .survey__body {
   width: 100%;
   max-width: none;
   margin: 0;
   padding: 8px 20px 16px;
+}
+/* survey.css sizes the profile cards for the full-screen survey (3 × ≥280 px, switched by viewport
+   width); inside the 720 px sheet they follow the sheet's own width instead. */
+.prefs-modal .profile-cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.prefs-modal .profile-card {
+  min-height: 0;
+  flex-direction: column;
+  align-items: stretch;
+}
+.prefs-modal .profile-card__art {
+  width: auto;
+  height: 132px;
+}
+.prefs-modal .profile-card__text {
+  padding: 14px 8px 6px;
+}
+@container (max-width: 560px) {
+  .prefs-modal .profile-cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .prefs-modal .profile-card {
+    flex-direction: row;
+    align-items: center;
+  }
+  .prefs-modal .profile-card__art {
+    width: 96px;
+    height: 96px;
+    flex: none;
+  }
+  .prefs-modal .profile-card__text {
+    padding: 4px 28px 4px 16px;
+  }
 }
 .prefs-modal__hints {
   margin: 16px 0 0;
