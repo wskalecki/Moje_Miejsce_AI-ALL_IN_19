@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { SkipForward } from 'lucide-react'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { APP_NAME } from '../app/config'
-import type { ProfileId } from '../app/types'
+import { useMatch } from '../app/useMatch'
 import { ACCENTS, EASE } from '../design/tokens'
 import type { Osiedle } from '../mock/osiedla'
 
@@ -19,7 +19,6 @@ const MAP_CREDIT = '© OpenStreetMap (ODbL) · OpenMapTiles'
 
 interface InterludeProps {
   osiedle: Osiedle
-  profile: ProfileId
   /** Letterbox bars + vignette in. */
   open: boolean
   showTitle: boolean
@@ -37,7 +36,7 @@ function fmtCoord(v: number, pos: string, neg: string) {
 }
 
 /** Letterboxed title card with the flyover clip (spec 4.4, "interludium"). */
-export function Interlude({ osiedle, profile, open, showTitle, playMedia, onCovered, onDone, onSkip }: InterludeProps) {
+export function Interlude({ osiedle, open, showTitle, playMedia, onCovered, onDone, onSkip }: InterludeProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [media, setMedia] = useState<'none' | 'video' | 'photos' | 'live'>('none')
   const [visible, setVisible] = useState(false)
@@ -50,7 +49,10 @@ export function Interlude({ osiedle, profile, open, showTitle, playMedia, onCove
   })
 
   const owner = ACCENTS[osiedle.profile]
-  const match = osiedle.match[profile]
+  // honest match and rank for the user's current weights (same numbers as the map and the panel)
+  const { match, rank, isTop } = useMatch(osiedle.msiId)
+  const fit =
+    match == null ? null : isTop ? `Najlepsze dopasowanie · ${match}%` : rank != null ? `#${rank} dla Twoich wag · ${match}%` : `${match}% dopasowania`
   const photos = osiedle.heroImages.slice(0, 2)
 
   const finish = () => {
@@ -218,7 +220,8 @@ export function Interlude({ osiedle, profile, open, showTitle, playMedia, onCove
             >
               <span className="cin-title__dot" />
               <span className="cin-title__kicker-text">
-                {osiedle.district} · {match}% dopasowania
+                {osiedle.district}
+                {fit ? ` · ${fit}` : ''}
               </span>
             </motion.p>
             <h2 className="cin-title__name" aria-label={osiedle.name}>

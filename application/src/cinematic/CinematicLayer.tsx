@@ -615,7 +615,6 @@ function CinematicStage({
         <Interlude
           key={interludeKey}
           osiedle={active}
-          profile={profile}
           open={bars}
           showTitle={title}
           playMedia={playMedia}
