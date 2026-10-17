@@ -30,6 +30,12 @@ Use `feat` for new capability, `fix` for bugs. Keep the subject short and impera
 | `data/` | Datasets and ETL — see `docs/data/`, rule `.cursor/rules/data-developer.mdc` |
 | `presentation/` | Demo graphics and 3D |
 
+## Data knowledge base
+
+- Before looking for data, read [`docs/data/zrodla-danych.md`](docs/data/zrodla-danych.md) (verified endpoints, API quirks, licences, decisions).
+- When you verify a source, find a quirk or choose a dataset, **add it there** so other people and agents do not repeat the work.
+- Metrics framework: [`docs/data/siatka-etl.md`](docs/data/siatka-etl.md).
+
 ## Product context
 
 Hackathon W3 — Warsaw open data; map of ~1 km cells to help choose where to live. See `docs/core/koncept-aplikacji.md`.

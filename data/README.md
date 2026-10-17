@@ -41,3 +41,37 @@ python3 data/scripts/validate_data.py
 | _TBD_ `grid/cell_metrics.json` | ETL aggregates | n/a | Production metrics |
 
 Raw API dumps → `data/raw/` (gitignored). Large exports: LFS or external link.
+
+## Inventory — siatka ETL
+
+<!-- siatka:inventory:start -->
+
+Generowane przez `uv run siatka run` — nie edytuj ręcznie.
+
+| Zbiór (dataset) | Źródło | Licencja | Pobrano | POI | Dane miasta |
+|---|---|---|---|---|---|
+| `osm_clinic` | [OpenStreetMap (Overpass API)](https://www.openstreetmap.org/copyright) | ODbL 1.0 — © współtwórcy OpenStreetMap | 2026-10-17T11:49:28+00:00 | 895 | nie |
+| `osm_gastronomy` | [OpenStreetMap (Overpass API)](https://www.openstreetmap.org/copyright) | ODbL 1.0 — © współtwórcy OpenStreetMap | 2026-10-17T11:50:37+00:00 | 3383 | nie |
+| `osm_kindergarten` | [OpenStreetMap (Overpass API)](https://www.openstreetmap.org/copyright) | ODbL 1.0 — © współtwórcy OpenStreetMap | 2026-10-17T11:40:25+00:00 | 1169 | nie |
+| `osm_parks` | [OpenStreetMap (Overpass API)](https://www.openstreetmap.org/copyright) | ODbL 1.0 — © współtwórcy OpenStreetMap | 2026-10-17T11:43:07+00:00 | 986 | nie |
+| `osm_pharmacy` | [OpenStreetMap (Overpass API)](https://www.openstreetmap.org/copyright) | ODbL 1.0 — © współtwórcy OpenStreetMap | 2026-10-17T11:39:43+00:00 | 605 | nie |
+| `osm_planned_rail` | [OpenStreetMap (Overpass API)](https://www.openstreetmap.org/copyright) | ODbL 1.0 — © współtwórcy OpenStreetMap | 2026-10-17T11:49:59+00:00 | 2236 | nie |
+| `osm_playground` | [OpenStreetMap (Overpass API)](https://www.openstreetmap.org/copyright) | ODbL 1.0 — © współtwórcy OpenStreetMap | 2026-10-17T11:39:12+00:00 | 3106 | nie |
+| `osm_school_primary` | [OpenStreetMap (Overpass API)](https://www.openstreetmap.org/copyright) | ODbL 1.0 — © współtwórcy OpenStreetMap | 2026-10-17T11:41:05+00:00 | 435 | nie |
+| `osm_school_secondary` | [OpenStreetMap (Overpass API)](https://www.openstreetmap.org/copyright) | ODbL 1.0 — © współtwórcy OpenStreetMap | 2026-10-17T11:41:05+00:00 | 250 | nie |
+| `osm_supermarket` | [OpenStreetMap (Overpass API)](https://www.openstreetmap.org/copyright) | ODbL 1.0 — © współtwórcy OpenStreetMap | 2026-10-17T11:38:38+00:00 | 526 | nie |
+| `osm_tram_stops` | [OpenStreetMap (Overpass API)](https://www.openstreetmap.org/copyright) | ODbL 1.0 — © współtwórcy OpenStreetMap | 2026-10-17T11:42:18+00:00 | 662 | nie |
+| `osm_university` | [OpenStreetMap (Overpass API)](https://www.openstreetmap.org/copyright) | ODbL 1.0 — © współtwórcy OpenStreetMap | 2026-10-17T11:41:41+00:00 | 126 | nie |
+| `um_aed` | [dane.um.warszawa.pl — Lokalizacja defibrylatorów (AED)](https://dane.um.warszawa.pl/pl/catalogue) | CC BY — Urząd m.st. Warszawy | 2026-10-17T11:46:23+00:00 | 709 | tak |
+| `um_air_quality` | [dane.um.warszawa.pl — Monitoring jakości powietrza](https://dane.um.warszawa.pl/pl/catalogue) | CC BY — Urząd m.st. Warszawy | 2026-10-17T11:46:20+00:00 | 111 | tak |
+| `um_bo_in_progress` | [dane.um.warszawa.pl — Budżet obywatelski](https://dane.um.warszawa.pl/pl/catalogue) | CC BY — Urząd m.st. Warszawy | 2026-10-17T11:49:28+00:00 | 1000 | tak |
+| `um_events` | [dane.um.warszawa.pl — Kalendarz wydarzeń](https://dane.um.warszawa.pl/pl/catalogue) | CC BY — Urząd m.st. Warszawy | 2026-10-17T11:46:22+00:00 | 343 | tak |
+| `um_pitches` | [dane.um.warszawa.pl — Otwarte boiska](https://dane.um.warszawa.pl/pl/catalogue) | CC BY — Urząd m.st. Warszawy | 2026-10-17T11:47:22+00:00 | 1126 | tak |
+| `um_road_works` | [dane.um.warszawa.pl — Utrudnienia w ruchu drogowym](https://dane.um.warszawa.pl/pl/catalogue) | CC BY — Urząd m.st. Warszawy | 2026-10-17T11:46:23+00:00 | 374 | tak |
+| `um_stops` | [dane.um.warszawa.pl — Lokalizacja przystanków komunikacji miejskiej](https://dane.um.warszawa.pl/pl/catalogue) | CC BY — Urząd m.st. Warszawy | 2026-10-17T11:46:45+00:00 | 4480 | tak |
+| `um_toilets` | [dane.um.warszawa.pl — Toalety](https://dane.um.warszawa.pl/pl/catalogue) | CC BY — Urząd m.st. Warszawy | 2026-10-17T11:46:17+00:00 | 695 | tak |
+| `wfs_libraries` | [WFS m.st. Warszawy — BIBLIOTEKI](https://wfs.um.warszawa.pl/serwis?service=WFS&request=GetCapabilities) | Ponowne wykorzystanie bezpłatne; źródło: Urząd m.st. Warszawy | 2026-10-17T11:43:08+00:00 | 267 | tak |
+| `wfs_metro_entrances` | [WFS m.st. Warszawy — METRO_WEJSCIA](https://wfs.um.warszawa.pl/serwis?service=WFS&request=GetCapabilities) | Ponowne wykorzystanie bezpłatne; źródło: Urząd m.st. Warszawy | 2026-10-17T11:41:41+00:00 | 233 | tak |
+| `wfs_utw` | [WFS m.st. Warszawy — UNIWERSYTETY_TRZECIEGO_WIEKU](https://wfs.um.warszawa.pl/serwis?service=WFS&request=GetCapabilities) | Ponowne wykorzystanie bezpłatne; źródło: Urząd m.st. Warszawy | 2026-10-17T11:43:08+00:00 | 35 | tak |
+
+<!-- siatka:inventory:end -->

@@ -43,7 +43,18 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     indicators = discover()
     if args.only:
-        indicators = [i for i in indicators if i.key in args.only]
+        # Preview mode: never write partial outputs over the full files
+        unknown = set(args.only) - {i.key for i in indicators}
+        if unknown:
+            print(f"Nieznane wskaźniki: {', '.join(sorted(unknown))}")
+            return 2
+        result = run([i for i in indicators if i.key in args.only])
+        for ind in result.indicators:
+            vals = [result.metrics[c][ind.key] for c in result.ctx.grid.ids if result.metrics[c][ind.key] is not None]
+            stats = f"min {min(vals)}, max {max(vals)}" if vals else "brak danych"
+            print(f"{ind.key}: {len(vals)}/{len(result.ctx.grid.ids)} komórek, {stats} {ind.unit}")
+        print("(podgląd --only: pliki nie zostały zapisane)")
+        return 0
     result = run(indicators)
     paths = write_all(result)
     if result.ctx.failures:
@@ -61,7 +72,7 @@ def main() -> None:
     sub.add_parser("list", help="wypisz wskaźniki i zbiory").set_defaults(fn=cmd_list)
     sub.add_parser("grid", help="zapisz tylko siatkę").set_defaults(fn=cmd_grid)
     p_run = sub.add_parser("run", help="pobierz dane, policz metryki i zapisz pliki kontraktu")
-    p_run.add_argument("--only", nargs="+", metavar="KEY", help="tylko wybrane wskaźniki")
+    p_run.add_argument("--only", nargs="+", metavar="KEY", help="podgląd wybranych wskaźników (bez zapisu plików)")
     p_run.set_defaults(fn=cmd_run)
     args = parser.parse_args()
     sys.exit(args.fn(args))
