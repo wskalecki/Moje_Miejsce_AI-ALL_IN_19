@@ -1,8 +1,7 @@
 /** Lucide icons for the domain dictionary (spec §3.1, §3.2, §4.1). */
 import {
-  Armchair,
-  Backpack,
   Dumbbell,
+  Glasses,
   GraduationCap,
   HeartPulse,
   House,
@@ -20,9 +19,9 @@ import {
 import type { CategoryKey, Horizon, ProfileId } from './types'
 
 export const PROFILE_ICONS: Record<ProfileId, LucideIcon> = {
-  student: Backpack,
+  student: GraduationCap,
   rodzina: UsersRound,
-  senior: Armchair,
+  senior: Glasses,
 }
 
 export const CATEGORY_ICONS: Record<CategoryKey, LucideIcon> = {

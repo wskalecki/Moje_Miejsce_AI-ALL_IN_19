@@ -32,6 +32,7 @@ import { DATA_URLS } from './config'
 import { fetchJson } from './mapLoader'
 import { rankOsiedla, type Ranking, type ScoresFile } from './ranking'
 import { useAppStore } from './useAppStore'
+import type { CategoryKey } from './types'
 import type { Weights } from './weights'
 
 export type { Ranking } from './ranking'
@@ -103,22 +104,23 @@ export function useOsiedlaNames(): ReadonlyMap<string, string> | null {
 const memo = new Map<string, Ranking>()
 const MEMO_MAX = 8
 
-function rankingFor(scores: ScoresFile, weights: Weights): Ranking {
-  const key = JSON.stringify(weights)
+function rankingFor(scores: ScoresFile, weights: Weights, scoreCategories: readonly CategoryKey[]): Ranking {
+  const key = JSON.stringify({ weights, scoreCategories })
   const hit = memo.get(key)
   if (hit) return hit
-  const r = rankOsiedla(scores, weights)
+  const r = rankOsiedla(scores, weights, scoreCategories)
   memo.set(key, r)
   if (memo.size > MEMO_MAX) memo.delete(memo.keys().next().value as string)
   return r
 }
 
 /** Ranking of all osiedla for `weights` (default: the current store weights); null while loading. */
-export function useRanking(weights?: Weights): Ranking | null {
+export function useRanking(weights?: Weights, scoreCategories?: readonly CategoryKey[]): Ranking | null {
   const { state } = useAppStore()
   const scores = useOsiedlaScores()
   const w = weights ?? state.weights
-  return useMemo(() => (scores ? rankingFor(scores, w) : null), [scores, w])
+  const score = scoreCategories ?? state.filterSections.score
+  return useMemo(() => (scores ? rankingFor(scores, w, score) : null), [scores, w, score])
 }
 
 /** Match (0–100) and rank of one osiedle for the current store weights. */

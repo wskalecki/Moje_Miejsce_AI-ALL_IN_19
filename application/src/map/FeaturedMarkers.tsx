@@ -96,7 +96,7 @@ export function FeaturedMarkers({ map, featured, ranks, highlighted, selectedSlu
               onMouseLeave={() => onHover(null)}
               onFocus={() => onHover(f.slug)}
               onBlur={() => onHover(null)}
-              aria-label={`${f.name}, dopasowanie ${r?.match ?? '–'}%, miejsce ${r?.rank ?? '–'} dla Twoich wag. Otwórz profil osiedla`}
+              aria-label={`${f.name}, dopasowanie ${r?.match ?? '–'} procent, ${r?.rank ?? '–'}. miejsce na liście okolic. Otwórz szczegóły`}
             >
               {r && <span className={['smap-fm__rank', best ? '' : 'is-plain'].filter(Boolean).join(' ')}>#{r.rank}</span>}
               <span className="smap-fm__text">
@@ -110,7 +110,7 @@ export function FeaturedMarkers({ map, featured, ranks, highlighted, selectedSlu
                     Najlepsze dopasowanie
                   </span>
                 ) : (
-                  r && <span className="smap-fm__sub">dla Twoich wag</span>
+                  r && <span className="smap-fm__sub">pod Twoje priorytety</span>
                 )}
               </span>
             </button>

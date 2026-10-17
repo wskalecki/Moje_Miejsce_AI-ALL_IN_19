@@ -26,9 +26,9 @@ export function HorizonStep({ headingRef }: { headingRef: RefObject<HTMLHeadingE
     <>
       <div className="survey__question">
         <h1 className="t-h1" ref={headingRef} tabIndex={-1} id="q-horizon">
-          Na jak długo szukasz miejsca?
+          Wynajem czy kupno?
         </h1>
-        <p className="t-body t-secondary">Zmienimy ceny i pokażemy, jak okolica będzie się rozwijać.</p>
+        <p className="t-body t-secondary">To zmienia ceny w panelu osiedla — możesz to później przełączyć w lewym panelu mapy.</p>
       </div>
 
       <div className="horizon-cards" role="radiogroup" aria-labelledby="q-horizon">

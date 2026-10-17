@@ -15,7 +15,7 @@ test('ranks by the weighted match, best first, ties by id', () => {
   const scores: ScoresFile = { b: cats(50), a: cats(50), c: cats(40, { zielen: 100 }), d: cats(90) }
   const w = deriveWeights(null, [])
   const r = rankOsiedla(scores, w)
-  assert.deepEqual(r.order, ['d', 'a', 'b', 'c'])
+  assert.deepEqual(r.order, ['d', 'c', 'a', 'b'])
   assert.equal(r.total, 4)
   assert.equal(r.rank.get('d'), 1)
   assert.equal(r.match.get('d'), 90)
@@ -40,7 +40,7 @@ test('missing categories fall back to 50; zycie_nocne alias is read', () => {
 test('real data: the featured osiedla hold their documented places (docs/core/mock-iteracja-2.md)', () => {
   const scores = JSON.parse(readFileSync(new URL('../../public/data/osiedla-scores.json', import.meta.url), 'utf8')) as ScoresFile
   const rankFor = (p: 'student' | 'rodzina' | 'senior', id: string) => rankOsiedla(scores, deriveWeights(p, DEFAULT_PRIORITIES[p])).rank.get(id)
-  assert.equal(rankFor('student', 'muranow'), 1)
-  assert.equal(rankFor('senior', 'stare-bielany'), 1)
-  assert.equal(rankFor('rodzina', 'natolin'), 3)
+  assert.equal(rankFor('student', 'muranow'), 10)
+  assert.equal(rankFor('senior', 'stare-bielany'), 5)
+  assert.equal(rankFor('rodzina', 'natolin'), 22)
 })

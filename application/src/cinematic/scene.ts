@@ -323,15 +323,7 @@ export class CinemaScene {
       ]
       for (const look of ['night', 'day'] as const) {
         const ramp = buildingRamp(look === 'day' ? this.dayLook : 'night', t.owner)
-        const color = (pair: readonly [string, string]): ExpressionSpecification => [
-          'interpolate',
-          ['linear'],
-          ['coalesce', ['get', 'render_height'], 8],
-          0,
-          pair[0],
-          45,
-          pair[1],
-        ]
+        const lit = (pair: readonly [string, string]) => pair[1]
         map.addLayer(
           {
             id: CIN_LAYER.bld(t.slug, look),
@@ -341,7 +333,7 @@ export class CinemaScene {
             minzoom: 13,
             filter: look === 'day' && cov ? (['all', near, ['>', ['distance', cov.polygon], 0]] as FilterSpecification) : near,
             paint: {
-              'fill-extrusion-color': ['interpolate', ['linear'], dist, rIn, color(ramp.inside), rIn + LIT_FALLOFF_M, color(ramp.outside)],
+              'fill-extrusion-color': ['interpolate', ['linear'], dist, rIn, lit(ramp.inside), rIn + LIT_FALLOFF_M, lit(ramp.outside)],
               'fill-extrusion-height': height('render_height', 8),
               'fill-extrusion-base': height('render_min_height', 0),
               'fill-extrusion-opacity': 0,

@@ -29,5 +29,5 @@
     "ignoreDeprecations": "6.0"
   },
   "include": ["src"],
-  "exclude": ["src/**/*.test.ts"]
+  "exclude": ["src/**/*.test.ts", "src/**/*.js"]
 }

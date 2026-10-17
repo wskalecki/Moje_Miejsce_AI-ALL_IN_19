@@ -19,7 +19,7 @@ export function IntroScreen() {
   const reduce = useReducedMotion()
   const [active, setActive] = useState<ProfileId>('student')
 
-  const start = () => navigate('/ankieta?krok=1')
+  const start = () => navigate('/mapa')
 
   useEffect(() => {
     prefetchMap(PRELOAD_DATA_URLS)
@@ -86,7 +86,7 @@ export function IntroScreen() {
       <footer className="intro__bottom">
         <p className="t-small intro__credits">Dane: m.st. Warszawa, GUGiK, GIOŚ, ZTM · ©&nbsp;współtwórcy OpenStreetMap, OpenFreeMap</p>
         <m.div className="intro__legend" {...rise(0.9)} aria-hidden>
-          <span className="intro__legend-label">Dopasowanie okolic dla profilu</span>
+          <span className="intro__legend-label">Jak dobrze okolica pasuje do profilu</span>
           {PROFILE_ORDER.map((p) => (
             <span key={p} className={`intro__chip accent-${p}`} data-on={p === active || undefined}>
               <i />

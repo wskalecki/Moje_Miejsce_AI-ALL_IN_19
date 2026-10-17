@@ -8,12 +8,13 @@ import { heatRange, rampStops, rankBy, shares, weightedMatch, type Weights } fro
 const fill = (fn: (c: CategoryKey, i: number) => number) =>
   Object.fromEntries(CATEGORY_ORDER.map((c, i) => [c, fn(c, i)])) as Weights
 
-test('shares sum to 1; all-zero weights fall back to equal shares; solo isolates one category', () => {
+test('shares sum to 1; all-zero panel weights → no mix; solo isolates one category', () => {
   const s = shares(fill((_, i) => i * 10))
   assert.ok(Math.abs(s.reduce((a, b) => a + b, 0) - 1) < 1e-9)
   assert.equal(s[0], 0)
   const eq = shares(fill(() => 0))
-  assert.ok(eq.every((x) => Math.abs(x - 0.1) < 1e-9))
+  assert.ok(eq.every((x) => x === 0))
+  assert.equal(weightedMatch(fill(() => 80), fill(() => 0)), 0)
   const solo = shares(fill(() => 50), 'zielen')
   assert.equal(solo[CATEGORY_ORDER.indexOf('zielen')], 1)
   assert.equal(solo.reduce((a, b) => a + b, 0), 1)

@@ -1,8 +1,13 @@
+import { AnimatePresence } from 'motion/react'
 import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
+import { PRELOAD_DATA_URLS } from '../../app/config'
+import { prefetchMap } from '../../app/mapLoader'
 import { navigate, useRouter } from '../../app/router'
 import { useAppStore } from '../../app/useAppStore'
 import type { MapApi } from '../../map/MapView'
+import { MatchingScreen } from '../Matching/MatchingScreen'
 import { MapSkeleton } from './MapSkeleton'
+import { PreferencesModal } from './PreferencesModal'
 import { SentenceBar } from './SentenceBar'
 import './mapScreen.css'
 
@@ -23,27 +28,43 @@ class MapErrorBoundary extends Component<{ children: ReactNode; onError: () => v
   }
 }
 
-/**
- * `/mapa` and `/mapa/:slug`. Hosts the single, long-lived MapView instance, the sentence bar and
- * the cinematic transition (src/cinematic) that takes the camera into a featured osiedle and opens its panel.
- */
 export function MapScreen({ slug, hidden = false }: { slug: string | null; hidden?: boolean }) {
-  const { state, markVisited, setProfile, setWeight, resetWeights } = useAppStore()
+  const {
+    state,
+    markVisited,
+    setProfile,
+    setWeight,
+    resetWeights,
+    setHorizon,
+    togglePoiInterest,
+    toggleGastronomyCuisine,
+    setFilterSections,
+  } = useAppStore()
   const { query } = useRouter()
   const profile = state.profile ?? 'rodzina'
   const horizon = state.horizon ?? 'stale'
   const [api, setApi] = useState<MapApi | null>(null)
   const [busy, setBusy] = useState(false)
   const [failed, setFailed] = useState(false)
+  const [matching, setMatching] = useState(false)
+  const needsSetup = !state.profile || !state.horizon
+  const [prefsOpen, setPrefsOpen] = useState(needsSetup)
   const quick = query.get('szybko') === '1'
 
-  // Unknown osiedle (`/mapa/nieistnieje`) → the city view, without a history entry (QA #17).
-  // The featured list comes from the map data (src/mock/osiedla.ts), known once the map is ready.
+  useEffect(() => {
+    prefetchMap(PRELOAD_DATA_URLS)
+  }, [])
+
   const badSlug = !!slug && !!api && !api.featured.some((f) => f.slug === slug)
   useEffect(() => {
     if (badSlug) navigate('/mapa', { replace: true })
   }, [badSlug])
   const activeSlug = badSlug ? null : slug
+
+  const finishPrefs = () => {
+    setPrefsOpen(false)
+    if (!matching) setMatching(true)
+  }
 
   return (
     <div
@@ -60,9 +81,16 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
             weights={state.weights}
             onWeightChange={setWeight}
             onResetWeights={resetWeights}
+            poiInterests={state.poiInterests}
+            onTogglePoiInterest={togglePoiInterest}
+            gastronomyCuisines={state.gastronomyCuisines}
+            onToggleGastronomyCuisine={toggleGastronomyCuisine}
+            filterSections={state.filterSections}
+            onFilterSectionsChange={setFilterSections}
             horizon={horizon}
+            onHorizonChange={setHorizon}
             selectedSlug={activeSlug}
-            chrome={!busy}
+            chrome={!busy && !prefsOpen}
             onSelectFeatured={(s) => navigate(`/mapa/${s}${quick ? '?szybko=1' : ''}`)}
             onMapReady={(_m, a) => setApi(a)}
           />
@@ -85,12 +113,25 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
       </MapErrorBoundary>
       <MapSkeleton profile={profile} done={!!api} error={failed} panel={!activeSlug} />
       <SentenceBar
+        hidden={!!activeSlug || busy || prefsOpen}
         profile={profile}
-        priorities={state.priorities}
-        horizon={horizon}
-        onProfileChange={(p) => setProfile(p, { keepChoices: true })}
-        hidden={!!activeSlug || busy}
+        onProfileChange={(p) => setProfile(p)}
       />
+
+      <AnimatePresence>
+        {prefsOpen && (
+          <PreferencesModal
+            key="prefs"
+            open={prefsOpen}
+            onClose={() => {
+              if (state.profile && state.horizon) setPrefsOpen(false)
+            }}
+            onComplete={finishPrefs}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>{matching && <MatchingScreen key="matching" onDone={() => setMatching(false)} />}</AnimatePresence>
     </div>
   )
 }

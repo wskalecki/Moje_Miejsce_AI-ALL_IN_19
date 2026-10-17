@@ -29,12 +29,16 @@ const TWO_PEAKS = [8, 6, 5, 5, 7, 15, 38, 72, 86, 74, 58, 52, 54, 56, 60, 68, 82
 
 test('best departure stays in a realistic window', () => {
   const am = bestDeparture(TWO_PEAKS, 6, 10)
-  assert.ok(am)
-  assert.ok(am.best >= 6 && am.best <= 10, `morning ${am.best}`)
-  assert.ok(Math.abs(am.best - am.peak) >= 0.5 && Math.abs(am.best - am.peak) <= 2, 'shift')
-  assert.equal((am.best * 4) % 1, 0, 'quarter-hour steps')
-  assert.equal(am.pct % 5, 0)
-  assert.ok(am.pct >= 10 && am.pct <= 60, `pct ${am.pct}`)
+  assert.ok(am, 'morning departure')
+  const morning = am!
+  assert.ok(morning.best >= 6 && morning.best <= 10, `morning ${morning.best}`)
+  assert.ok(
+    Math.abs(morning.best - morning.peak) >= 0.5 && Math.abs(morning.best - morning.peak) <= 2,
+    'shift',
+  )
+  assert.equal((morning.best * 4) % 1, 0, 'quarter-hour steps')
+  assert.equal(morning.pct % 5, 0)
+  assert.ok(morning.pct >= 10 && morning.pct <= 60, `pct ${morning.pct}`)
   const pm = bestDeparture(TWO_PEAKS, 15, 19)
   assert.ok(pm && pm.best >= 15 && pm.best <= 19, 'evening')
 })

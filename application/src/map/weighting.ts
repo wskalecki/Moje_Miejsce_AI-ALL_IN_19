@@ -8,22 +8,49 @@
  * Pure module (explicit `.ts` imports, no maplibre runtime) so `node --test` can load it.
  */
 import type { ExpressionSpecification } from 'maplibre-gl'
-import { CATEGORY_ORDER } from '../app/dictionary.ts'
+import { CATEGORY_ORDER, FILTER_PANEL_CATEGORIES } from '../app/dictionary.ts'
 import type { CategoryKey } from '../app/types.ts'
 
 export type Weights = Record<CategoryKey, number>
 
-/** Share of each category in the mix (sums to 1). All-zero weights fall back to equal shares. */
-export function shares(weights: Weights, solo: CategoryKey | null = null): number[] {
-  if (solo) return CATEGORY_ORDER.map((c) => (c === solo ? 1 : 0))
-  const raw = CATEGORY_ORDER.map((c) => Math.max(0, Number(weights[c]) || 0))
-  const sum = raw.reduce((a, b) => a + b, 0)
-  return sum > 0 ? raw.map((w) => w / sum) : raw.map(() => 1 / raw.length)
+function panelSet(scoreCategories: readonly CategoryKey[]): Set<CategoryKey> {
+  return new Set(scoreCategories)
 }
 
-/** Weighted mean of category scores (0–100), rounded. */
-export function weightedMatch(cats: Record<CategoryKey, number>, weights: Weights, solo: CategoryKey | null = null): number {
-  const s = shares(weights, solo)
+/** Sum of panel slider weights (0 = user turned off every criterion). */
+export function panelWeightsSum(weights: Weights, scoreCategories: readonly CategoryKey[] = FILTER_PANEL_CATEGORIES): number {
+  let sum = 0
+  for (const c of scoreCategories) sum += Math.max(0, Number(weights[c]) || 0)
+  return sum
+}
+
+export function isPanelMixActive(weights: Weights, scoreCategories: readonly CategoryKey[] = FILTER_PANEL_CATEGORIES): boolean {
+  return panelWeightsSum(weights, scoreCategories) > 0
+}
+
+/** Share of each category in the mix (sums to 1, or all 0 when no criterion is on). */
+export function shares(
+  weights: Weights,
+  solo: CategoryKey | null = null,
+  scoreCategories: readonly CategoryKey[] = FILTER_PANEL_CATEGORIES,
+): number[] {
+  if (solo) return CATEGORY_ORDER.map((c) => (c === solo ? 1 : 0))
+  const panel = panelSet(scoreCategories)
+  const raw = CATEGORY_ORDER.map((c) => (panel.has(c) ? Math.max(0, Number(weights[c]) || 0) : 0))
+  const sum = raw.reduce((a, b) => a + b, 0)
+  if (sum > 0) return raw.map((w) => w / sum)
+  return CATEGORY_ORDER.map(() => 0)
+}
+
+/** Weighted mean of category scores (0–100), rounded. All panel weights 0 → 0 (brak dopasowania). */
+export function weightedMatch(
+  cats: Record<CategoryKey, number>,
+  weights: Weights,
+  solo: CategoryKey | null = null,
+  scoreCategories: readonly CategoryKey[] = FILTER_PANEL_CATEGORIES,
+): number {
+  if (!solo && !isPanelMixActive(weights, scoreCategories)) return 0
+  const s = shares(weights, solo, scoreCategories)
   let v = 0
   CATEGORY_ORDER.forEach((c, i) => {
     v += s[i] * (Number(cats[c]) || 0)
@@ -87,6 +114,7 @@ export function heatRange(rows: readonly ArrayLike<number>[], s: readonly number
 
 /** `heatmap-weight` for the mix: clamp((Σ sᵢ·cᵢ − lo) / (hi − lo), 0, 1) ^ gamma. */
 export function heatWeightExpr(s: readonly number[], range: HeatRange, gamma: number): ExpressionSpecification {
+  if (!s.some((k) => k > 1e-6)) return 0
   const span = range.hi - range.lo
   const lin = linearExpr(s.map((k) => k / span))
   const shifted: ExpressionSpecification = ['-', lin as ExpressionSpecification, Number((range.lo / span).toFixed(6))]

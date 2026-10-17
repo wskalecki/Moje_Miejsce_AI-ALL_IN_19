@@ -77,7 +77,7 @@ export const HoverCard = forwardRef<HTMLDivElement, HoverCardProps>(function Hov
               <h3>{o.name}</h3>
               <p>{o.district}</p>
               <p className="smap-card__rank tabular">
-                #{d.rank} z {d.total} osiedli dla Twoich wag
+                {d.rank}. miejsce na liście {d.total} okolic Warszawy
               </p>
             </div>
             <MatchRing key={o.id} value={d.match} size={44} duration={520} />
@@ -93,7 +93,7 @@ export const HoverCard = forwardRef<HTMLDivElement, HoverCardProps>(function Hov
                 ))}
               </ul>
               <small>
-                {d.factsFrom === 'metrics' ? 'Liczby w promieniu 1 km od osiedla' : 'Liczby w promieniu 1 km (z punktów POI)'} · OSM, m.st. Warszawa
+                {d.factsFrom === 'metrics' ? 'W promieniu ok. 1 km od środka okolicy' : 'W promieniu ok. 1 km — miejsca z mapy'} · dane miejskie i OpenStreetMap
                 {d.facts.some((f) => f.cat === 'cisza') ? ', GIOŚ' : ''}
               </small>
             </div>
@@ -117,7 +117,7 @@ export const HoverCard = forwardRef<HTMLDivElement, HoverCardProps>(function Hov
           )}
           {isFeatured && (
             <p className="smap-card__cta">
-              Kliknij, żeby zobaczyć osiedle <ArrowRight size={14} strokeWidth={2.2} aria-hidden />
+              Kliknij, by poznać tę okolicę bliżej <ArrowRight size={14} strokeWidth={2.2} aria-hidden />
             </p>
           )}
         </div>

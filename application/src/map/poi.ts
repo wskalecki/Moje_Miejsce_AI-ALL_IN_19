@@ -5,6 +5,7 @@
  */
 import type { Feature, FeatureCollection, Point } from 'geojson'
 import { fetchJson } from '../app/mapLoader'
+import { classifyGastronomyName } from './gastronomyCuisine'
 import { CATEGORY_ORDER } from './tokens'
 import type { CategoryKey, LngLat } from './types'
 
@@ -32,6 +33,8 @@ export interface PoiPoint {
   subtype: string
   /** Index into `PoiData.sources`. */
   source: number
+  /** Heuristic cuisine tag (`gastronomia` only). */
+  cuisine?: string
 }
 
 export interface PoiData {
@@ -61,7 +64,12 @@ const FALLBACK_LABELS: Record<string, string> = {
   university: 'Uczelnia',
   clinic: 'Przychodnia',
   pharmacy: 'Apteka',
+  hospital: 'Szpital',
+  optician: 'Okulista',
+  cinema: 'Kino',
+  theatre: 'Teatr',
   supermarket: 'Supermarket',
+  sports_class: 'Zajęcia sportowe',
 }
 
 /** Short source names for the UI. */
@@ -110,12 +118,27 @@ async function load(): Promise<PoiData> {
         if (unknown < 0) unknown = sources.push({ id: 'unknown', label: 'nieznane źródło' }) - 1
         src = unknown
       }
-      const pt: PoiPoint = { lng: p[0], lat: p[1], name: (p[2] ?? '').trim(), subtype: p[3] ?? '', source: src }
+      const name = (p[2] ?? '').trim()
+      const pt: PoiPoint = {
+        lng: p[0],
+        lat: p[1],
+        name,
+        subtype: p[3] ?? '',
+        source: src,
+        ...(cat === 'gastronomia' ? { cuisine: classifyGastronomyName(name) } : {}),
+      }
       out.push(pt)
       features.push({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [pt.lng, pt.lat] },
-        properties: { c: ci, n: pt.name, t: labels[pt.subtype] ?? pt.subtype, s: shortSource(sources[src].label) },
+        properties: {
+          c: ci,
+          k: pt.subtype,
+          ...(pt.cuisine ? { g: pt.cuisine } : {}),
+          n: pt.name,
+          t: labels[pt.subtype] ?? pt.subtype,
+          s: shortSource(sources[src].label),
+        },
       })
     }
     byCat[cat] = out

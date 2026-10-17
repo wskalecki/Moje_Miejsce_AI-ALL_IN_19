@@ -8,16 +8,21 @@ interface BuildingLegendProps {
   /** Kind under the pointer / keyboard focus (`null` when none). */
   onFocusKind: (kind: BuildingKind | null) => void
   defaultOpen?: boolean
+  /** Inside the advanced panel (no absolute positioning). */
+  nested?: boolean
 }
 
-/** Small collapsible legend of the 3D building colours; hovering a row highlights those buildings. */
-export function BuildingLegend({ counts, onFocusKind, defaultOpen = true }: BuildingLegendProps) {
+/** Collapsible legend of 3D building colours; hovering a row highlights those buildings. */
+export function BuildingLegend({ counts, onFocusKind, defaultOpen = false, nested = false }: BuildingLegendProps) {
   const [open, setOpen] = useState(defaultOpen)
   const listId = useId()
   const items = KIND_LEGEND.filter((i) => (counts[i.kind] ?? 0) > 0)
   if (!items.length) return null
   return (
-    <section className={`m3d-card m3d-legend${open ? ' is-open' : ''}`} aria-label="Legenda budynków">
+    <section
+      className={`${nested ? '' : 'm3d-card '}m3d-legend${open ? ' is-open' : ''}${nested ? ' m3d-legend--nested' : ''}`}
+      aria-label="Legenda budynków"
+    >
       <button type="button" className="m3d-legend__head" aria-expanded={open} aria-controls={listId} onClick={() => setOpen((o) => !o)}>
         <span className="m3d-legend__title">Budynki</span>
         <span className="m3d-legend__swatches" aria-hidden>

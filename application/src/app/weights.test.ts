@@ -2,7 +2,27 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { CATEGORY_ORDER, DEFAULT_PRIORITIES, PROFILE_ORDER } from './dictionary.ts'
-import { NEUTRAL_WEIGHT, PRIORITY_WEIGHT, baseWeights, categoriesByWeights, clampWeight, deriveWeights, sanitizeWeights } from './weights.ts'
+import {
+  NEUTRAL_WEIGHT,
+  PRIORITY_WEIGHT,
+  UI_WEIGHT_MAX,
+  baseWeights,
+  categoriesByWeights,
+  clampWeight,
+  deriveWeights,
+  sanitizeWeights,
+  uiToWeight,
+  weightToUi,
+} from './weights.ts'
+
+test('ui weight scale 0–5 maps to 0–100', () => {
+  assert.equal(weightToUi(0), 0)
+  assert.equal(weightToUi(20), 1)
+  assert.equal(weightToUi(100), 5)
+  assert.equal(uiToWeight(0), 0)
+  assert.equal(uiToWeight(1), 20)
+  assert.equal(uiToWeight(UI_WEIGHT_MAX), 100)
+})
 
 test('profile defaults are normalised so the top category = 100', () => {
   for (const p of PROFILE_ORDER) {
