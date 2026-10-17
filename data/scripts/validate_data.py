@@ -19,6 +19,7 @@ POI_CATEGORIES = {
     "environment",
     "amenity",
     "work_pin",
+    "future",
 }
 
 

@@ -114,12 +114,24 @@ class CountWithin(Indicator):
     unit: str = "szt."
     radius: float = 1000
     where: Callable | None = None
+    distinct: bool = False  # count distinct source_id (e.g. one road works = many line vertices)
 
     def compute(self, ctx: Context) -> Values:
-        pts = _points(ctx, self.datasets, self.where)
         if not any(ctx.pois(k) for k in self.datasets):
             return {cid: None for cid in ctx.grid.ids}
-        return self._finish(ctx, count_within(ctx.grid.xy, pts, self.radius))
+        if not self.distinct:
+            pts = _points(ctx, self.datasets, self.where)
+            return self._finish(ctx, count_within(ctx.grid.xy, pts, self.radius))
+        pois = [p for k in self.datasets for p in ctx.pois(k) if self.where is None or self.where(p)]
+        if not pois:
+            return self._finish(ctx, np.zeros(len(ctx.grid.ids)))
+        pts = to_xy([p.lon for p in pois], [p.lat for p in pois])
+        _, groups = np.unique([p.source_id for p in pois], return_inverse=True)
+        counts = np.zeros(len(ctx.grid.ids))
+        for i, origin in enumerate(ctx.grid.xy):
+            near = np.sqrt(((pts - origin) ** 2).sum(axis=1)) <= self.radius
+            counts[i] = len(np.unique(groups[near]))
+        return self._finish(ctx, counts)
 
 
 @dataclass(kw_only=True)

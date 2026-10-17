@@ -41,10 +41,10 @@ Status: ⬜ do zrobienia · 🔄 w toku · ✅ zrobione
 |---|---------|--------|
 | 1 | Gałąź `feat/mati-siatka` na aktualnym `master` | ✅ |
 | 2 | PR [#23](https://github.com/wskalecki/wwa42hackathon_ai_all_in/pull/23): pełny zasięg siatki + `in_warsaw`/`district` | ✅ (czeka na review) |
-| 3 | Framework: model, rejestr, geometria, cache, normalizacja, persony, zapis zgodny z kontraktami, CLI, testy | 🔄 |
-| 4 | Wskaźniki bez tokenu: metro, edukacja (OSM), parki, place zabaw, apteki i przychodnie, gastronomia, biblioteki, UTW, tramwaje | ⬜ |
-| 5 | Wskaźniki z API miasta (wymaga tokenu): przystanki, toalety (przewijak), boiska, zajęcia sportowe, AQ (IDW ze 141 stacji), wydarzenia, utrudnienia, AED, RCN | ⬜ |
-| 6 | „Co się tu zmieni”: BO w realizacji, konsultacje, sporządzane MPZP, planowane metro i tramwaje (OSM), kategoria POI `future` | ⬜ |
+| 3 | Framework: model, rejestr, geometria, cache, normalizacja, persony, zapis zgodny z kontraktami, CLI, testy — [`siatka-etl.md`](../data/siatka-etl.md) | ✅ |
+| 4 | Wskaźniki bez tokenu: metro, edukacja (OSM), parki, place zabaw, apteki i przychodnie, gastronomia, biblioteki, UTW, tramwaje | ✅ |
+| 5 | Wskaźniki z API miasta: przystanki, toalety (przewijak, bez barier), boiska (geokodowane), AQ PM2.5 (IDW), wydarzenia 30 dni, utrudnienia, AED. RCN: błąd 500 | ✅ (bez RCN) |
+| 6 | „Co się tu zmieni”: BO w realizacji (2025–2027), konsultacje, planowane metro i tramwaje (OSM), kategoria POI `future`; sporządzane MPZP do zrobienia | 🔄 |
 | 7 | Czas dojazdu: pinezki demo, heurystyka z premią za metro i tramwaj, 2 pinezki (gorszy czas) | ⬜ |
 | 8 | Bezpieczeństwo na poziomie dzielnic (KSP) z komunikatem o ograniczeniach | ⬜ |
 | 9 | Hałas z `feat/noise-dataset` → 1 km | ⬜ (czeka na zbiór) |
@@ -52,8 +52,14 @@ Status: ⬜ do zrobienia · 🔄 w toku · ✅ zrobione
 | 11 | Narracja AI (Bielik) z liczb komórki | ⬜ |
 | 12 | 3 scenariusze demo pod pitch 5 min | ⬜ |
 
+## Stan na teraz
+
+- 25 wskaźników, 4 persony z oceną w 608/608 komórek. Pliki wynikowe generuje `uv run siatka run`, a git ich nie śledzi (`data/grid/`, `data/poi/`).
+- Wiedza o źródłach: [`docs/data/zrodla-danych.md`](../data/zrodla-danych.md).
+- Standard siatki może się zmienić (zespół o tym rozmawia). Siatka jest zamknięta w `siatka/grid.py`, więc zmiana nie wpływa na wskaźniki.
+
 ## Blokery i informacje dla zespołu
 
-- **Token API miasta:** potrzebny w `data/.env` (`UM_WARSZAWA_API_KEY`). Mikołaj ma działający.
+- **Token API miasta:** działa, w `data/.env` (`UM_WARSZAWA_API_KEY`).
 - **RCN:** API zwraca HTTP 500 (raport Mikołaja).
 - **Demo w koncepcie trwa 8–10 min**, a regulamin daje 5 min + 2 min Q&A.

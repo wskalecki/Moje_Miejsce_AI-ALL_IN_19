@@ -44,6 +44,7 @@ One file per category or a single `poi_all.geojson` — manifest lists all paths
 | `environment` | `air_sensor` |
 | `amenity` | `toilet`, `parking` |
 | `work_pin` | `employer` (demo pins, not from API) |
+| `future` | `bo_project`, `consultation`, `planned_metro`, `planned_tram` — „co się tu zmieni” |
 
 ## Catalog slug → POI mapping (MVP)
 
