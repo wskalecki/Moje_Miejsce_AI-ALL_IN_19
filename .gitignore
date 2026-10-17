@@ -6,3 +6,10 @@
 # Dependencies and build output (application/)
 node_modules/
 dist/
+
+# Warsaw Open Data: lokalne sekrety i wyniki pobierania
+apiKey.txt
+__pycache__/
+*.pyc
+/data/*.geojson
+/data/testy-*/
