@@ -17,7 +17,10 @@ Datasets for **Siatka**: 1 km grid, per-cell metrics, POI GeoJSON.
 ## Scripts
 
 ```bash
-# Full Warsaw grid (large)
+# Official district boundaries (needed for in_warsaw / district)
+uv run data/scripts/fetch_district_boundaries.py
+
+# Full Warsaw grid (large); add --warsaw-only to drop cells outside the city
 python3 data/scripts/generate_grid.py -o data/grid/warsaw_grid_1km.geojson
 
 # Sample bbox (committed)
@@ -30,6 +33,7 @@ python3 data/scripts/validate_data.py
 
 | Path | Source | License | Notes |
 |------|--------|---------|-------|
+| `boundaries/warszawa_dzielnice.geojson` | [WFS m.st. Warszawy `GRANICE_DZIELNIC`](https://wfs.um.warszawa.pl/serwis) | Ponowne wykorzystanie bezpłatne, źródło: Urząd m.st. Warszawy | 18 dzielnic, WGS84, uproszczone ~5 m; pobrane 2026-10-17 |
 | `samples/warsaw_grid_sample.geojson` | generated | n/a | 42 cells, Mokotów patch |
 | `samples/cell_metrics_sample.json` | generated demo | n/a | Persona scores for sample grid |
 | `samples/poi_sample.geojson` | synthetic | n/a | 3 POI for layer spike |
