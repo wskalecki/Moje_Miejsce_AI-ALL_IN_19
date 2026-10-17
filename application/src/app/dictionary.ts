@@ -98,6 +98,25 @@ export const CATEGORIES: Record<CategoryKey, CategoryDef> = {
   zycieNocne: { id: 'zycieNocne', label: 'Życie nocne', sentenceLabel: 'życie nocne', strong: 'życie po zmroku', weak: 'wieczorami cicho', plural: false },
 }
 
+/**
+ * Categorical colour per category (map solo view, POI points, legend, filter rows; reused by the 3D
+ * buildings and the osiedle panel). Validated with the dataviz palette checker on the light basemap
+ * #F4F0EA in CATEGORY_ORDER: lightness band, chroma floor, adjacent CVD ΔE ≥ 10, normal-vision ΔE ≥ 15.
+ * Gastronomia and edukacja are below 3:1 contrast — always pair them with a label or icon.
+ */
+export const CATEGORY_COLORS: Record<CategoryKey, string> = {
+  cisza: '#1798b0',
+  zielen: '#3a8f2a',
+  komunikacja: '#2a6fd6',
+  gastronomia: '#eb6834',
+  sport: '#d6458a',
+  kultura: '#6a4fd6',
+  edukacja: '#d99a00',
+  zdrowie: '#e04040',
+  zakupy: '#00927f',
+  zycieNocne: '#8c3cc0',
+}
+
 /** Profile weights (spec §3.3). Used offline for scores; online for ordering. */
 export const PROFILE_WEIGHTS: Record<ProfileId, Record<CategoryKey, number>> = {
   student: { cisza: 0.02, zielen: 0.04, komunikacja: 0.22, gastronomia: 0.16, sport: 0.1, kultura: 0.12, edukacja: 0.12, zdrowie: 0.02, zakupy: 0.06, zycieNocne: 0.14 },
