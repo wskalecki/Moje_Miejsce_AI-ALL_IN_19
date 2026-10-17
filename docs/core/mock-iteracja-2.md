@@ -64,3 +64,8 @@ Dlatego wyróżniamy osiedla z uczciwej czołówki:
 | Rodzina | Natolin (`natolin`) | #3 (78) — #1 i #2 (Stare Bielany, Słodowiec) leżą obok siebie na Bielanach, wybieramy inną część miasta |
 
 UI pokazuje prawdziwe miejsce w rankingu dla aktualnych wag (bez sztucznego „#1”).
+
+## Wymagania stałe (od zespołu)
+
+- **UI zawsze w pełni poprawny i profesjonalny** — na każdym commicie bez niedoróbek (nakładanie, ucięty tekst, nierówne odstępy, błędy w konsoli). Finalny dobór designu na końcu to dodatkowe dopasowanie, nie naprawa.
+- **Każda kategoria ma własny kolor** (`CATEGORY_COLORS` w `src/app/dictionary.ts`) — używany spójnie w filtrach, heatmapie pojedynczej kategorii, punktach POI, legendzie, budynkach 3D i panelu osiedla.
