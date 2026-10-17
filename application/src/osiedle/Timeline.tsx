@@ -7,7 +7,18 @@ import type { CategoryId, ProfileId } from '../app/types'
 import type { Osiedle } from '../mock/osiedla'
 import { Ring } from './Ring'
 import { EASE_EMPHASIZED, SectionHead, TweenNumber, signed } from './shared'
-import { FIRST_YEAR, LAST_YEAR, TIMELINE_YEARS, eventsUpTo, matchAtYear, statDeltasAtYear, statsAtYear, type TimelineYear } from './timelineMath'
+import {
+  FIRST_YEAR,
+  LAST_YEAR,
+  TIMELINE_YEARS,
+  effectYear,
+  eventsUpTo,
+  isInProgress,
+  matchAtYear,
+  statDeltasAtYear,
+  statsAtYear,
+  type TimelineYear,
+} from './timelineMath'
 
 const STEP_MS = 1200
 
@@ -56,6 +67,7 @@ export function Timeline({ osiedle, profile, year, onYear }: TimelineProps) {
   }
 
   const events = eventsUpTo(osiedle, year)
+  const isBase = year === FIRST_YEAR
   const upcoming = osiedle.timeline.length - events.length
   const base = osiedle.stats
   const at = statsAtYear(osiedle, year)
@@ -105,7 +117,13 @@ export function Timeline({ osiedle, profile, year, onYear }: TimelineProps) {
           </div>
         </div>
         <p className="op-tl__count" aria-live="polite">
-          {events.length === 0 ? 'Jeszcze bez inwestycji' : `${events.length} ${inwestycje(events.length)} do ${year} r.`}
+          {isBase
+            ? events.length === 0
+              ? 'Stan na dziś'
+              : `Stan na dziś · ${events.length} ${inwestycje(events.length)} w toku`
+            : events.length === 0
+              ? 'Jeszcze bez inwestycji'
+              : `${events.length} ${inwestycje(events.length)} do ${year} r.`}
         </p>
 
         <div className="op-tl__control">
@@ -157,9 +175,13 @@ export function Timeline({ osiedle, profile, year, onYear }: TimelineProps) {
         </div>
       </div>
 
-      <h3 className="op-tl__sub">Co się zmieni do {year} r.</h3>
+      <h3 className="op-tl__sub">{isBase ? 'Punkt wyjścia: dziś' : `Co się zmieni do ${year} r.`}</h3>
       {changed.length === 0 ? (
-        <p className="op-tl__empty">Bez zmian względem dziś. Przesuń suwak, żeby zobaczyć kolejne lata.</p>
+        <p className="op-tl__empty">
+          {isBase
+            ? 'Rok 2026 to stan obecny — inwestycje w toku zaczną działać od 2027 r. Przesuń suwak, żeby zobaczyć kolejne lata.'
+            : 'Bez zmian względem dziś. Przesuń suwak, żeby zobaczyć kolejne lata.'}
+        </p>
       ) : (
         <ul className="op-tl__changes">
           <AnimatePresence initial={false}>
@@ -205,6 +227,7 @@ export function Timeline({ osiedle, profile, year, onYear }: TimelineProps) {
           {events.map((e) => {
             const Icon = CATEGORY_ICONS[e.category]
             const fresh = e.year === year
+            const pending = isInProgress(e, year)
             return (
               <motion.li
                 key={e.id}
@@ -219,7 +242,11 @@ export function Timeline({ osiedle, profile, year, onYear }: TimelineProps) {
                 <div className="op-ev__card">
                   <div className="op-ev__meta">
                     <span className="op-ev__year">{e.year}</span>
-                    <span className={`op-ev__status is-${e.status === 'w budowie' ? 'build' : e.status === 'zakończona' ? 'done' : 'plan'}`}>{e.status}</span>
+                    {pending ? (
+                      <span className="op-ev__status is-build">w toku</span>
+                    ) : (
+                      <span className={`op-ev__status is-${e.status === 'w budowie' ? 'build' : e.status === 'zakończona' ? 'done' : 'plan'}`}>{e.status}</span>
+                    )}
                   </div>
                   <h4 className="op-ev__title">{e.title}</h4>
                   <p className="op-ev__desc">{e.description}</p>
@@ -229,10 +256,11 @@ export function Timeline({ osiedle, profile, year, onYear }: TimelineProps) {
                       {CATEGORIES[e.category].label}
                     </span>
                     {(Object.entries(e.statDeltas) as [CategoryId, number][]).map(([c, d]) => (
-                      <span key={c} className={`op-chip op-chip--delta ${d > 0 ? 'is-up' : 'is-down'}`}>
+                      <span key={c} className={`op-chip op-chip--delta ${pending ? 'is-pending' : d > 0 ? 'is-up' : 'is-down'}`}>
                         {CATEGORIES[c].label.split(' ')[0]} {signed(d)}
                       </span>
                     ))}
+                    {pending && <span className="op-ev__from">efekt od {effectYear(e)} r.</span>}
                   </div>
                 </div>
               </motion.li>
