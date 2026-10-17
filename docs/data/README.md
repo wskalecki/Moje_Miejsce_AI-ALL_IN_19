@@ -1,6 +1,6 @@
 # Data documentation
 
-Canonical schemas and ETL conventions for **Siatka** (1 km grid + POI).
+Canonical schemas and ETL conventions for **Siatka** (200 m grid in EPSG:2180 + POI).
 
 ## Documents
 
@@ -12,7 +12,7 @@ Canonical schemas and ETL conventions for **Siatka** (1 km grid + POI).
 
 ## Flow
 
-1. **Grid** — `data/scripts/generate_grid.py` produces `warsaw_grid_1km.geojson` (full city) or sample bbox.
+1. **Grid** — `uv run data/scripts/generate_grid.py …` produces `data/grid/warsaw_grid.geojson` (full city) or a sample bbox. ETL gets `cell_id` from its `assign_cell(lon, lat)`, which needs `pyproj` in the env.
 2. **POI ETL** — scripts under `data/scripts/` fetch Warsaw open data → `data/poi/*.geojson` with `cell_id`.
 3. **Metrics** — aggregate per cell → `data/grid/cell_metrics.json` (or enrich grid GeoJSON).
 4. **Manifest** — [`data/manifest.json`](../../data/manifest.json) lists paths the React app loads.

@@ -12,7 +12,7 @@
         "name": "Przystanek demo Mokotów",
         "source": "lokalizacja-przystanow-komunikacji-miejskiej",
         "sourceId": "demo_1",
-        "cell_id": "cell_r012_c012",
+        "cell_id": "cell_r072_c089",
         "tags": ["tram"],
         "meta": {}
       }
@@ -28,7 +28,7 @@
         "name": "Toaleta publiczna demo",
         "source": "toalety",
         "sourceId": "demo_1",
-        "cell_id": "cell_r011_c011",
+        "cell_id": "cell_r070_c088",
         "tags": ["przewijak"],
         "meta": { "Przewijak": true }
       }
@@ -44,7 +44,7 @@
         "name": "Sensor AQ demo",
         "source": "monitoring-jakosci-powietrza",
         "sourceId": "demo_1",
-        "cell_id": "cell_r013_c012",
+        "cell_id": "cell_r078_c093",
         "tags": [],
         "meta": { "pm25": 16.2 }
       }

@@ -9,7 +9,7 @@
 | Need | Choice |
 |------|--------|
 | Web React app | `maplibre-gl` |
-| ~1 km colored grid | MapLibre GeoJSON `fill` + `line` (data-driven `score`) |
+| 200 m colored grid | MapLibre GeoJSON `fill` + `line` (data-driven `score`) |
 | 3D buildings | MapLibre extrusion from style layer `building` |
 | Colorable buildings (MVP) | Data-driven `fill-extrusion-color` by height; stretch: GeoJSON footprints in `data/buildings/` |
 | POI | MapLibre `circle` layer (lub deck.gl później) |
@@ -66,7 +66,8 @@ Paths for local dev: [`data/samples/`](../../data/samples/) via Vite alias `@dat
 
 ## Performance
 
-- Full grid ~ hundreds of polygons — fine as one GeoJSON.
+- Full grid ~13 300 polygons (13 318 with `--warsaw-only`; 4.5 MB raw, ≈ 0.5 MB gzip) — still fine as one GeoJSON source.
+- Show the grid `line` layer only from zoom 13 (`minzoom: 13`); below that the 200 m outlines blur into noise and cost draw time. Keep the `fill` layer at all zooms.
 - If slow: simplify properties, use `updateTriggers`, or switch grid to PMTiles (post-MVP).
 
 ## Code entry

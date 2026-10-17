@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Generate ~1 km grid GeoJSON for Warsaw. Also provides assign_cell() for POI ETL."""
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["pyproj>=3.6"]
+# ///
+"""Generate the Warsaw grid GeoJSON. Also provides assign_cell() for ETL.
+
+Cells are CELL_SIZE_M squares in EPSG:2180 (Poland CS92), counted from
+(ORIGIN_E, ORIGIN_N). Output coordinates are WGS84, as GeoJSON requires.
+"""
 
 from __future__ import annotations
 
@@ -9,16 +17,21 @@ import math
 from pathlib import Path
 from typing import Any
 
-# Aligned with docs/data/grid-schema.md
-GRID_ORIGIN_LON = 20.85
-GRID_ORIGIN_LAT = 52.10
-STEP_LAT = 0.009
-STEP_LON = 0.014
+from pyproj import Transformer
 
-# west, south, east, north. Warsaw spans lon 20.852–21.271, lat 52.098–52.368
-# (official district borders). The south edge stays at the grid origin so that
-# existing cell IDs do not change; this drops a ~200 m sliver of southern Wilanów.
-WARSAW_BBOX = (20.85, 52.10, 21.28, 52.37)
+# Aligned with docs/data/grid-schema.md. Changing any of these changes every cell ID.
+GRID_VERSION = 2
+GRID_CRS = "EPSG:2180"
+ORIGIN_E = 620_000
+ORIGIN_N = 470_000
+CELL_SIZE_M = 200
+
+_TO_GRID = Transformer.from_crs("EPSG:4326", GRID_CRS, always_xy=True)
+_TO_WGS84 = Transformer.from_crs(GRID_CRS, "EPSG:4326", always_xy=True)
+
+# west, south, east, north in WGS84. Warsaw spans lon 20.852–21.271, lat 52.098–52.368
+# (official district borders). Cell IDs depend only on the EPSG:2180 origin, not on this box.
+WARSAW_BBOX = (20.85, 52.09, 21.28, 52.37)
 
 DISTRICTS_PATH = Path(__file__).resolve().parents[1] / "boundaries" / "warszawa_dzielnice.geojson"
 
@@ -31,8 +44,9 @@ def cell_id(row: int, col: int) -> str:
 
 
 def lon_lat_to_row_col(lon: float, lat: float) -> tuple[int, int]:
-    col = math.floor((lon - GRID_ORIGIN_LON) / STEP_LON)
-    row = math.floor((lat - GRID_ORIGIN_LAT) / STEP_LAT)
+    e, n = _TO_GRID.transform(lon, lat)
+    col = math.floor((e - ORIGIN_E) / CELL_SIZE_M)
+    row = math.floor((n - ORIGIN_N) / CELL_SIZE_M)
     return row, col
 
 
@@ -41,25 +55,21 @@ def assign_cell(lon: float, lat: float) -> str:
     return cell_id(row, col)
 
 
+def _cell_point(row: int, col: int, fx: float, fy: float) -> list[float]:
+    """[lon, lat] of the point at fractions (fx, fy) of the cell, measured in the grid CRS."""
+    e = ORIGIN_E + (col + fx) * CELL_SIZE_M
+    n = ORIGIN_N + (row + fy) * CELL_SIZE_M
+    lon, lat = _TO_WGS84.transform(e, n)
+    return [round(lon, 7), round(lat, 7)]  # ~1 cm, keeps the city-wide file small
+
+
 def cell_polygon(row: int, col: int) -> list[list[float]]:
-    west = GRID_ORIGIN_LON + col * STEP_LON
-    south = GRID_ORIGIN_LAT + row * STEP_LAT
-    east = west + STEP_LON
-    north = south + STEP_LAT
-    ring = [
-        [west, south],
-        [east, south],
-        [east, north],
-        [west, north],
-        [west, south],
-    ]
-    return ring
+    """Cell ring in WGS84. A square in EPSG:2180, so slightly rotated in lon/lat."""
+    return [_cell_point(row, col, fx, fy) for fx, fy in ((0, 0), (1, 0), (1, 1), (0, 1), (0, 0))]
 
 
 def cell_center(row: int, col: int) -> list[float]:
-    west = GRID_ORIGIN_LON + col * STEP_LON
-    south = GRID_ORIGIN_LAT + row * STEP_LAT
-    return [west + STEP_LON / 2, south + STEP_LAT / 2]
+    return _cell_point(row, col, 0.5, 0.5)
 
 
 def _point_in_ring(lon: float, lat: float, ring: list[list[float]]) -> bool:
@@ -110,10 +120,8 @@ def cell_district(row: int, col: int, districts: list[tuple[str, dict[str, Any]]
     Samples the center, corners and edge midpoints, so border cells that are
     only partly inside the city still get a district.
     """
-    west = GRID_ORIGIN_LON + col * STEP_LON
-    south = GRID_ORIGIN_LAT + row * STEP_LAT
     samples = [cell_center(row, col)] + [
-        [west + fx * STEP_LON, south + fy * STEP_LAT]
+        _cell_point(row, col, fx, fy)
         for fx in (0.02, 0.5, 0.98)
         for fy in (0.02, 0.5, 0.98)
         if (fx, fy) != (0.5, 0.5)
@@ -133,8 +141,10 @@ def generate_grid(
     warsaw_only: bool = False,
 ) -> dict[str, Any]:
     districts = load_districts()
-    min_row, min_col = lon_lat_to_row_col(west, south)
-    max_row, max_col = lon_lat_to_row_col(east, north)
+    # A lon/lat bbox is not axis-aligned in EPSG:2180, so span all four corners.
+    corners = [lon_lat_to_row_col(lon, lat) for lon in (west, east) for lat in (south, north)]
+    min_row, max_row = min(r for r, _ in corners), max(r for r, _ in corners)
+    min_col, max_col = min(c for _, c in corners), max(c for _, c in corners)
 
     features: list[dict[str, Any]] = []
     for row in range(min_row, max_row + 1):
@@ -170,10 +180,10 @@ def generate_grid(
     return {
         "type": "FeatureCollection",
         "metadata": {
-            "gridVersion": 1,
-            "cellSizeApproxM": 1000,
-            "origin": [GRID_ORIGIN_LON, GRID_ORIGIN_LAT],
-            "step": [STEP_LON, STEP_LAT],
+            "gridVersion": GRID_VERSION,
+            "crs": GRID_CRS,
+            "cellSizeM": CELL_SIZE_M,
+            "origin": [ORIGIN_E, ORIGIN_N],
             "districtsSource": "data/boundaries/warszawa_dzielnice.geojson" if districts else None,
         },
         "features": features,
@@ -181,7 +191,9 @@ def generate_grid(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate Warsaw 1 km grid GeoJSON")
+    parser = argparse.ArgumentParser(
+        description="Generate the Warsaw grid GeoJSON (200 m cells in EPSG:2180)"
+    )
     parser.add_argument(
         "--bbox",
         nargs=4,
@@ -206,7 +218,7 @@ def main() -> None:
     geojson = generate_grid(*bbox, warsaw_only=args.warsaw_only)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8") as f:
-        json.dump(geojson, f, ensure_ascii=False, indent=2)
+        json.dump(geojson, f, ensure_ascii=False, separators=(",", ":"))
     print(f"Wrote {len(geojson['features'])} cells to {args.output}")
 
 

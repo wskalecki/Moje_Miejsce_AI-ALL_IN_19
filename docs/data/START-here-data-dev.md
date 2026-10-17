@@ -15,8 +15,9 @@ Koncept produktu: [`docs/core/koncept-aplikacji.md`](../core/koncept-aplikacji.m
 ## 2. Narzędzia w repo
 
 ```bash
-# Siatka ~1 km (pełna Warszawa → data/grid/, duży plik)
-python3 data/scripts/generate_grid.py -o data/grid/warsaw_grid_1km.geojson
+# Siatka 200 m w EPSG:2180 (pełna Warszawa → data/grid/, 7,6 MB, nie commitujemy;
+# --warsaw-only zostawia tylko komórki w granicach miasta: 13 318 komórek, 4,5 MB)
+uv run data/scripts/generate_grid.py -o data/grid/warsaw_grid.geojson
 
 # Walidacja po każdym ETL
 python3 data/scripts/validate_data.py
@@ -28,6 +29,8 @@ W Pythonie / skryptach ETL:
 from data.scripts.generate_grid import assign_cell
 cell_id = assign_cell(lon, lat)
 ```
+
+`generate_grid.py` używa `pyproj`, więc skrypt ETL, który importuje `assign_cell`, musi mieć `pyproj` w środowisku: `uv run --with pyproj python twoj_etl.py` albo nagłówek PEP 723 z `dependencies = ["pyproj>=3.6"]` (jak w `generate_grid.py`).
 
 ## 3. Kolejność pracy (MVP)
 
