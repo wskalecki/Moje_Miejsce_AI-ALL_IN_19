@@ -46,3 +46,35 @@ export function prefetchMap(dataUrls: readonly string[] = []): void {
   if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 1500 })
   else setTimeout(run, 400)
 }
+
+const jsonCache = new Map<string, Promise<unknown>>()
+/** fetch + JSON, deduplicated: the first caller starts the request, later callers share it. */
+export function fetchJson<T>(url: string): Promise<T> {
+  let p = jsonCache.get(url)
+  if (!p) {
+    p = fetch(url).then((r) => {
+      if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`)
+      return r.json()
+    })
+    p.catch(() => jsonCache.delete(url))
+    jsonCache.set(url, p)
+  }
+  return p as Promise<T>
+}
+
+/**
+ * Cold entry on `/mapa…` (QA #8): start the map chunk and the data files right away, in parallel,
+ * instead of waiting for React to render MapView. Deep links also warm the cinematic + panel chunks.
+ * (The production index.html adds matching `<link rel=modulepreload|preload>` before any JS runs.)
+ */
+export function preloadMapNow(dataUrls: readonly string[], deep: boolean): void {
+  prefetched = true
+  const chunk = loader ? loader().catch(() => undefined) : Promise.resolve(undefined)
+  for (const url of dataUrls) void fetchJson(url).catch(() => undefined)
+  // the cinematic + panel are needed only after the map's `load` — don't compete with the map chunk
+  if (deep)
+    void chunk.then(() => {
+      void import('../cinematic/CinematicLayer').catch(() => undefined)
+      void import('../cinematic/panelLoader').then((m) => m.loadPanel()).catch(() => undefined)
+    })
+}

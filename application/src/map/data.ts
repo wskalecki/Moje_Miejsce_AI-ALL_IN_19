@@ -1,6 +1,7 @@
 import type { Feature, FeatureCollection, Point, Polygon, MultiPolygon } from 'geojson'
 import { buildFeatured } from './featured'
 import { DATA_URLS } from '../app/config'
+import { fetchJson } from '../app/mapLoader'
 import { CATEGORY_ORDER } from './tokens'
 import type { CategoryKey, FeaturedInfo, LngLat, OsiedleInfo, Profile } from './types'
 import { PROFILES } from './types'
@@ -138,9 +139,9 @@ export function loadMapData(): Promise<MapData> {
 
 async function load(): Promise<MapData> {
   const [heatFile, scores, osiedla] = await Promise.all([
-    fetch(DATA_URLS.heat).then((r) => r.json() as Promise<HeatFile>),
-    fetch(DATA_URLS.osiedlaScores).then((r) => r.json() as Promise<Record<string, ScoreEntry>>),
-    fetch(DATA_URLS.osiedlaGeojson).then((r) => r.json() as Promise<FeatureCollection<Polygon | MultiPolygon>>),
+    fetchJson<HeatFile>(DATA_URLS.heat),
+    fetchJson<Record<string, ScoreEntry>>(DATA_URLS.osiedlaScores),
+    fetchJson<FeatureCollection<Polygon | MultiPolygon>>(DATA_URLS.osiedlaGeojson),
   ])
 
   // Heat points → GeoJSON with short props s / r / n (0–1).
