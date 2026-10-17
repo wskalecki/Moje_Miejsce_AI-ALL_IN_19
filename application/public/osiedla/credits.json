@@ -1,206 +1,227 @@
 {
-  "powisle": [
+  "muranow": [
     {
-      "file": "/osiedla/powisle/01.jpg",
-      "title": "File:Warszawa Centrum Nauki Kopernik (dron).jpg",
-      "description": "Centrum Nauki Kopernik z zielonym dachem nad Wisłą – widok z drona",
-      "author": "Kapitel",
-      "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "source": "https://commons.wikimedia.org/wiki/File:Warszawa_Centrum_Nauki_Kopernik_(dron).jpg",
-      "width": 1920,
-      "height": 1280
+      "file": "/osiedla/muranow/01.jpg",
+      "title": "File:2018 Warszawa Ogród Krasińskich, 19.jpg",
+      "description": "Ogród Krasińskich z Pałacem Krasińskich w tle",
+      "author": "Cybularny",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:2018_Warszawa_Ogr%C3%B3d_Krasi%C5%84skich,_19.jpg",
+      "width": 4200,
+      "height": 3150,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG",
+      "thumb": "/osiedla/muranow/thumb.jpg wycięta z 01.jpg"
     },
     {
-      "file": "/osiedla/powisle/02.jpg",
-      "title": "File:Bulwary Wiślane między mostami Świętokrzyskim i Dąbrowskiego w Warszawie 2026a.jpg",
-      "description": "Bulwary Wiślane w słoneczny dzień – schody nad wodą i barki",
-      "author": "Adrian Grycuk",
-      "license": "CC BY 3.0 pl",
-      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/pl/deed.en",
-      "source": "https://commons.wikimedia.org/wiki/File:Bulwary_Wi%C5%9Blane_mi%C4%99dzy_mostami_%C5%9Awi%C4%99tokrzyskim_i_D%C4%85browskiego_w_Warszawie_2026a.jpg",
-      "width": 1920,
-      "height": 1281
-    },
-    {
-      "file": "/osiedla/powisle/03.jpg",
-      "title": "File:Ogród na dachu Biblioteki Uniwersyteckiej - panoramio.jpg",
-      "description": "Ogród na dachu BUW z widokiem na Pałac Kultury",
-      "author": "krysi@",
-      "license": "CC BY 3.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
-      "source": "https://commons.wikimedia.org/wiki/File:Ogr%C3%B3d_na_dachu_Biblioteki_Uniwersyteckiej_-_panoramio.jpg",
-      "width": 1920,
-      "height": 1440
-    },
-    {
-      "file": "/osiedla/powisle/04.jpg",
-      "title": "File:Wisła bulwary Powiśle Warszawa 001.jpg",
-      "description": "Bulwar na Powiślu z mostem średnicowym i Poniatowskiego w tle",
-      "author": "Dariusz Kowalczyk",
-      "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "source": "https://commons.wikimedia.org/wiki/File:Wis%C5%82a_bulwary_Powi%C5%9Ble_Warszawa_001.jpg",
-      "width": 1620,
-      "height": 1080
-    },
-    {
-      "file": "/osiedla/powisle/05.jpg",
-      "title": "File:Nowa elektrownia powiśle przy wybrzeżu kościuszkowskim i leszczyńskiej.jpg",
-      "description": "Zrewitalizowana Elektrownia Powiśle – food hall, sklepy i biura",
-      "author": "Panek",
-      "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "source": "https://commons.wikimedia.org/wiki/File:Nowa_elektrownia_powi%C5%9Ble_przy_wybrze%C5%BCu_ko%C5%9Bciuszkowskim_i_leszczy%C5%84skiej.jpg",
-      "width": 1920,
-      "height": 1263
-    },
-    {
-      "file": "/osiedla/powisle/06.jpg",
-      "title": "File:Bulwary wiślane w Warszawie widziane z mostu Świętokrzyskiego 2020.jpg",
-      "description": "Bulwary i CNK widziane z mostu Świętokrzyskiego",
-      "author": "Adrian Grycuk",
-      "license": "CC BY-SA 3.0 pl",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en",
-      "source": "https://commons.wikimedia.org/wiki/File:Bulwary_wi%C5%9Blane_w_Warszawie_widziane_z_mostu_%C5%9Awi%C4%99tokrzyskiego_2020.jpg",
-      "width": 1920,
-      "height": 1349
-    }
-  ],
-  "miasteczko-wilanow": [
-    {
-      "file": "/osiedla/miasteczko-wilanow/01.jpg",
-      "title": "File:Miasteczko Wilanow Warsaw 2021 aerial.jpg",
-      "description": "Miasteczko Wilanów z lotu ptaka – nowoczesne kwartały z zielonymi dziedzińcami",
-      "author": "Emptywords",
-      "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "source": "https://commons.wikimedia.org/wiki/File:Miasteczko_Wilanow_Warsaw_2021_aerial.jpg",
-      "width": 1920,
-      "height": 1440
-    },
-    {
-      "file": "/osiedla/miasteczko-wilanow/02.jpg",
-      "title": "File:Aleja Rzeczypospolitej Warsaw 2022 aerial.jpg",
-      "description": "Świątynia Opatrzności Bożej i aleja Rzeczypospolitej, w tle panorama centrum",
-      "author": "Emptywords",
-      "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "source": "https://commons.wikimedia.org/wiki/File:Aleja_Rzeczypospolitej_Warsaw_2022_aerial.jpg",
-      "width": 1920,
-      "height": 1440
-    },
-    {
-      "file": "/osiedla/miasteczko-wilanow/03.jpg",
-      "title": "File:Miasteczko Wilanów, View Oś Królewska.jpg",
-      "description": "Zielony pas Osi Królewskiej z alejkami spacerowymi",
-      "author": "Wistula",
-      "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "source": "https://commons.wikimedia.org/wiki/File:Miasteczko_Wilan%C3%B3w,_View_O%C5%9B_Kr%C3%B3lewska.jpg",
-      "width": 1920,
-      "height": 1080
-    },
-    {
-      "file": "/osiedla/miasteczko-wilanow/04.jpg",
-      "title": "File:Retention tank park Miasteczko Wilanów, 1.jpg",
-      "description": "Park przy zbiorniku retencyjnym wśród nowych kamienic",
-      "author": "Wistula",
-      "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "source": "https://commons.wikimedia.org/wiki/File:Retention_tank_park_Miasteczko_Wilan%C3%B3w,_1.jpg",
-      "width": 1920,
-      "height": 1440
-    },
-    {
-      "file": "/osiedla/miasteczko-wilanow/05.jpg",
-      "title": "File:Świątynia Opatrzności Bożej w Warszawie 2020.jpg",
-      "description": "Świątynia Opatrzności Bożej – symbol Miasteczka",
-      "author": "Adrian Grycuk",
-      "license": "CC BY-SA 3.0 pl",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en",
-      "source": "https://commons.wikimedia.org/wiki/File:%C5%9Awi%C4%85tynia_Opatrzno%C5%9Bci_Bo%C5%BCej_w_Warszawie_2020.jpg",
-      "width": 1920,
-      "height": 1281
-    },
-    {
-      "file": "/osiedla/miasteczko-wilanow/06.jpg",
-      "title": "File:Warszawa - Pałac w Wilanowie.jpg",
-      "description": "Brama Pałacu w Wilanowie – kilkanaście minut spacerem",
-      "author": "Marek Śliwecki",
-      "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "source": "https://commons.wikimedia.org/wiki/File:Warszawa_-_Pa%C5%82ac_w_Wilanowie.jpg",
-      "width": 1920,
-      "height": 1268
-    }
-  ],
-  "saska-kepa": [
-    {
-      "file": "/osiedla/saska-kepa/01.jpg",
-      "title": "File:Warszawa, Francuska ~26p12rdq.jpg",
-      "description": "Kolorowe parasolki nad kawiarnią przy ul. Francuskiej",
-      "author": "Grzegorz W. Tężycki",
-      "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "source": "https://commons.wikimedia.org/wiki/File:Warszawa,_Francuska_~26p12rdq.jpg",
-      "width": 1920,
-      "height": 1080
-    },
-    {
-      "file": "/osiedla/saska-kepa/02.jpg",
-      "title": "File:Ulica Francuska na wysokości ulicy Obrońców 2016.jpg",
-      "description": "Ulica Francuska – szeroka, zielona, z kawiarnianymi ogródkami",
-      "author": "Adrian Grycuk",
-      "license": "CC BY-SA 3.0 pl",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en",
-      "source": "https://commons.wikimedia.org/wiki/File:Ulica_Francuska_na_wysoko%C5%9Bci_ulicy_Obro%C5%84c%C3%B3w_2016.jpg",
-      "width": 1920,
-      "height": 1220
-    },
-    {
-      "file": "/osiedla/saska-kepa/03.jpg",
-      "title": "File:Park Skaryszewski w Warszawie 2026a.jpg",
-      "description": "Cieniste alejki Parku Skaryszewskiego",
-      "author": "Adrian Grycuk",
-      "license": "CC BY 3.0 pl",
-      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/pl/deed.en",
-      "source": "https://commons.wikimedia.org/wiki/File:Park_Skaryszewski_w_Warszawie_2026a.jpg",
-      "width": 1920,
-      "height": 1281
-    },
-    {
-      "file": "/osiedla/saska-kepa/04.jpg",
-      "title": "File:Warszawa, Park Skaryszewski, foto001.jpg",
-      "description": "Jezioro Kamionkowskie z liliami wodnymi wiosną",
-      "author": "Andrzej Błaszczak",
-      "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "source": "https://commons.wikimedia.org/wiki/File:Warszawa,_Park_Skaryszewski,_foto001.jpg",
-      "width": 1920,
-      "height": 1440
-    },
-    {
-      "file": "/osiedla/saska-kepa/05.jpg",
-      "title": "File:Saska Kępa, Warsaw, Poland - panoramio (1).jpg",
-      "description": "Zachód słońca nad Wisłą i panoramą centrum widziany z Saskiej Kępy",
-      "author": "Michal Gorski",
+      "file": "/osiedla/muranow/02.jpg",
+      "title": "File:Museum of the History of Polish Jews, exterior, 2013.jpg",
+      "description": "Muzeum POLIN i Pomnik Bohaterów Getta, w tle bloki Muranowa",
+      "author": "Kpalion",
       "license": "CC BY-SA 3.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
-      "source": "https://commons.wikimedia.org/wiki/File:Saska_K%C4%99pa,_Warsaw,_Poland_-_panoramio_(1).jpg",
-      "width": 1920,
-      "height": 1280
+      "source": "https://commons.wikimedia.org/wiki/File:Museum_of_the_History_of_Polish_Jews,_exterior,_2013.jpg",
+      "width": 3264,
+      "height": 2448,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
     },
     {
-      "file": "/osiedla/saska-kepa/06.jpg",
-      "title": "File:Plaża Saska w Warszawie 2016.jpg",
-      "description": "Piaszczysta Plaża Saska nad Wisłą",
+      "file": "/osiedla/muranow/03.jpg",
+      "title": "File:2025 Warszawa Andersa 5, 6.jpg",
+      "description": "Socrealistyczny budynek z arkadami przy ul. Andersa 5",
+      "author": "Cybularny",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2025_Warszawa_Andersa_5,_6.jpg",
+      "width": 5909,
+      "height": 3939,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/muranow/04.jpg",
+      "title": "File:2023 Warszawa Nowolipki 8, 1.jpg",
+      "description": "Powojenna zabudowa Muranowa przy ul. Nowolipki 8",
+      "author": "Cybularny",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:2023_Warszawa_Nowolipki_8,_1.jpg",
+      "width": 5792,
+      "height": 3861,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/muranow/05.jpg",
+      "title": "File:Kino Muranów w Warszawie 2017.jpg",
+      "description": "Kino Muranów przy ul. Andersa",
       "author": "Adrian Grycuk",
       "license": "CC BY-SA 3.0 pl",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en",
-      "source": "https://commons.wikimedia.org/wiki/File:Pla%C5%BCa_Saska_w_Warszawie_2016.jpg",
-      "width": 1920,
-      "height": 1281
+      "source": "https://commons.wikimedia.org/wiki/File:Kino_Muran%C3%B3w_w_Warszawie_2017.jpg",
+      "width": 7119,
+      "height": 4729,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/muranow/06.jpg",
+      "title": "File:2025 Warszawa widok z Varso na śródmiejski Muranów, 1.jpg",
+      "description": "Muranów widziany z wieżowca Varso",
+      "author": "Cybularny",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:2025_Warszawa_widok_z_Varso_na_%C5%9Br%C3%B3dmiejski_Muran%C3%B3w,_1.jpg",
+      "width": 5845,
+      "height": 3897,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    }
+  ],
+  "stare-bielany": [
+    {
+      "file": "/osiedla/stare-bielany/01.jpg",
+      "title": "File:Warszawa Bielany plac Konfederacji.JPG",
+      "description": "Szeregowe domy z czerwonymi dachami przy placu Konfederacji",
+      "author": "Monika from Warszawa/ Colchester, Poland/ UK",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Warszawa_Bielany_plac_Konfederacji.JPG",
+      "width": 3072,
+      "height": 2304,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG",
+      "thumb": "/osiedla/stare-bielany/thumb.jpg wycięta z 01.jpg"
+    },
+    {
+      "file": "/osiedla/stare-bielany/02.jpg",
+      "title": "File:Camaldolese Church in Warsaw.jpg",
+      "description": "Kościół pokamedulski na Bielanach jesienią",
+      "author": "LoMit",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Camaldolese_Church_in_Warsaw.jpg",
+      "width": 5436,
+      "height": 3624,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/stare-bielany/03.jpg",
+      "title": "File:Rezerwat przyrody Las Bielański 2017f.jpg",
+      "description": "Ścieżka w rezerwacie Las Bielański",
+      "author": "Adrian Grycuk",
+      "license": "CC BY-SA 3.0 pl",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:Rezerwat_przyrody_Las_Biela%C5%84ski_2017f.jpg",
+      "width": 7360,
+      "height": 4912,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/stare-bielany/04.jpg",
+      "title": "File:Budynek główny AWF Warszawa.JPG",
+      "description": "Budynek główny Akademii Wychowania Fizycznego przy ul. Marymonckiej",
+      "author": "Darpaw",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Budynek_g%C5%82%C3%B3wny_AWF_Warszawa.JPG",
+      "width": 4288,
+      "height": 3216,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/stare-bielany/05.jpg",
+      "title": "File:2020 Warszawa Metro Stare Bielany.jpg",
+      "description": "Peron stacji metra Stare Bielany (M1)",
+      "author": "Cybularny",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:2020_Warszawa_Metro_Stare_Bielany.jpg",
+      "width": 5923,
+      "height": 3949,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/stare-bielany/06.jpg",
+      "title": "File:Warszawa-Zjednoczenia Avenue.jpg",
+      "description": "Zielony pas z drogą rowerową wzdłuż al. Zjednoczenia",
+      "author": "Mariochom",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Warszawa-Zjednoczenia_Avenue.jpg",
+      "width": 5152,
+      "height": 3864,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    }
+  ],
+  "natolin": [
+    {
+      "file": "/osiedla/natolin/01.jpg",
+      "title": "File:Park Przy Bazantarni Warsaw 2021 aerial.jpg",
+      "description": "Park Przy Bażantarni i bloki Natolina z lotu ptaka",
+      "author": "Emptywords",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Park_Przy_Bazantarni_Warsaw_2021_aerial.jpg",
+      "width": 4000,
+      "height": 3000,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG",
+      "thumb": "/osiedla/natolin/thumb.jpg wycięta z 01.jpg"
+    },
+    {
+      "file": "/osiedla/natolin/02.jpg",
+      "title": "File:Las Kabacki w Warszawie 2020h.jpg",
+      "description": "Las Kabacki wiosną",
+      "author": "Adrian Grycuk",
+      "license": "CC BY-SA 3.0 pl",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:Las_Kabacki_w_Warszawie_2020h.jpg",
+      "width": 7360,
+      "height": 4912,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/natolin/03.jpg",
+      "title": "File:Stacja metra Natolin 2020.jpg",
+      "description": "Peron stacji metra Natolin (M1)",
+      "author": "Adrian Grycuk",
+      "license": "CC BY-SA 3.0 pl",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:Stacja_metra_Natolin_2020.jpg",
+      "width": 5968,
+      "height": 3994,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/natolin/04.jpg",
+      "title": "File:Warszawa-Przy Bażantarni street (3).jpg",
+      "description": "Zabudowa mieszkaniowa przy ul. Przy Bażantarni",
+      "author": "Mariochom",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Warszawa-Przy_Ba%C5%BCantarni_street_(3).jpg",
+      "width": 5152,
+      "height": 3864,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/natolin/05.jpg",
+      "title": "File:Świątynia Dorycka, Zespół Pałacowo-Parkowy Natolin.jpg",
+      "description": "Świątynia Dorycka w parku natolińskim",
+      "author": "Escriptors",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:%C5%9Awi%C4%85tynia_Dorycka,_Zesp%C3%B3%C5%82_Pa%C5%82acowo-Parkowy_Natolin.jpg",
+      "width": 3072,
+      "height": 2048,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/natolin/06.jpg",
+      "title": "File:Las Kabacki z Kazurki 02.jpg",
+      "description": "Las Kabacki widziany z Górki Kazurki",
+      "author": "Halibutt",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Las_Kabacki_z_Kazurki_02.jpg",
+      "width": 4160,
+      "height": 2336,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
     }
   ]
 }
