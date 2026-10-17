@@ -1,4 +1,5 @@
-import { Component, lazy, Suspense, useState, type ReactNode } from 'react'
+import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
+import { PROFILES } from '../../app/dictionary'
 import { navigate, useRouter } from '../../app/router'
 import { useAppStore } from '../../app/useAppStore'
 import type { MapApi } from '../../map/MapView'
@@ -8,6 +9,9 @@ import './mapScreen.css'
 
 const LazyMapView = lazy(() => import('../../map/MapView'))
 const LazyCinema = lazy(() => import('../../cinematic/CinematicLayer'))
+
+/** The only slugs `/mapa/:slug` can open (spec §0.4). */
+const FEATURED_SLUGS: readonly string[] = Object.values(PROFILES).map((p) => p.featured)
 
 class MapErrorBoundary extends Component<{ children: ReactNode; onError: () => void }, { error: Error | null }> {
   state = { error: null as Error | null }
@@ -37,7 +41,12 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
   const [failed, setFailed] = useState(false)
   const quick = query.get('szybko') === '1'
 
-  const activeSlug = slug
+  // Unknown osiedle (`/mapa/nieistnieje`) → the city view, without a history entry (QA #17).
+  const badSlug = !!slug && !FEATURED_SLUGS.includes(slug)
+  useEffect(() => {
+    if (badSlug) navigate('/mapa', { replace: true })
+  }, [badSlug])
+  const activeSlug = badSlug ? null : slug
 
   return (
     <div
