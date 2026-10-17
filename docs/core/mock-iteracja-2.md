@@ -33,13 +33,13 @@ Poza zakresem: muzyka (żart z nagrania).
 
 - [x] I2-0 Analiza gałęzi `feat/grid-tile-lab` i `mikolaj` (co można przenieść)
 - [ ] I2-1 Drobne osiedla + hierarchia granic (dane)
-- [ ] I2-2 Przeliczenie wskaźników na prawdziwych danych, liczby per osiedle
+- [x] I2-2 Przeliczenie wskaźników na prawdziwych danych, liczby per osiedle
 - [x] I2-3 Nowa nazwa „Okolica” + ankieta bez limitu, wagi kategorii w store (lekki tuning)
 - [ ] I2-4 Mapa: panel filtrów z wagami, solo kategorii, legenda
 - [ ] I2-5 Mapa: POI i budynki 3D kolorowane wg funkcji, drogi asfalt + krawężnik
 - [ ] I2-6 Mapa: korki na drogach + suwak godziny
 - [ ] I2-7 Panel osiedla: liczby, mniej tekstu, grupowanie, wybór obiektów, karuzela, oś do 2040, oferty
-- [ ] I2-8 Raport danych (pochodzenie każdej liczby)
+- [x] I2-8 Raport danych (pochodzenie każdej liczby)
 - [ ] I2-9 Drugi poziom: małe osiedla mieszkaniowe w obszarze MSI + ceny za m²
 - [ ] I2-10 Deploy + QA end-to-end
 - [ ] I2-11 (na końcu) wybór finalnego designu z zespołem
@@ -50,3 +50,17 @@ Poza zakresem: muzyka (żart z nagrania).
 - `src/osiedle/OsiedlePanel.tsx` obcina priorytety do 4 (`.slice(0, 4)`).
 - Opis „Na stałe” w `dictionary.ts` mówi „do 2030 roku” → po przejściu osi czasu na 2040.
 - Korki: brak prawdziwych danych godzinowych w gałęziach — proxy z rozkładów ZTM (GTFS), opisane jako planowane spowolnienie, nie ruch na żywo.
+
+## Decyzja: nowe wyróżnione osiedla (uczciwy ranking)
+
+Raport danych pokazał, że dopasowania 96/96/97% były ustawione ręcznie. Po przeliczeniu na prawdziwych danych
+(bez nadpisań) Powiśle / Błonia Wilanowskie / Saska Kępa zajmują odpowiednio #8 / #39 / #73 w swoich profilach.
+Dlatego wyróżniamy osiedla z uczciwej czołówki:
+
+| Profil | Osiedle (MSI) | Miejsce w rankingu |
+|--------|---------------|--------------------|
+| Student | Muranów (`muranow`) | #1 (92) |
+| Senior | Stare Bielany (`stare-bielany`) | #1 (79) |
+| Rodzina | Natolin (`natolin`) | #3 (78) — #1 i #2 (Stare Bielany, Słodowiec) leżą obok siebie na Bielanach, wybieramy inną część miasta |
+
+UI pokazuje prawdziwe miejsce w rankingu dla aktualnych wag (bez sztucznego „#1”).
