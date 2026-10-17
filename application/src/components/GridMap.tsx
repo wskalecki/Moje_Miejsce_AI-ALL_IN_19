@@ -17,7 +17,9 @@ const PERSONAS: { id: PersonaId; label: string }[] = [
   { id: 'ania_tomek', label: 'Ania & Tomek — rodzina' },
 ]
 
-const DEFAULT_STYLE = 'https://demotiles.maplibre.org/style.json'
+/** Global basemap (no API key). Demotiles do not cover Warsaw. */
+const DEFAULT_STYLE =
+  'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json'
 
 type Props = {
   initialPersona?: PersonaId
@@ -32,6 +34,8 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
   const [persona, setPersona] = useState<PersonaId>(initialPersona)
   const [selectedCellId, setSelectedCellId] = useState<string | null>(null)
   const [showPoi, setShowPoi] = useState(true)
+  const [mapLoaded, setMapLoaded] = useState(false)
+  const [mapError, setMapError] = useState<string | null>(null)
 
   const enrichedGrid = useMemo(
     () => enrichGridWithScores(grid, cellMetrics, persona),
@@ -43,25 +47,34 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return
 
-    const styleUrl = import.meta.env.VITE_MAP_STYLE_URL || DEFAULT_STYLE
+    const envStyle = import.meta.env.VITE_MAP_STYLE_URL?.trim()
+    const styleUrl = envStyle || DEFAULT_STYLE
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
       style: styleUrl,
       center: [(manifest.bbox[0] + manifest.bbox[2]) / 2, (manifest.bbox[1] + manifest.bbox[3]) / 2],
       zoom: 12,
-      pitch: 52,
+      pitch: 45,
       bearing: -18,
     })
 
     map.addControl(new maplibregl.NavigationControl(), 'top-left')
 
-    const overlay = new MapboxOverlay({ interleaved: true, layers: [] })
-    map.addControl(overlay as unknown as maplibregl.IControl)
+    map.on('error', (e) => {
+      const msg = e.error?.message ?? 'Nie udało się załadować stylu mapy'
+      setMapError(msg)
+    })
+
+    const overlay = new MapboxOverlay({ interleaved: false, layers: [] })
     overlayRef.current = overlay
     mapRef.current = map
 
     map.on('load', () => {
+      setMapError(null)
+      setMapLoaded(true)
+      map.resize()
+      map.addControl(overlay as unknown as maplibregl.IControl)
       const layers = map.getStyle().layers ?? []
       const labelLayerId = layers.find(
         (l: maplibregl.LayerSpecification) =>
@@ -99,8 +112,13 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
       }
     })
 
+    const ro = new ResizeObserver(() => map.resize())
+    ro.observe(mapContainerRef.current)
+
     return () => {
+      ro.disconnect()
       overlay.setProps({ layers: [] })
+      setMapLoaded(false)
       map.remove()
       mapRef.current = null
       overlayRef.current = null
@@ -109,7 +127,7 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
 
   useEffect(() => {
     const overlay = overlayRef.current
-    if (!overlay) return
+    if (!overlay || !mapLoaded) return
 
     const gridLayer = new GeoJsonLayer({
       id: 'grid-cells',
@@ -146,7 +164,8 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
     })
 
     overlay.setProps({ layers: [gridLayer, poiLayer] })
-  }, [enrichedGrid, persona, poiLayers, showPoi])
+    mapRef.current?.triggerRepaint()
+  }, [enrichedGrid, persona, poiLayers, showPoi, mapLoaded])
 
   return (
     <div className="grid-map">
@@ -202,9 +221,17 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
         </aside>
       )}
 
-      {!import.meta.env.VITE_MAP_STYLE_URL && (
+      {mapError && (
+        <p className="grid-map__hint grid-map__hint--error">
+          Błąd mapy: {mapError}. Sprawdź <code>VITE_MAP_STYLE_URL</code> w{' '}
+          <code>application/.env</code> lub usuń tę linię (użyjemy Carto).
+        </p>
+      )}
+
+      {!import.meta.env.VITE_MAP_STYLE_URL?.trim() && !mapError && (
         <p className="grid-map__hint">
-          Ustaw <code>VITE_MAP_STYLE_URL</code> (np. MapTiler 3D) w <code>.env</code> dla pełnych budynków 3D.
+          Domyślnie: Carto Voyager (cała Warszawa). Dla budynków 3D ustaw MapTiler w{' '}
+          <code>VITE_MAP_STYLE_URL</code>.
         </p>
       )}
     </div>

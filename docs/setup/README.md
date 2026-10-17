@@ -36,6 +36,23 @@ Never commit `.env`. Use Row Level Security and policies in Supabase for product
 
 Sample grid data loads from [`data/manifest.json`](../../data/manifest.json) without Supabase.
 
+### Mapa się nie wyświetla?
+
+1. Uruchamiaj z katalogu repozytorium zespołu:
+   ```bash
+   cd wwa42hackathon_ai_all_in/application
+   npm install && npm run dev
+   ```
+   (nie z nadrzędnego folderu `hackathon/` — tam nie ma `application/`.)
+
+2. Gałąź z mapą: `docs/data-map-contracts-and-backlog` (lub `master` po merge PR).
+
+3. **Niebieskie puste tło** — stary domyślny styl `demotiles` nie obejmuje Warszawy. Aktualny kod używa Carto Voyager bez klucza; zrób hard refresh (`Cmd+Shift+R`).
+
+4. **Błąd stylu** — jeśli w `.env` jest zły `VITE_MAP_STYLE_URL`, usuń linię lub wklej poprawny URL MapTiler z kluczem.
+
+5. Po zmianie `.env` zrestartuj `npm run dev`.
+
 ## Data
 
 The **data** developer adds datasets under [`../../data/`](../../data/). Document filenames, sources, and refresh steps in `data/README.md`.

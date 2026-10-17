@@ -11,6 +11,11 @@ declare module '*.geojson?raw' {
   export default value
 }
 
+declare module 'maplibre-gl/dist/maplibre-gl-worker.mjs?url' {
+  const value: string
+  export default value
+}
+
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }

@@ -130,4 +130,11 @@
   font-size: 0.75rem;
   background: rgba(0, 0, 0, 0.55);
   border-radius: 8px;
+  max-width: min(36rem, 92vw);
+  text-align: center;
+}
+
+.grid-map__hint--error {
+  background: rgba(120, 40, 40, 0.92);
+  color: #ffe8e8;
 }
