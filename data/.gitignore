@@ -10,5 +10,10 @@
 !scripts/**
 !boundaries/
 !boundaries/**
+# ETL outputs (no personal data); raw/ stays ignored: API dumps include BO authors' names
+!poi/
+!poi/**
+!lines/
+!lines/**
 # Python bytecode (overrides the !scripts/** re-include above)
 __pycache__/

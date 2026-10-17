@@ -108,7 +108,10 @@ def write_collection(path: Path, features: list[dict[str, Any]]) -> None:
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "features": features,
     }
-    path.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    # Compact: these files are committed and loaded by the app; one feature per line keeps diffs readable.
+    lines = ",\n".join(json.dumps(f, ensure_ascii=False, separators=(",", ":")) for f in out["features"])
+    header = json.dumps({k: v for k, v in out.items() if k != "features"}, ensure_ascii=False)[:-1]
+    path.write_text(f'{header},"features":[\n{lines}\n]}}\n', encoding="utf-8")
 
 
 def merge_into(path: Path, source: str, features: list[dict[str, Any]]) -> int:
