@@ -10,10 +10,6 @@ Datasets for **Siatka**: 200 m grid (squares in EPSG:2180), per-cell metrics, PO
 - [`docs/data/poi-schema.md`](../docs/data/poi-schema.md)
 - Agent rule: [`.cursor/rules/data-developer.mdc`](../.cursor/rules/data-developer.mdc)
 
-## Manifest
-
-[`manifest.json`](manifest.json) — paths loaded by the React app.
-
 ## Scripts
 
 `generate_grid.py` needs `pyproj`. `uv run` installs it from the script header; ETL code that imports `assign_cell` needs `pyproj` in its own env (e.g. `uv run --with pyproj python your_etl.py`). `validate_data.py` uses the standard library only.

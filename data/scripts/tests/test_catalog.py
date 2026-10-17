@@ -253,3 +253,11 @@ def test_output_and_method_references_must_exist():
 
     assert errors_mentioning(errors, METRICS_FILE, "scraped_prices")
     assert errors_mentioning(errors, "osiedle.aed_1km", "eyeballed")
+
+
+def test_every_metric_appears_in_the_doc_even_with_an_unlisted_prefix():
+    other = {**CATALOG["metrics"][0], "id": "dzielnica.liczba_mieszkancow", "label": "Liczba mieszkańców"}
+
+    doc = data_catalog.render_catalog(catalog(metrics=[CATALOG["metrics"][0], other]))
+
+    assert "dzielnica.liczba_mieszkancow" in doc

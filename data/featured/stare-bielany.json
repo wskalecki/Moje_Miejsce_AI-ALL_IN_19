@@ -204,52 +204,16 @@
       ]
     }
   ],
-  "prices": {
-    "buyPerM2": 17134,
-    "rentPerM2": 74,
-    "rent2PokAvg": 3000,
-    "cityBuyPerM2": 17975,
-    "cityRentPerM2": 84,
-    "asOf": "2026-10",
-    "sourceNote": "Średnia z 50 ofert sprzedaży i 32 ofert najmu na Otodom (rynek wtórny, ceny ofertowe, odczyt 17.10.2026). Transakcje (RCN, od I 2025): mediana 16 978 zł/m², 127 lokali. Warszawa: Adresowo IX 2026 (sprzedaż), Znajdź Najem X 2026 (najem).",
-    "estimate": false,
-    "buy": {
-      "meanPerM2": 17134,
-      "medianPerM2": 16484,
-      "n": 50,
-      "sourceUrls": [
-        "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany?limit=72&page=1"
-      ],
-      "scrapedAt": "2026-10-17"
-    },
-    "rent": {
-      "meanPerM2": 74,
-      "medianPerM2": 75,
-      "n": 32,
-      "medianMonthly": 3000,
-      "sourceUrls": [
-        "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany?limit=72&page=1"
-      ],
-      "scrapedAt": "2026-10-17"
-    },
-    "citySource": "Adresowo, Średnie ceny mieszkań Warszawa, wrzesień 2026, 1 870 ogłoszeń z rynku wtórnego (średnia 17 975, mediana 17 683 zł/m²): https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/ (odczyt 2026-10-17) | Znajdź Najem, Indeks Najmu Warszawa, październik 2026, próba 46 410 ofert: średnia 84 zł/m², mediana czynszu 3 200 zł/mies.: https://znajdznajem.pl/warszawa/raport (odczyt 2026-10-17)",
-    "rcnNote": "RCN (GUGiK WFS ms:lokale), lokale mieszkalne w poligonie MSI, 2025-01-01–2026-02-16: mediana 16 978 zł/m², n=127 (125 wtórny / 2 pierwotny); 2024: mediana 16 712 zł/m², n=119.",
-    "areaNote": "Lokalizacja otodom „Stare Bielany (Bielany)” (bielany/stare-bielany); granice lokalizacji otodom nie są publikowane i mogą się różnić od obszaru MSI. Ulice w próbie sprawdzone ręcznie (plik raw: pole street)."
-  },
   "portals": [
     {
       "name": "Otodom",
       "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany",
-      "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany",
-      "rentCount": 32,
-      "buyCount": 50
+      "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany"
     },
     {
       "name": "Morizon",
       "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/stare-bielany/",
-      "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/stare-bielany/",
-      "rentCount": 7,
-      "buyCount": 8
+      "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/stare-bielany/"
     }
   ],
   "timeline": [

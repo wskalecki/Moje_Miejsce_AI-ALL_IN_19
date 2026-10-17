@@ -12,13 +12,16 @@ type PriceMode = 'najem' | 'kupno'
 export function Prices({ osiedle, horizon }: { osiedle: Osiedle; horizon: Horizon }) {
   // A manual pick holds until the horizon changes; then the horizon's default wins again.
   const [pick, setPick] = useState<{ horizon: Horizon; mode: PriceMode } | null>(null)
-  const mode: PriceMode = pick?.horizon === horizon ? pick.mode : horizon === 'stale' ? 'kupno' : 'najem'
+  const p = osiedle.prices
+  // Rent figures exist only with an open official source; without one the section shows purchase prices only.
+  const hasRent = p.rentPerM2 != null && p.cityRentPerM2 != null
+  const preferred: PriceMode = pick?.horizon === horizon ? pick.mode : horizon === 'stale' ? 'kupno' : 'najem'
+  const mode: PriceMode = hasRent ? preferred : 'kupno'
   const setMode = (m: PriceMode) => setPick({ horizon, mode: m })
 
-  const p = osiedle.prices
   const rent = mode === 'najem'
-  const value = rent ? p.rentPerM2 : p.buyPerM2
-  const city = rent ? p.cityRentPerM2 : p.cityBuyPerM2
+  const value = rent ? (p.rentPerM2 as number) : p.buyPerM2
+  const city = rent ? (p.cityRentPerM2 as number) : p.cityBuyPerM2
   const diff = cityDiffLabel(value, city)
   const max = Math.max(value, city)
 
@@ -28,7 +31,7 @@ export function Prices({ osiedle, horizon }: { osiedle: Osiedle; horizon: Horizo
         id="op-prices-title"
         title="Ceny"
         aside={
-          <div className="op-seg" role="radiogroup" aria-label="Rodzaj ceny">
+          hasRent && <div className="op-seg" role="radiogroup" aria-label="Rodzaj ceny">
             {(['najem', 'kupno'] as const).map((m) => (
               <button key={m} type="button" role="radio" aria-checked={mode === m} className={mode === m ? 'is-on' : undefined} onClick={() => setMode(m)}>
                 {m === 'najem' ? 'Najem' : 'Kupno'}
@@ -48,7 +51,7 @@ export function Prices({ osiedle, horizon }: { osiedle: Osiedle; horizon: Horizo
           {rent
             ? p.rent2PokAvg
               ? `mediana czynszu za 2 pokoje: ${formatPLN(p.rent2PokAvg)} mies.`
-              : `ok. ${formatPLN(p.rentPerM2 * 45)} miesięcznie za 45 m²`
+              : `ok. ${formatPLN(value * 45)} miesięcznie za 45 m²`
             : `ok. ${formatFlatPrice(p.buyPerM2 * 55)} za 55 m²`}
           <span className="op-chip op-chip--neutral">{diff}</span>
         </p>
@@ -81,15 +84,13 @@ export function Prices({ osiedle, horizon }: { osiedle: Osiedle; horizon: Horizo
         ))}
       </div>
       <p className="op-note">
-        {p.estimate ? 'Szacunek' : `Średnie ceny ofertowe (${p.asOf.split('-').reverse().join('.')})`} · Warszawa: średnia ofertowa
+        {p.basisLabel} · {p.cityLabel}
       </p>
-      {p.sourceNote && (
-        <details className="op-details">
-          <summary>Skąd te liczby</summary>
-          <p>{p.sourceNote}</p>
-          {p.rcnNote && <p>{p.rcnNote}</p>}
-        </details>
-      )}
+      <details className="op-details">
+        <summary>Skąd te liczby</summary>
+        <p>{p.sourceNote}</p>
+        {!hasRent && p.rentNote && <p>{p.rentNote}</p>}
+      </details>
     </section>
   )
 }

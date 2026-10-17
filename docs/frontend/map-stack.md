@@ -51,11 +51,11 @@ Use a style that includes 3D buildings (streets-v2 / basic-v2 with building laye
 
 ## Data loading
 
-1. Fetch [`data/manifest.json`](../../data/manifest.json) (dev: import from `@data` alias or `public/data` copy).
+1. Read the generated files in `application/public/data/` (list and definitions: [`docs/data/katalog-danych.md`](../data/katalog-danych.md)).
 2. Load grid GeoJSON + `cell_metrics.json`; join on `cell_id` / feature `id`.
 3. Load POI files listed in manifest.
 
-Paths for local dev: [`data/samples/`](../../data/samples/) via Vite alias `@data` → `../data`.
+There are no synthetic samples: local dev uses the same real files.
 
 ## Camera (demo)
 

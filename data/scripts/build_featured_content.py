@@ -10,8 +10,12 @@ files data/featured/<slug>.json. Nothing is tuned by hand.
 
 Inputs
   data/featured/<slug>.json                     curated + cited: highlights, route destinations,
-                                                timeline (with sources), prices (with sample size),
-                                                portals, hero images, camera framing
+                                                timeline (with sources), portal links, hero images,
+                                                camera framing
+  application/public/data/fine-metrics/index.json  RCN transaction median per MSI area
+                                                (data/scripts/build_kwartal_metrics.py)
+  data/rcn/lokale_mieszkalne.csv                RCN flat transactions of the whole city, filtered
+                                                (data/scripts/rcn/fetch_rcn.py, git-ignored)
   application/public/data/osiedla-metrics.json  per-osiedle metrics, category scores, ranks
                                                 (data/scripts/build_osiedle_metrics.py)
   application/public/data/osiedla-scores.json   cats + profile match (same script)
@@ -38,6 +42,9 @@ Derived values and methods
                          build_osiedle_metrics.py (weighted mean of percentile ranks, re-ranked);
                          delta = score after the event - score before (cumulative in year order)
   summary / tagline      fixed template filled with numbers (summaryKind 'z-danych')
+  prices                 RCN transaction medians (zł/m²): the MSI area from fine-metrics/index.json and
+                         the whole city from the same filtered packages and period; no rent figures
+                         (no open official source), no listings from commercial portals
 
 Run: data/scripts/siatka/.venv/bin/python -I data/scripts/build_featured_content.py [--offline]
  or: uv run --script data/scripts/build_featured_content.py
@@ -45,6 +52,7 @@ Run: data/scripts/siatka/.venv/bin/python -I data/scripts/build_featured_content
 
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
 import math
@@ -68,6 +76,8 @@ OSIEDLA_GEO = ROOT / "data/boundaries/warszawa_osiedla.geojson"
 TRAVEL = ROOT / "data/grid/czasy_przejazdu.geojson"
 GREEN_CACHE = ROOT / "data/raw/osm/e39479af49a915ad.json"
 TRAFFIC = ROOT / "application/public/data/3d/{slug}/traffic.json"
+KWARTAL_INDEX = ROOT / "application/public/data/fine-metrics/index.json"
+RCN_CSV = ROOT / "data/rcn/lokale_mieszkalne.csv"
 OSRM_CACHE = ROOT / "data/raw/featured_osrm"
 OUT_TS = ROOT / "application/src/mock/osiedla.ts"
 
@@ -405,10 +415,52 @@ def texts(o: dict, profile: str, weights: dict) -> tuple[str, str, list[str]]:
     return tagline, s1 + s2, strong
 
 
+# ------------------------------------------------------------------ prices
+def fmt_month(iso: str) -> str:
+    return f"{iso[5:7]}.{iso[:4]}"
+
+
+def city_rcn(period: list[str]) -> dict:
+    """Median price per m² of all filtered RCN flat transactions in `period` (whole Warsaw)."""
+    if not RCN_CSV.exists():
+        raise SystemExit(f"missing {RCN_CSV.relative_to(ROOT)}: run data/scripts/rcn/fetch_rcn.py --years 2024,2025,2026")
+    with RCN_CSV.open(encoding="utf-8") as f:
+        vals = [float(r["price_m2"]) for r in csv.DictReader(f) if period[0] <= r["date"] <= period[1]]
+    q = statistics.quantiles(vals, n=4, method="inclusive")
+    return {"med": round(statistics.median(vals)), "p25": round(q[0]), "p75": round(q[2]), "n": len(vals)}
+
+
+def featured_prices(msi: str, kw_index: dict, city: dict) -> dict:
+    """Transaction prices from RCN only; rent stays null (no open official source)."""
+    rcn = kw_index["metadata"]["rcn"]
+    period = rcn["main_period"]
+    area = kw_index["areas"][msi]["msi_price"]
+    span = f"{fmt_month(period[0])}–{fmt_month(period[1])}"
+    return {
+        "buyPerM2": area["med"],
+        "rentPerM2": None,
+        "rent2PokAvg": None,
+        "cityBuyPerM2": city["med"],
+        "cityRentPerM2": None,
+        "asOf": period[1][:7],
+        "basisLabel": f"Mediana cen transakcyjnych RCN ({span})",
+        "cityLabel": "Warszawa: mediana transakcyjna RCN",
+        "sourceNote": (f"Rejestr Cen Nieruchomości m.st. Warszawy (paczki GML), akty notarialne {period[0]} – {period[1]}, "
+                       f"filtry: {rcn['filters']}. Obszar MSI: mediana {fmt_int(area['med'])} zł/m², n = {fmt_int(area['n'])}"
+                       + (f", kwartyle {fmt_int(area['p25'])}–{fmt_int(area['p75'])}" if area.get("p25") else "")
+                       + f". Warszawa: mediana {fmt_int(city['med'])} zł/m², n = {fmt_int(city['n'])}."),
+        "rentNote": "Brak otwartych danych urzędowych o czynszach najmu, dlatego najmu nie pokazujemy.",
+        "estimate": False,
+        "rcn": {"period": period, "msi": area, "city": city},
+    }
+
+
 # ------------------------------------------------------------------ build
 def main() -> int:
     mj = json.loads(METRICS.read_text())
     scores = json.loads(SCORES.read_text())
+    kw_index = json.loads(KWARTAL_INDEX.read_text())
+    city = city_rcn(kw_index["metadata"]["rcn"]["main_period"])
     metric_sources = mj["meta"]["sources"]
     scorer = Scorer(mj)
     weights = mj["meta"]["profile_weights"]
@@ -552,9 +604,7 @@ def main() -> int:
             timeline.append(ev)
 
         # ---- prices
-        pr = cur.get("prices")
-        prices = pr if pr else {"buyPerM2": 0, "rentPerM2": 0, "rent2PokAvg": 0, "cityBuyPerM2": 0, "cityRentPerM2": 0,
-                                "asOf": TODAY[:7], "sourceNote": "Brak danych.", "estimate": True}
+        prices = featured_prices(msi, kw_index, city)
 
         # ---- texts
         o_for_text = {"cats": scores[msi]["cats"], "metrics": om["metrics"], "rank": om["rank"], "match": om["match"]}
@@ -605,7 +655,7 @@ TS_HEADER = '''/**
  *  - commute: GTFS ZTM (data/grid/czasy_przejazdu.geojson) + OSRM; no car times (no real source)
  *  - traffic: planned slowdown of buses/trams from the ZTM timetable (trafficSource), not live traffic
  *  - timeline: cited sources; statDeltas derived from each event's effect on the metrics
- *  - prices: offer listings scraped on the given date (sample size in `prices`), `estimate` flags guesses
+ *  - prices: RCN transaction medians (MSI area and whole city, same filters and period); no rent figures
  *  - photos: Wikimedia Commons, attribution in public/osiedla/credits.json
  */
 import type { LineString } from 'geojson'
@@ -646,35 +696,33 @@ export interface Highlight {
   source?: string
 }
 
-export interface PriceSample {
-  meanPerM2: number
-  medianPerM2: number
+export interface RcnPrice {
+  med: number
   n: number
-  medianMonthly?: number
-  sourceUrls: string[]
-  scrapedAt: string
+  p25?: number | null
+  p75?: number | null
 }
 
 export interface Prices {
-  /** PLN per m², asking price (offers), see `buy` for the sample. */
+  /** PLN per m², median RCN transaction price in the MSI area. */
   buyPerM2: number
-  /** PLN per m² per month (offers). */
-  rentPerM2: number
-  /** Median monthly rent of 2-room flats in the sample, PLN (0 = unknown). */
-  rent2PokAvg: number
+  /** No open official source for rents: always null. */
+  rentPerM2: number | null
+  rent2PokAvg: number | null
+  /** PLN per m², median RCN transaction price of the whole city (same filters and period). */
   cityBuyPerM2: number
-  cityRentPerM2: number
-  /** YYYY-MM */
+  cityRentPerM2: number | null
+  /** YYYY-MM of the latest notarial act in the period. */
   asOf: string
+  /** Caption of the osiedle price, e.g. "Mediana cen transakcyjnych RCN (01.2024–08.2026)". */
+  basisLabel: string
+  /** Caption of the city comparison. */
+  cityLabel: string
   sourceNote: string
-  /** true = at least one of the numbers is an estimate ("szacunek"). */
-  estimate: boolean
-  buy?: PriceSample
-  rent?: PriceSample
-  citySource?: string
-  rcnNote?: string
-  /** How the portal location maps to the MSI area. */
-  areaNote?: string
+  /** Why rent figures are missing. */
+  rentNote?: string
+  estimate: false
+  rcn: { period: [string, string]; msi: RcnPrice; city: RcnPrice }
 }
 
 export interface Commute {
@@ -731,8 +779,6 @@ export interface Portal {
   name: 'Otodom' | 'Morizon'
   rentUrl: string
   buyUrl: string
-  rentCount?: number
-  buyCount?: number
 }
 
 export interface Metric {

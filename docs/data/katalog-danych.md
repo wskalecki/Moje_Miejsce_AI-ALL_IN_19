@@ -16,7 +16,6 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | um_portal | Portal otwartych danych m.st. Warszawy (API) | city | CC BY — Urząd m.st. Warszawy | https://dane.um.warszawa.pl |
 | um_wfs | Usługi mapowe m.st. Warszawy (WFS) | city | Ponowne wykorzystanie bezpłatne; podać źródło: Urząd m.st. Warszawy | https://wfs.um.warszawa.pl/serwis |
 | um_rcn | Rejestr Cen Nieruchomości m.st. Warszawy (paczki GML) | city | Bezpłatny od 13.02.2026 (art. 40a ust. 2 pkt 1 lit. k PGiK); podać źródło | https://architektura.um.warszawa.pl/udostepniane-dane-rcn1 |
-| gugik | Główny Urząd Geodezji i Kartografii (WFS RCN ms:lokale) | public | Bezpłatny od 13.02.2026; podać źródło | https://www.geoportal.gov.pl |
 | gios | GIOŚ HAŁAS API (strategiczne mapy hałasu) | public | CC BY 4.0 — GIOŚ | https://dane.gios.gov.pl/api/halas/v1/zasiegi-halasu |
 | ztm_gtfs | Rozkład jazdy ZTM Warszawa w formacie GTFS (mirror M. Kuranowskiego) | public | Dane ZTM Warszawa; podać ZTM i autora konwersji | https://mkuran.pl/gtfs/warsaw.zip |
 | osm | OpenStreetMap (Overpass API) | open | ODbL 1.0 — © współtwórcy OpenStreetMap | https://www.openstreetmap.org/copyright |
@@ -49,8 +48,7 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | wfs_metro_entrances | Wejścia do metra | Usługi mapowe m.st. Warszawy (WFS) | data/scripts/siatka (uv run siatka run) | pobrano 2026-10-17 | – |
 | wfs_address_points | Punkty adresowe | Usługi mapowe m.st. Warszawy (WFS) | data/scripts/geocode_address.py | pobrano 2026-10-17 | Geokodowanie adresów i punkt odniesienia osiedla. |
 | wfs_buildings | Rejestr budynków (EGiB) | Usługi mapowe m.st. Warszawy (WFS) | data/scripts/build_kwartal_metrics.py | pobrano 2026-10-17 | Brak roku budowy w rejestrze. |
-| rcn_city | Transakcje lokali mieszkalnych (RCN) | Rejestr Cen Nieruchomości m.st. Warszawy (paczki GML) | data/scripts/rcn/fetch_rcn.py | akty 2023 – IV 2026 (ok. 6 miesięcy opóźnienia) | Filtry: lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2 |
-| rcn_gugik | Transakcje lokali (RCN, WFS ms:lokale) | Główny Urząd Geodezji i Kartografii (WFS RCN ms:lokale) | data/scripts/rcn/fetch_rcn.py | akty od 2024 | Te same rekordy co paczki miasta; użyte dla poligonów MSI wyróżnionych osiedli. |
+| rcn_city | Transakcje lokali mieszkalnych (RCN) | Rejestr Cen Nieruchomości m.st. Warszawy (paczki GML) | data/scripts/rcn/fetch_rcn.py (filtrowanie), build_kwartal_metrics.py i build_featured_content.py (mediany) | akty 2023 – IV 2026 (ok. 6 miesięcy opóźnienia) | Filtry: lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2. Te same rekordy co GUGiK WFS ms:lokale, ale świeższe i dla całego miasta w jednym pliku. |
 | gios_noise_lden | Zasięgi hałasu Lden (SMH 2022, 4. runda), drogi i kolej z tramwajem | GIOŚ HAŁAS API (strategiczne mapy hałasu) | data/scripts/noise/fetch_gios_noise.py | dane 2021 (runda 2022) | Model, nie pomiar; wysokość 4 m; poniżej 55 dB brak konturów; 2021 to rok pandemii; brak warstw lotniska i przemysłu w użyciu. |
 | gtfs_warsaw | Rozkład jazdy ZTM (GTFS) | Rozkład jazdy ZTM Warszawa w formacie GTFS (mirror M. Kuranowskiego) | data/scripts/gtfs_feed.py | feed z 2026-10-17, dzień roboczy 2026-10-19 | – |
 | osm_kindergarten | Przedszkola | OpenStreetMap (Overpass API) | data/scripts/siatka (uv run siatka run) | pobrano 2026-10-17 | – |
@@ -91,13 +89,21 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | kwartal_field | wartość liczona dla kwartału od jego punktu odniesienia (środek ciężkości albo punkt na powierzchni) |
 | gtfs_routing | router na rozkładzie GTFS: najpóźniejszy wyjazd z komórki pozwalający dojechać na termin; czas = termin − wyjazd |
 | schedule_slowdown | spowolnienie rozkładowe: 1 − prędkość w danej godzinie / najwyższa godzinowa prędkość odcinka, z rozkładu ZTM |
+| median_transactions | mediana ceny za m² z rekordów transakcji po filtrach RCN, w podanym okresie i obszarze |
 
 ## Metryki
+
+### Cała Warszawa
+
+| id | Nazwa | Definicja | Jednostka | Metoda | Zbiory | Status | Zastrzeżenia |
+|---|---|---|---|---|---|---|---|
+| miasto.cena_rcn_mediana | Mediana ceny transakcyjnej w Warszawie | Mediana ceny brutto lokalu / powierzchnia użytkowa dla wszystkich transakcji lokali mieszkalnych w Warszawie z aktami 2024-01-01 – 2026-08-04, po filtrach RCN (assumptions: rcn_filters). Pokazywana jako porównanie przy cenie osiedla. | zł/m² | median_transactions | rcn_city | DERIVED | RCN ma ok. 6 miesięcy opóźnienia. Wartość w application/src/mock/osiedla.ts (prices.cityBuyPerM2). |
 
 ### Osiedla (obszary MSI)
 
 | id | Nazwa | Definicja | Jednostka | Metoda | Zbiory | Status | Zastrzeżenia |
 |---|---|---|---|---|---|---|---|
+| osiedle.cena_rcn_mediana | Mediana ceny transakcyjnej w osiedlu | Mediana ceny brutto lokalu / powierzchnia użytkowa dla transakcji lokali mieszkalnych z aktami 2024-01-01 – 2026-08-04, których budynek (albo punkt RCN) leży w obszarze MSI; po filtrach RCN. | zł/m² | median_transactions | rcn_city, wfs_buildings, wfs_msi | DERIVED | Wartości w fine-metrics/index.json (areas.*.msi_price) i w osiedla.ts (prices.buyPerM2) dla wyróżnionych osiedli. |
 | osiedle.kindergartens_in | Przedszkola | Liczba przedszkoli (OSM amenity=kindergarten) wewnątrz granicy osiedla (obszar MSI). | szt. | count_in | osm_kindergarten, wfs_msi | DERIVED | OSM może być niekompletny; szkoły nie sprawdzone w RSPO. |
 | osiedle.kindergartens_1km | Przedszkola | Liczba przedszkoli (OSM amenity=kindergarten) w promieniu 1 km (linia prosta) od punktu odniesienia osiedla. | szt. | count_1km | osm_kindergarten, wfs_address_points, wfs_msi | DERIVED | OSM może być niekompletny; szkoły nie sprawdzone w RSPO. |
 | osiedle.schools_in | Szkoły podstawowe | Liczba szkół podstawowych (OSM amenity=school; nazwa „podstawow”/„SP <nr>” albo isced:level 1) wewnątrz granicy osiedla (obszar MSI). | szt. | count_in | osm_school_primary, wfs_msi | DERIVED | OSM może być niekompletny; szkoły nie sprawdzone w RSPO. |
@@ -267,6 +273,7 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | travel_assumptions | Czasy przejazdu: chod_m_s = 1.3, objazd = 1.3, dojscie_max_m = 800, przesiadka_pieszo_max_m = 400, przesiadka_min_s = 60; przyjazd 07:30–09:00, dzień 20261019. | Parametry routera zapisane w metadanych pliku; jednakowe dla wszystkich komórek. | data/scripts/etl_czasy_przejazdu.py |
 | noise_union | Hałas „drogi lub kolej” = suma zasięgów Lden obu źródeł (najgłośniejsze źródło w danym miejscu). | Pasma 5 dB nie pozwalają zsumować poziomów energetycznie; suma zasięgów to dolna granica hałasu łącznego. | data/scripts/noise/gios_noise.py |
 | green_min_area | Zieleń liczona z parków i lasów OSM o powierzchni ≥ 1 ha, odległość do krawędzi. | Odległość od środka zaniżałaby oceny obok dużych lasów. | build_osiedle_metrics.py, siatka |
+| price_example_area | Przykład ceny mieszkania w UI = mediana zł/m² × 55 m² (kupno). | Jawna arytmetyka na prawdziwej medianie, opisana w UI („za 55 m²”); nie jest osobną daną. | application/src/osiedle/Prices.tsx |
 
 ## Pliki z danymi
 
@@ -287,7 +294,7 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | data/boundaries/warszawa_dzielnice.geojson | geometry | data/scripts/fetch_district_boundaries.py | wfs_districts |
 | data/boundaries/warszawa_osiedla.geojson | geometry | data/scripts/fetch_osiedla_boundaries.py | wfs_msi |
 | data/boundaries/warszawa_osiedla_fine.geojson | geometry | data/scripts/fetch_osiedla_fine.py | osm_streets, wfs_msi, wfs_buildings |
-| data/featured/*.json | curated | ręcznie; każdy fakt z polem sourceUrl/checkedAt, wejście build_featured_content.py | osm_kindergarten, osm_school_primary, osm_parks, osrm_routes, nominatim_places, rcn_gugik, commons_photos, osm_planned_rail |
+| data/featured/*.json | curated | ręcznie; każdy fakt z polem sourceUrl/checkedAt, wejście build_featured_content.py | osm_kindergarten, osm_school_primary, osm_parks, osrm_routes, nominatim_places, commons_photos, osm_planned_rail |
 | data/grid/czasy_przejazdu.geojson | travel-grid | data/scripts/etl_czasy_przejazdu.py | gtfs_warsaw |
 | data/lines/utrudnienia.geojson | geometry | data/scripts/etl_utrudnienia.py | um_road_works |
 | data/lines/trasy_turystyczne.geojson | geometry | data/scripts/etl_trasy_turystyczne.py | um_tourist_routes |
@@ -298,3 +305,4 @@ Generowane z [`data/catalog.json`](../../data/catalog.json) poleceniem `python3 
 | data/poi_mikolaj/environment.geojson | poi | data/scripts/etl_powietrze.py, etl_pogoda.py | um_air_quality, um_weather |
 | data/poi_mikolaj/future.geojson | poi | data/scripts/etl_budzet_obywatelski.py | um_bo |
 | data/samples/warsaw_grid_sample.geojson | geometry | data/scripts/generate_grid.py --bbox 20.98 52.18 21.06 52.24 | wfs_districts |
+| data/manifest.json | index | data/scripts/siatka (uv run siatka run) | – |

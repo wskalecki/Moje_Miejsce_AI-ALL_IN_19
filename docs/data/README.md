@@ -18,11 +18,11 @@ Canonical schemas and ETL conventions for **Siatka** (200 m grid in EPSG:2180 + 
 1. **Grid** — `uv run data/scripts/generate_grid.py …` produces `data/grid/warsaw_grid.geojson` (full city) or a sample bbox. ETL gets `cell_id` from its `assign_cell(lon, lat)`, which needs `pyproj` in the env.
 2. **POI ETL** — scripts under `data/scripts/` fetch Warsaw open data → `data/poi/*.geojson` with `cell_id`.
 3. **Metrics** — aggregate per cell → `data/grid/cell_metrics.json` (or enrich grid GeoJSON).
-4. **Manifest** — [`data/manifest.json`](../../data/manifest.json) lists paths the React app loads.
+4. **Catalog** — register every new file, source and metric in [`data/catalog.json`](../../data/catalog.json) and run `python3 data/scripts/data_catalog.py --render`.
 
 ## Samples (frontend dev)
 
-Committed under [`data/samples/`](../../data/samples/) so the map works without full ETL or API keys.
+[`data/samples/warsaw_grid_sample.geojson`](../../data/samples/warsaw_grid_sample.geojson) is a small grid patch (geometry only). There are no synthetic metric samples: the app reads the real outputs in `application/public/data/`.
 
 ## Agents
 

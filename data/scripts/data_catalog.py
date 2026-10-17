@@ -170,6 +170,7 @@ def validate_catalog(catalog: dict[str, Any], files: dict[str, Any]) -> list[str
 
 
 SPATIAL_GROUPS = [
+    ("miasto", "Cała Warszawa"),
     ("osiedle", "Osiedla (obszary MSI)"),
     ("kategoria", "Kategorie osiedli (0–100)"),
     ("profil", "Dopasowanie profili"),
@@ -231,8 +232,10 @@ def render_catalog(catalog: dict[str, Any]) -> str:
     out += _table(["id", "Definicja"], [[m["id"], m.get("definition")] for m in catalog.get("methods", [])])
     out += ["## Metryki", ""]
     metrics = catalog.get("metrics", [])
-    for prefix, title in SPATIAL_GROUPS:
-        group = [m for m in metrics if m["id"].split(".")[0] == prefix]
+    listed = {prefix for prefix, _ in SPATIAL_GROUPS}
+    groups = SPATIAL_GROUPS + [("", "Pozostałe")]
+    for prefix, title in groups:
+        group = [m for m in metrics if (m["id"].split(".")[0] == prefix if prefix else m["id"].split(".")[0] not in listed)]
         if not group:
             continue
         out += [f"### {title}", ""]

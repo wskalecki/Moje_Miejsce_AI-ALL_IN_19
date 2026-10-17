@@ -34,7 +34,7 @@ Never commit `.env`. Use Row Level Security and policies in Supabase for product
 2. Set `VITE_MAP_STYLE_URL` to a style with building extrusion (e.g. MapTiler `streets-v2`).
 3. See [`docs/frontend/map-stack.md`](../frontend/map-stack.md).
 
-Sample grid data loads from [`data/manifest.json`](../../data/manifest.json) without Supabase.
+The map loads the real generated data from `application/public/data/` without Supabase.
 
 ### Mapa się nie wyświetla?
 

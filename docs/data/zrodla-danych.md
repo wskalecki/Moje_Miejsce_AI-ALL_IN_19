@@ -191,6 +191,8 @@ Od 13 II 2026 RCN jest bezpłatny (art. 40a ust. 2 pkt 1 lit. k PGiK). Dla Warsz
 
 ## 5. Mock: 3 osiedla
 
+> **Zasada (od 17.10.2026):** ceny i liczby ofert z portali komercyjnych (Otodom, Adresowo, Domiporta, SonarHome, Znajdź Najem, Morizon) ani scraping nie są używane w danych produktu (polityka w [`katalog-danych.md`](katalog-danych.md)). Ceny pochodzą wyłącznie z RCN (sekcja 3a). Tabele cen poniżej to historia iteracji 1.
+
 Treści 3 wyróżnionych osiedli w `application/src/mock/osiedla.ts` (Powiśle, Miasteczko Wilanów, Saska Kępa). Stan na październik 2026. To wartości poglądowe, nie dane na żywo.
 
 **Ceny (zł/m², oferty z rynku wtórnego, chyba że zaznaczono inaczej).** Źródła podają bardzo różne liczby: transakcje są o 10–25% niższe niż oferty, a próby bywają małe. Wybraliśmy wartość ze środka zakresu.
@@ -227,8 +229,6 @@ Uwaga: tramwaj do Miasteczka Wilanów już działa (otwarty w 2024 r., 6,5 km), 
 - Zdjęcia pochodzą z Wikimedia Commons, autorów i licencje podajemy w `application/public/osiedla/credits.json`. Commons przy pobieraniu oryginałów szybko zwraca HTTP 429, dlatego pobieraj miniatury `iiurlwidth=1920` (`thumburl`) z przerwą kilku sekund między plikami.
 - Wyszukiwanie w portalach: w otodom Saska Kępa ma ścieżkę `praga--poludnie/saska-kepa` (podwójny myślnik), a Miasteczko Wilanów to `wilanow/blonia-wilanowskie`. Morizon używa krótkich ścieżek: `/mieszkania/warszawa/powisle/`, `/saska-kepa/`, `/blonia-wilanowskie/`.
 - Nowe osiedla (sprawdzone 17.10.2026): otodom `srodmiescie/muranow`, `bielany/stare-bielany`, `ursynow/natolin`; Morizon `/mieszkania/warszawa/{muranow,stare-bielany,natolin}/` i `/do-wynajecia/mieszkania/warszawa/…/`. Ścieżka z dzielnicą w Morizonie (`/warszawa/bielany/stare-bielany/`) daje 404.
-- Scraping otodom: `curl` z przeglądarkowym User-Agent działa bez blokady. Dane są w `<script id="__NEXT_DATA__" … crossorigin="anonymous">` (tag ma dodatkowy atrybut), w `searchAds.items` (`totalPrice`, `areaInSquareMeters`, `pricePerSquareMeter`, `roomsNumber`, `location.reverseGeocoding`). Przy `limit=72` strona zwraca tylko ok. 46–49 ogłoszeń. `pagination.totalItems` jest większe od liczby unikalnych ogłoszeń (Muranów, sprzedaż: 284 wobec 147 przy 5 sortowaniach), bo prawdopodobnie liczy lokale w inwestycjach (`estate: INVESTMENT`). Na liście są też promowane oferty z sąsiednich osiedli, więc filtruj po `reverseGeocoding`.
-- Morizon: `?page=1` i strona za ostatnią zwracają 404 („Pod tym adresem nic nie ma”). Pierwsza strona to URL bez parametru.
 - RCN WFS (sekcja 3a): w naszym teście filtr FES na `DOK_DATA` nie zawęził wyniku, a `RESULTTYPE=hits` dawał ok. 460 tys. Dlatego pobieraliśmy po samym BBOX w EPSG:2180, a daty filtrowaliśmy lokalnie. Najnowsze akty w poligonach: Natolin 29.01.2026, Stare Bielany 16.02.2026, Muranów 24.04.2026.
 
 ## 6. Budynki, drogi, zieleń 3D dla 3 osiedli (OSM) ✅

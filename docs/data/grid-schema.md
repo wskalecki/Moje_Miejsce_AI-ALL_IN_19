@@ -121,4 +121,4 @@ ETL scripts get IDs from `assign_cell(lon, lat)`. Importing it needs `pyproj` in
 
 **Option B (build):** ETL writes scores into grid `properties` before deploy.
 
-MVP uses **Option A** with files listed in `data/manifest.json`.
+The current app reads the generated files in `application/public/data/` (see [`katalog-danych.md`](katalog-danych.md)).

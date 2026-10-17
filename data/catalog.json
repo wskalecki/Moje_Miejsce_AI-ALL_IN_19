@@ -61,14 +61,6 @@
       "licence": "Bezpłatny od 13.02.2026 (art. 40a ust. 2 pkt 1 lit. k PGiK); podać źródło"
     },
     {
-      "id": "gugik",
-      "name": "Główny Urząd Geodezji i Kartografii (WFS RCN ms:lokale)",
-      "publisher": "GUGiK",
-      "kind": "public",
-      "url": "https://www.geoportal.gov.pl",
-      "licence": "Bezpłatny od 13.02.2026; podać źródło"
-    },
-    {
       "id": "gios",
       "name": "GIOŚ HAŁAS API (strategiczne mapy hałasu)",
       "publisher": "Główny Inspektorat Ochrony Środowiska",
@@ -300,18 +292,9 @@
       "source": "um_rcn",
       "title": "Transakcje lokali mieszkalnych (RCN)",
       "access": "paczki zbior_danych_rciwn_2026_20261005.zip, zbior_danych_rcn_2023.zip, zbior_danych_rcn_2024.zip, zbior_danych_rcn_2025.zip",
-      "script": "data/scripts/rcn/fetch_rcn.py",
+      "script": "data/scripts/rcn/fetch_rcn.py (filtrowanie), build_kwartal_metrics.py i build_featured_content.py (mediany)",
       "period": "akty 2023 – IV 2026 (ok. 6 miesięcy opóźnienia)",
-      "notes": "Filtry: lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2"
-    },
-    {
-      "id": "rcn_gugik",
-      "source": "gugik",
-      "title": "Transakcje lokali (RCN, WFS ms:lokale)",
-      "access": "WFS ms:lokale, pobieranie po BBOX w EPSG:2180",
-      "script": "data/scripts/rcn/fetch_rcn.py",
-      "period": "akty od 2024",
-      "notes": "Te same rekordy co paczki miasta; użyte dla poligonów MSI wyróżnionych osiedli."
+      "notes": "Filtry: lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2. Te same rekordy co GUGiK WFS ms:lokale, ale świeższe i dla całego miasta w jednym pliku."
     },
     {
       "id": "gios_noise_lden",
@@ -533,9 +516,39 @@
     {
       "id": "schedule_slowdown",
       "definition": "spowolnienie rozkładowe: 1 − prędkość w danej godzinie / najwyższa godzinowa prędkość odcinka, z rozkładu ZTM"
+    },
+    {
+      "id": "median_transactions",
+      "definition": "mediana ceny za m² z rekordów transakcji po filtrach RCN, w podanym okresie i obszarze"
     }
   ],
   "metrics": [
+    {
+      "id": "miasto.cena_rcn_mediana",
+      "label": "Mediana ceny transakcyjnej w Warszawie",
+      "definition": "Mediana ceny brutto lokalu / powierzchnia użytkowa dla wszystkich transakcji lokali mieszkalnych w Warszawie z aktami 2024-01-01 – 2026-08-04, po filtrach RCN (assumptions: rcn_filters). Pokazywana jako porównanie przy cenie osiedla.",
+      "unit": "zł/m²",
+      "method": "median_transactions",
+      "datasets": [
+        "rcn_city"
+      ],
+      "status": "DERIVED",
+      "caveats": "RCN ma ok. 6 miesięcy opóźnienia. Wartość w application/src/mock/osiedla.ts (prices.cityBuyPerM2)."
+    },
+    {
+      "id": "osiedle.cena_rcn_mediana",
+      "label": "Mediana ceny transakcyjnej w osiedlu",
+      "definition": "Mediana ceny brutto lokalu / powierzchnia użytkowa dla transakcji lokali mieszkalnych z aktami 2024-01-01 – 2026-08-04, których budynek (albo punkt RCN) leży w obszarze MSI; po filtrach RCN.",
+      "unit": "zł/m²",
+      "method": "median_transactions",
+      "datasets": [
+        "rcn_city",
+        "wfs_buildings",
+        "wfs_msi"
+      ],
+      "status": "DERIVED",
+      "caveats": "Wartości w fine-metrics/index.json (areas.*.msi_price) i w osiedla.ts (prices.buyPerM2) dla wyróżnionych osiedli."
+    },
     {
       "id": "osiedle.kindergartens_in",
       "label": "Przedszkola",
@@ -2438,6 +2451,12 @@
       "description": "Zieleń liczona z parków i lasów OSM o powierzchni ≥ 1 ha, odległość do krawędzi.",
       "justification": "Odległość od środka zaniżałaby oceny obok dużych lasów.",
       "where": "build_osiedle_metrics.py, siatka"
+    },
+    {
+      "id": "price_example_area",
+      "description": "Przykład ceny mieszkania w UI = mediana zł/m² × 55 m² (kupno).",
+      "justification": "Jawna arytmetyka na prawdziwej medianie, opisana w UI („za 55 m²”); nie jest osobną daną.",
+      "where": "application/src/osiedle/Prices.tsx"
     }
   ],
   "outputs": [
@@ -2719,11 +2738,10 @@
         "osm_parks",
         "osrm_routes",
         "nominatim_places",
-        "rcn_gugik",
         "commons_photos",
         "osm_planned_rail"
       ],
-      "description": "Opisane źródłami treści 3 wyróżnionych osiedli (miejsca, trasy, oś czasu, ceny, zdjęcia)."
+      "description": "Opisane źródłami treści 3 wyróżnionych osiedli (miejsca, cele tras, oś czasu, linki do portali, zdjęcia). Bez cen: ceny liczy build_featured_content.py z RCN."
     },
     {
       "path": "data/grid/czasy_przejazdu.geojson",
@@ -2821,6 +2839,13 @@
         "wfs_districts"
       ],
       "description": "Próbka siatki (geometria) dla lokalnego rozwoju; bez metryk."
+    },
+    {
+      "path": "data/manifest.json",
+      "kind": "index",
+      "script": "data/scripts/siatka (uv run siatka run)",
+      "datasets": [],
+      "description": "Spis plików wynikowych siatka (ścieżki), bez danych."
     }
   ]
 }

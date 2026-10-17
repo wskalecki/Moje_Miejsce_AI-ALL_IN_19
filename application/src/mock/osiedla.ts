@@ -10,7 +10,7 @@
  *  - commute: GTFS ZTM (data/grid/czasy_przejazdu.geojson) + OSRM; no car times (no real source)
  *  - traffic: planned slowdown of buses/trams from the ZTM timetable (trafficSource), not live traffic
  *  - timeline: cited sources; statDeltas derived from each event's effect on the metrics
- *  - prices: offer listings scraped on the given date (sample size in `prices`), `estimate` flags guesses
+ *  - prices: RCN transaction medians (MSI area and whole city, same filters and period); no rent figures
  *  - photos: Wikimedia Commons, attribution in public/osiedla/credits.json
  */
 import type { LineString } from 'geojson'
@@ -51,35 +51,33 @@ export interface Highlight {
   source?: string
 }
 
-export interface PriceSample {
-  meanPerM2: number
-  medianPerM2: number
+export interface RcnPrice {
+  med: number
   n: number
-  medianMonthly?: number
-  sourceUrls: string[]
-  scrapedAt: string
+  p25?: number | null
+  p75?: number | null
 }
 
 export interface Prices {
-  /** PLN per m², asking price (offers), see `buy` for the sample. */
+  /** PLN per m², median RCN transaction price in the MSI area. */
   buyPerM2: number
-  /** PLN per m² per month (offers). */
-  rentPerM2: number
-  /** Median monthly rent of 2-room flats in the sample, PLN (0 = unknown). */
-  rent2PokAvg: number
+  /** No open official source for rents: always null. */
+  rentPerM2: number | null
+  rent2PokAvg: number | null
+  /** PLN per m², median RCN transaction price of the whole city (same filters and period). */
   cityBuyPerM2: number
-  cityRentPerM2: number
-  /** YYYY-MM */
+  cityRentPerM2: number | null
+  /** YYYY-MM of the latest notarial act in the period. */
   asOf: string
+  /** Caption of the osiedle price, e.g. "Mediana cen transakcyjnych RCN (01.2024–08.2026)". */
+  basisLabel: string
+  /** Caption of the city comparison. */
+  cityLabel: string
   sourceNote: string
-  /** true = at least one of the numbers is an estimate ("szacunek"). */
-  estimate: boolean
-  buy?: PriceSample
-  rent?: PriceSample
-  citySource?: string
-  rcnNote?: string
-  /** How the portal location maps to the MSI area. */
-  areaNote?: string
+  /** Why rent figures are missing. */
+  rentNote?: string
+  estimate: false
+  rcn: { period: [string, string]; msi: RcnPrice; city: RcnPrice }
 }
 
 export interface Commute {
@@ -136,8 +134,6 @@ export interface Portal {
   name: 'Otodom' | 'Morizon'
   rentUrl: string
   buyUrl: string
-  rentCount?: number
-  buyCount?: number
 }
 
 export interface Metric {
@@ -505,36 +501,35 @@ export const OSIEDLA: Osiedle[] = [
       }
     ],
     "prices": {
-      "buyPerM2": 21200,
-      "rentPerM2": 85,
-      "rent2PokAvg": 3700,
-      "cityBuyPerM2": 17975,
-      "cityRentPerM2": 84,
-      "asOf": "2026-10",
-      "sourceNote": "Średnia z 140 ofert sprzedaży i 152 ofert najmu na Otodom (rynek wtórny, ceny ofertowe, odczyt 17.10.2026). Transakcje (RCN, od I 2025): mediana 18 844 zł/m², 273 lokale. Warszawa: Adresowo IX 2026 (sprzedaż), Znajdź Najem X 2026 (najem).",
+      "buyPerM2": 18719,
+      "rentPerM2": null,
+      "rent2PokAvg": null,
+      "cityBuyPerM2": 15655,
+      "cityRentPerM2": null,
+      "asOf": "2026-08",
+      "basisLabel": "Mediana cen transakcyjnych RCN (01.2024–08.2026)",
+      "cityLabel": "Warszawa: mediana transakcyjna RCN",
+      "sourceNote": "Rejestr Cen Nieruchomości m.st. Warszawy (paczki GML), akty notarialne 2024-01-01 – 2026-08-04, filtry: lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2. Obszar MSI: mediana 18 719 zł/m², n = 521, kwartyle 16 724–21 993. Warszawa: mediana 15 655 zł/m², n = 64 241.",
+      "rentNote": "Brak otwartych danych urzędowych o czynszach najmu, dlatego najmu nie pokazujemy.",
       "estimate": false,
-      "buy": {
-        "meanPerM2": 21200,
-        "medianPerM2": 20100,
-        "n": 140,
-        "sourceUrls": [
-          "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow?limit=72&page=1"
+      "rcn": {
+        "period": [
+          "2024-01-01",
+          "2026-08-04"
         ],
-        "scrapedAt": "2026-10-17"
-      },
-      "rent": {
-        "meanPerM2": 85,
-        "medianPerM2": 83,
-        "n": 152,
-        "medianMonthly": 4225,
-        "sourceUrls": [
-          "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow?limit=72&page=1"
-        ],
-        "scrapedAt": "2026-10-17"
-      },
-      "citySource": "Adresowo, Średnie ceny mieszkań Warszawa, wrzesień 2026, 1 870 ogłoszeń z rynku wtórnego (średnia 17 975, mediana 17 683 zł/m²): https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/ (odczyt 2026-10-17) | Znajdź Najem, Indeks Najmu Warszawa, październik 2026, próba 46 410 ofert: średnia 84 zł/m², mediana czynszu 3 200 zł/mies.: https://znajdznajem.pl/warszawa/raport (odczyt 2026-10-17)",
-      "rcnNote": "RCN (GUGiK WFS ms:lokale), lokale mieszkalne w poligonie MSI, 2025-01-01–2026-04-24: mediana 18 844 zł/m², n=273 (240 wtórny / 33 pierwotny); 2024: mediana 18 458 zł/m², n=188.",
-      "areaNote": "Lokalizacja otodom „Muranów (Śródmieście)” (srodmiescie/muranow); granice lokalizacji otodom nie są publikowane i mogą się różnić od obszaru MSI. Ulice w próbie sprawdzone ręcznie (plik raw: pole street)."
+        "msi": {
+          "n": 521,
+          "med": 18719,
+          "p25": 16724,
+          "p75": 21993
+        },
+        "city": {
+          "med": 15655,
+          "p25": 13280,
+          "p75": 18587,
+          "n": 64241
+        }
+      }
     },
     "trafficRoad": "Autobusy i tramwaje w okolicy: planowe spowolnienie wg rozkładu ZTM",
     "traffic": [0, 0, 0, 0, 0, 0, 5, 9, 10, 7, 7, 7, 7, 7, 8, 11, 12, 12, 11, 6, 3, 0, 0, 0],
@@ -948,16 +943,12 @@ export const OSIEDLA: Osiedle[] = [
       {
         "name": "Otodom",
         "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow",
-        "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow",
-        "rentCount": 159,
-        "buyCount": 284
+        "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow"
       },
       {
         "name": "Morizon",
         "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/muranow/",
-        "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/muranow/",
-        "rentCount": 44,
-        "buyCount": 63
+        "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/muranow/"
       }
     ]
   },
@@ -1265,36 +1256,35 @@ export const OSIEDLA: Osiedle[] = [
       }
     ],
     "prices": {
-      "buyPerM2": 17382,
-      "rentPerM2": 66,
-      "rent2PokAvg": 3000,
-      "cityBuyPerM2": 17975,
-      "cityRentPerM2": 84,
-      "asOf": "2026-10",
-      "sourceNote": "Średnia z 91 ofert sprzedaży i 67 ofert najmu na Otodom (rynek wtórny, ceny ofertowe, odczyt 17.10.2026). Transakcje (RCN, od I 2025): mediana 15 632 zł/m², 171 lokali. Warszawa: Adresowo IX 2026 (sprzedaż), Znajdź Najem X 2026 (najem).",
+      "buyPerM2": 16088,
+      "rentPerM2": null,
+      "rent2PokAvg": null,
+      "cityBuyPerM2": 15655,
+      "cityRentPerM2": null,
+      "asOf": "2026-08",
+      "basisLabel": "Mediana cen transakcyjnych RCN (01.2024–08.2026)",
+      "cityLabel": "Warszawa: mediana transakcyjna RCN",
+      "sourceNote": "Rejestr Cen Nieruchomości m.st. Warszawy (paczki GML), akty notarialne 2024-01-01 – 2026-08-04, filtry: lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2. Obszar MSI: mediana 16 088 zł/m², n = 394, kwartyle 14 196–18 048. Warszawa: mediana 15 655 zł/m², n = 64 241.",
+      "rentNote": "Brak otwartych danych urzędowych o czynszach najmu, dlatego najmu nie pokazujemy.",
       "estimate": false,
-      "buy": {
-        "meanPerM2": 17382,
-        "medianPerM2": 17000,
-        "n": 91,
-        "sourceUrls": [
-          "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin?limit=72&page=1"
+      "rcn": {
+        "period": [
+          "2024-01-01",
+          "2026-08-04"
         ],
-        "scrapedAt": "2026-10-17"
-      },
-      "rent": {
-        "meanPerM2": 66,
-        "medianPerM2": 62,
-        "n": 67,
-        "medianMonthly": 3200,
-        "sourceUrls": [
-          "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin?limit=72&page=1"
-        ],
-        "scrapedAt": "2026-10-17"
-      },
-      "citySource": "Adresowo, Średnie ceny mieszkań Warszawa, wrzesień 2026, 1 870 ogłoszeń z rynku wtórnego (średnia 17 975, mediana 17 683 zł/m²): https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/ (odczyt 2026-10-17) | Znajdź Najem, Indeks Najmu Warszawa, październik 2026, próba 46 410 ofert: średnia 84 zł/m², mediana czynszu 3 200 zł/mies.: https://znajdznajem.pl/warszawa/raport (odczyt 2026-10-17)",
-      "rcnNote": "RCN (GUGiK WFS ms:lokale), lokale mieszkalne w poligonie MSI, 2025-01-01–2026-01-29: mediana 15 632 zł/m², n=171 (170 wtórny / 1 pierwotny); 2024: mediana 16 480 zł/m², n=170.",
-      "areaNote": "Lokalizacja otodom „Natolin (Ursynów)” (ursynow/natolin); granice lokalizacji otodom nie są publikowane i mogą się różnić od obszaru MSI. Ulice w próbie sprawdzone ręcznie (plik raw: pole street)."
+        "msi": {
+          "n": 394,
+          "med": 16088,
+          "p25": 14196,
+          "p75": 18048
+        },
+        "city": {
+          "med": 15655,
+          "p25": 13280,
+          "p75": 18587,
+          "n": 64241
+        }
+      }
     },
     "trafficRoad": "Autobusy i tramwaje w okolicy: planowe spowolnienie wg rozkładu ZTM",
     "traffic": [0, 0, 0, 0, 0, 0, 7, 17, 17, 14, 14, 14, 14, 14, 14, 17, 17, 17, 16, 14, 14, 0, 0, 0],
@@ -1589,15 +1579,8 @@ export const OSIEDLA: Osiedle[] = [
         "category": "zielen",
         "status": "w budowie",
         "coord": [21.05738, 52.14819],
-        "statDeltas": {
-          "zielen": 7
-        },
-        "matchDelta": 1,
-        "matchDeltas": {
-          "rodzina": 1,
-          "senior": 1
-        },
-        "derivation": "green_share_1km: 7.5 → 10.3%; green_share: 10.0 → 11.9%. Punkt = środek odcinka Lanciego–Rosoła (ok. 0,9 km od punktu odniesienia); park jest pasem ok. 2 km, więc przybliżenie kołem 12,5 ha jest zgrubne. W lokalnym cache OSM (data/raw/osm) parku jeszcze nie ma, więc efekt nie dubluje istniejącej zieleni.",
+        "statDeltas": {},
+        "derivation": "Wpływu na wskaźniki nie liczymy: brak oficjalnego poligonu parku (pas ok. 2 km wzdłuż Płaskowickiej), a przybliżenie kołem 12,5 ha byłoby geometrią zmyśloną.",
         "sourceUrl": "https://zzw.waw.pl/nasze-dzialania/inwestycje/inwestycje-trwajace/park-linearny-nad-pow/",
         "sourceTitle": "Park linearny nad POW (Zarząd Zieleni m.st. Warszawy)",
         "checkedAt": "2026-10-17"
@@ -1671,16 +1654,12 @@ export const OSIEDLA: Osiedle[] = [
       {
         "name": "Otodom",
         "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin",
-        "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin",
-        "rentCount": 70,
-        "buyCount": 108
+        "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin"
       },
       {
         "name": "Morizon",
         "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/natolin/",
-        "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/natolin/",
-        "rentCount": 15,
-        "buyCount": 35
+        "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/natolin/"
       }
     ]
   },
@@ -1988,36 +1967,35 @@ export const OSIEDLA: Osiedle[] = [
       }
     ],
     "prices": {
-      "buyPerM2": 17134,
-      "rentPerM2": 74,
-      "rent2PokAvg": 3000,
-      "cityBuyPerM2": 17975,
-      "cityRentPerM2": 84,
-      "asOf": "2026-10",
-      "sourceNote": "Średnia z 50 ofert sprzedaży i 32 ofert najmu na Otodom (rynek wtórny, ceny ofertowe, odczyt 17.10.2026). Transakcje (RCN, od I 2025): mediana 16 978 zł/m², 127 lokali. Warszawa: Adresowo IX 2026 (sprzedaż), Znajdź Najem X 2026 (najem).",
+      "buyPerM2": 16683,
+      "rentPerM2": null,
+      "rent2PokAvg": null,
+      "cityBuyPerM2": 15655,
+      "cityRentPerM2": null,
+      "asOf": "2026-08",
+      "basisLabel": "Mediana cen transakcyjnych RCN (01.2024–08.2026)",
+      "cityLabel": "Warszawa: mediana transakcyjna RCN",
+      "sourceNote": "Rejestr Cen Nieruchomości m.st. Warszawy (paczki GML), akty notarialne 2024-01-01 – 2026-08-04, filtry: lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2. Obszar MSI: mediana 16 683 zł/m², n = 281, kwartyle 15 217–17 997. Warszawa: mediana 15 655 zł/m², n = 64 241.",
+      "rentNote": "Brak otwartych danych urzędowych o czynszach najmu, dlatego najmu nie pokazujemy.",
       "estimate": false,
-      "buy": {
-        "meanPerM2": 17134,
-        "medianPerM2": 16484,
-        "n": 50,
-        "sourceUrls": [
-          "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany?limit=72&page=1"
+      "rcn": {
+        "period": [
+          "2024-01-01",
+          "2026-08-04"
         ],
-        "scrapedAt": "2026-10-17"
-      },
-      "rent": {
-        "meanPerM2": 74,
-        "medianPerM2": 75,
-        "n": 32,
-        "medianMonthly": 3000,
-        "sourceUrls": [
-          "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany?limit=72&page=1"
-        ],
-        "scrapedAt": "2026-10-17"
-      },
-      "citySource": "Adresowo, Średnie ceny mieszkań Warszawa, wrzesień 2026, 1 870 ogłoszeń z rynku wtórnego (średnia 17 975, mediana 17 683 zł/m²): https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/ (odczyt 2026-10-17) | Znajdź Najem, Indeks Najmu Warszawa, październik 2026, próba 46 410 ofert: średnia 84 zł/m², mediana czynszu 3 200 zł/mies.: https://znajdznajem.pl/warszawa/raport (odczyt 2026-10-17)",
-      "rcnNote": "RCN (GUGiK WFS ms:lokale), lokale mieszkalne w poligonie MSI, 2025-01-01–2026-02-16: mediana 16 978 zł/m², n=127 (125 wtórny / 2 pierwotny); 2024: mediana 16 712 zł/m², n=119.",
-      "areaNote": "Lokalizacja otodom „Stare Bielany (Bielany)” (bielany/stare-bielany); granice lokalizacji otodom nie są publikowane i mogą się różnić od obszaru MSI. Ulice w próbie sprawdzone ręcznie (plik raw: pole street)."
+        "msi": {
+          "n": 281,
+          "med": 16683,
+          "p25": 15217,
+          "p75": 17997
+        },
+        "city": {
+          "med": 15655,
+          "p25": 13280,
+          "p75": 18587,
+          "n": 64241
+        }
+      }
     },
     "trafficRoad": "Autobusy i tramwaje w okolicy: planowe spowolnienie wg rozkładu ZTM",
     "traffic": [0, 0, 0, 0, 0, 0, 7, 11, 10, 7, 7, 7, 7, 7, 8, 11, 11, 12, 12, 7, 6, 0, 0, 0],
@@ -2336,16 +2314,12 @@ export const OSIEDLA: Osiedle[] = [
       {
         "name": "Otodom",
         "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany",
-        "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany",
-        "rentCount": 32,
-        "buyCount": 50
+        "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany"
       },
       {
         "name": "Morizon",
         "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/stare-bielany/",
-        "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/stare-bielany/",
-        "rentCount": 7,
-        "buyCount": 8
+        "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/stare-bielany/"
       }
     ]
   }
