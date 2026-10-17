@@ -10,7 +10,7 @@
  *  - commute: GTFS ZTM (data/grid/czasy_przejazdu.geojson) + OSRM; no car times (no real source)
  *  - traffic: planned slowdown of buses/trams from the ZTM timetable (trafficSource), not live traffic
  *  - timeline: cited sources; statDeltas derived from each event's effect on the metrics
- *  - prices: offer listings scraped on the given date (sample size in `prices`), `estimate` flags guesses
+ *  - prices: RCN transaction medians (MSI area and whole city, same filters and period); no rent figures
  *  - photos: Wikimedia Commons, attribution in public/osiedla/credits.json
  */
 import type { LineString } from 'geojson'
@@ -51,35 +51,33 @@ export interface Highlight {
   source?: string
 }
 
-export interface PriceSample {
-  meanPerM2: number
-  medianPerM2: number
+export interface RcnPrice {
+  med: number
   n: number
-  medianMonthly?: number
-  sourceUrls: string[]
-  scrapedAt: string
+  p25?: number | null
+  p75?: number | null
 }
 
 export interface Prices {
-  /** PLN per m², asking price (offers), see `buy` for the sample. */
+  /** PLN per m², median RCN transaction price in the MSI area. */
   buyPerM2: number
-  /** PLN per m² per month (offers). */
-  rentPerM2: number
-  /** Median monthly rent of 2-room flats in the sample, PLN (0 = unknown). */
-  rent2PokAvg: number
+  /** No open official source for rents: always null. */
+  rentPerM2: number | null
+  rent2PokAvg: number | null
+  /** PLN per m², median RCN transaction price of the whole city (same filters and period). */
   cityBuyPerM2: number
-  cityRentPerM2: number
-  /** YYYY-MM */
+  cityRentPerM2: number | null
+  /** YYYY-MM of the latest notarial act in the period. */
   asOf: string
+  /** Caption of the osiedle price, e.g. "Mediana cen transakcyjnych RCN (01.2024–08.2026)". */
+  basisLabel: string
+  /** Caption of the city comparison. */
+  cityLabel: string
   sourceNote: string
-  /** true = at least one of the numbers is an estimate ("szacunek"). */
-  estimate: boolean
-  buy?: PriceSample
-  rent?: PriceSample
-  citySource?: string
-  rcnNote?: string
-  /** How the portal location maps to the MSI area. */
-  areaNote?: string
+  /** Why rent figures are missing. */
+  rentNote?: string
+  estimate: false
+  rcn: { period: [string, string]; msi: RcnPrice; city: RcnPrice }
 }
 
 export interface Commute {
@@ -136,8 +134,6 @@ export interface Portal {
   name: 'Otodom' | 'Morizon'
   rentUrl: string
   buyUrl: string
-  rentCount?: number
-  buyCount?: number
 }
 
 export interface Metric {
@@ -217,8 +213,8 @@ export const OSIEDLA: Osiedle[] = [
     "cameraZoom": 15.6,
     "match": {
       "student": 92,
-      "rodzina": 77,
-      "senior": 75
+      "rodzina": 78,
+      "senior": 77
     },
     "rank": {
       "student": 1,
@@ -258,7 +254,7 @@ export const OSIEDLA: Osiedle[] = [
       }
     ],
     "stats": {
-      "cisza": 11,
+      "cisza": 19,
       "zielen": 54,
       "komunikacja": 96,
       "gastronomia": 96,
@@ -401,12 +397,19 @@ export const OSIEDLA: Osiedle[] = [
         "label": "Hałas drogowy lub kolejowy (z tramwajem) Lden ≥ 60 dB",
         "value": 47.7,
         "unit": "%",
-        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden, drogi + kolej z tramwajem"
+        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem"
+      },
+      {
+        "key": "noise_lnight50_share",
+        "label": "Hałas nocny drogowy lub kolejowy (z tramwajem) Lnight ≥ 50 dB",
+        "value": 51.0,
+        "unit": "%",
+        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem"
       },
       {
         "key": "travel_centrum_wszystkie_min",
         "label": "Dojazd do centrum (Rondo Dmowskiego), wszystkie",
-        "value": 15.9,
+        "value": 15.7,
         "unit": "min",
         "source": "GTFS Warszawa, routing Mikołaja (przyjazd 07:30–09:00, dzień roboczy)"
       }
@@ -505,36 +508,35 @@ export const OSIEDLA: Osiedle[] = [
       }
     ],
     "prices": {
-      "buyPerM2": 21200,
-      "rentPerM2": 85,
-      "rent2PokAvg": 3700,
-      "cityBuyPerM2": 17975,
-      "cityRentPerM2": 84,
-      "asOf": "2026-10",
-      "sourceNote": "Średnia z 140 ofert sprzedaży i 152 ofert najmu na Otodom (rynek wtórny, ceny ofertowe, odczyt 17.10.2026). Transakcje (RCN, od I 2025): mediana 18 844 zł/m², 273 lokale. Warszawa: Adresowo IX 2026 (sprzedaż), Znajdź Najem X 2026 (najem).",
+      "buyPerM2": 18719,
+      "rentPerM2": null,
+      "rent2PokAvg": null,
+      "cityBuyPerM2": 15655,
+      "cityRentPerM2": null,
+      "asOf": "2026-08",
+      "basisLabel": "Mediana cen transakcyjnych RCN (01.2024–08.2026)",
+      "cityLabel": "Warszawa: mediana transakcyjna RCN",
+      "sourceNote": "Rejestr Cen Nieruchomości m.st. Warszawy (paczki GML), akty notarialne 2024-01-01 – 2026-08-04, filtry: lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2. Obszar MSI: mediana 18 719 zł/m², n = 521, kwartyle 16 724–21 993. Warszawa: mediana 15 655 zł/m², n = 64 241.",
+      "rentNote": "Brak otwartych danych urzędowych o czynszach najmu, dlatego najmu nie pokazujemy.",
       "estimate": false,
-      "buy": {
-        "meanPerM2": 21200,
-        "medianPerM2": 20100,
-        "n": 140,
-        "sourceUrls": [
-          "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow?limit=72&page=1"
+      "rcn": {
+        "period": [
+          "2024-01-01",
+          "2026-08-04"
         ],
-        "scrapedAt": "2026-10-17"
-      },
-      "rent": {
-        "meanPerM2": 85,
-        "medianPerM2": 83,
-        "n": 152,
-        "medianMonthly": 4225,
-        "sourceUrls": [
-          "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow?limit=72&page=1"
-        ],
-        "scrapedAt": "2026-10-17"
-      },
-      "citySource": "Adresowo, Średnie ceny mieszkań Warszawa, wrzesień 2026, 1 870 ogłoszeń z rynku wtórnego (średnia 17 975, mediana 17 683 zł/m²): https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/ (odczyt 2026-10-17) | Znajdź Najem, Indeks Najmu Warszawa, październik 2026, próba 46 410 ofert: średnia 84 zł/m², mediana czynszu 3 200 zł/mies.: https://znajdznajem.pl/warszawa/raport (odczyt 2026-10-17)",
-      "rcnNote": "RCN (GUGiK WFS ms:lokale), lokale mieszkalne w poligonie MSI, 2025-01-01–2026-04-24: mediana 18 844 zł/m², n=273 (240 wtórny / 33 pierwotny); 2024: mediana 18 458 zł/m², n=188.",
-      "areaNote": "Lokalizacja otodom „Muranów (Śródmieście)” (srodmiescie/muranow); granice lokalizacji otodom nie są publikowane i mogą się różnić od obszaru MSI. Ulice w próbie sprawdzone ręcznie (plik raw: pole street)."
+        "msi": {
+          "n": 521,
+          "med": 18719,
+          "p25": 16724,
+          "p75": 21993
+        },
+        "city": {
+          "med": 15655,
+          "p25": 13280,
+          "p75": 18587,
+          "n": 64241
+        }
+      }
     },
     "trafficRoad": "Autobusy i tramwaje w okolicy: planowe spowolnienie wg rozkładu ZTM",
     "traffic": [0, 0, 0, 0, 0, 0, 5, 9, 10, 7, 7, 7, 7, 7, 8, 11, 12, 12, 11, 6, 3, 0, 0, 0],
@@ -550,13 +552,13 @@ export const OSIEDLA: Osiedle[] = [
           "pieszo": 37
         },
         "transitByMode": {
-          "metro": 17.1,
-          "tramwaj": 17.4,
+          "metro": 17.0,
+          "tramwaj": 17.2,
           "autobus": 27.3,
-          "kolej": 61.5
+          "kolej": 61.4
         },
-        "cells": 51,
-        "source": "Komunikacja: mediana z 51 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 33,
+        "source": "Komunikacja: mediana z 33 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       },
       {
         "id": "rondo_daszynskiego",
@@ -567,13 +569,13 @@ export const OSIEDLA: Osiedle[] = [
           "pieszo": 39
         },
         "transitByMode": {
-          "metro": 21.4,
-          "tramwaj": 20.0,
-          "autobus": 28.8,
-          "kolej": 69.6
+          "metro": 21.2,
+          "tramwaj": 19.9,
+          "autobus": 28.4,
+          "kolej": 68.8
         },
-        "cells": 51,
-        "source": "Komunikacja: mediana z 51 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 33,
+        "source": "Komunikacja: mediana z 33 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       },
       {
         "id": "sluzewiec",
@@ -583,11 +585,11 @@ export const OSIEDLA: Osiedle[] = [
           "rower": 37
         },
         "transitByMode": {
-          "tramwaj": 44.1,
-          "autobus": 53.4
+          "tramwaj": 44.2,
+          "autobus": 53.2
         },
-        "cells": 51,
-        "source": "Komunikacja: mediana z 51 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 33,
+        "source": "Komunikacja: mediana z 33 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       }
     ],
     "routes": [
@@ -948,16 +950,12 @@ export const OSIEDLA: Osiedle[] = [
       {
         "name": "Otodom",
         "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow",
-        "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow",
-        "rentCount": 159,
-        "buyCount": 284
+        "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/srodmiescie/muranow"
       },
       {
         "name": "Morizon",
         "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/muranow/",
-        "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/muranow/",
-        "rentCount": 44,
-        "buyCount": 63
+        "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/muranow/"
       }
     ]
   },
@@ -968,16 +966,16 @@ export const OSIEDLA: Osiedle[] = [
     "district": "Ursynów",
     "profile": "rodzina",
     "tagline": "Metro 150 m · 26 przedszkoli i 101 placów zabaw w 1 km",
-    "summary": "3. miejsce na 143 osiedla dla profilu „rodzina z dziećmi” (78% dopasowania): 26 przedszkoli i 7 szkół podstawowych w 1 km; parki i lasy na 8% terenu w promieniu 1 km, najbliższy 120 m.",
+    "summary": "3. miejsce na 143 osiedla dla profilu „rodzina z dziećmi” (79% dopasowania): 26 przedszkoli i 7 szkół podstawowych w 1 km; parki i lasy na 8% terenu w promieniu 1 km, najbliższy 120 m.",
     "summaryKind": "z-danych",
-    "aiSummary": "3. miejsce na 143 osiedla dla profilu „rodzina z dziećmi” (78% dopasowania): 26 przedszkoli i 7 szkół podstawowych w 1 km; parki i lasy na 8% terenu w promieniu 1 km, najbliższy 120 m.",
+    "aiSummary": "3. miejsce na 143 osiedla dla profilu „rodzina z dziećmi” (79% dopasowania): 26 przedszkoli i 7 szkół podstawowych w 1 km; parki i lasy na 8% terenu w promieniu 1 km, najbliższy 120 m.",
     "center": [21.0568, 52.13982],
     "cameraBearing": 160,
     "cameraZoom": 15.6,
     "match": {
       "student": 73,
-      "rodzina": 78,
-      "senior": 76
+      "rodzina": 79,
+      "senior": 77
     },
     "rank": {
       "student": 32,
@@ -1017,7 +1015,7 @@ export const OSIEDLA: Osiedle[] = [
       }
     ],
     "stats": {
-      "cisza": 56,
+      "cisza": 63,
       "zielen": 80,
       "komunikacja": 58,
       "gastronomia": 83,
@@ -1160,12 +1158,19 @@ export const OSIEDLA: Osiedle[] = [
         "label": "Hałas drogowy lub kolejowy (z tramwajem) Lden ≥ 60 dB",
         "value": 27.1,
         "unit": "%",
-        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden, drogi + kolej z tramwajem"
+        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem"
+      },
+      {
+        "key": "noise_lnight50_share",
+        "label": "Hałas nocny drogowy lub kolejowy (z tramwajem) Lnight ≥ 50 dB",
+        "value": 30.0,
+        "unit": "%",
+        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem"
       },
       {
         "key": "travel_centrum_wszystkie_min",
         "label": "Dojazd do centrum (Rondo Dmowskiego), wszystkie",
-        "value": 32.8,
+        "value": 32.4,
         "unit": "min",
         "source": "GTFS Warszawa, routing Mikołaja (przyjazd 07:30–09:00, dzień roboczy)"
       }
@@ -1265,36 +1270,35 @@ export const OSIEDLA: Osiedle[] = [
       }
     ],
     "prices": {
-      "buyPerM2": 17382,
-      "rentPerM2": 66,
-      "rent2PokAvg": 3000,
-      "cityBuyPerM2": 17975,
-      "cityRentPerM2": 84,
-      "asOf": "2026-10",
-      "sourceNote": "Średnia z 91 ofert sprzedaży i 67 ofert najmu na Otodom (rynek wtórny, ceny ofertowe, odczyt 17.10.2026). Transakcje (RCN, od I 2025): mediana 15 632 zł/m², 171 lokali. Warszawa: Adresowo IX 2026 (sprzedaż), Znajdź Najem X 2026 (najem).",
+      "buyPerM2": 16088,
+      "rentPerM2": null,
+      "rent2PokAvg": null,
+      "cityBuyPerM2": 15655,
+      "cityRentPerM2": null,
+      "asOf": "2026-08",
+      "basisLabel": "Mediana cen transakcyjnych RCN (01.2024–08.2026)",
+      "cityLabel": "Warszawa: mediana transakcyjna RCN",
+      "sourceNote": "Rejestr Cen Nieruchomości m.st. Warszawy (paczki GML), akty notarialne 2024-01-01 – 2026-08-04, filtry: lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2. Obszar MSI: mediana 16 088 zł/m², n = 394, kwartyle 14 196–18 048. Warszawa: mediana 15 655 zł/m², n = 64 241.",
+      "rentNote": "Brak otwartych danych urzędowych o czynszach najmu, dlatego najmu nie pokazujemy.",
       "estimate": false,
-      "buy": {
-        "meanPerM2": 17382,
-        "medianPerM2": 17000,
-        "n": 91,
-        "sourceUrls": [
-          "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin?limit=72&page=1"
+      "rcn": {
+        "period": [
+          "2024-01-01",
+          "2026-08-04"
         ],
-        "scrapedAt": "2026-10-17"
-      },
-      "rent": {
-        "meanPerM2": 66,
-        "medianPerM2": 62,
-        "n": 67,
-        "medianMonthly": 3200,
-        "sourceUrls": [
-          "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin?limit=72&page=1"
-        ],
-        "scrapedAt": "2026-10-17"
-      },
-      "citySource": "Adresowo, Średnie ceny mieszkań Warszawa, wrzesień 2026, 1 870 ogłoszeń z rynku wtórnego (średnia 17 975, mediana 17 683 zł/m²): https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/ (odczyt 2026-10-17) | Znajdź Najem, Indeks Najmu Warszawa, październik 2026, próba 46 410 ofert: średnia 84 zł/m², mediana czynszu 3 200 zł/mies.: https://znajdznajem.pl/warszawa/raport (odczyt 2026-10-17)",
-      "rcnNote": "RCN (GUGiK WFS ms:lokale), lokale mieszkalne w poligonie MSI, 2025-01-01–2026-01-29: mediana 15 632 zł/m², n=171 (170 wtórny / 1 pierwotny); 2024: mediana 16 480 zł/m², n=170.",
-      "areaNote": "Lokalizacja otodom „Natolin (Ursynów)” (ursynow/natolin); granice lokalizacji otodom nie są publikowane i mogą się różnić od obszaru MSI. Ulice w próbie sprawdzone ręcznie (plik raw: pole street)."
+        "msi": {
+          "n": 394,
+          "med": 16088,
+          "p25": 14196,
+          "p75": 18048
+        },
+        "city": {
+          "med": 15655,
+          "p25": 13280,
+          "p75": 18587,
+          "n": 64241
+        }
+      }
     },
     "trafficRoad": "Autobusy i tramwaje w okolicy: planowe spowolnienie wg rozkładu ZTM",
     "traffic": [0, 0, 0, 0, 0, 0, 7, 17, 17, 14, 14, 14, 14, 14, 14, 17, 17, 17, 16, 14, 14, 0, 0, 0],
@@ -1305,15 +1309,15 @@ export const OSIEDLA: Osiedle[] = [
         "id": "centrum",
         "label": "Centrum (Rondo Dmowskiego)",
         "minutes": {
-          "komunikacja": 33,
+          "komunikacja": 32,
           "rower": 44
         },
         "transitByMode": {
-          "metro": 31.2,
-          "autobus": 54.6
+          "metro": 31.7,
+          "autobus": 54.5
         },
-        "cells": 83,
-        "source": "Komunikacja: mediana z 83 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 52,
+        "source": "Komunikacja: mediana z 52 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       },
       {
         "id": "rondo_daszynskiego",
@@ -1323,24 +1327,24 @@ export const OSIEDLA: Osiedle[] = [
           "rower": 43
         },
         "transitByMode": {
-          "metro": 38.0,
-          "autobus": 66.0
+          "metro": 38.4,
+          "autobus": 65.8
         },
-        "cells": 83,
-        "source": "Komunikacja: mediana z 83 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 52,
+        "source": "Komunikacja: mediana z 52 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       },
       {
         "id": "sluzewiec",
         "label": "Służewiec (biurowce, Domaniewska)",
         "minutes": {
-          "komunikacja": 34,
+          "komunikacja": 33,
           "rower": 22
         },
         "transitByMode": {
-          "autobus": 38.6
+          "autobus": 38.2
         },
-        "cells": 83,
-        "source": "Komunikacja: mediana z 83 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 52,
+        "source": "Komunikacja: mediana z 52 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       }
     ],
     "routes": [
@@ -1589,15 +1593,8 @@ export const OSIEDLA: Osiedle[] = [
         "category": "zielen",
         "status": "w budowie",
         "coord": [21.05738, 52.14819],
-        "statDeltas": {
-          "zielen": 7
-        },
-        "matchDelta": 1,
-        "matchDeltas": {
-          "rodzina": 1,
-          "senior": 1
-        },
-        "derivation": "green_share_1km: 7.5 → 10.3%; green_share: 10.0 → 11.9%. Punkt = środek odcinka Lanciego–Rosoła (ok. 0,9 km od punktu odniesienia); park jest pasem ok. 2 km, więc przybliżenie kołem 12,5 ha jest zgrubne. W lokalnym cache OSM (data/raw/osm) parku jeszcze nie ma, więc efekt nie dubluje istniejącej zieleni.",
+        "statDeltas": {},
+        "derivation": "Wpływu na wskaźniki nie liczymy: brak oficjalnego poligonu parku (pas ok. 2 km wzdłuż Płaskowickiej), a przybliżenie kołem 12,5 ha byłoby geometrią zmyśloną.",
         "sourceUrl": "https://zzw.waw.pl/nasze-dzialania/inwestycje/inwestycje-trwajace/park-linearny-nad-pow/",
         "sourceTitle": "Park linearny nad POW (Zarząd Zieleni m.st. Warszawy)",
         "checkedAt": "2026-10-17"
@@ -1671,16 +1668,12 @@ export const OSIEDLA: Osiedle[] = [
       {
         "name": "Otodom",
         "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin",
-        "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin",
-        "rentCount": 70,
-        "buyCount": 108
+        "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow/natolin"
       },
       {
         "name": "Morizon",
         "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/natolin/",
-        "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/natolin/",
-        "rentCount": 15,
-        "buyCount": 35
+        "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/natolin/"
       }
     ]
   },
@@ -1691,16 +1684,16 @@ export const OSIEDLA: Osiedle[] = [
     "district": "Bielany",
     "profile": "senior",
     "tagline": "Metro 240 m · 14 przychodni i 8 aptek w 1 km",
-    "summary": "1. miejsce na 143 osiedla dla profilu „senior” (79% dopasowania): 14 przychodni i 8 aptek w 1 km; 10 supermarketów w 1 km. Słabiej: hałas ≥ 60 dB na 34% powierzchni.",
+    "summary": "1. miejsce na 143 osiedla dla profilu „senior” (81% dopasowania): 14 przychodni i 8 aptek w 1 km; 10 supermarketów w 1 km.",
     "summaryKind": "z-danych",
-    "aiSummary": "1. miejsce na 143 osiedla dla profilu „senior” (79% dopasowania): 14 przychodni i 8 aptek w 1 km; 10 supermarketów w 1 km. Słabiej: hałas ≥ 60 dB na 34% powierzchni.",
+    "aiSummary": "1. miejsce na 143 osiedla dla profilu „senior” (81% dopasowania): 14 przychodni i 8 aptek w 1 km; 10 supermarketów w 1 km.",
     "center": [20.94954, 52.27966],
     "cameraBearing": 330,
     "cameraZoom": 15.6,
     "match": {
       "student": 85,
-      "rodzina": 82,
-      "senior": 79
+      "rodzina": 83,
+      "senior": 81
     },
     "rank": {
       "student": 7,
@@ -1740,7 +1733,7 @@ export const OSIEDLA: Osiedle[] = [
       }
     ],
     "stats": {
-      "cisza": 42,
+      "cisza": 50,
       "zielen": 77,
       "komunikacja": 81,
       "gastronomia": 71,
@@ -1883,12 +1876,19 @@ export const OSIEDLA: Osiedle[] = [
         "label": "Hałas drogowy lub kolejowy (z tramwajem) Lden ≥ 60 dB",
         "value": 34.3,
         "unit": "%",
-        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden, drogi + kolej z tramwajem"
+        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem"
+      },
+      {
+        "key": "noise_lnight50_share",
+        "label": "Hałas nocny drogowy lub kolejowy (z tramwajem) Lnight ≥ 50 dB",
+        "value": 37.0,
+        "unit": "%",
+        "source": "GIOŚ HAŁAS API — strategiczne mapy hałasu 2022 (dane 2021), Lden i Lnight, drogi + kolej z tramwajem"
       },
       {
         "key": "travel_centrum_wszystkie_min",
         "label": "Dojazd do centrum (Rondo Dmowskiego), wszystkie",
-        "value": 24.9,
+        "value": 25.0,
         "unit": "min",
         "source": "GTFS Warszawa, routing Mikołaja (przyjazd 07:30–09:00, dzień roboczy)"
       }
@@ -1988,36 +1988,35 @@ export const OSIEDLA: Osiedle[] = [
       }
     ],
     "prices": {
-      "buyPerM2": 17134,
-      "rentPerM2": 74,
-      "rent2PokAvg": 3000,
-      "cityBuyPerM2": 17975,
-      "cityRentPerM2": 84,
-      "asOf": "2026-10",
-      "sourceNote": "Średnia z 50 ofert sprzedaży i 32 ofert najmu na Otodom (rynek wtórny, ceny ofertowe, odczyt 17.10.2026). Transakcje (RCN, od I 2025): mediana 16 978 zł/m², 127 lokali. Warszawa: Adresowo IX 2026 (sprzedaż), Znajdź Najem X 2026 (najem).",
+      "buyPerM2": 16683,
+      "rentPerM2": null,
+      "rent2PokAvg": null,
+      "cityBuyPerM2": 15655,
+      "cityRentPerM2": null,
+      "asOf": "2026-08",
+      "basisLabel": "Mediana cen transakcyjnych RCN (01.2024–08.2026)",
+      "cityLabel": "Warszawa: mediana transakcyjna RCN",
+      "sourceNote": "Rejestr Cen Nieruchomości m.st. Warszawy (paczki GML), akty notarialne 2024-01-01 – 2026-08-04, filtry: lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2. Obszar MSI: mediana 16 683 zł/m², n = 281, kwartyle 15 217–17 997. Warszawa: mediana 15 655 zł/m², n = 64 241.",
+      "rentNote": "Brak otwartych danych urzędowych o czynszach najmu, dlatego najmu nie pokazujemy.",
       "estimate": false,
-      "buy": {
-        "meanPerM2": 17134,
-        "medianPerM2": 16484,
-        "n": 50,
-        "sourceUrls": [
-          "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany?limit=72&page=1"
+      "rcn": {
+        "period": [
+          "2024-01-01",
+          "2026-08-04"
         ],
-        "scrapedAt": "2026-10-17"
-      },
-      "rent": {
-        "meanPerM2": 74,
-        "medianPerM2": 75,
-        "n": 32,
-        "medianMonthly": 3000,
-        "sourceUrls": [
-          "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany?limit=72&page=1"
-        ],
-        "scrapedAt": "2026-10-17"
-      },
-      "citySource": "Adresowo, Średnie ceny mieszkań Warszawa, wrzesień 2026, 1 870 ogłoszeń z rynku wtórnego (średnia 17 975, mediana 17 683 zł/m²): https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/ (odczyt 2026-10-17) | Znajdź Najem, Indeks Najmu Warszawa, październik 2026, próba 46 410 ofert: średnia 84 zł/m², mediana czynszu 3 200 zł/mies.: https://znajdznajem.pl/warszawa/raport (odczyt 2026-10-17)",
-      "rcnNote": "RCN (GUGiK WFS ms:lokale), lokale mieszkalne w poligonie MSI, 2025-01-01–2026-02-16: mediana 16 978 zł/m², n=127 (125 wtórny / 2 pierwotny); 2024: mediana 16 712 zł/m², n=119.",
-      "areaNote": "Lokalizacja otodom „Stare Bielany (Bielany)” (bielany/stare-bielany); granice lokalizacji otodom nie są publikowane i mogą się różnić od obszaru MSI. Ulice w próbie sprawdzone ręcznie (plik raw: pole street)."
+        "msi": {
+          "n": 281,
+          "med": 16683,
+          "p25": 15217,
+          "p75": 17997
+        },
+        "city": {
+          "med": 15655,
+          "p25": 13280,
+          "p75": 18587,
+          "n": 64241
+        }
+      }
     },
     "trafficRoad": "Autobusy i tramwaje w okolicy: planowe spowolnienie wg rozkładu ZTM",
     "traffic": [0, 0, 0, 0, 0, 0, 7, 11, 10, 7, 7, 7, 7, 7, 8, 11, 11, 12, 12, 7, 6, 0, 0, 0],
@@ -2033,11 +2032,11 @@ export const OSIEDLA: Osiedle[] = [
         },
         "transitByMode": {
           "metro": 24.6,
-          "tramwaj": 37.8,
-          "autobus": 50.5
+          "tramwaj": 37.2,
+          "autobus": 51.0
         },
-        "cells": 43,
-        "source": "Komunikacja: mediana z 43 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 28,
+        "source": "Komunikacja: mediana z 28 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       },
       {
         "id": "rondo_daszynskiego",
@@ -2047,12 +2046,12 @@ export const OSIEDLA: Osiedle[] = [
           "rower": 29
         },
         "transitByMode": {
-          "metro": 28.9,
+          "metro": 28.8,
           "tramwaj": 33.8,
           "autobus": 41.6
         },
-        "cells": 43,
-        "source": "Komunikacja: mediana z 43 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 28,
+        "source": "Komunikacja: mediana z 28 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       },
       {
         "id": "sluzewiec",
@@ -2062,11 +2061,11 @@ export const OSIEDLA: Osiedle[] = [
           "rower": 52
         },
         "transitByMode": {
-          "tramwaj": 58.2,
+          "tramwaj": 57.6,
           "autobus": 66.9
         },
-        "cells": 43,
-        "source": "Komunikacja: mediana z 43 komórek 200 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
+        "cells": 28,
+        "source": "Komunikacja: mediana z 28 komórek 250 m w osiedlu, średni czas przy przyjeździe 07:30–09:00 (rozkład ZTM GTFS, dzień 20261019, bez czekania na pierwszy pojazd). Rower i pieszo: OSRM, bez postojów."
       }
     ],
     "routes": [
@@ -2336,16 +2335,12 @@ export const OSIEDLA: Osiedle[] = [
       {
         "name": "Otodom",
         "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany",
-        "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany",
-        "rentCount": 32,
-        "buyCount": 50
+        "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany"
       },
       {
         "name": "Morizon",
         "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/stare-bielany/",
-        "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/stare-bielany/",
-        "rentCount": 7,
-        "buyCount": 8
+        "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/stare-bielany/"
       }
     ]
   }

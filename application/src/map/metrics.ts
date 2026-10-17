@@ -64,7 +64,10 @@ const n = (v: number) => Math.round(v).toLocaleString('pl-PL')
 
 /** Most telling 1–2 facts per category, from osiedla-metrics.json keys. */
 const FACTS: Record<CategoryKey, FactDef[]> = {
-  cisza: [{ metric: 'noise_lden60_share', format: (v) => `${n(v)}% pod hałasem > 60 dB` }],
+  cisza: [
+    { metric: 'noise_lden60_share', format: (v) => `${n(v)}% pod hałasem ≥ 60 dB (doba)` },
+    { metric: 'noise_lnight50_share', format: (v) => `${n(v)}% pod hałasem nocnym ≥ 50 dB` },
+  ],
   zielen: [
     { metric: 'green_share', format: (v) => `${n(v)}% powierzchni to zieleń` },
     { metric: 'green_dist_m', format: (v) => `park lub las ${n(v)} m` },

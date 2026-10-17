@@ -25,7 +25,7 @@ def works(*parts, **over):
 
 
 def test_line_lists_every_crossed_cell():
-    start, end = (20.888625, 52.198428), (20.894279, 52.200242)  # ~430 m, ≥ 3 cells of 200 m
+    start, end = (20.888625, 52.198428), (20.894279, 52.200242)  # ~430 m, crosses several grid cells
     f = etl_utrudnienia.normalize(works([start, end]), DISTRICTS)
     p = f["properties"]
     assert f["geometry"] == {"type": "LineString", "coordinates": [list(start), list(end)]}

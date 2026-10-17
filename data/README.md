@@ -2,17 +2,13 @@
 
 **Owner:** data team (see [`docs/team/workstreams.md`](../docs/team/workstreams.md))
 
-Datasets for **Siatka**: 200 m grid (squares in EPSG:2180), per-cell metrics, POI GeoJSON.
+Datasets for **Siatka**: 250 m grid (squares in EPSG:2180), per-cell metrics, POI GeoJSON.
 
 ## Schemas
 
 - [`docs/data/grid-schema.md`](../docs/data/grid-schema.md)
 - [`docs/data/poi-schema.md`](../docs/data/poi-schema.md)
 - Agent rule: [`.cursor/rules/data-developer.mdc`](../.cursor/rules/data-developer.mdc)
-
-## Manifest
-
-[`manifest.json`](manifest.json) — paths loaded by the React app.
 
 ## Scripts
 
@@ -25,8 +21,8 @@ uv run data/scripts/fetch_district_boundaries.py
 # Neighbourhood (MSI area) boundaries for the map
 uv run data/scripts/fetch_osiedla_boundaries.py
 
-# Full Warsaw grid (not committed: 7.6 MB, 22 860 cells); add --warsaw-only to drop
-# cells outside the city (4.5 MB, 13 318 cells)
+# Full Warsaw grid (not committed: 4.9 MB, 14 625 cells); add --warsaw-only to drop
+# cells outside the city (2.9 MB, 8 572 cells)
 uv run data/scripts/generate_grid.py -o data/grid/warsaw_grid.geojson
 
 # Sample bbox (committed)
@@ -37,17 +33,7 @@ python3 data/scripts/validate_data.py
 
 ## Inventory
 
-| Path | Source | License | Notes |
-|------|--------|---------|-------|
-| `boundaries/warszawa_dzielnice.geojson` | [WFS m.st. Warszawy `GRANICE_DZIELNIC`](https://wfs.um.warszawa.pl/serwis) | Ponowne wykorzystanie bezpłatne, źródło: Urząd m.st. Warszawy | 18 dzielnic, WGS84, uproszczone ~5 m; pobrane 2026-10-17 |
-| `boundaries/warszawa_osiedla.geojson` | [WFS m.st. Warszawy `MSI`](https://wfs.um.warszawa.pl/serwis) | Ponowne wykorzystanie bezpłatne, źródło: Urząd m.st. Warszawy | 143 obszary MSI (osiedla), WGS84, `coverage_simplify` 4 m; kopia w `application/public/data/osiedla.geojson`; pobrane 2026-10-17 |
-| `samples/warsaw_grid_sample.geojson` | generated | n/a | 917 cells (200 m), Mokotów / Śródmieście patch |
-| `samples/cell_metrics_sample.json` | generated demo | n/a | Synthetic persona scores for 897 of the 917 sample cells (re-keyed from the 1 km demo; 20 cells on the southern edge have no entry) |
-| `samples/poi_sample.geojson` | synthetic | n/a | 3 POI for layer spike |
-| _TBD_ `poi/transit.geojson` | `lokalizacja-przystanow-komunikacji-miejskiej` | UM open data | |
-| _TBD_ `grid/cell_metrics.json` | ETL aggregates | n/a | Production metrics |
-
-Raw API dumps → `data/raw/` (gitignored). Large exports: LFS or external link.
+Kanoniczny spis wszystkich plików z danymi, ich źródeł, licencji i metryk: [`docs/data/katalog-danych.md`](../docs/data/katalog-danych.md), generowany z [`catalog.json`](catalog.json). Każdy commitowany plik `.json`/`.geojson` w `data/` i `application/public/data/` musi być tam zarejestrowany (sprawdza `python3 data/scripts/validate_data.py`).
 
 ## Imported from `origin/mikolaj` (city-wide real data)
 
@@ -65,7 +51,7 @@ Snapshot of branch `mikolaj` @ `ece5d00` (2026-10-17), committed here so the app
 | `poi_mikolaj/future.geojson` | `budzet-obywatelski` (`etl_budzet_obywatelski.py`) | CC BY — Urząd m.st. Warszawy | 4769 punktów z 3239 projektów BO 2019–2027 (1050 w realizacji, 3719 zrealizowanych), `meta.koszt_zl`; bez autorów (RODO) |
 | `lines/utrudnienia.geojson` | `utrudnienia-w-ruchu-drogowym` | CC BY — Urząd m.st. Warszawy | 61 utrudnień (linie/punkty) z `cell_ids` |
 | `lines/trasy_turystyczne.geojson` | `trasy-turystyczne` | CC BY — Urząd m.st. Warszawy | 9 tras |
-| `grid/czasy_przejazdu.geojson` | GTFS (`etl_czasy_przejazdu.py`, `transit_router.py`) | jak GTFS | 13 318 komórek 200 m: `t.{centrum,rondo_daszynskiego,sluzewiec}.{wszystkie,autobus,tramwaj,metro,kolej} = [średnia, min, max, n]` min, przyjazd 07:30–09:00 w dzień roboczy. Bez KM/WKD (Wesoła, Wawer, Ursus zawyżone) |
+| `grid/czasy_przejazdu.geojson` | GTFS (`etl_czasy_przejazdu.py`, `transit_router.py`) | jak GTFS | 8 572 komórki 250 m: `t.{centrum,rondo_daszynskiego,sluzewiec}.{wszystkie,autobus,tramwaj,metro,kolej} = [średnia, min, max, n]` min, przyjazd 07:30–09:00 w dzień roboczy. Bez KM/WKD (Wesoła, Wawer, Ursus zawyżone) |
 
 **What is committed vs. ignored.** Committed: the files above (~19 MB), boundaries, samples, scripts, and the app-facing outputs in `application/public/data/`. Ignored and rebuildable: siatka outputs in `poi/` and `grid/` (OSM layers: education, clinics, pharmacies, supermarkets, gastronomy, parks/forests, playgrounds; city WFS libraries/metro entrances), API caches in `raw/` (BO dumps contain authors' names, GTFS zip ~100 MB), noise contours cache, `_local_backup/`.
 
