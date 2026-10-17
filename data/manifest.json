@@ -12,7 +12,8 @@
       "poi/environment.geojson",
       "poi/future.geojson"
     ],
-    "poiFallback": ["samples/poi_sample.geojson"]
+    "poiFallback": ["samples/poi_sample.geojson"],
+    "lines": ["lines/utrudnienia.geojson", "lines/trasy_turystyczne.geojson"]
   },
   "bbox": [20.98, 52.18, 21.06, 52.24]
 }

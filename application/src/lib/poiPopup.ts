@@ -16,12 +16,15 @@ function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 }
 
+const MAX_TEXT = 220
+
 function show(value: unknown): string | null {
   if (value === null || value === undefined || value === '') return null
   if (value === true) return 'tak'
   if (value === false) return 'nie'
   if (Array.isArray(value)) return value.length ? value.join(', ') : null
-  return String(value)
+  const text = String(value)
+  return text.length > MAX_TEXT ? `${text.slice(0, MAX_TEXT).trimEnd()}…` : text
 }
 
 function date(value: unknown): string | null {
@@ -64,6 +67,11 @@ function detailRows(subtype: string, m: Record<string, unknown>, tags: string[])
     case 'bo_done':
       return [['Edycja', m.edycja], ['Opis', m.opis], ['Koszt (zł)', m.koszt_zl], ['Lokalizacja', m.lokalizacja],
         ['Dla kogo', m.dla_kogo], ['Tematy', tags]]
+    case 'road_works':
+      return [['Rodzaj', tags], ['Od', date(m.od)], ['Do', date(m.do) ?? 'bez daty końca'], ['Ulice', m.ulice]]
+    case 'tourist_route':
+      return [['Długość (km)', m.dlugosc_km], ['Opis', m.opis],
+        ['Punkty', Array.isArray(m.punkty) ? m.punkty.map((p: { nazwa?: string }) => p.nazwa).filter(Boolean) : null]]
     case 'air_sensor':
       return [['PM2.5 (µg/m³)', m.pm25], ['PM10 (µg/m³)', m.pm10], ['NO₂ (µg/m³)', m.no2],
         ['Indeks', m.indeks], ['Pomiar', date(m.czas_pomiaru)]]
@@ -78,7 +86,9 @@ export function poiPopupHtml(props: Record<string, unknown>): string {
   const tags = parsed<string[]>(props.tags, [])
   const style = subtypeStyle(subtype)
 
-  const rows = [...detailRows(subtype, meta, tags), ['Dzielnica', props.district] as Row]
+  const districts = parsed<string[]>(props.districts, [])
+  const area: Row = districts.length ? ['Dzielnice', districts] : ['Dzielnica', props.district]
+  const rows = [...detailRows(subtype, meta, tags), area]
     .map(([label, value]) => [label, show(value)] as const)
     .filter(([, value]) => value !== null)
     .map(([label, value]) => `<dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value as string)}</dd>`)

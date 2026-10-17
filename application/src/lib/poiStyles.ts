@@ -20,6 +20,8 @@ export const POI_SUBTYPES: Record<string, PoiSubtypeStyle> = {
   weather_station: { label: 'Stacje pogodowe', color: '#4dd0e1' },
   bo_project: { label: 'Budżet obywatelski — w realizacji', color: '#ffe066' },
   bo_done: { label: 'Budżet obywatelski — zrealizowane', color: '#c5b358' },
+  road_works: { label: 'Utrudnienia drogowe', color: '#ff5252' },
+  tourist_route: { label: 'Trasy turystyczne', color: '#ba68c8' },
 }
 
 const FALLBACK_COLOR = '#cccccc'

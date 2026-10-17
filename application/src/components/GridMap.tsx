@@ -2,9 +2,11 @@ import * as maplibregl from 'maplibre-gl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   loadHackathonData,
+  loadLineLayers,
   loadPoiLayers,
   type CellMetricsFile,
   type GridFeatureCollection,
+  type LineFeatureCollection,
   type PersonaId,
   type PoiFeatureCollection,
 } from '../lib/hackathonData'
@@ -26,6 +28,14 @@ const GRID_FILL_LAYER = 'siatka-grid-fill'
 const GRID_LINE_LAYER = 'siatka-grid-line'
 const POI_SOURCE = 'siatka-poi'
 const POI_LAYER = 'siatka-poi-circles'
+const LINE_SOURCE = 'siatka-lines'
+const LINE_LAYER = 'siatka-lines-line'
+const LINE_POINT_LAYER = 'siatka-lines-points'
+// Transparent wide copy of the lines: a 2–5 px line is too thin to click.
+const LINE_HIT_LAYER = 'siatka-lines-hit'
+const CLICKABLE_LAYERS = [POI_LAYER, LINE_POINT_LAYER, LINE_HIT_LAYER]
+const LINE_GEOMETRY: maplibregl.ExpressionSpecification = ['in', ['geometry-type'], ['literal', ['LineString', 'MultiLineString']]]
+const POINT_GEOMETRY: maplibregl.ExpressionSpecification = ['in', ['geometry-type'], ['literal', ['Point', 'MultiPoint']]]
 
 type Props = {
   initialPersona?: PersonaId
@@ -42,7 +52,9 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
   const [showPoi, setShowPoi] = useState(true)
   const [poiLayers, setPoiLayers] = useState<PoiFeatureCollection[]>([])
   const [poiIsSample, setPoiIsSample] = useState(false)
+  const [lineLayers, setLineLayers] = useState<LineFeatureCollection[]>([])
   const [hiddenSubtypes, setHiddenSubtypes] = useState<Set<string>>(() => new Set())
+  const [legendOpen, setLegendOpen] = useState(true)
   const [mapLoaded, setMapLoaded] = useState(false)
   const [mapError, setMapError] = useState<string | null>(null)
 
@@ -58,6 +70,9 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
       setPoiLayers(layers)
       setPoiIsSample(isSample)
     })
+    loadLineLayers(manifest).then((layers) => {
+      if (!cancelled) setLineLayers(layers)
+    })
     return () => {
       cancelled = true
     }
@@ -71,9 +86,17 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
     [poiLayers],
   )
 
+  const lineCollection = useMemo(
+    () => ({
+      type: 'FeatureCollection' as const,
+      features: lineLayers.flatMap((fc) => fc.features),
+    }),
+    [lineLayers],
+  )
+
   const subtypeCounts = useMemo(() => {
     const counts = new Map<string, number>()
-    for (const f of poiCollection.features) {
+    for (const f of [...poiCollection.features, ...lineCollection.features]) {
       counts.set(f.properties.subtype, (counts.get(f.properties.subtype) ?? 0) + 1)
     }
     const order = Object.keys(POI_SUBTYPES)
@@ -82,7 +105,7 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
       const ib = order.indexOf(b)
       return (ia < 0 ? order.length : ia) - (ib < 0 ? order.length : ib)
     })
-  }, [poiCollection])
+  }, [poiCollection, lineCollection])
 
   const toggleSubtype = (subtype: string) =>
     setHiddenSubtypes((prev) => {
@@ -163,6 +186,46 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
         },
       })
 
+      map.addSource(LINE_SOURCE, {
+        type: 'geojson',
+        data: lineCollection,
+      })
+
+      map.addLayer({
+        id: LINE_LAYER,
+        type: 'line',
+        source: LINE_SOURCE,
+        filter: LINE_GEOMETRY,
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': poiColorExpression,
+          'line-width': ['interpolate', ['linear'], ['zoom'], 10, 2, 15, 5],
+          'line-opacity': 0.9,
+        },
+      })
+
+      map.addLayer({
+        id: LINE_HIT_LAYER,
+        type: 'line',
+        source: LINE_SOURCE,
+        filter: LINE_GEOMETRY,
+        // Opacity 0 would drop the layer from queryRenderedFeatures; 0.01 is invisible but hit-testable.
+        paint: { 'line-color': '#000000', 'line-width': 14, 'line-opacity': 0.01 },
+      })
+
+      map.addLayer({
+        id: LINE_POINT_LAYER,
+        type: 'circle',
+        source: LINE_SOURCE,
+        filter: POINT_GEOMETRY,
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 3.5, 16, 9],
+          'circle-color': poiColorExpression,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff',
+        },
+      })
+
       map.addSource(POI_SOURCE, {
         type: 'geojson',
         data: poiCollection,
@@ -193,25 +256,33 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
       if (!gridClickBound.current) {
         gridClickBound.current = true
         map.on('click', GRID_FILL_LAYER, (e) => {
-          // A POI on top of the cell gets the click instead.
-          if (map.queryRenderedFeatures(e.point, { layers: [POI_LAYER] }).length) return
+          // A point or line on top of the cell gets the click instead.
+          if (map.queryRenderedFeatures(e.point, { layers: CLICKABLE_LAYERS }).length) return
           const id = e.features?.[0]?.properties?.id as string | undefined
           setSelectedCellId(id ?? null)
         })
-        map.on('click', POI_LAYER, (e) => {
-          const feature = e.features?.[0]
-          if (!feature || feature.geometry.type !== 'Point') return
-          new maplibregl.Popup({ maxWidth: '320px', className: 'poi-popup-container' })
-            .setLngLat(feature.geometry.coordinates as [number, number])
+        map.on('click', (e) => {
+          // One popup per click, for the topmost point or line.
+          const [feature] = map.queryRenderedFeatures(e.point, { layers: CLICKABLE_LAYERS })
+          if (!feature) return
+          const at = feature.geometry.type === 'Point'
+            ? (feature.geometry.coordinates as [number, number])
+            : e.lngLat
+          const popup = new maplibregl.Popup({ maxWidth: '320px', className: 'poi-popup-container' })
+            .setLngLat(at)
             .setHTML(poiPopupHtml(feature.properties))
             .addTo(map)
+          // MapLibre focuses the first link, which scrolls a long popup to its bottom.
+          popup.getElement().querySelector('.maplibregl-popup-content')?.scrollTo({ top: 0 })
         })
-        map.on('mouseenter', POI_LAYER, () => {
-          map.getCanvas().style.cursor = 'pointer'
-        })
-        map.on('mouseleave', POI_LAYER, () => {
-          map.getCanvas().style.cursor = ''
-        })
+        for (const layer of CLICKABLE_LAYERS) {
+          map.on('mouseenter', layer, () => {
+            map.getCanvas().style.cursor = 'pointer'
+          })
+          map.on('mouseleave', layer, () => {
+            map.getCanvas().style.cursor = ''
+          })
+        }
         map.on('mouseenter', GRID_FILL_LAYER, () => {
           map.getCanvas().style.cursor = 'pointer'
         })
@@ -248,18 +319,24 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
     if (!map || !mapLoaded) return
 
     const visibility = showPoi ? 'visible' : 'none'
-    if (map.getLayer(POI_LAYER)) {
-      map.setLayoutProperty(POI_LAYER, 'visibility', visibility)
-      map.setFilter(
-        POI_LAYER,
-        hiddenSubtypes.size
-          ? ['!', ['in', ['get', 'subtype'], ['literal', [...hiddenSubtypes]]]]
-          : null,
+    const shown: maplibregl.ExpressionSpecification = ['!', ['in', ['get', 'subtype'], ['literal', [...hiddenSubtypes]]]]
+    const layerFilters: [string, maplibregl.ExpressionSpecification | null][] = [
+      [POI_LAYER, null],
+      [LINE_LAYER, LINE_GEOMETRY],
+      [LINE_HIT_LAYER, LINE_GEOMETRY],
+      [LINE_POINT_LAYER, POINT_GEOMETRY],
+    ]
+    for (const [layer, geometryFilter] of layerFilters) {
+      if (!map.getLayer(layer)) continue
+      map.setLayoutProperty(layer, 'visibility', visibility)
+      const parts = [geometryFilter, hiddenSubtypes.size ? shown : null].filter(
+        (f): f is maplibregl.ExpressionSpecification => f !== null,
       )
+      map.setFilter(layer, parts.length === 0 ? null : parts.length === 1 ? parts[0] : ['all', ...parts])
     }
-    const poiSource = map.getSource(POI_SOURCE) as maplibregl.GeoJSONSource | undefined
-    poiSource?.setData(poiCollection)
-  }, [poiCollection, showPoi, hiddenSubtypes, mapLoaded])
+    ;(map.getSource(POI_SOURCE) as maplibregl.GeoJSONSource | undefined)?.setData(poiCollection)
+    ;(map.getSource(LINE_SOURCE) as maplibregl.GeoJSONSource | undefined)?.setData(lineCollection)
+  }, [poiCollection, lineCollection, showPoi, hiddenSubtypes, mapLoaded])
 
   return (
     <div className="grid-map">
@@ -290,8 +367,20 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
 
       {showPoi && subtypeCounts.length > 0 && (
         <aside className="grid-map__legend" aria-label="Warstwy POI">
-          <h2>Punkty{poiIsSample ? ' (próbka)' : ''}</h2>
-          <ul>
+          <h2>
+            <button
+              type="button"
+              className="grid-map__legend-toggle"
+              aria-expanded={legendOpen}
+              onClick={() => setLegendOpen((open) => !open)}
+            >
+              Warstwy{poiIsSample ? ' (próbka)' : ''}
+              <span className="grid-map__count">
+                {subtypeCounts.length - hiddenSubtypes.size}/{subtypeCounts.length} {legendOpen ? '▾' : '▸'}
+              </span>
+            </button>
+          </h2>
+          <ul hidden={!legendOpen}>
             {subtypeCounts.map(([subtype, count]) => {
               const style = subtypeStyle(subtype)
               return (
