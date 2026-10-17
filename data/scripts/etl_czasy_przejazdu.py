@@ -31,7 +31,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from generate_grid import WARSAW_BBOX, generate_grid
+from generate_grid import CELL_SIZE_M, GRID_VERSION, WARSAW_BBOX, generate_grid
 from gtfs_feed import ATTRIBUTION
 from poi_common import write_collection
 from transit_network import network_for
@@ -130,6 +130,8 @@ def main() -> int:
 
     out = {
         "schemaVersion": 1,
+        "gridVersion": GRID_VERSION,
+        "cellSizeM": CELL_SIZE_M,
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "dzien": args.day,
         "przyjazd": {"od": ARRIVE_FROM, "do": ARRIVE_TO, "co_min": STEP_MIN, "terminow": len(deadlines())},

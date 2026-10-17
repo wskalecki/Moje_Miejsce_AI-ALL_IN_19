@@ -261,3 +261,16 @@ def test_every_metric_appears_in_the_doc_even_with_an_unlisted_prefix():
     doc = data_catalog.render_catalog(catalog(metrics=[CATALOG["metrics"][0], other]))
 
     assert "dzielnica.liczba_mieszkancow" in doc
+
+
+def test_file_built_on_another_grid_version_is_reported():
+    output = {"path": HEAT, "kind": "heat", "script": "x.py", "datasets": ["um_aed"]}
+    policy = {**CATALOG["policy"], "gridVersion": 3}
+    heat = {"profiles": [], "points": [], "grid": {"version": 2, "cellSizeM": 200}}
+    travel = {"metadata": {"gridVersion": 3}, "features": []}
+    travel_output = {"path": TRAVEL, "kind": "travel-grid", "script": "x.py", "datasets": ["um_aed"]}
+
+    errors = data_catalog.validate_catalog(catalog(policy=policy, outputs=[output, travel_output]), {HEAT: heat, TRAVEL: travel})
+
+    assert errors_mentioning(errors, HEAT, "grid version 2")
+    assert not errors_mentioning(errors, TRAVEL)

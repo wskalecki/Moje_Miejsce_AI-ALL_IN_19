@@ -31,7 +31,8 @@
       "student",
       "rodzina",
       "senior"
-    ]
+    ],
+    "gridVersion": 3
   },
   "sources": [
     {
@@ -491,7 +492,7 @@
     },
     {
       "id": "median_cells",
-      "definition": "mediana z komórek 200 m, których środek leży w osiedlu"
+      "definition": "mediana z komórek siatki zespołu (250 m, gridVersion 3), których środek leży w osiedlu"
     },
     {
       "id": "percentile_rank",
@@ -1740,7 +1741,7 @@
     {
       "id": "heat.student",
       "label": "Heatmapa profilu „student”",
-      "definition": "Ranga percentylowa dopasowania profilu wśród punktów sieci 250 m (te same metryki co dla osiedli, liczone od punktu, udziały z kwadratu 1 × 1 km), podniesiona do kwadratu; punkty < 0,05 pominięte.",
+      "definition": "Ranga percentylowa dopasowania profilu wśród komórek siatki zespołu (250 m, gridVersion 3) w granicach osiedli, podniesiona do kwadratu; te same metryki co dla osiedli, liczone od środka komórki, udziały z kwadratu 1 × 1 km; komórki < 0,05 pominięte. Każdy punkt ma cell_id.",
       "unit": "0–1",
       "method": "percentile_rank",
       "datasets": [
@@ -1775,7 +1776,7 @@
     {
       "id": "heat.rodzina",
       "label": "Heatmapa profilu „rodzina”",
-      "definition": "Ranga percentylowa dopasowania profilu wśród punktów sieci 250 m (te same metryki co dla osiedli, liczone od punktu, udziały z kwadratu 1 × 1 km), podniesiona do kwadratu; punkty < 0,05 pominięte.",
+      "definition": "Ranga percentylowa dopasowania profilu wśród komórek siatki zespołu (250 m, gridVersion 3) w granicach osiedli, podniesiona do kwadratu; te same metryki co dla osiedli, liczone od środka komórki, udziały z kwadratu 1 × 1 km; komórki < 0,05 pominięte. Każdy punkt ma cell_id.",
       "unit": "0–1",
       "method": "percentile_rank",
       "datasets": [
@@ -1810,7 +1811,7 @@
     {
       "id": "heat.senior",
       "label": "Heatmapa profilu „senior”",
-      "definition": "Ranga percentylowa dopasowania profilu wśród punktów sieci 250 m (te same metryki co dla osiedli, liczone od punktu, udziały z kwadratu 1 × 1 km), podniesiona do kwadratu; punkty < 0,05 pominięte.",
+      "definition": "Ranga percentylowa dopasowania profilu wśród komórek siatki zespołu (250 m, gridVersion 3) w granicach osiedli, podniesiona do kwadratu; te same metryki co dla osiedli, liczone od środka komórki, udziały z kwadratu 1 × 1 km; komórki < 0,05 pominięte. Każdy punkt ma cell_id.",
       "unit": "0–1",
       "method": "percentile_rank",
       "datasets": [
@@ -1845,7 +1846,7 @@
     {
       "id": "heat.kategoria.cisza",
       "label": "Heatmapa kategorii „Cisza”",
-      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "definition": "Ranga percentylowa kategorii wśród komórek siatki zespołu (250 m, gridVersion 3) w granicach osiedli; te same metryki co dla osiedli, liczone od środka komórki. Każdy punkt ma cell_id.",
       "unit": "0–1",
       "method": "percentile_rank",
       "datasets": [
@@ -1861,7 +1862,7 @@
     {
       "id": "heat.kategoria.zielen",
       "label": "Heatmapa kategorii „Zieleń”",
-      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "definition": "Ranga percentylowa kategorii wśród komórek siatki zespołu (250 m, gridVersion 3) w granicach osiedli; te same metryki co dla osiedli, liczone od środka komórki. Każdy punkt ma cell_id.",
       "unit": "0–1",
       "method": "percentile_rank",
       "datasets": [
@@ -1874,7 +1875,7 @@
     {
       "id": "heat.kategoria.komunikacja",
       "label": "Heatmapa kategorii „Komunikacja”",
-      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "definition": "Ranga percentylowa kategorii wśród komórek siatki zespołu (250 m, gridVersion 3) w granicach osiedli; te same metryki co dla osiedli, liczone od środka komórki. Każdy punkt ma cell_id.",
       "unit": "0–1",
       "method": "percentile_rank",
       "datasets": [
@@ -1888,7 +1889,7 @@
     {
       "id": "heat.kategoria.gastronomia",
       "label": "Heatmapa kategorii „Gastronomia”",
-      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "definition": "Ranga percentylowa kategorii wśród komórek siatki zespołu (250 m, gridVersion 3) w granicach osiedli; te same metryki co dla osiedli, liczone od środka komórki. Każdy punkt ma cell_id.",
       "unit": "0–1",
       "method": "percentile_rank",
       "datasets": [
@@ -1901,7 +1902,7 @@
     {
       "id": "heat.kategoria.sport",
       "label": "Heatmapa kategorii „Sport”",
-      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "definition": "Ranga percentylowa kategorii wśród komórek siatki zespołu (250 m, gridVersion 3) w granicach osiedli; te same metryki co dla osiedli, liczone od środka komórki. Każdy punkt ma cell_id.",
       "unit": "0–1",
       "method": "percentile_rank",
       "datasets": [
@@ -1916,7 +1917,7 @@
     {
       "id": "heat.kategoria.kultura",
       "label": "Heatmapa kategorii „Kultura”",
-      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "definition": "Ranga percentylowa kategorii wśród komórek siatki zespołu (250 m, gridVersion 3) w granicach osiedli; te same metryki co dla osiedli, liczone od środka komórki. Każdy punkt ma cell_id.",
       "unit": "0–1",
       "method": "percentile_rank",
       "datasets": [
@@ -1931,7 +1932,7 @@
     {
       "id": "heat.kategoria.edukacja",
       "label": "Heatmapa kategorii „Edukacja”",
-      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "definition": "Ranga percentylowa kategorii wśród komórek siatki zespołu (250 m, gridVersion 3) w granicach osiedli; te same metryki co dla osiedli, liczone od środka komórki. Każdy punkt ma cell_id.",
       "unit": "0–1",
       "method": "percentile_rank",
       "datasets": [
@@ -1946,7 +1947,7 @@
     {
       "id": "heat.kategoria.zdrowie",
       "label": "Heatmapa kategorii „Zdrowie”",
-      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "definition": "Ranga percentylowa kategorii wśród komórek siatki zespołu (250 m, gridVersion 3) w granicach osiedli; te same metryki co dla osiedli, liczone od środka komórki. Każdy punkt ma cell_id.",
       "unit": "0–1",
       "method": "percentile_rank",
       "datasets": [
@@ -1961,7 +1962,7 @@
     {
       "id": "heat.kategoria.zakupy",
       "label": "Heatmapa kategorii „Zakupy”",
-      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "definition": "Ranga percentylowa kategorii wśród komórek siatki zespołu (250 m, gridVersion 3) w granicach osiedli; te same metryki co dla osiedli, liczone od środka komórki. Każdy punkt ma cell_id.",
       "unit": "0–1",
       "method": "percentile_rank",
       "datasets": [
@@ -1974,7 +1975,7 @@
     {
       "id": "heat.kategoria.zycieNocne",
       "label": "Heatmapa kategorii „Życie nocne”",
-      "definition": "Ranga percentylowa kategorii wśród punktów sieci 250 m, te same metryki co dla osiedli, liczone od punktu.",
+      "definition": "Ranga percentylowa kategorii wśród komórek siatki zespołu (250 m, gridVersion 3) w granicach osiedli; te same metryki co dla osiedli, liczone od środka komórki. Każdy punkt ma cell_id.",
       "unit": "0–1",
       "method": "percentile_rank",
       "datasets": [
@@ -2326,7 +2327,7 @@
     {
       "id": "komorka.travel.centrum.*",
       "label": "Dojazd do: Centrum (Rondo Dmowskiego)",
-      "definition": "[średnia, min, max, liczba osiągalnych terminów] minut dojazdu z komórki siatki do punktu Centrum (Rondo Dmowskiego) (52.2297, 21.0122) przy przyjeździe 07:30–09:00 co 10 min w dniu 20261019, osobno dla trybów: wszystkie, autobus, tramwaj, metro, kolej.",
+      "definition": "[średnia, min, max, liczba osiągalnych terminów] minut dojazdu ze środka komórki siatki zespołu (250 m, gridVersion 3) do punktu Centrum (Rondo Dmowskiego) (52.2297, 21.0122) przy przyjeździe 07:30–09:00 co 10 min w dniu 20261019, osobno dla trybów: wszystkie, autobus, tramwaj, metro, kolej.",
       "unit": "min",
       "method": "gtfs_routing",
       "datasets": [
@@ -2338,7 +2339,7 @@
     {
       "id": "komorka.travel.rondo_daszynskiego.*",
       "label": "Dojazd do: Rondo Daszyńskiego (biurowce Woli)",
-      "definition": "[średnia, min, max, liczba osiągalnych terminów] minut dojazdu z komórki siatki do punktu Rondo Daszyńskiego (biurowce Woli) (52.23, 20.983) przy przyjeździe 07:30–09:00 co 10 min w dniu 20261019, osobno dla trybów: wszystkie, autobus, tramwaj, metro, kolej.",
+      "definition": "[średnia, min, max, liczba osiągalnych terminów] minut dojazdu ze środka komórki siatki zespołu (250 m, gridVersion 3) do punktu Rondo Daszyńskiego (biurowce Woli) (52.23, 20.983) przy przyjeździe 07:30–09:00 co 10 min w dniu 20261019, osobno dla trybów: wszystkie, autobus, tramwaj, metro, kolej.",
       "unit": "min",
       "method": "gtfs_routing",
       "datasets": [
@@ -2350,7 +2351,7 @@
     {
       "id": "komorka.travel.sluzewiec.*",
       "label": "Dojazd do: Służewiec (biurowce, Domaniewska)",
-      "definition": "[średnia, min, max, liczba osiągalnych terminów] minut dojazdu z komórki siatki do punktu Służewiec (biurowce, Domaniewska) (52.18, 21.001) przy przyjeździe 07:30–09:00 co 10 min w dniu 20261019, osobno dla trybów: wszystkie, autobus, tramwaj, metro, kolej.",
+      "definition": "[średnia, min, max, liczba osiągalnych terminów] minut dojazdu ze środka komórki siatki zespołu (250 m, gridVersion 3) do punktu Służewiec (biurowce, Domaniewska) (52.18, 21.001) przy przyjeździe 07:30–09:00 co 10 min w dniu 20261019, osobno dla trybów: wszystkie, autobus, tramwaj, metro, kolej.",
       "unit": "min",
       "method": "gtfs_routing",
       "datasets": [
@@ -2554,7 +2555,7 @@
         "wfs_msi",
         "wfs_utw"
       ],
-      "description": "Heatmapa profili na sieci 250 m."
+      "description": "Heatmapa profili: punkt = środek komórki siatki 250 m, z cell_ids i metadanymi grid."
     },
     {
       "path": "application/public/data/heat-categories.json",
@@ -2586,7 +2587,7 @@
         "wfs_msi",
         "wfs_utw"
       ],
-      "description": "Heatmapy kategorii na sieci 250 m."
+      "description": "Heatmapy kategorii: punkt = środek komórki siatki 250 m, z cell_ids i metadanymi grid."
     },
     {
       "path": "application/public/data/osiedla.geojson",
@@ -2750,7 +2751,7 @@
       "datasets": [
         "gtfs_warsaw"
       ],
-      "description": "Czasy dojazdu komunikacją z każdej komórki siatki."
+      "description": "Czasy dojazdu komunikacją z każdej komórki siatki 250 m (gridVersion 3)."
     },
     {
       "path": "data/lines/utrudnienia.geojson",

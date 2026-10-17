@@ -153,6 +153,9 @@ def validate_catalog(catalog: dict[str, Any], files: dict[str, Any]) -> list[str
         for where, key, value in _walk(content):
             if key in forbidden_keys:
                 errors.append(f"{path}: forbidden key {key} at {where}")
+            version = value if key == "gridVersion" else value.get("version") if key == "grid" and isinstance(value, dict) else None
+            if version is not None and "gridVersion" in policy and version != policy["gridVersion"]:
+                errors.append(f"{path}: built on grid version {version} at {where}, the catalog uses {policy['gridVersion']}")
             # Only fields that describe where a value came from; plain links (e.g. buyUrl) are fine.
             if "source" in key.lower():
                 text = " ".join(_strings(value)).lower()

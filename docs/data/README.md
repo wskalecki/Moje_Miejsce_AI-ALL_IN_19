@@ -1,6 +1,6 @@
 # Data documentation
 
-Canonical schemas and ETL conventions for **Siatka** (200 m grid in EPSG:2180 + POI).
+Canonical schemas and ETL conventions for **Siatka** (250 m grid in EPSG:2180 + POI).
 
 ## Documents
 

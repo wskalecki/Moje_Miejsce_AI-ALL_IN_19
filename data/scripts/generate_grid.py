@@ -20,11 +20,11 @@ from typing import Any
 from pyproj import Transformer
 
 # Aligned with docs/data/grid-schema.md. Changing any of these changes every cell ID.
-GRID_VERSION = 2
+GRID_VERSION = 3
 GRID_CRS = "EPSG:2180"
 ORIGIN_E = 620_000
 ORIGIN_N = 470_000
-CELL_SIZE_M = 200
+CELL_SIZE_M = 250
 
 _TO_GRID = Transformer.from_crs("EPSG:4326", GRID_CRS, always_xy=True)
 _TO_WGS84 = Transformer.from_crs(GRID_CRS, "EPSG:4326", always_xy=True)
@@ -192,7 +192,7 @@ def generate_grid(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Generate the Warsaw grid GeoJSON (200 m cells in EPSG:2180)"
+        description="Generate the Warsaw grid GeoJSON (250 m cells in EPSG:2180)"
     )
     parser.add_argument(
         "--bbox",

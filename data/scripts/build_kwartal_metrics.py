@@ -17,7 +17,7 @@ Inputs (run the fetchers first; raw caches are git-ignored):
   data/poi_mikolaj/transit.geojson                ZTM stops / metro / SKM with odjazdy_dzien (GTFS)
   data/raw/osm/<hash>.json                        OSM parks/forests with geometry (siatka cache)
   data/raw/noise/unions.json                      GIOŚ Lden contours (noise/gios_noise.py)
-  data/grid/czasy_przejazdu.geojson               GTFS travel times, 200 m cells
+  data/grid/czasy_przejazdu.geojson               GTFS travel times per team grid cell (generate_grid.py)
 
 Method (all distances straight-line in EPSG:2180 metres):
   ref point   = kwartał centroid, or a point on its surface if the centroid falls outside.
@@ -39,7 +39,7 @@ Method (all distances straight-line in EPSG:2180 metres):
   noise       = share of the kwartał area with Lden ≥ 55/60/65 dB, road OR rail/tram (GIOŚ,
                 4th round SMH 2022, data 2021).
   travel      = public transport to Centrum (Rondo Dmowskiego), Rondo Daszyńskiego and
-                Służewiec from the 200 m cell containing the ref point: mean / min minutes for
+                Służewiec from the grid cell containing the ref point: mean / min minutes for
                 arrivals 07:30–09:00 (GTFS router, data/scripts/etl_czasy_przejazdu.py).
 
 Outputs:

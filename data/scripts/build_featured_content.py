@@ -31,7 +31,7 @@ Derived values and methods
   highlights.distanceM / walkMin, routes   OSRM foot / bike from the osiedle anchor (address point
                          nearest to the mean of all address points); for parks and forests the
                          destination is the nearest point of the OSM polygon edge
-  commute.komunikacja    median over the 200 m cells whose centre lies in the MSI polygon of the
+  commute.komunikacja    median over the grid cells (generate_grid.CELL_SIZE_M) whose centre lies in the MSI polygon of the
                          mean travel time (arrival 07:30-09:00, 10 slots) to each target
   commute.rower / pieszo OSRM bike / foot from the anchor to the target point (pieszo only <= 60 min)
   traffic                area median of traffic.json x 100 = planned slowdown of buses and trams vs
@@ -67,6 +67,9 @@ import shapely
 from pyproj import Transformer
 from shapely.geometry import LineString, Point, Polygon, shape
 from shapely.ops import nearest_points
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import generate_grid  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 FEATURED = ROOT / "data/featured"
@@ -553,7 +556,7 @@ def main() -> int:
             commute.append({
                 "id": tid, "label": tg["nazwa"], "minutes": mins,
                 "transitByMode": by_mode, "cells": len(vals),
-                "source": (f"Komunikacja: mediana z {len(vals)} komórek 200 m w osiedlu, średni czas przy przyjeździe "
+                "source": (f"Komunikacja: mediana z {len(vals)} komórek {generate_grid.CELL_SIZE_M} m w osiedlu, średni czas przy przyjeździe "
                            f"{travel['metadata']['przyjazd']['od']}–{travel['metadata']['przyjazd']['do']} "
                            f"(rozkład ZTM GTFS, dzień {travel['metadata']['dzien']}, bez czekania na pierwszy pojazd). "
                            "Rower i pieszo: OSRM, bez postojów."),

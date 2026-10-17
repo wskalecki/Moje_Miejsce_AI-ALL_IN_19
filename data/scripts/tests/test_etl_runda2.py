@@ -109,4 +109,4 @@ def test_route_swaps_lat_lon_and_keeps_stops():
     assert (p["category"], p["subtype"], p["meta"]["dlugosc_km"]) == ("culture", "tourist_route", 18.0)
     assert p["meta"]["punkty"][0]["nazwa"] == "Rynek Mariensztacki"
     assert assign_cell(20.9840425, 52.2674686) in p["cell_ids"]
-    assert len(p["cell_ids"]) > 5  # ~2.9 km line crosses many 200 m cells
+    assert len(p["cell_ids"]) > 5  # ~2.9 km line crosses many grid cells

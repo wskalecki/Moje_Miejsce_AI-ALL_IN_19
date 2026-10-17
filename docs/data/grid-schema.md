@@ -1,16 +1,16 @@
-# Grid schema (200 m cells)
+# Grid schema (250 m cells)
 
 ## Purpose
 
-Stable partition of Warsaw into 200 m × 200 m cells. Each cell is one map polygon, one metrics bucket, and one scoring unit for personas.
+Stable partition of Warsaw into 250 m × 250 m cells. Each cell is one map polygon, one metrics bucket, and one scoring unit for personas.
 
 ## Files
 
 | Path | Description |
 |------|-------------|
-| `data/grid/warsaw_grid.geojson` | Full city grid. Generated, kept out of git by `data/.gitignore` (4.5 MB with `--warsaw-only`, 7.6 MB without) |
+| `data/grid/warsaw_grid.geojson` | Full city grid. Generated, kept out of git by `data/.gitignore` (2.9 MB with `--warsaw-only`, 4.9 MB without) |
 | `data/grid/cell_metrics.json` | Scores and metrics keyed by `cell_id` |
-| `data/samples/warsaw_grid_sample.geojson` | Small bbox for local dev (917 cells, committed) |
+| `data/samples/warsaw_grid_sample.geojson` | Small bbox for local dev (588 cells, geometry only, committed) |
 
 ```bash
 # Full city; uv installs pyproj from the script header
@@ -21,21 +21,21 @@ uv run data/scripts/generate_grid.py --warsaw-only -o data/grid/warsaw_grid.geoj
 
 - **Grid CRS:** EPSG:2180 (ETRS89 / Poland CS92, metres). Cells are exact squares in this system.
 - **Origin:** E `620000`, N `470000` (`ORIGIN_E`, `ORIGIN_N` in `data/scripts/generate_grid.py`), the south-west corner of cell `r000_c000`, south-west of Warsaw.
-- **Cell size:** `CELL_SIZE_M = 200` metres.
+- **Cell size:** `CELL_SIZE_M = 250` metres (the heatmap uses the same cell centres).
 - **Row / col** of a point with EPSG:2180 coordinates (E, N):
-  - `row = floor((N − 470000) / 200)`, grows south → north
-  - `col = floor((E − 620000) / 200)`, grows west → east
+  - `row = floor((N − 470000) / 250)`, grows south → north
+  - `col = floor((E − 620000) / 250)`, grows west → east
 - **Cell ID:** `cell_r{row:03d}_c{col:03d}` (see [Cell ID format](#cell-id-format)).
-- **Output:** GeoJSON in WGS84 (EPSG:4326), `[longitude, latitude]`, coordinates rounded to 7 decimals (about 1 cm). Because the squares are defined in EPSG:2180, in lon/lat every cell is rotated about 1.6° clockwise and measures ≈ 0.0029° lon × 0.0018° lat. Do not rebuild cells from lon/lat steps; use `assign_cell`, `cell_polygon` and `cell_center`.
+- **Output:** GeoJSON in WGS84 (EPSG:4326), `[longitude, latitude]`, coordinates rounded to 7 decimals (about 1 cm). Because the squares are defined in EPSG:2180, in lon/lat every cell is rotated about 1.6° clockwise and measures ≈ 0.0037° lon × 0.0022° lat. Do not rebuild cells from lon/lat steps; use `assign_cell`, `cell_polygon` and `cell_center`.
 - **Extent:** the generator writes every cell whose centre lies inside `WARSAW_BBOX = (20.85, 52.09, 21.28, 52.37)` (west, south, east, north; official borders span lon 20.852–21.271, lat 52.098–52.368). The bbox only selects which cells are written: cell IDs depend only on the EPSG:2180 origin, so they are the same in the sample, the full grid and any ETL output.
-- **Cell counts** (full city, measured 2026-10-17, about 8 s per run on a laptop):
+- **Cell counts** (full city, measured 2026-10-17, about 5 s per run on a laptop):
 
   | Command | Cells | Rows | Cols | File size |
   |---------|-------|------|------|-----------|
-  | `uv run data/scripts/generate_grid.py -o …` | 22 860 | 5–163 | 30–180 | 7.6 MB (≈ 1.0 MB gzip) |
-  | `… --warsaw-only` | 13 318 | 11–160 | 32–176 | 4.5 MB (≈ 0.5 MB gzip) |
+  | `uv run data/scripts/generate_grid.py -o …` | 14 625 | 4–131 | 24–144 | 4.9 MB (≈ 0.6 MB gzip) |
+  | `… --warsaw-only` | 8 572 | 9–128 | 26–140 | 2.9 MB (≈ 0.3 MB gzip) |
 
-- **Check value:** Palace of Culture (21.0060, 52.2318) → `cell_r084_c084` (covered by `data/scripts/tests/`).
+- **Check value:** Palace of Culture (21.0060, 52.2318) → `cell_r067_c067` (covered by `data/scripts/tests/`).
 
 Changing CELL_SIZE_M or the origin changes every cell ID: agree it with the team first.
 
@@ -45,9 +45,9 @@ The FeatureCollection carries a top-level `metadata` object:
 
 | Field | Value |
 |-------|-------|
-| `gridVersion` | `2`. Version 1 was the old ~1 km degree grid; its cell IDs do not match this grid. |
+| `gridVersion` | `3`. Version 1 was the ~1 km degree grid, version 2 the 200 m grid; their cell IDs do not match this grid. |
 | `crs` | `"EPSG:2180"`, the CRS the cells are defined in (coordinates are still WGS84) |
-| `cellSizeM` | `200` |
+| `cellSizeM` | `250` |
 | `origin` | `[620000, 470000]`, E and N in EPSG:2180 |
 | `districtsSource` | `"data/boundaries/warszawa_dzielnice.geojson"`, or `null` if that file was missing |
 
@@ -55,7 +55,7 @@ The FeatureCollection carries a top-level `metadata` object:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `id` | string | yes | Same as feature `id`, e.g. `cell_r084_c084` |
+| `id` | string | yes | Same as feature `id`, e.g. `cell_r067_c067` |
 | `row` | integer | yes | Row index from origin (south → north) |
 | `col` | integer | yes | Col index from origin (west → east) |
 | `center` | `[lon, lat]` | yes | Centre of the square, converted to WGS84 |
@@ -83,11 +83,11 @@ ETL scripts get IDs from `assign_cell(lon, lat)`. Importing it needs `pyproj` in
 ```json
 {
   "schemaVersion": 1,
-  "gridVersion": 2,
+  "gridVersion": 3,
   "generatedAt": "ISO-8601",
   "personas": ["kasia", "marek", "ania_tomek"],
   "cells": {
-    "cell_r084_c084": {
+    "cell_r067_c067": {
       "scores": { "kasia": 72, "marek": 41, "ania_tomek": 68 },
       "metrics": {
         "transit_stops_count": 12,
@@ -109,7 +109,7 @@ ETL scripts get IDs from `assign_cell(lon, lat)`. Importing it needs `pyproj` in
 
 ### Rules
 
-- **`gridVersion`** names the grid the `cell_id`s belong to (`2` = this 200 m grid).
+- **`gridVersion`** names the grid the `cell_id`s belong to (`3` = this 250 m grid).
 - **Scores** are integers `0–100` per persona (precomputed for demo).
 - **Missing data** → JSON `null`, not `0`.
 - **Metrics** keys are snake_case; document new keys in `data/README.md` inventory.

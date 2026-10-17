@@ -15,8 +15,8 @@ Koncept produktu: [`docs/core/koncept-aplikacji.md`](../core/koncept-aplikacji.m
 ## 2. Narzędzia w repo
 
 ```bash
-# Siatka 200 m w EPSG:2180 (pełna Warszawa → data/grid/, 7,6 MB, nie commitujemy;
-# --warsaw-only zostawia tylko komórki w granicach miasta: 13 318 komórek, 4,5 MB)
+# Siatka 250 m w EPSG:2180 (pełna Warszawa → data/grid/, 4,9 MB, nie commitujemy;
+# --warsaw-only zostawia tylko komórki w granicach miasta: 8 572 komórki, 2,9 MB)
 uv run data/scripts/generate_grid.py -o data/grid/warsaw_grid.geojson
 
 # Walidacja po każdym ETL

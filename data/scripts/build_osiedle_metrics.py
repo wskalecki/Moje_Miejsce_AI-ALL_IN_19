@@ -29,7 +29,7 @@ osiedla) of its metrics (CATEGORY_METRICS), then percentile-ranked again -> 0-10
 Profile match = weighted mean of the 10 category scores with PROFILE_WEIGHTS
 from application/src/app/dictionary.ts.
 
-Heatmaps: 250 m lattice inside Warsaw; the same metrics per lattice point
+Heatmaps: centres of the team grid cells (generate_grid.py) inside Warsaw; the same metrics per lattice point
 (counts within 1 km, distances, noise/green share of the surrounding 1 km x 1 km),
 percentile-ranked across lattice points.
 
@@ -60,6 +60,8 @@ from shapely.geometry import Point, Polygon, shape
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "data/scripts/noise"))
+sys.path.insert(0, str(ROOT / "data/scripts"))
+import generate_grid  # noqa: E402
 import gios_noise  # noqa: E402
 
 OSIEDLA = ROOT / "data/boundaries/warszawa_osiedla.geojson"
@@ -76,7 +78,7 @@ CATS = ("cisza", "zielen", "komunikacja", "gastronomia", "sport",
         "kultura", "edukacja", "zdrowie", "zakupy", "zycieNocne")
 FEATURED = ("powisle", "blonia-wilanowskie", "saska-kepa")
 R = 1000.0           # "nearby" radius
-HEAT_STEP = 250.0    # heat lattice spacing (m)
+HEAT_STEP = float(generate_grid.CELL_SIZE_M)  # heat points = centres of the team grid cells
 RASTER = 50.0        # raster for noise/green share around heat points
 EVENT_DAYS = 30
 MIN_GREEN_M2 = 10_000  # parks/forests >= 1 ha (same as siatka)
@@ -119,7 +121,7 @@ METHODS = {
     "area_share": "udział powierzchni osiedla (%)",
     "area_share_1km": "udział powierzchni koła o promieniu 1 km wokół punktu odniesienia (%)",
     "nearest_value": "wartość z najbliższego czujnika",
-    "median_cells": "mediana z komórek 200 m, których środek leży w osiedlu",
+    "median_cells": f"mediana z komórek siatki {generate_grid.CELL_SIZE_M} m, których środek leży w osiedlu",
 }
 
 # ------------------------------------------------------------------ helpers
@@ -587,7 +589,10 @@ def heat(D, weights):
     os_ = D["osiedla"]
     union = shapely.union_all([o["poly"] for o in os_])
     x0, y0, x1, y1 = union.bounds
-    x0, y0 = np.floor(x0 / HEAT_STEP) * HEAT_STEP, np.floor(y0 / HEAT_STEP) * HEAT_STEP
+    # align to the team grid so every heat point is the centre of one grid cell (cell_id)
+    e0, n0 = generate_grid.ORIGIN_E, generate_grid.ORIGIN_N
+    x0 = e0 + np.floor((x0 - e0) / HEAT_STEP) * HEAT_STEP
+    y0 = n0 + np.floor((y0 - n0) / HEAT_STEP) * HEAT_STEP
     xs = np.arange(x0 + HEAT_STEP / 2, x1, HEAT_STEP)
     ys = np.arange(y0 + HEAT_STEP / 2, y1, HEAT_STEP)
     gx, gy = np.meshgrid(xs, ys)
@@ -615,7 +620,8 @@ def heat(D, weights):
         s = sum(weights[p][c] * cats[c] for c in CATS) / sum(weights[p].values())
         prof[p] = pct_rank(s)
     lng, lat = TO_4326.transform(px, py)
-    return lng, lat, cats, prof, union
+    cells = [generate_grid.cell_id(int((y - n0) // HEAT_STEP), int((x - e0) // HEAT_STEP)) for x, y in zip(px, py)]
+    return lng, lat, cats, prof, union, cells
 
 
 # ------------------------------------------------------------------ blurbs
@@ -744,7 +750,7 @@ def main() -> int:
     }
 
     # heat
-    lng, lat, hcats, hprof, union = heat(D, weights)
+    lng, lat, hcats, hprof, union, cells = heat(D, weights)
     keep = np.maximum.reduce([hprof[p] ** 2 for p in PROFILES]) >= 0.05
     heat_pts = [[round(float(lng[i]), 5), round(float(lat[i]), 5), *[round(float(hprof[p][i] ** 2), 2) for p in PROFILES]]
                 for i in np.where(keep)[0]]
@@ -757,6 +763,10 @@ def main() -> int:
               "method": "percentyl kategorii wśród punktów siatki 250 m (0–1), te same metryki co dla osiedli, liczone od punktu",
               "points": [[round(float(lng[i]), 5), round(float(lat[i]), 5), *[round(float(hcats[c][i]), 2) for c in CATS]]
                          for i in range(len(lng))]}
+    grid_meta = {"version": generate_grid.GRID_VERSION, "crs": generate_grid.GRID_CRS,
+                 "cellSizeM": generate_grid.CELL_SIZE_M, "origin": [generate_grid.ORIGIN_E, generate_grid.ORIGIN_N]}
+    heat_out.update(grid=grid_meta, cell_ids=[cells[i] for i in np.where(keep)[0]])
+    hc_out.update(grid=grid_meta, cell_ids=cells)
 
     OUT.mkdir(parents=True, exist_ok=True)
     paths = {
