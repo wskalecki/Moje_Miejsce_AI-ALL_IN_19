@@ -35,6 +35,14 @@ function date(value: unknown): string | null {
     : d.toLocaleString('pl-PL', { dateStyle: 'medium', timeStyle: 'short' })
 }
 
+/** "12.3 (z 18 pomiarów)", so a thin average is visible as such. */
+function average(window: Record<string, number | null> | undefined, key: string): string | null {
+  const value = window?.[key]
+  const n = window?.[`n_${key}`] ?? 0
+  if (value === null || value === undefined || !n) return null
+  return `${value} (z ${n} ${n === 1 ? 'pomiaru' : 'pomiarów'})`
+}
+
 function detailRows(subtype: string, m: Record<string, unknown>, tags: string[]): Row[] {
   switch (subtype) {
     case 'toilet':
@@ -72,9 +80,19 @@ function detailRows(subtype: string, m: Record<string, unknown>, tags: string[])
     case 'tourist_route':
       return [['Długość (km)', m.dlugosc_km], ['Opis', m.opis],
         ['Punkty', Array.isArray(m.punkty) ? m.punkty.map((p: { nazwa?: string }) => p.nazwa).filter(Boolean) : null]]
-    case 'air_sensor':
-      return [['PM2.5 (µg/m³)', m.pm25], ['PM10 (µg/m³)', m.pm10], ['NO₂ (µg/m³)', m.no2],
-        ['Indeks', m.indeks], ['Pomiar', date(m.czas_pomiaru)]]
+    case 'air_sensor': {
+      const avg = (m.srednie ?? {}) as Record<string, Record<string, number | null>>
+      return [
+        ['PM2.5 śr. 24 h (µg/m³)', average(avg['24h'], 'pm25')],
+        ['PM2.5 śr. 7 dni (µg/m³)', average(avg['7d'], 'pm25')],
+        ['PM10 śr. 24 h (µg/m³)', average(avg['24h'], 'pm10')],
+        ['NO₂ śr. 24 h (µg/m³)', average(avg['24h'], 'no2')],
+        ['Teraz PM2.5 / PM10', [m.pm25, m.pm10].every((v) => v === null || v === undefined)
+          ? null : `${m.pm25 ?? '—'} / ${m.pm10 ?? '—'}`],
+        ['Indeks teraz', m.indeks],
+        ['Ostatni pomiar', date(m.czas_pomiaru)],
+      ]
+    }
     default:
       return []
   }

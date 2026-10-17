@@ -41,6 +41,38 @@ def test_air_sensor_outside_warsaw_is_kept_and_tagged():
     assert "poza_warszawa" in p["tags"]
 
 
+def reading_at(hour, pm25, code="PM2.5"):
+    return station(code=code, data=[{"param_code": code, "value": pm25, "unit": "µg/m3",
+                                     "time": f"2026-10-{hour // 24 + 10:02d} {hour % 24:02d}:00:00"}])
+
+
+def test_history_appends_each_station_hour_once(tmp_path):
+    path = tmp_path / "history.jsonl"
+    assert etl_powietrze.append_history([reading_at(5, 10.0)], path) == 1
+    assert etl_powietrze.append_history([reading_at(5, 10.0)], path) == 0  # same hour again
+    assert etl_powietrze.append_history([reading_at(6, 20.0, code="PM25")], path) == 1
+    [rows] = etl_powietrze.load_history(path).values()
+    assert [v["pm25"] for _, v in rows] == [10.0, 20.0]
+
+
+def test_averages_per_window_with_reading_counts(tmp_path):
+    path = tmp_path / "history.jsonl"
+    # Hourly 10 µg/m³ for the last 24 h, plus 40 µg/m³ three days earlier.
+    etl_powietrze.append_history([reading_at(h, 10.0) for h in range(100, 124)] + [reading_at(50, 40.0)], path)
+    history = etl_powietrze.load_history(path)
+    p = etl_powietrze.normalize(station(), DISTRICTS, history)["properties"]
+    day, week = p["meta"]["srednie"]["24h"], p["meta"]["srednie"]["7d"]
+    assert (day["pm25"], day["n_pm25"]) == (10.0, 24)
+    assert (week["pm25"], week["n_pm25"]) == (11.2, 25)  # (24 × 10 + 40) / 25
+    assert day["no2"] is None and day["n_no2"] == 0
+    assert p["meta"]["srednie_do"] == "2026-10-15T03:00:00"
+
+
+def test_no_history_means_no_averages():
+    p = etl_powietrze.normalize(station(), DISTRICTS)["properties"]
+    assert p["meta"]["srednie"] is None
+
+
 def event(features=1, **over):
     point = {"geometry": {"type": "Point", "coordinates": [20.98, 52.2142]},
              "properties": {"shortStreetName": "ul. Grójecka", "streetNumber": "65"}}

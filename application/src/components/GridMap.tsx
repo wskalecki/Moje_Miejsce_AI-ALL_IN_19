@@ -142,7 +142,6 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
 
     map.on('load', () => {
       setMapError(null)
-      setMapLoaded(true)
       map.resize()
 
       map.addSource(GRID_SOURCE, {
@@ -244,6 +243,8 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
       })
 
       add3dBuildingsIfAvailable(map)
+      // Only now do the layers exist that the data and filter effects write to.
+      setMapLoaded(true)
 
       map.fitBounds(
         [
