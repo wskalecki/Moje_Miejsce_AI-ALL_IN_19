@@ -454,7 +454,7 @@ P("BO w obrazach – zobacz projekt, zanim zagłosujesz", "W3 (alt. W1)", "AI ob
   "Dla każdego projektu Budżetu Obywatelskiego AI generuje fotorealistyczną wizualizację w prawdziwym miejscu: zdjęcie ulicy z Mapillary i edycja image-to-image według opisu projektu. Obok analityka z historii BO: koszt na mieszkańca, podobne projekty zrealizowane wcześniej i ich rzeczywisty koszt, opóźnienia. Wszystko na mapie 3D. Wyższa i bardziej świadoma frekwencja w głosowaniu.",
   "Projekt „zielone podwórko” z prawdziwym zdjęciem przed i AI po, a obok „3 podobne projekty kosztowały średnio X zł i trwały 14 mies.”",
   "Najlepszy balans wszystkich kryteriów: AI i wizualność, głębokie użycie bogatego zbioru, jasny właściciel (Centrum Komunikacji Społecznej, BO), czysto warszawski temat.",
-  "Wizualizacja może wprowadzać w błąd, potrzebna etykieta „poglądowe”. Jakość zdjęć Mapillary bywa różna.",
+  "Miejski zbiór BO zawiera tylko projekty zrealizowane i w realizacji, więc na demo pokazujemy „co tu powstanie”, a „zanim zagłosujesz” to cel wdrożenia. Wizualizacja może wprowadzać w błąd, potrzebna etykieta „poglądowe”. Jakość zdjęć Mapillary bywa różna. Zbiór zawiera imiona i nazwiska autorów, których nie wolno pokazywać (RODO).",
   9, 8, 9, 10, 9, 7, 8)
 
 P("Konsultacje, które widać", "W3 (alt. W1)", "AI tekst + obraz, dostępność",
@@ -467,10 +467,10 @@ P("Konsultacje, które widać", "W3 (alt. W1)", "AI tekst + obraz, dostępność
 
 P("Asystent wniosku BO – od luki w danych do gotowego projektu", "W3 (alt. W1)", "AI LLM, analityka przestrzenna",
   "BO (historia projektów i koszty), AED, WC, BOISKA, EKO, PRZYST, SPORT, AQ",
-  "Mapa „czego brakuje w moim sąsiedztwie” (indeks 15-minutowy z miejskich zbiorów). Mieszkaniec klika lukę, a AI (Bielik) przygotowuje szkic wniosku do BO: uzasadnienie oparte na danych, realistyczny kosztorys z podobnych zrealizowanych projektów, ostrzeżenia, dlaczego podobne wnioski odrzucano. Nabór do BO zwykle rusza na początku roku.",
+  "Mapa „czego brakuje w moim sąsiedztwie” (indeks 15-minutowy z miejskich zbiorów). Mieszkaniec klika lukę, a AI (Bielik) przygotowuje szkic wniosku do BO: uzasadnienie oparte na danych, realistyczny kosztorys z podobnych zrealizowanych projektów i wskazówki z projektów, które wygrały i powstały. Nabór do BO zwykle rusza na początku roku.",
   "Od kliknięcia luki na mapie do gotowego, pobieralnego wniosku w 30 s.",
   "Pełna ścieżka: dane → problem → działanie obywatela. Wysoka innowacyjność i wdrożenie w procesie BO.",
-  "Weryfikacja wiarygodności kosztorysów. Nie zastępuje pracy urzędu.",
+  "Weryfikacja wiarygodności kosztorysów. Nie zastępuje pracy urzędu. Zbiór BO nie zawiera projektów odrzuconych, więc asystent uczy się tylko na projektach, które przeszły.",
   9, 8, 9, 10, 8, 7, 9)
 
 P("Gdzie postawić? – optymalizator lokalizacji infrastruktury (AED, WC, ekopunkty)", "W3", "Optymalizacja, analityka",
