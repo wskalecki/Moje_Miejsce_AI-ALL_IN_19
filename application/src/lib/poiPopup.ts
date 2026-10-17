@@ -51,7 +51,10 @@ function detailRows(subtype: string, m: Record<string, unknown>, tags: string[])
       return [['Całodobowy', m.calodobowy], ['Godziny', m.godziny], ['Gdzie', m.umiejscowienie],
         ['Adres', m.adres], ['Opis', m.opis_lokalizacji]]
     case 'stop':
-      return [['Zespół / słupek', m.zespol && m.slupek ? `${m.zespol} / ${m.slupek}` : null]]
+    case 'metro_station':
+    case 'rail_station':
+      return [['Linie', m.linie], ['Środki', m.tryby], ['Odjazdów w dzień roboczy', m.odjazdy_dzien],
+        ['Zespół / słupek', m.zespol && m.slupek ? `${m.zespol} / ${m.slupek}` : null]]
     case 'pitch':
       return [['Adres', m.adres], ['Obiekty', tags], ['Liczba obiektów', m.liczba_obiektow]]
     case 'sports_class':

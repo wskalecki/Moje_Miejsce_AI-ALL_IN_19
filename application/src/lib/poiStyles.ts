@@ -6,6 +6,8 @@ export type PoiSubtypeStyle = { label: string; color: string }
 export const POI_SUBTYPES: Record<string, PoiSubtypeStyle> = {
   stop: { label: 'Przystanki', color: '#ffffff' },
   tram_stop: { label: 'Przystanki tramwajowe', color: '#ffffff' },
+  metro_station: { label: 'Stacje metra', color: '#e53935' },
+  rail_station: { label: 'Stacje SKM', color: '#1e88e5' },
   toilet: { label: 'Toalety', color: '#f0c674' },
   aed: { label: 'Defibrylatory AED', color: '#ff6b6b' },
   parking: { label: 'Parkingi miejskie', color: '#8c9eff' },
