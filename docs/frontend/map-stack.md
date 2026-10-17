@@ -1,16 +1,18 @@
 # Map stack (frontend)
 
-**Decision:** MapLibre GL JS + deck.gl on the same map; 3D buildings from vector tile **fill-extrusion**.
+**Decision:** MapLibre GL JS; 3D buildings from vector tile **fill-extrusion**.
+
+**Implemented spike (2026-10-17):** siatka i POI jako warstwy MapLibre (`fill` / `line` / `circle`). deck.gl — opcjonalnie później.
 
 ## Why
 
 | Need | Choice |
 |------|--------|
-| Web React app | `maplibre-gl` + `@deck.gl/*` |
-| ~1 km colored grid | deck.gl `GeoJsonLayer` (or MapLibre fill) |
+| Web React app | `maplibre-gl` |
+| ~1 km colored grid | MapLibre GeoJSON `fill` + `line` (data-driven `score`) |
 | 3D buildings | MapLibre extrusion from style layer `building` |
 | Colorable buildings (MVP) | Data-driven `fill-extrusion-color` by height; stretch: GeoJSON footprints in `data/buildings/` |
-| POI | deck.gl `ScatterplotLayer` / MapLibre circles |
+| POI | MapLibre `circle` layer (lub deck.gl później) |
 
 Avoid Cesium / Three-only map for hackathon scope. Use Blender → GLB in `presentation/models/` for pitch only.
 
@@ -18,7 +20,7 @@ Avoid Cesium / Three-only map for hackathon scope. Use Blender → GLB in `prese
 
 ```bash
 cd application
-npm install maplibre-gl @deck.gl/core @deck.gl/layers @deck.gl/react @deck.gl/mapbox
+npm install maplibre-gl
 ```
 
 ## Environment
@@ -42,10 +44,10 @@ Use a style that includes 3D buildings (streets-v2 / basic-v2 with building laye
 
 1. MapLibre base + hillshade / landuse
 2. MapLibre **building** fill-extrusion (3D)
-3. deck.gl **grid** polygons (semi-transparent fill + outline)
-4. deck.gl **commute mask** (gray extruded or fill for filtered-out cells)
-5. deck.gl **POI** points
-6. MapLibre / HTML **work pin** marker
+3. MapLibre **grid** fill + line
+4. MapLibre **commute mask** (fill, filtered-out cells) — TODO
+5. MapLibre **POI** circles
+6. HTML **work pin** marker — TODO
 
 ## Data loading
 
@@ -75,4 +77,4 @@ Paths for local dev: [`data/samples/`](../../data/samples/) via Vite alias `@dat
 ## References
 
 - [MapLibre fill extrusion](https://maplibre.org/maplibre-style-spec/layers/#fill-extrusion)
-- [deck.gl MapboxOverlay](https://deck.gl/docs/api-reference/mapbox/mapbox-overlay) (works with MapLibre map instance)
+- [MapLibre GeoJSON source](https://maplibre.org/maplibre-style-spec/sources/#geojson)

@@ -6,6 +6,7 @@ Canonical schemas and ETL conventions for **Siatka** (1 km grid + POI).
 
 | Document | Contents |
 |----------|----------|
+| **[`START-here-data-dev.md`](START-here-data-dev.md)** | Onboarding — kolejność zadań dla data dev |
 | [`grid-schema.md`](grid-schema.md) | Grid geometry, cell IDs, metrics, persona scores |
 | [`poi-schema.md`](poi-schema.md) | POI GeoJSON fields, categories, catalog slug mapping |
 

@@ -276,8 +276,7 @@ export function GridMap({ initialPersona = 'ania_tomek' }: Props) {
       )}
 
       <p className="grid-map__hint">
-        Kolorowe kwadraty ~1 km (próbka Mokotów). Oddal mapę — zobaczysz całą Warszawę, ale siatka
-        jest tylko w obszarze danych demo.
+        Spike UI — siatka demo (Mokotów). Pełne dane: <code>data/manifest.json</code>.
       </p>
     </div>
   )

@@ -22,7 +22,7 @@ Kanoniczna definicja projektu — aktualizuj, gdy zespół się zgadza na zmian�
 |------|----------|-----------|
 | 2026-10-17 | Stack: React + Supabase | Team template |
 | 2026-10-17 | Koncept: mapa kwadratów ~1 km + persony | Czytelny overview miasta pod wybór miejsca na życie (W3) |
-| 2026-10-17 | Map stack: MapLibre GL + deck.gl | 3D buildings z vector tiles; siatka i POI z GeoJSON (`docs/frontend/map-stack.md`) |
+| 2026-10-17 | Map stack: MapLibre GL (spike UI) | Siatka/POI z GeoJSON; pełny produkt UI — później (`docs/frontend/map-stack.md`) |
 | 2026-10-17 | Kontrakty danych: grid + POI + manifest | `docs/data/`, `data/manifest.json`, `data/scripts/` |
 
 Add rows as you decide; keep one line per decision.
