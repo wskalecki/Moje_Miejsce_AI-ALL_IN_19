@@ -101,11 +101,12 @@ def cells_crossed(lines: list[list[Coord]], districts: Districts) -> tuple[list[
     return sorted({assign_cell(*pt) for pt, _ in inside}), sorted({d for _, d in inside})
 
 
-def write_collection(path: Path, features: list[dict[str, Any]]) -> None:
+def write_collection(path: Path, features: list[dict[str, Any]], extra: dict[str, Any] | None = None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     out = {
         "type": "FeatureCollection",
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        **(extra or {}),
         "features": features,
     }
     # Compact: these files are committed and loaded by the app; one feature per line keeps diffs readable.
