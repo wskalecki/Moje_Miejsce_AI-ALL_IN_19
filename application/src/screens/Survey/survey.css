@@ -305,6 +305,16 @@
 }
 
 /* Step 2 — priority tiles */
+.priority-tile.is-shaking {
+  animation: priority-shake 240ms ease-in-out;
+}
+@keyframes priority-shake {
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
 .priority-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

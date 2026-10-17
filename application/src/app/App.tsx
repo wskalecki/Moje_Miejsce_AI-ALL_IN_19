@@ -5,7 +5,8 @@
  * The map is mounted once (from the matching screen onward) and never unmounted;
  * intro and survey are opaque overlays above it.
  */
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, LazyMotion } from 'motion/react'
+import * as m from 'motion/react-m'
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { isHorizon, isProfileId } from './dictionary'
 import { navigate, useRouter } from './router'
@@ -70,7 +71,7 @@ function Shell() {
 
       <AnimatePresence initial={false}>
         {overlayKey && (
-          <motion.div
+          <m.div
             key={overlayKey}
             className="screen-layer"
             initial={{ opacity: 0 }}
@@ -89,7 +90,7 @@ function Shell() {
                 }}
               />
             )}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -106,10 +107,15 @@ function Shell() {
   )
 }
 
+/** Motion's feature bundle (~30 KB gzip) loads after first paint; `m.*` components animate once it lands. */
+const loadMotionFeatures = () => import('./motionFeatures').then((mod) => mod.default)
+
 export default function App() {
   return (
-    <AppStoreProvider>
-      <Shell />
-    </AppStoreProvider>
+    <LazyMotion features={loadMotionFeatures}>
+      <AppStoreProvider>
+        <Shell />
+      </AppStoreProvider>
+    </LazyMotion>
   )
 }

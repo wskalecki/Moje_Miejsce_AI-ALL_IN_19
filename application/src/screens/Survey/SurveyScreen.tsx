@@ -3,7 +3,8 @@
  * sentence, and one question per step with directional slide transitions.
  */
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, useReducedMotion } from 'motion/react'
+import * as m from 'motion/react-m'
 import { useEffect, useMemo, useRef } from 'react'
 import { DATA_URLS } from '../../app/config'
 import { prefetchMap } from '../../app/mapLoader'
@@ -127,7 +128,7 @@ export function SurveyScreen({ step, onFinish }: SurveyScreenProps) {
 
         <div className="survey__stage">
           <AnimatePresence mode="wait" custom={direction} initial={false}>
-            <motion.section
+            <m.section
               key={step}
               className="survey__step"
               custom={direction}
@@ -140,7 +141,7 @@ export function SurveyScreen({ step, onFinish }: SurveyScreenProps) {
               {step === 1 && <ProfileStep headingRef={headingRef} onConfirmed={() => navigate('/ankieta?krok=2')} />}
               {step === 2 && <PrioritiesStep headingRef={headingRef} />}
               {step === 3 && <HorizonStep headingRef={headingRef} />}
-            </motion.section>
+            </m.section>
           </AnimatePresence>
         </div>
       </div>

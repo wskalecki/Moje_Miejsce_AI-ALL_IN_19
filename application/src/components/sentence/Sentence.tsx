@@ -1,4 +1,5 @@
-import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, LayoutGroup, useReducedMotion } from 'motion/react'
+import * as m from 'motion/react-m'
 import { useMemo } from 'react'
 import type { SentencePart, SlotKind } from '../../lib/sentence'
 import './sentence.css'
@@ -69,11 +70,11 @@ export function Sentence({ parts, activeSlot = null, size = 'lg', className, liv
           <AnimatePresence initial={false} mode="popLayout">
             {tokens.map((tk, i) =>
               tk.kind === 'word' ? (
-                <motion.span key={tk.key} layout={layout} transition={t} className={['sentence__word', tokens[i + 1] && !tokens[i + 1].glue && 'sentence__gap'].filter(Boolean).join(' ')}>
+                <m.span key={tk.key} layout={layout} transition={t} className={['sentence__word', tokens[i + 1] && !tokens[i + 1].glue && 'sentence__gap'].filter(Boolean).join(' ')}>
                   {tk.text}
-                </motion.span>
+                </m.span>
               ) : (
-                <motion.span
+                <m.span
                   key={tk.key}
                   layout={layout}
                   transition={t}
@@ -90,7 +91,7 @@ export function Sentence({ parts, activeSlot = null, size = 'lg', className, liv
                     .join(' ')}
                 >
                   {tk.text ?? '…'}
-                </motion.span>
+                </m.span>
               ),
             )}
           </AnimatePresence>

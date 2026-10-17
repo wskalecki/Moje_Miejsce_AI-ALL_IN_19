@@ -1,5 +1,6 @@
 import { Crown } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
+import { useReducedMotion } from 'motion/react'
+import * as m from 'motion/react-m'
 import { PROFILE_ICONS } from '../app/icons'
 import { sortFeatured } from './featured'
 import { PROFILE_LABEL } from './tokens'
@@ -24,7 +25,7 @@ export function RecommendedPanel({ featured, profile, highlighted, onHover, onSe
   const list = sortFeatured(featured, profile)
 
   return (
-    <motion.section
+    <m.section
       className="smap-rec"
       aria-labelledby="smap-rec-title"
       initial={reduce ? false : { opacity: 0, x: -24 }}
@@ -64,7 +65,7 @@ export function RecommendedPanel({ featured, profile, highlighted, onHover, onSe
         {list.map((f, i) => {
           const best = f.profile === profile
           return (
-            <motion.li
+            <m.li
               key={f.slug}
               layout={!reduce}
               initial={reduce ? false : { opacity: 0, y: 8 }}
@@ -77,6 +78,7 @@ export function RecommendedPanel({ featured, profile, highlighted, onHover, onSe
             >
               <button
                 type="button"
+                data-slug={f.slug}
                 className={['smap-rec__card', best ? 'is-best' : '', highlighted === f.slug ? 'is-hl' : ''].filter(Boolean).join(' ')}
                 onMouseEnter={() => onHover(f.slug)}
                 onMouseLeave={() => onHover(null)}
@@ -101,10 +103,10 @@ export function RecommendedPanel({ featured, profile, highlighted, onHover, onSe
                   <small>%</small>
                 </span>
               </button>
-            </motion.li>
+            </m.li>
           )
         })}
       </ol>
-    </motion.section>
+    </m.section>
   )
 }

@@ -1,5 +1,6 @@
 import { ArrowRight } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
+import { useReducedMotion } from 'motion/react'
+import * as m from 'motion/react-m'
 import { useEffect, useState } from 'react'
 import { APP_NAME, APP_TAGLINE, DATA_URLS } from '../../app/config'
 import { PROFILE_ORDER, PROFILES } from '../../app/dictionary'
@@ -65,24 +66,24 @@ export function IntroScreen() {
       </header>
 
       <section className="intro__content">
-        <motion.p className="t-micro intro__eyebrow" {...rise(0.05)}>
+        <m.p className="t-micro intro__eyebrow" {...rise(0.05)}>
           Hackathon W3 · Warszawa: Twój ruch!
-        </motion.p>
-        <motion.h1 className="t-display-xl intro__title" {...rise(0.12)}>
+        </m.p>
+        <m.h1 className="t-display-xl intro__title" {...rise(0.12)}>
           {APP_NAME}
-        </motion.h1>
-        <motion.p className="t-h2 intro__promise" {...rise(0.2)}>
+        </m.h1>
+        <m.p className="t-h2 intro__promise" {...rise(0.2)}>
           {APP_TAGLINE}
-        </motion.p>
-        <motion.div className="intro__cta" {...rise(0.32)}>
+        </m.p>
+        <m.div className="intro__cta" {...rise(0.32)}>
           <Button size="lg" iconRight={ArrowRight} onClick={start}>
             Zacznij
           </Button>
           <p className="t-small t-secondary">3 pytania · 30 sekund · bez logowania</p>
-        </motion.div>
+        </m.div>
       </section>
 
-      <motion.aside className="intro__legend" {...rise(0.9)} aria-hidden>
+      <m.aside className="intro__legend" {...rise(0.9)} aria-hidden>
         <span className="t-small t-secondary">Dopasowanie okolic dla profilu</span>
         <span className="intro__legend-chips">
           {PROFILE_ORDER.map((p) => (
@@ -92,7 +93,7 @@ export function IntroScreen() {
             </span>
           ))}
         </span>
-      </motion.aside>
+      </m.aside>
 
       <footer className="intro__footer t-small">
         Dane: m.st. Warszawa (otwarte dane), © współtwórcy OpenStreetMap, OpenFreeMap

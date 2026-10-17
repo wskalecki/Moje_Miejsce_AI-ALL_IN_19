@@ -1,5 +1,5 @@
-import { animate, useMotionValue, useMotionValueEvent, useReducedMotion } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { useReducedMotion } from 'motion/react'
+import { useEffect, useRef, useState } from 'react'
 import './ui.css'
 
 export interface MatchRingProps {
@@ -13,18 +13,32 @@ export interface MatchRingProps {
 /** SVG match ring (spec §8.3): stroke 10 % of diameter, ink 8 % track, accent arc. */
 export function MatchRing({ value, size = 44, duration = 900, className }: MatchRingProps) {
   const reduce = useReducedMotion()
-  const mv = useMotionValue(duration && !reduce ? 0 : value)
-  const [shown, setShown] = useState(mv.get())
-  useMotionValueEvent(mv, 'change', (v) => setShown(v))
+  const [shown, setShown] = useState(duration && !reduce ? 0 : value)
+  const shownRef = useRef(shown)
 
+  // Count-up tween in rAF (ease-out expo ≈ --ease-emphasized). Kept off motion's animation engine,
+  // so this shared component does not pull it into the initial bundle (QA #19).
   useEffect(() => {
-    if (!duration || reduce) {
-      mv.set(value)
-      return
+    const from = shownRef.current
+    const set = (v: number) => {
+      shownRef.current = v
+      setShown(v)
     }
-    const controls = animate(mv, value, { duration: duration / 1000, ease: [0.16, 1, 0.3, 1] })
-    return () => controls.stop()
-  }, [value, duration, reduce, mv])
+    if (!duration || reduce || from === value) {
+      const raf = requestAnimationFrame(() => set(value))
+      return () => cancelAnimationFrame(raf)
+    }
+    const t0 = performance.now()
+    let raf = 0
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - t0) / duration)
+      const k = t === 1 ? 1 : 1 - Math.pow(2, -10 * t)
+      set(from + (value - from) * k)
+      if (t < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [value, duration, reduce])
 
   const stroke = Math.max(2, size * 0.1)
   const r = (size - stroke) / 2

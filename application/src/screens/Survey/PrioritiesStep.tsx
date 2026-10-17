@@ -1,4 +1,5 @@
-import { AnimatePresence, motion, useAnimationControls } from 'motion/react'
+import { AnimatePresence } from 'motion/react'
+import * as m from 'motion/react-m'
 import { useEffect, useRef, useState, type RefObject } from 'react'
 import { MAX_PRIORITIES } from '../../app/config'
 import { CATEGORIES, CATEGORY_ORDER } from '../../app/dictionary'
@@ -9,16 +10,22 @@ import type { CategoryKey } from '../../app/types'
 const HINT_MS = 2500
 
 function Tile({ category, order, onToggle }: { category: CategoryKey; order: number; onToggle: (c: CategoryKey, shake: () => void) => void }) {
-  const controls = useAnimationControls()
+  const ref = useRef<HTMLButtonElement>(null)
   const Icon = CATEGORY_ICONS[category]
   const pressed = order > 0
+  // ±4 px, 240 ms (spec §4.1) — a CSS animation restarted by toggling the class
   const shake = () => {
-    void controls.start({ x: [0, -4, 4, -4, 4, 0], transition: { duration: 0.24, ease: 'easeInOut' } })
+    const el = ref.current
+    if (!el) return
+    el.classList.remove('is-shaking')
+    void el.offsetWidth
+    el.classList.add('is-shaking')
   }
   return (
-    <motion.button
+    <button
+      ref={ref}
       type="button"
-      animate={controls}
+      onAnimationEnd={(e) => e.currentTarget.classList.remove('is-shaking')}
       className="priority-tile"
       aria-pressed={pressed}
       onClick={() => onToggle(category, shake)}
@@ -29,7 +36,7 @@ function Tile({ category, order, onToggle }: { category: CategoryKey; order: num
       <span className="priority-tile__label">{CATEGORIES[category].label}</span>
       <AnimatePresence>
         {pressed && (
-          <motion.span
+          <m.span
             key={order}
             className="priority-tile__order tabular"
             initial={{ scale: 0.4, opacity: 0 }}
@@ -39,10 +46,10 @@ function Tile({ category, order, onToggle }: { category: CategoryKey; order: num
             aria-hidden
           >
             {order}
-          </motion.span>
+          </m.span>
         )}
       </AnimatePresence>
-    </motion.button>
+    </button>
   )
 }
 
@@ -90,7 +97,7 @@ export function PrioritiesStep({ headingRef }: { headingRef: RefObject<HTMLHeadi
       <div className="survey__hint-slot" aria-live="polite">
         <AnimatePresence>
           {hint && (
-            <motion.p
+            <m.p
               className="t-small survey__hint"
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
@@ -98,7 +105,7 @@ export function PrioritiesStep({ headingRef }: { headingRef: RefObject<HTMLHeadi
               transition={{ duration: 0.2 }}
             >
               Maksymalnie 4 — odznacz coś, żeby wybrać inne.
-            </motion.p>
+            </m.p>
           )}
         </AnimatePresence>
       </div>

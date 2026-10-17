@@ -3,7 +3,8 @@
  * over the map while it loads underneath. Click / Enter skips.
  */
 import { Check, LoaderCircle } from 'lucide-react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, useReducedMotion } from 'motion/react'
+import * as m from 'motion/react-m'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { DATA_URLS, MATCHING_DURATION_MS } from '../../app/config'
 import { useAppStore } from '../../app/useAppStore'
@@ -88,7 +89,7 @@ export function MatchingScreen({ onDone }: { onDone: () => void }) {
   ]
 
   return (
-    <motion.div
+    <m.div
       className="matching"
       role="status"
       aria-live="polite"
@@ -99,7 +100,7 @@ export function MatchingScreen({ onDone }: { onDone: () => void }) {
       onClick={finish}
     >
       <AmbientBackground />
-      <motion.div
+      <m.div
         className="matching__art"
         aria-hidden
         initial={reduce ? false : { opacity: 0, scale: 0.96 }}
@@ -107,7 +108,7 @@ export function MatchingScreen({ onDone }: { onDone: () => void }) {
         transition={{ duration: 1.6, ease: EASE.emphasized }}
       >
         <WarsawArt profile={state.profile ?? 'rodzina'} />
-      </motion.div>
+      </m.div>
 
       <div className="matching__content">
         <p className="t-small matching__eyebrow">Dopasowujemy Warszawę do Ciebie…</p>
@@ -120,7 +121,7 @@ export function MatchingScreen({ onDone }: { onDone: () => void }) {
               if (elapsed < appearAt) return null
               const done = elapsed >= appearAt + LINE_DONE_AFTER_MS
               return (
-                <motion.li
+                <m.li
                   key={i}
                   className="matching__line"
                   data-done={done || undefined}
@@ -131,18 +132,18 @@ export function MatchingScreen({ onDone }: { onDone: () => void }) {
                   <span className="matching__icon" aria-hidden>
                     <AnimatePresence mode="wait" initial={false}>
                       {done ? (
-                        <motion.span key="ok" initial={{ scale: 0.3, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.24, ease: EASE.emphasized }}>
+                        <m.span key="ok" initial={{ scale: 0.3, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.24, ease: EASE.emphasized }}>
                           <Check size={14} strokeWidth={3} />
-                        </motion.span>
+                        </m.span>
                       ) : (
-                        <motion.span key="spin" exit={{ opacity: 0, scale: 0.6 }} transition={{ duration: 0.12 }}>
+                        <m.span key="spin" exit={{ opacity: 0, scale: 0.6 }} transition={{ duration: 0.12 }}>
                           <LoaderCircle size={16} strokeWidth={2.4} className="matching__spinner" />
-                        </motion.span>
+                        </m.span>
                       )}
                     </AnimatePresence>
                   </span>
                   <span className="t-body">{text}</span>
-                </motion.li>
+                </m.li>
               )
             })}
           </AnimatePresence>
@@ -152,6 +153,6 @@ export function MatchingScreen({ onDone }: { onDone: () => void }) {
           <i style={{ animationDuration: `${MATCHING_DURATION_MS}ms` }} />
         </span>
       </div>
-    </motion.div>
+    </m.div>
   )
 }
