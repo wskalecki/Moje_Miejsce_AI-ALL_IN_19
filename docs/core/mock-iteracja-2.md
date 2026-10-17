@@ -31,10 +31,10 @@ Poza zakresem: muzyka (żart z nagrania).
 
 ## Plan zadań (iteracja 2)
 
-- [ ] I2-0 Analiza gałęzi `feat/grid-tile-lab` i `mikolaj` (co można przenieść)
+- [x] I2-0 Analiza gałęzi `feat/grid-tile-lab` i `mikolaj` (co można przenieść)
 - [ ] I2-1 Drobne osiedla + hierarchia granic (dane)
 - [ ] I2-2 Przeliczenie wskaźników na prawdziwych danych, liczby per osiedle
-- [ ] I2-3 Nowa nazwa + redesign ankiety
+- [x] I2-3 Nowa nazwa „Okolica” + ankieta bez limitu, wagi kategorii w store (lekki tuning)
 - [ ] I2-4 Mapa: panel filtrów z wagami, solo kategorii, legenda
 - [ ] I2-5 Mapa: POI i budynki 3D kolorowane wg funkcji, drogi asfalt + krawężnik
 - [ ] I2-6 Mapa: korki na drogach + suwak godziny
@@ -43,3 +43,10 @@ Poza zakresem: muzyka (żart z nagrania).
 - [ ] I2-9 Drugi poziom: małe osiedla mieszkaniowe w obszarze MSI + ceny za m²
 - [ ] I2-10 Deploy + QA end-to-end
 - [ ] I2-11 (na końcu) wybór finalnego designu z zespołem
+
+## Do podjęcia przez kolejne zadania
+
+- „Siatka” zostało w `src/osiedle/Hero.tsx` i `src/cinematic/Interlude.tsx` → użyć `APP_NAME`.
+- `src/osiedle/OsiedlePanel.tsx` obcina priorytety do 4 (`.slice(0, 4)`).
+- Opis „Na stałe” w `dictionary.ts` mówi „do 2030 roku” → po przejściu osi czasu na 2040.
+- Korki: brak prawdziwych danych godzinowych w gałęziach — proxy z rozkładów ZTM (GTFS), opisane jako planowane spowolnienie, nie ruch na żywo.
