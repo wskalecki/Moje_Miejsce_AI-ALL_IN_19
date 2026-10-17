@@ -1,10 +1,24 @@
 <!doctype html>
-<html lang="en">
+<html lang="pl" data-profile="none">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>application</title>
+    <!-- basemap style, tiles and glyphs (fetched with CORS by MapLibre) -->
+    <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin />
+    <meta name="theme-color" content="#F6F3EE" />
+    <title>Okolica — znajdź swoje miejsce w Warszawie</title>
+    <meta
+      name="description"
+      content="Znajdź okolicę w Warszawie, która pasuje do Twojego życia — zanim zaczniesz szukać mieszkania."
+    />
+    <meta property="og:title" content="Okolica — znajdź swoje miejsce w Warszawie" />
+    <meta
+      property="og:description"
+      content="3 pytania, mapa dopasowania 143 osiedli i trzy propozycje dla Ciebie. Demo na otwartych danych m.st. Warszawy."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pl_PL" />
   </head>
   <body>
     <div id="root"></div>

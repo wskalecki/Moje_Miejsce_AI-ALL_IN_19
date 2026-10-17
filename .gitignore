@@ -9,9 +9,6 @@ dist/
 
 # Python
 __pycache__/
-*.pyc
 
-# Warsaw Open Data: lokalne sekrety i wyniki pobierania
-apiKey.txt
-/data/*.geojson
-/data/testy-*/
+# browser automation artefacts
+.playwright-mcp/

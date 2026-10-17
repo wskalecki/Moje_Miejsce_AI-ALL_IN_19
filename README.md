@@ -39,7 +39,3 @@ Stan **mapy w aplikacji** to spike (próbka siatki Mokotów) — produkt dopracu
 2. **Jedna zmiana = jedna gałąź:** `feat/krótki-slug` lub `fix/krótki-slug`, potem merge do `master` (PR mile widziany).
 3. **Commity:** `feat: short title`, `fix: short title` (Conventional Commits).
 4. Szczegóły: [`CLAUDE.md`](CLAUDE.md), reguły Cursor: [`.cursor/rules/git-standards.mdc`](.cursor/rules/git-standards.mdc).
-
-## Warsaw Open Data API
-
-Skrypty pobierania, obsługa klucza i raport testów 23 zbiorów: [dokumentacja](docs/warsaw-data/README.md).

@@ -1,0 +1,420 @@
+{
+  "slug": "stare-bielany",
+  "msiId": "stare-bielany",
+  "profile": "senior",
+  "camera": {
+    "bearing": 330,
+    "zoom": 15.6
+  },
+  "highlights": [
+    {
+      "id": "las-bielanski",
+      "name": "Las Bielański",
+      "category": "zielen",
+      "coord": [
+        20.96552,
+        52.29046
+      ],
+      "osm": "relation/5654757",
+      "green": "relation/5654757",
+      "description": "Rezerwat przyrody nad skarpą wiślaną."
+    },
+    {
+      "id": "park-herberta",
+      "name": "Park Zbigniewa Herberta",
+      "category": "zielen",
+      "coord": [
+        20.95537,
+        52.27332
+      ],
+      "osm": "way/71882860",
+      "green": "way/71882860",
+      "description": "Park na Bielanach."
+    },
+    {
+      "id": "biblioteka-12",
+      "name": "Wypożyczalnia nr 12",
+      "category": "kultura",
+      "coord": [
+        20.94941,
+        52.28082
+      ],
+      "osm": "node/2531407051",
+      "description": "Biblioteka publiczna, al. Zjednoczenia 19."
+    },
+    {
+      "id": "ows-1",
+      "name": "Ośrodek Wsparcia dla Seniorów nr 1",
+      "category": "kultura",
+      "coord": [
+        20.94769,
+        52.27972
+      ],
+      "osm": "node/7351948618",
+      "description": "Al. Zjednoczenia 13."
+    },
+    {
+      "id": "szpital-bielanski",
+      "name": "Szpital Bielański",
+      "category": "zdrowie",
+      "coord": [
+        20.95031,
+        52.28653
+      ],
+      "osm": "way/288525189",
+      "description": "Szpital, ul. Cegłowska 80."
+    },
+    {
+      "id": "kleczewska",
+      "name": "Przychodnia Kleczewska",
+      "category": "zdrowie",
+      "coord": [
+        20.94438,
+        52.2799
+      ],
+      "osm": "node/6685139946",
+      "description": "Publiczna przychodnia (SPZZLO Warszawa-Żoliborz)."
+    },
+    {
+      "id": "metro-stare-bielany",
+      "name": "Metro Stare Bielany (M1)",
+      "category": "komunikacja",
+      "coord": [
+        20.94927,
+        52.28183
+      ],
+      "osm": "ztm:6052M",
+      "description": "Najbliższa stacja metra (linia M1)."
+    },
+    {
+      "id": "sam-bielanski",
+      "name": "Sam Bielański",
+      "category": "zakupy",
+      "coord": [
+        20.95111,
+        52.28038
+      ],
+      "osm": "way/95261371",
+      "description": "Supermarket WSS Społem."
+    },
+    {
+      "id": "awf",
+      "name": "Akademia Wychowania Fizycznego",
+      "category": "edukacja",
+      "coord": [
+        20.95847,
+        52.28707
+      ],
+      "osm": "way/288530343",
+      "description": "Uczelnia, kampus przy ul. Marymonckiej 34."
+    }
+  ],
+  "routeGroups": [
+    {
+      "group": "przychodnia",
+      "label": "Przychodnia",
+      "category": "zdrowie",
+      "destinations": [
+        {
+          "id": "kleczewska",
+          "name": "Przychodnia Kleczewska",
+          "coord": [
+            20.94438,
+            52.2799
+          ],
+          "osm": "node/6685139946"
+        },
+        {
+          "id": "zeromskiego",
+          "name": "Przychodnia Żeromskiego",
+          "coord": [
+            20.95623,
+            52.2754
+          ],
+          "osm": "node/6685184080"
+        },
+        {
+          "id": "szpital-bielanski",
+          "name": "Szpital Bielański",
+          "coord": [
+            20.95031,
+            52.28653
+          ],
+          "osm": "way/288525189"
+        }
+      ]
+    },
+    {
+      "group": "kultura",
+      "label": "Kultura",
+      "category": "kultura",
+      "destinations": [
+        {
+          "id": "biblioteka-12",
+          "name": "Wypożyczalnia nr 12",
+          "coord": [
+            20.94941,
+            52.28082
+          ],
+          "osm": "node/2531407051"
+        },
+        {
+          "id": "scena-kameralna",
+          "name": "Bielańska Scena Kameralna",
+          "coord": [
+            20.94783,
+            52.27623
+          ],
+          "osm": "node/3364647005"
+        },
+        {
+          "id": "kameduli",
+          "name": "Kościół pokamedulski na Bielanach",
+          "coord": [
+            20.96011,
+            52.29585
+          ],
+          "osm": "way/173130486"
+        }
+      ]
+    },
+    {
+      "group": "park",
+      "label": "Park i las",
+      "category": "zielen",
+      "destinations": [
+        {
+          "id": "las-bielanski",
+          "name": "Las Bielański",
+          "green": "relation/5654757",
+          "osm": "relation/5654757"
+        },
+        {
+          "id": "park-herberta",
+          "name": "Park Zbigniewa Herberta",
+          "green": "way/71882860",
+          "osm": "way/71882860"
+        },
+        {
+          "id": "lasek-lindego",
+          "name": "Lasek Lindego",
+          "green": "way/231512454",
+          "osm": "way/231512454"
+        }
+      ]
+    }
+  ],
+  "prices": {
+    "buyPerM2": 17134,
+    "rentPerM2": 74,
+    "rent2PokAvg": 3000,
+    "cityBuyPerM2": 17975,
+    "cityRentPerM2": 84,
+    "asOf": "2026-10",
+    "sourceNote": "Średnia z 50 ofert sprzedaży i 32 ofert najmu na Otodom (rynek wtórny, ceny ofertowe, odczyt 17.10.2026). Transakcje (RCN, od I 2025): mediana 16 978 zł/m², 127 lokali. Warszawa: Adresowo IX 2026 (sprzedaż), Znajdź Najem X 2026 (najem).",
+    "estimate": false,
+    "buy": {
+      "meanPerM2": 17134,
+      "medianPerM2": 16484,
+      "n": 50,
+      "sourceUrls": [
+        "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany?limit=72&page=1"
+      ],
+      "scrapedAt": "2026-10-17"
+    },
+    "rent": {
+      "meanPerM2": 74,
+      "medianPerM2": 75,
+      "n": 32,
+      "medianMonthly": 3000,
+      "sourceUrls": [
+        "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany?limit=72&page=1"
+      ],
+      "scrapedAt": "2026-10-17"
+    },
+    "citySource": "Adresowo, Średnie ceny mieszkań Warszawa, wrzesień 2026, 1 870 ogłoszeń z rynku wtórnego (średnia 17 975, mediana 17 683 zł/m²): https://adresowo.pl/ceny-mieszkan/mazowieckie/warszawa/ (odczyt 2026-10-17) | Znajdź Najem, Indeks Najmu Warszawa, październik 2026, próba 46 410 ofert: średnia 84 zł/m², mediana czynszu 3 200 zł/mies.: https://znajdznajem.pl/warszawa/raport (odczyt 2026-10-17)",
+    "rcnNote": "RCN (GUGiK WFS ms:lokale), lokale mieszkalne w poligonie MSI, 2025-01-01–2026-02-16: mediana 16 978 zł/m², n=127 (125 wtórny / 2 pierwotny); 2024: mediana 16 712 zł/m², n=119.",
+    "areaNote": "Lokalizacja otodom „Stare Bielany (Bielany)” (bielany/stare-bielany); granice lokalizacji otodom nie są publikowane i mogą się różnić od obszaru MSI. Ulice w próbie sprawdzone ręcznie (plik raw: pole street)."
+  },
+  "portals": [
+    {
+      "name": "Otodom",
+      "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany",
+      "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/bielany/stare-bielany",
+      "rentCount": 32,
+      "buyCount": 50
+    },
+    {
+      "name": "Morizon",
+      "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/stare-bielany/",
+      "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/stare-bielany/",
+      "rentCount": 7,
+      "buyCount": 8
+    }
+  ],
+  "timeline": [
+    {
+      "id": "szlak-las-bielanski",
+      "title": "Remont szlaku pieszo-rowerowego przy Lesie Bielańskim",
+      "description": "Wymiana ponad 4 tys. m² nawierzchni, nowy chodnik i droga rowerowa, oświetlenie, zabezpieczenie skarp. Koszt 1,464 mln zł, koniec prac planowany na XI 2026.",
+      "category": "zielen",
+      "status": "w budowie",
+      "year": 2026,
+      "yearUncertain": false,
+      "yearNote": "„Zakończenie wszystkich działań planowane jest na koniec listopada” (IX 2026).",
+      "sourceUrl": "https://terazwarszawa.pl/nowa-era-dla-szlaku-pieszo-rowerowego-w-lesie-bielanskim/",
+      "sourceTitle": "Nowa era dla szlaku pieszo-rowerowego w Lesie Bielańskim (Teraz Warszawa)",
+      "sourceDate": "2026-09-25",
+      "statusEvidence": "Umowa podpisana 29.07.2026 (komunikat dzielnicy Bielany), wykonawca Wegarten; prace trwają, część szlaku czasowo zamknięta (IX 2026).",
+      "checkedAt": "2026-10-17",
+      "effect": null,
+      "effectNote": "Remont istniejącej trasy przy istniejącym lesie; współrzędna orientacyjna (od strony ul. Gwiaździstej) → brak wpływu na wskaźniki zieleni.",
+      "coordNote": "brak dokładnej lokalizacji w źródle (szlak wzdłuż Lasu Bielańskiego), bez znacznika na mapie"
+    },
+    {
+      "id": "zeromskiego-przebudowa",
+      "title": "Przebudowa ul. Żeromskiego (koncepcja)",
+      "description": "ZDM ogłosił przetarg na wielowariantową koncepcję przebudowy Żeromskiego od ronda H. Szwarc do al. Reymonta, głównej ulicy Starych Bielan. Umowy jeszcze nie ma.",
+      "category": "komunikacja",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Dzielnica nie podaje terminu; dopiero przetarg na koncepcję (X 2026).",
+      "coord": [
+        20.94922,
+        52.2768
+      ],
+      "sourceUrl": "https://bielany.um.warszawa.pl/-/zeromskiego-romaszewskiego-do-przebudowy-umowy",
+      "sourceTitle": "Żeromskiego i Romaszewskiego do przebudowy (Urząd Dzielnicy Bielany)",
+      "sourceDate": "2026-10-12",
+      "statusEvidence": "„Zarząd Dróg Miejskich ogłosił przetarg na wielowariantową koncepcję” — umowa niepodpisana (12.10.2026).",
+      "checkedAt": "2026-10-17",
+      "effect": null,
+      "effectNote": "Zakres nieznany do czasu koncepcji → nie da się policzyć wpływu.",
+      "yearHorizon": 2040,
+      "yearPlacement": "bez terminu"
+    },
+    {
+      "id": "narodowe-centrum-sportu-awf",
+      "title": "Narodowe Centrum Sportu przy AWF (sporna lokalizacja)",
+      "description": "Plan MSiT: basen olimpijski, hala z bieżnią 200 m i internat przy AWF, w otulinie rezerwatu Las Bielański. Lokalizacja budzi protesty, rozważano inną.",
+      "category": "sport",
+      "status": "planowana",
+      "year": 2031,
+      "yearUncertain": false,
+      "yearNote": "Harmonogram ministerstwa: całość do 2031 r.; tuStolica (XII 2025): „nie jest już pewne, że inwestycja powstanie właśnie na Bielanach”. Nie znaleziono decyzji z 2026 r.",
+      "coord": [
+        20.95889,
+        52.28303
+      ],
+      "sourceUrl": "https://tustolica.pl/narodowe-centrum-sportu-bielany-czy-zoliborz-analiza-mozliwej-zmiany-lokalizacji-inwestycji_93167",
+      "sourceTitle": "Gdzie powstanie Narodowe Centrum Sportu? (tuStolica)",
+      "sourceDate": "2025-12-15",
+      "statusEvidence": "List intencyjny MSiT, COS i AWF z 2.07.2025; ponad 80 naukowców i petycja przeciw lokalizacji przy rezerwacie; brak potwierdzonego startu budowy (stan 17.10.2026). Zakres i 2031: https://www.basenprof.pl/aktualnosci/4058/co_dalej_z_budowa_narodowego_centrum_sportu.html",
+      "checkedAt": "2026-10-17",
+      "effect": null,
+      "effectNote": "Obiekt dla sportu wyczynowego, nie otwarte boisko szkolne ani zajęcia z bazy miasta → brak wpływu na wskaźniki sportu."
+    },
+    {
+      "id": "bo-mniej-betonu",
+      "title": "Odbetonowanie podwórek „Mniej betonu” (BO 2026)",
+      "description": "Projekt BO za 1 mln zł: usunięcie asfaltu i płyt z podwórek na Bielanach, nowe drzewa i krzewy, mała architektura. Część adresów leży na Starych Bielanach.",
+      "category": "zielen",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Projekt z edycji na rok 2026, ale wg strony BO „Trwają przygotowania do ogłoszenia przetargu” (odczyt 17.10.2026) — termin niepewny.",
+      "coord": [
+        20.947,
+        52.27782
+      ],
+      "sourceUrl": "https://bo.um.warszawa.pl/processes/na-rok-2026/f/13/projects/31978",
+      "sourceTitle": "Mniej betonu – więcej zieleni (budżet obywatelski 2026)",
+      "sourceDate": "2026",
+      "statusEvidence": "Status „W trakcie realizacji”: „Trwają przygotowania do ogłoszenia przetargu na realizację zadania”.",
+      "checkedAt": "2026-10-17",
+      "effect": null,
+      "effectNote": "Podwórka poniżej 1 ha, adresy wybierze zarządca → brak wpływu na wskaźniki zieleni.",
+      "yearHorizon": 2026,
+      "yearPlacement": "edycja BO na rok 2026"
+    },
+    {
+      "id": "bo-reymonta-rower",
+      "title": "Droga rowerowa i chodnik w al. Reymonta (BO 2026)",
+      "description": "Projekt budżetu obywatelskiego za 1,11 mln zł: przebudowa fragmentu drogi dla rowerów i chodnika w al. Reymonta, zjazdy na Lindego, kontraruch na Oczapowskiego.",
+      "category": "komunikacja",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Edycja na rok 2026; strona BO (9.03.2026): „Rozpoczęto prace projektowe” — brak terminu budowy.",
+      "coord": [
+        20.94106,
+        52.28206
+      ],
+      "sourceUrl": "https://bo.um.warszawa.pl/processes/na-rok-2026/f/13/projects/31910",
+      "sourceTitle": "Wygodniej pieszo i rowerem – al. Reymonta (budżet obywatelski 2026)",
+      "sourceDate": "2026-03-09",
+      "statusEvidence": "Aktualizacja 09.03.2026: „Rozpoczęto prace projektowe.”",
+      "checkedAt": "2026-10-17",
+      "effect": null,
+      "effectNote": "Infrastruktura rowerowa nie wchodzi do wskaźników komunikacji → brak wpływu.",
+      "yearHorizon": 2026,
+      "yearPlacement": "edycja BO na rok 2026"
+    },
+    {
+      "id": "wolumen-akademik-skwer",
+      "title": "Akademik i zielony skwer przy targowisku Wolumen",
+      "description": "Społem „Żoliborz” ma pozwolenie na 6-kondygnacyjny akademik z handlem w parterze na zaniedbanej części Wolumenu i na zielony skwer. Główny plac targowy bez zmian.",
+      "category": "zakupy",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Inwestor (I 2025) nie podał terminu budowy ani otwarcia.",
+      "coord": [
+        20.93857,
+        52.28553
+      ],
+      "sourceUrl": "https://bielany.um.warszawa.pl/-/informacja-spolem-wolumen",
+      "sourceTitle": "Zaniedbany fragment targowiska „Wolumen” zyska nowe życie (Urząd Dzielnicy Bielany, komunikat inwestora)",
+      "sourceDate": "2025-01-23",
+      "statusEvidence": "Inwestor uzyskał pozwolenie na budowę (I 2025); nie znaleziono informacji o rozpoczęciu budowy.",
+      "checkedAt": "2026-10-17",
+      "effect": null,
+      "effectNote": "Targowisko zostaje, akademik to inwestycja prywatna; skwer bez podanej powierzchni → brak wpływu. Targowisko leży tuż za granicą obszaru MSI (Wawrzyszew).",
+      "yearHorizon": 2040,
+      "yearPlacement": "bez terminu"
+    }
+  ],
+  "heroImages": [
+    {
+      "src": "/osiedla/stare-bielany/01.jpg",
+      "alt": "Szeregowe domy z czerwonymi dachami przy placu Konfederacji",
+      "credit": "fot. Monika from Warszawa/ Colchester, Poland/ UK, CC BY-SA 2.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/stare-bielany/02.jpg",
+      "alt": "Kościół pokamedulski na Bielanach jesienią",
+      "credit": "fot. LoMit, CC BY-SA 4.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/stare-bielany/03.jpg",
+      "alt": "Ścieżka z drewnianą barierką w rezerwacie Las Bielański",
+      "credit": "fot. Adrian Grycuk, CC BY-SA 3.0 pl, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/stare-bielany/04.jpg",
+      "alt": "Modernistyczny budynek główny AWF przy ul. Marymonckiej",
+      "credit": "fot. Darpaw, CC BY-SA 4.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/stare-bielany/05.jpg",
+      "alt": "Peron stacji metra Stare Bielany (linia M1)",
+      "credit": "fot. Cybularny, CC0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/stare-bielany/06.jpg",
+      "alt": "Zielony pas z drogą rowerową wzdłuż al. Zjednoczenia",
+      "credit": "fot. Mariochom, CC BY-SA 4.0, Wikimedia Commons"
+    }
+  ]
+}

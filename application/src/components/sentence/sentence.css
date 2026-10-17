@@ -1,0 +1,72 @@
+.sentence {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-ink-2);
+  text-wrap: pretty;
+}
+
+.sentence--lg {
+  font-size: clamp(28px, 2.5vw, 38px);
+  line-height: 1.42;
+  letter-spacing: -0.022em;
+}
+
+.sentence--md {
+  font-size: 24px;
+  line-height: 1.45;
+  letter-spacing: -0.015em;
+}
+
+.sentence__word,
+.sentence__unit,
+.sentence__slot {
+  display: inline-block;
+}
+
+/* a word / slot plus its glued punctuation never breaks across lines */
+.sentence__word,
+.sentence__unit {
+  white-space: nowrap;
+}
+
+.sentence__gap {
+  margin-right: 0.26em;
+}
+
+/* Filled slot = a word written into the blank: accent ink on a thin line, no pill. */
+.sentence__slot {
+  padding: 0 0.04em;
+  color: var(--accent-deep);
+  font-weight: 700;
+  line-height: 1.3;
+  box-shadow: inset 0 -0.07em 0 color-mix(in srgb, var(--accent) 35%, transparent);
+  transition:
+    color var(--d-slower) var(--ease-standard),
+    box-shadow var(--d-base) var(--ease-standard);
+}
+
+.sentence__slot--empty {
+  min-width: 2.2em;
+  text-align: center;
+  background: transparent;
+  color: var(--color-ink-3);
+  font-weight: 600;
+  border-radius: 0;
+  box-shadow: inset 0 -2px 0 rgba(22, 22, 29, 0.18);
+}
+
+.sentence__slot--empty.sentence__slot--active {
+  color: var(--accent);
+  box-shadow: inset 0 -3px 0 var(--accent);
+  animation: sentence-blink 1.4s var(--ease-standard) infinite;
+}
+
+.sentence__slot--active:not(.sentence__slot--empty) {
+  box-shadow: inset 0 -0.11em 0 var(--accent);
+}
+
+@keyframes sentence-blink {
+  50% {
+    opacity: 0.45;
+  }
+}

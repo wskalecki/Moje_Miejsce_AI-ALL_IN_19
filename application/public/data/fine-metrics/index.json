@@ -1,0 +1,1662 @@
+{
+ "metadata": {
+  "generated": "2026-10-17",
+  "script": "data/scripts/build_kwartal_metrics.py",
+  "doc": "docs/data/raport-danych.md (Kwartały — status danych), docs/data/zrodla-danych.md §3a",
+  "rcn": {
+   "source": "Rejestr Cen Nieruchomości, Urząd m.st. Warszawy (Biuro Geodezji i Katastru), paczki GML https://architektura.um.warszawa.pl/udostepniane-dane-rcn1; te same rekordy co GUGiK WFS ms:lokale",
+   "licence": "RCN bezpłatny od 13.02.2026 (art. 40a ust. 2 pkt 1 lit. k PGiK); podać źródło",
+   "packages": [
+    "zbior_danych_rciwn_2026_20261005.zip",
+    "zbior_danych_rcn_2023.zip",
+    "zbior_danych_rcn_2024.zip",
+    "zbior_danych_rcn_2025.zip"
+   ],
+   "filters": "lokal mieszkalny, nieruchomość lokalowa, udział 1/1, sprzedaż wolnorynkowa, pow. >= 15 m2, 3-60 tys. zł/m2",
+   "main_period": [
+    "2024-01-01",
+    "2026-08-04"
+   ],
+   "assignment": {
+    "building": 58505,
+    "point": 28473
+   }
+  },
+  "schema": {
+   "price.scope": "kwartal (>= 5 transakcji w kwartale, okres główny) | radius300 (transakcje w 300 m od punktu kwartału + w kwartale)",
+   "price.n / med / p25 / p75": "liczba transakcji i mediana / kwartyle ceny zł/m2 (cena brutto lokalu / pow. użytkowa) w okresie głównym; p25/p75 dla n >= 4",
+   "price.n_kw": "liczba transakcji w samym kwartale (okres główny)",
+   "price.low_n": "true, gdy użyta próba < 5",
+   "price.years": "{rok: [n, mediana]} tylko w kwartale; mediana dla n >= 3, inaczej [n]",
+   "price.primary / secondary": "[n, mediana] rynek pierwotny / wtórny w użytej próbie (mediana dla n >= 3)",
+   "price.area_med / rooms_med": "mediana pow. użytkowej (m2) i liczby izb w użytej próbie",
+   "bld.res / other": "budynki mieszkalne / pozostałe z rejestru miasta (środek budynku w kwartale)",
+   "bld.fl_max / fl_med": "kondygnacje nadziemne budynków mieszkalnych: max / mediana",
+   "bld.res_share": "udział powierzchni zabudowy budynków mieszkalnych w całej zabudowie kwartału",
+   "near.<typ>": "[nazwa lub null (brak nazwy w źródle), odległość w linii prostej w m, zaokr. do 10] od punktu kwartału; powyżej 3 km sama liczba (nazwa pominięta)",
+   "n500.<typ>": "liczba obiektów w promieniu 500 m (brak klucza = 0); typy: kindergarten, school, high_school, clinic, pharmacy, supermarket, stop",
+   "dep400": "suma odjazdów w dniu roboczym (rozkład ZTM 19.10.2026) ze wszystkich słupków, metra i SKM w 400 m",
+   "noise": "[udział >= 55, >= 60, >= 65 dB] powierzchni kwartału, Lden, drogi lub kolej/tramwaj (GIOŚ, dane 2021)",
+   "travel.<cel>": "[średnia, min] minut komunikacją przy przyjeździe 07:30-09:00 (10 terminów co 10 min); trzecia wartość = liczba osiągalnych terminów, tylko gdy < 10",
+   "ref point": "środek ciężkości kwartału albo punkt na jego powierzchni, gdy środek wypada poza",
+   "walk rule (UI)": "czas pieszo ~ odległość x 1.3 / 78 m/min (jak czasy_przejazdu.geojson)"
+  },
+  "near_types": {
+   "kindergarten": "przedszkole (OSM)",
+   "school": "szkoła podstawowa (OSM)",
+   "high_school": "szkoła średnia (OSM)",
+   "university": "uczelnia (OSM)",
+   "clinic": "przychodnia (OSM)",
+   "pharmacy": "apteka (OSM)",
+   "supermarket": "supermarket (OSM)",
+   "park": "park >= 1 ha, odległość do krawędzi (OSM, e39479af49a915ad.json)",
+   "forest": "las >= 1 ha, odległość do krawędzi (OSM)",
+   "stop": "słupek ZTM (dane.um.warszawa.pl)",
+   "tram": "słupek z tramwajem (ZTM GTFS)",
+   "metro": "stacja metra (ZTM GTFS)",
+   "skm": "stacja SKM (ZTM GTFS)"
+  },
+  "sources": [
+   {
+    "id": "rcn",
+    "label": "Rejestr Cen Nieruchomości — Urząd m.st. Warszawy",
+    "licence": "ponowne wykorzystanie bezpłatne, podać źródło"
+   },
+   {
+    "id": "budynki",
+    "label": "Rejestr budynków (EGiB) — GeoServer m.st. Warszawy wfs:budynki",
+    "licence": "Urząd m.st. Warszawy"
+   },
+   {
+    "id": "osm",
+    "label": "OpenStreetMap (Overpass)",
+    "licence": "ODbL 1.0 — © współtwórcy OpenStreetMap"
+   },
+   {
+    "id": "ztm",
+    "label": "ZTM Warszawa (GTFS, M. Kuranowski), przystanki dane.um.warszawa.pl",
+    "licence": "CC BY — Urząd m.st. Warszawy"
+   },
+   {
+    "id": "gios",
+    "label": "GIOŚ HAŁAS API, SMH 2022 (4. runda)",
+    "licence": "CC BY 4.0 — GIOŚ"
+   }
+  ]
+ },
+ "areas": {
+  "aleksandrow": {
+   "kwartaly": 148,
+   "with_n5": 3,
+   "msi_price": {
+    "n": 42,
+    "med": 11748,
+    "p25": 9928,
+    "p75": 13344
+   },
+   "kb": 112
+  },
+  "anin": {
+   "kwartaly": 186,
+   "with_n5": 10,
+   "msi_price": {
+    "n": 109,
+    "med": 13727,
+    "p25": 11758,
+    "p75": 15741
+   },
+   "kb": 165
+  },
+  "augustowka": {
+   "kwartaly": 51,
+   "with_n5": 3,
+   "msi_price": {
+    "n": 29,
+    "med": 17055,
+    "p25": 15934,
+    "p75": 18501
+   },
+   "kb": 39
+  },
+  "bemowo-lotnisko": {
+   "kwartaly": 124,
+   "with_n5": 28,
+   "msi_price": {
+    "n": 297,
+    "med": 13810,
+    "p25": 11731,
+    "p75": 15337
+   },
+   "kb": 115
+  },
+  "bialoleka-dworska": {
+   "kwartaly": 174,
+   "with_n5": 2,
+   "msi_price": {
+    "n": 49,
+    "med": 9948,
+    "p25": 8647,
+    "p75": 12292
+   },
+   "kb": 157
+  },
+  "blonia-wilanowskie": {
+   "kwartaly": 100,
+   "with_n5": 49,
+   "msi_price": {
+    "n": 2041,
+    "med": 18354,
+    "p25": 15741,
+    "p75": 20293
+   },
+   "kb": 98
+  },
+  "boernerowo": {
+   "kwartaly": 50,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 6,
+    "med": 13368,
+    "p25": 12283,
+    "p75": 16058
+   },
+   "kb": 41
+  },
+  "brodno": {
+   "kwartaly": 137,
+   "with_n5": 34,
+   "msi_price": {
+    "n": 1074,
+    "med": 13976,
+    "p25": 12557,
+    "p75": 15672
+   },
+   "kb": 137
+  },
+  "brodno-podgrodzie": {
+   "kwartaly": 60,
+   "with_n5": 21,
+   "msi_price": {
+    "n": 415,
+    "med": 14027,
+    "p25": 12380,
+    "p75": 15844
+   },
+   "kb": 60
+  },
+  "brzeziny": {
+   "kwartaly": 310,
+   "with_n5": 28,
+   "msi_price": {
+    "n": 1068,
+    "med": 11895,
+    "p25": 10120,
+    "p75": 13758
+   },
+   "kb": 281
+  },
+  "chomiczowka": {
+   "kwartaly": 110,
+   "with_n5": 17,
+   "msi_price": {
+    "n": 456,
+    "med": 15609,
+    "p25": 13556,
+    "p75": 17420
+   },
+   "kb": 103
+  },
+  "choszczowka": {
+   "kwartaly": 137,
+   "with_n5": 2,
+   "msi_price": {
+    "n": 12,
+    "med": 11921,
+    "p25": 10724,
+    "p75": 12847
+   },
+   "kb": 111
+  },
+  "chrzanow": {
+   "kwartaly": 52,
+   "with_n5": 24,
+   "msi_price": {
+    "n": 2858,
+    "med": 14944,
+    "p25": 13380,
+    "p75": 17438
+   },
+   "kb": 49
+  },
+  "czechowice": {
+   "kwartaly": 181,
+   "with_n5": 5,
+   "msi_price": {
+    "n": 112,
+    "med": 12770,
+    "p25": 11237,
+    "p75": 14673
+   },
+   "kb": 166
+  },
+  "czerniakow": {
+   "kwartaly": 35,
+   "with_n5": 16,
+   "msi_price": {
+    "n": 699,
+    "med": 17678,
+    "p25": 16323,
+    "p75": 18376
+   },
+   "kb": 34
+  },
+  "czyste": {
+   "kwartaly": 30,
+   "with_n5": 22,
+   "msi_price": {
+    "n": 1744,
+    "med": 22726,
+    "p25": 19527,
+    "p75": 26858
+   },
+   "kb": 30
+  },
+  "dabrowka": {
+   "kwartaly": 107,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 3,
+    "med": 10875,
+    "p25": null,
+    "p75": null
+   },
+   "kb": 78
+  },
+  "dabrowka-szlachecka": {
+   "kwartaly": 62,
+   "with_n5": 10,
+   "msi_price": {
+    "n": 139,
+    "med": 9541,
+    "p25": 8540,
+    "p75": 11236
+   },
+   "kb": 61
+  },
+  "elsnerow": {
+   "kwartaly": 23,
+   "with_n5": 13,
+   "msi_price": {
+    "n": 625,
+    "med": 14165,
+    "p25": 13172,
+    "p75": 15636
+   },
+   "kb": 23
+  },
+  "falenica": {
+   "kwartaly": 320,
+   "with_n5": 6,
+   "msi_price": {
+    "n": 272,
+    "med": 13088,
+    "p25": 9814,
+    "p75": 14158
+   },
+   "kb": 270
+  },
+  "filtry": {
+   "kwartaly": 29,
+   "with_n5": 4,
+   "msi_price": {
+    "n": 86,
+    "med": 18208,
+    "p25": 15566,
+    "p75": 20848
+   },
+   "kb": 29
+  },
+  "fort-bema": {
+   "kwartaly": 13,
+   "with_n5": 9,
+   "msi_price": {
+    "n": 161,
+    "med": 16561,
+    "p25": 14881,
+    "p75": 17835
+   },
+   "kb": 13
+  },
+  "fort-radiowo": {
+   "kwartaly": 31,
+   "with_n5": 2,
+   "msi_price": {
+    "n": 36,
+    "med": 13152,
+    "p25": 11621,
+    "p75": 15093
+   },
+   "kb": 28
+  },
+  "goclaw": {
+   "kwartaly": 82,
+   "with_n5": 47,
+   "msi_price": {
+    "n": 1197,
+    "med": 15194,
+    "p25": 13150,
+    "p75": 17329
+   },
+   "kb": 83
+  },
+  "goclawek": {
+   "kwartaly": 190,
+   "with_n5": 29,
+   "msi_price": {
+    "n": 590,
+    "med": 14536,
+    "p25": 13124,
+    "p75": 16140
+   },
+   "kb": 185
+  },
+  "golabki": {
+   "kwartaly": 125,
+   "with_n5": 15,
+   "msi_price": {
+    "n": 283,
+    "med": 13807,
+    "p25": 12006,
+    "p75": 15059
+   },
+   "kb": 118
+  },
+  "gorce": {
+   "kwartaly": 61,
+   "with_n5": 32,
+   "msi_price": {
+    "n": 826,
+    "med": 16279,
+    "p25": 14900,
+    "p75": 17820
+   },
+   "kb": 62
+  },
+  "grabow": {
+   "kwartaly": 111,
+   "with_n5": 1,
+   "msi_price": {
+    "n": 28,
+    "med": 16838,
+    "p25": 13079,
+    "p75": 18786
+   },
+   "kb": 97
+  },
+  "grochow": {
+   "kwartaly": 230,
+   "with_n5": 102,
+   "msi_price": {
+    "n": 2816,
+    "med": 15418,
+    "p25": 13761,
+    "p75": 17144
+   },
+   "kb": 228
+  },
+  "grodzisk": {
+   "kwartaly": 275,
+   "with_n5": 59,
+   "msi_price": {
+    "n": 1285,
+    "med": 12571,
+    "p25": 10860,
+    "p75": 13929
+   },
+   "kb": 238
+  },
+  "groszowka": {
+   "kwartaly": 69,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 3,
+    "med": 12983,
+    "p25": null,
+    "p75": null
+   },
+   "kb": 62
+  },
+  "groty": {
+   "kwartaly": 43,
+   "with_n5": 2,
+   "msi_price": {
+    "n": 20,
+    "med": 15530,
+    "p25": 14863,
+    "p75": 16354
+   },
+   "kb": 35
+  },
+  "henrykow": {
+   "kwartaly": 182,
+   "with_n5": 12,
+   "msi_price": {
+    "n": 379,
+    "med": 14401,
+    "p25": 13150,
+    "p75": 15359
+   },
+   "kb": 171
+  },
+  "huta": {
+   "kwartaly": 13,
+   "with_n5": 2,
+   "msi_price": {
+    "n": 20,
+    "med": 10874,
+    "p25": 10290,
+    "p75": 11731
+   },
+   "kb": 11
+  },
+  "jelonki-polnocne": {
+   "kwartaly": 96,
+   "with_n5": 21,
+   "msi_price": {
+    "n": 212,
+    "med": 13974,
+    "p25": 12658,
+    "p75": 15850
+   },
+   "kb": 97
+  },
+  "jelonki-poludniowe": {
+   "kwartaly": 134,
+   "with_n5": 10,
+   "msi_price": {
+    "n": 170,
+    "med": 15522,
+    "p25": 13605,
+    "p75": 18250
+   },
+   "kb": 131
+  },
+  "jeziorki-polnocne": {
+   "kwartaly": 57,
+   "with_n5": 4,
+   "msi_price": {
+    "n": 57,
+    "med": 11371,
+    "p25": 10559,
+    "p75": 12764
+   },
+   "kb": 46
+  },
+  "jeziorki-poludniowe": {
+   "kwartaly": 106,
+   "with_n5": 2,
+   "msi_price": {
+    "n": 59,
+    "med": 12718,
+    "p25": 11914,
+    "p75": 13878
+   },
+   "kb": 85
+  },
+  "kabaty": {
+   "kwartaly": 93,
+   "with_n5": 20,
+   "msi_price": {
+    "n": 717,
+    "med": 18424,
+    "p25": 16660,
+    "p75": 19986
+   },
+   "kb": 87
+  },
+  "kamionek": {
+   "kwartaly": 35,
+   "with_n5": 17,
+   "msi_price": {
+    "n": 588,
+    "med": 15952,
+    "p25": 14297,
+    "p75": 17750
+   },
+   "kb": 35
+  },
+  "kaweczyn-wygoda": {
+   "kwartaly": 133,
+   "with_n5": 7,
+   "msi_price": {
+    "n": 365,
+    "med": 12995,
+    "p25": 11229,
+    "p75": 14019
+   },
+   "kb": 117
+  },
+  "kepa-zawadowska": {
+   "kwartaly": 66,
+   "with_n5": 2,
+   "msi_price": {
+    "n": 33,
+    "med": 12591,
+    "p25": 12174,
+    "p75": 13341
+   },
+   "kb": 47
+  },
+  "kobialka": {
+   "kwartaly": 180,
+   "with_n5": 30,
+   "msi_price": {
+    "n": 726,
+    "med": 12504,
+    "p25": 11252,
+    "p75": 13515
+   },
+   "kb": 140
+  },
+  "kolo": {
+   "kwartaly": 66,
+   "with_n5": 24,
+   "msi_price": {
+    "n": 414,
+    "med": 16600,
+    "p25": 14722,
+    "p75": 18032
+   },
+   "kb": 67
+  },
+  "ksawerow": {
+   "kwartaly": 47,
+   "with_n5": 25,
+   "msi_price": {
+    "n": 664,
+    "med": 19046,
+    "p25": 16276,
+    "p75": 22780
+   },
+   "kb": 48
+  },
+  "las": {
+   "kwartaly": 245,
+   "with_n5": 17,
+   "msi_price": {
+    "n": 254,
+    "med": 10380,
+    "p25": 9659,
+    "p75": 11514
+   },
+   "kb": 203
+  },
+  "las-bielanski": {
+   "kwartaly": 8,
+   "with_n5": 2,
+   "msi_price": {
+    "n": 17,
+    "med": 17218,
+    "p25": 15891,
+    "p75": 20905
+   },
+   "kb": 8
+  },
+  "lotnisko": {
+   "kwartaly": 1,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 0,
+    "med": null,
+    "p25": null,
+    "p75": null
+   },
+   "kb": 1
+  },
+  "marymont-kaskada": {
+   "kwartaly": 53,
+   "with_n5": 6,
+   "msi_price": {
+    "n": 177,
+    "med": 20578,
+    "p25": 18510,
+    "p75": 23277
+   },
+   "kb": 52
+  },
+  "marymont-potok": {
+   "kwartaly": 37,
+   "with_n5": 5,
+   "msi_price": {
+    "n": 64,
+    "med": 17306,
+    "p25": 15745,
+    "p75": 19379
+   },
+   "kb": 35
+  },
+  "marymont-ruda": {
+   "kwartaly": 10,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 0,
+    "med": null,
+    "p25": null,
+    "p75": null
+   },
+   "kb": 10
+  },
+  "marysin-wawerski": {
+   "kwartaly": 259,
+   "with_n5": 12,
+   "msi_price": {
+    "n": 261,
+    "med": 14259,
+    "p25": 12790,
+    "p75": 15426
+   },
+   "kb": 242
+  },
+  "miedzeszyn": {
+   "kwartaly": 203,
+   "with_n5": 4,
+   "msi_price": {
+    "n": 115,
+    "med": 8727,
+    "p25": 7994,
+    "p75": 11648
+   },
+   "kb": 182
+  },
+  "miedzylesie": {
+   "kwartaly": 293,
+   "with_n5": 9,
+   "msi_price": {
+    "n": 339,
+    "med": 13278,
+    "p25": 11698,
+    "p75": 14988
+   },
+   "kb": 257
+  },
+  "mirow": {
+   "kwartaly": 40,
+   "with_n5": 31,
+   "msi_price": {
+    "n": 1433,
+    "med": 25510,
+    "p25": 19948,
+    "p75": 29566
+   },
+   "kb": 41
+  },
+  "mlociny": {
+   "kwartaly": 110,
+   "with_n5": 7,
+   "msi_price": {
+    "n": 227,
+    "med": 15674,
+    "p25": 14490,
+    "p75": 17610
+   },
+   "kb": 105
+  },
+  "mlynow": {
+   "kwartaly": 56,
+   "with_n5": 44,
+   "msi_price": {
+    "n": 693,
+    "med": 16959,
+    "p25": 15119,
+    "p75": 19009
+   },
+   "kb": 58
+  },
+  "muranow": {
+   "kwartaly": 38,
+   "with_n5": 30,
+   "msi_price": {
+    "n": 521,
+    "med": 18719,
+    "p25": 16724,
+    "p75": 21993
+   },
+   "kb": 39
+  },
+  "nadwisle": {
+   "kwartaly": 318,
+   "with_n5": 23,
+   "msi_price": {
+    "n": 373,
+    "med": 10024,
+    "p25": 8504,
+    "p75": 11966
+   },
+   "kb": 267
+  },
+  "natolin": {
+   "kwartaly": 140,
+   "with_n5": 26,
+   "msi_price": {
+    "n": 394,
+    "med": 16088,
+    "p25": 14196,
+    "p75": 18048
+   },
+   "kb": 135
+  },
+  "niedzwiadek": {
+   "kwartaly": 42,
+   "with_n5": 5,
+   "msi_price": {
+    "n": 314,
+    "med": 12631,
+    "p25": 11713,
+    "p75": 13522
+   },
+   "kb": 41
+  },
+  "nowa-praga": {
+   "kwartaly": 63,
+   "with_n5": 44,
+   "msi_price": {
+    "n": 910,
+    "med": 16979,
+    "p25": 14391,
+    "p75": 19148
+   },
+   "kb": 65
+  },
+  "nowe-miasto": {
+   "kwartaly": 23,
+   "with_n5": 7,
+   "msi_price": {
+    "n": 87,
+    "med": 20603,
+    "p25": 18658,
+    "p75": 22357
+   },
+   "kb": 24
+  },
+  "nowe-wlochy": {
+   "kwartaly": 187,
+   "with_n5": 8,
+   "msi_price": {
+    "n": 225,
+    "med": 15428,
+    "p25": 12935,
+    "p75": 17181
+   },
+   "kb": 179
+  },
+  "nowodwory": {
+   "kwartaly": 237,
+   "with_n5": 73,
+   "msi_price": {
+    "n": 1651,
+    "med": 12866,
+    "p25": 11738,
+    "p75": 14040
+   },
+   "kb": 244
+  },
+  "nowolipki": {
+   "kwartaly": 31,
+   "with_n5": 28,
+   "msi_price": {
+    "n": 471,
+    "med": 17235,
+    "p25": 15412,
+    "p75": 19788
+   },
+   "kb": 33
+  },
+  "nowy-rembertow": {
+   "kwartaly": 109,
+   "with_n5": 4,
+   "msi_price": {
+    "n": 51,
+    "med": 11620,
+    "p25": 8382,
+    "p75": 12764
+   },
+   "kb": 102
+  },
+  "odolany": {
+   "kwartaly": 27,
+   "with_n5": 20,
+   "msi_price": {
+    "n": 1000,
+    "med": 18764,
+    "p25": 14782,
+    "p75": 21090
+   },
+   "kb": 28
+  },
+  "okecie": {
+   "kwartaly": 146,
+   "with_n5": 19,
+   "msi_price": {
+    "n": 297,
+    "med": 14730,
+    "p25": 13015,
+    "p75": 16725
+   },
+   "kb": 134
+  },
+  "olszynka-grochowska": {
+   "kwartaly": 9,
+   "with_n5": 1,
+   "msi_price": {
+    "n": 7,
+    "med": 12718,
+    "p25": 12046,
+    "p75": 12944
+   },
+   "kb": 8
+  },
+  "opacz-wielka": {
+   "kwartaly": 61,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 0,
+    "med": null,
+    "p25": null,
+    "p75": null
+   },
+   "kb": 47
+  },
+  "paluch": {
+   "kwartaly": 4,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 0,
+    "med": null,
+    "p25": null,
+    "p75": null
+   },
+   "kb": 3
+  },
+  "pelcowizna": {
+   "kwartaly": 15,
+   "with_n5": 4,
+   "msi_price": {
+    "n": 657,
+    "med": 15151,
+    "p25": 14049,
+    "p75": 16271
+   },
+   "kb": 14
+  },
+  "piaski": {
+   "kwartaly": 33,
+   "with_n5": 14,
+   "msi_price": {
+    "n": 314,
+    "med": 15978,
+    "p25": 13741,
+    "p75": 19998
+   },
+   "kb": 35
+  },
+  "plac-wojska-polskiego": {
+   "kwartaly": 5,
+   "with_n5": 2,
+   "msi_price": {
+    "n": 29,
+    "med": 11400,
+    "p25": 10413,
+    "p75": 12625
+   },
+   "kb": 5
+  },
+  "placowka": {
+   "kwartaly": 5,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 0,
+    "med": null,
+    "p25": null,
+    "p75": null
+   },
+   "kb": 4
+  },
+  "powazki": {
+   "kwartaly": 6,
+   "with_n5": 3,
+   "msi_price": {
+    "n": 77,
+    "med": 22059,
+    "p25": 20285,
+    "p75": 23745
+   },
+   "kb": 6
+  },
+  "powisle": {
+   "kwartaly": 31,
+   "with_n5": 18,
+   "msi_price": {
+    "n": 193,
+    "med": 23421,
+    "p25": 19850,
+    "p75": 30882
+   },
+   "kb": 31
+  },
+  "powsin": {
+   "kwartaly": 182,
+   "with_n5": 11,
+   "msi_price": {
+    "n": 180,
+    "med": 14322,
+    "p25": 12837,
+    "p75": 15243
+   },
+   "kb": 138
+  },
+  "powsinek": {
+   "kwartaly": 58,
+   "with_n5": 2,
+   "msi_price": {
+    "n": 23,
+    "med": 10306,
+    "p25": 9754,
+    "p75": 14064
+   },
+   "kb": 48
+  },
+  "pyry": {
+   "kwartaly": 152,
+   "with_n5": 4,
+   "msi_price": {
+    "n": 25,
+    "med": 12621,
+    "p25": 11907,
+    "p75": 15326
+   },
+   "kb": 123
+  },
+  "radiowo": {
+   "kwartaly": 88,
+   "with_n5": 1,
+   "msi_price": {
+    "n": 7,
+    "med": 11666,
+    "p25": 10992,
+    "p75": 13542
+   },
+   "kb": 71
+  },
+  "radosc": {
+   "kwartaly": 467,
+   "with_n5": 4,
+   "msi_price": {
+    "n": 61,
+    "med": 11340,
+    "p25": 9151,
+    "p75": 12871
+   },
+   "kb": 401
+  },
+  "rakow": {
+   "kwartaly": 32,
+   "with_n5": 16,
+   "msi_price": {
+    "n": 2279,
+    "med": 15281,
+    "p25": 13963,
+    "p75": 17058
+   },
+   "kb": 29
+  },
+  "rakowiec": {
+   "kwartaly": 32,
+   "with_n5": 23,
+   "msi_price": {
+    "n": 398,
+    "med": 15994,
+    "p25": 14116,
+    "p75": 17508
+   },
+   "kb": 33
+  },
+  "sadul": {
+   "kwartaly": 97,
+   "with_n5": 1,
+   "msi_price": {
+    "n": 18,
+    "med": 12562,
+    "p25": 9844,
+    "p75": 13872
+   },
+   "kb": 79
+  },
+  "sady-zoliborskie": {
+   "kwartaly": 46,
+   "with_n5": 26,
+   "msi_price": {
+    "n": 625,
+    "med": 22994,
+    "p25": 19881,
+    "p75": 25033
+   },
+   "kb": 48
+  },
+  "sadyba": {
+   "kwartaly": 161,
+   "with_n5": 12,
+   "msi_price": {
+    "n": 263,
+    "med": 16704,
+    "p25": 14420,
+    "p75": 19042
+   },
+   "kb": 151
+  },
+  "salomea": {
+   "kwartaly": 16,
+   "with_n5": 5,
+   "msi_price": {
+    "n": 530,
+    "med": 13002,
+    "p25": 11903,
+    "p75": 14456
+   },
+   "kb": 14
+  },
+  "saska-kepa": {
+   "kwartaly": 221,
+   "with_n5": 47,
+   "msi_price": {
+    "n": 852,
+    "med": 17665,
+    "p25": 16022,
+    "p75": 19841
+   },
+   "kb": 229
+  },
+  "siekierki": {
+   "kwartaly": 88,
+   "with_n5": 22,
+   "msi_price": {
+    "n": 1089,
+    "med": 16597,
+    "p25": 15364,
+    "p75": 18086
+   },
+   "kb": 85
+  },
+  "sielce": {
+   "kwartaly": 83,
+   "with_n5": 51,
+   "msi_price": {
+    "n": 793,
+    "med": 17819,
+    "p25": 15590,
+    "p75": 20393
+   },
+   "kb": 83
+  },
+  "skarpa-powsinska": {
+   "kwartaly": 8,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 0,
+    "med": null,
+    "p25": null,
+    "p75": null
+   },
+   "kb": 5
+  },
+  "skorosze": {
+   "kwartaly": 119,
+   "with_n5": 47,
+   "msi_price": {
+    "n": 1280,
+    "med": 14375,
+    "p25": 13072,
+    "p75": 15654
+   },
+   "kb": 113
+  },
+  "slodowiec": {
+   "kwartaly": 30,
+   "with_n5": 15,
+   "msi_price": {
+    "n": 233,
+    "med": 16181,
+    "p25": 14367,
+    "p75": 18729
+   },
+   "kb": 32
+  },
+  "sluzew": {
+   "kwartaly": 130,
+   "with_n5": 36,
+   "msi_price": {
+    "n": 717,
+    "med": 15432,
+    "p25": 13821,
+    "p75": 16993
+   },
+   "kb": 126
+  },
+  "sluzewiec": {
+   "kwartaly": 19,
+   "with_n5": 17,
+   "msi_price": {
+    "n": 1353,
+    "med": 20287,
+    "p25": 18325,
+    "p75": 22111
+   },
+   "kb": 19
+  },
+  "solec": {
+   "kwartaly": 32,
+   "with_n5": 18,
+   "msi_price": {
+    "n": 230,
+    "med": 20833,
+    "p25": 17197,
+    "p75": 26106
+   },
+   "kb": 32
+  },
+  "srodmiescie-polnocne": {
+   "kwartaly": 77,
+   "with_n5": 38,
+   "msi_price": {
+    "n": 606,
+    "med": 21170,
+    "p25": 18634,
+    "p75": 24677
+   },
+   "kb": 79
+  },
+  "srodmiescie-poludniowe": {
+   "kwartaly": 99,
+   "with_n5": 65,
+   "msi_price": {
+    "n": 809,
+    "med": 23148,
+    "p25": 19420,
+    "p75": 27754
+   },
+   "kb": 100
+  },
+  "stara-milosna": {
+   "kwartaly": 320,
+   "with_n5": 16,
+   "msi_price": {
+    "n": 240,
+    "med": 12378,
+    "p25": 11009,
+    "p75": 13970
+   },
+   "kb": 294
+  },
+  "stara-ochota": {
+   "kwartaly": 65,
+   "with_n5": 40,
+   "msi_price": {
+    "n": 621,
+    "med": 16928,
+    "p25": 15038,
+    "p75": 19824
+   },
+   "kb": 70
+  },
+  "stara-praga": {
+   "kwartaly": 40,
+   "with_n5": 18,
+   "msi_price": {
+    "n": 491,
+    "med": 20475,
+    "p25": 17234,
+    "p75": 23922
+   },
+   "kb": 39
+  },
+  "stare-bielany": {
+   "kwartaly": 99,
+   "with_n5": 19,
+   "msi_price": {
+    "n": 281,
+    "med": 16683,
+    "p25": 15217,
+    "p75": 17997
+   },
+   "kb": 103
+  },
+  "stare-miasto": {
+   "kwartaly": 20,
+   "with_n5": 3,
+   "msi_price": {
+    "n": 46,
+    "med": 22848,
+    "p25": 19940,
+    "p75": 25490
+   },
+   "kb": 19
+  },
+  "stare-wlochy": {
+   "kwartaly": 245,
+   "with_n5": 34,
+   "msi_price": {
+    "n": 874,
+    "med": 15241,
+    "p25": 13919,
+    "p75": 16747
+   },
+   "kb": 243
+  },
+  "stary-imielin": {
+   "kwartaly": 78,
+   "with_n5": 8,
+   "msi_price": {
+    "n": 174,
+    "med": 16794,
+    "p25": 14550,
+    "p75": 18785
+   },
+   "kb": 74
+  },
+  "stary-mokotow": {
+   "kwartaly": 138,
+   "with_n5": 61,
+   "msi_price": {
+    "n": 778,
+    "med": 19127,
+    "p25": 17020,
+    "p75": 22144
+   },
+   "kb": 142
+  },
+  "stary-rembertow": {
+   "kwartaly": 387,
+   "with_n5": 15,
+   "msi_price": {
+    "n": 263,
+    "med": 11461,
+    "p25": 10034,
+    "p75": 13042
+   },
+   "kb": 349
+  },
+  "stary-sluzew": {
+   "kwartaly": 15,
+   "with_n5": 1,
+   "msi_price": {
+    "n": 27,
+    "med": 21259,
+    "p25": 17952,
+    "p75": 22281
+   },
+   "kb": 13
+  },
+  "stary-zoliborz": {
+   "kwartaly": 143,
+   "with_n5": 19,
+   "msi_price": {
+    "n": 288,
+    "med": 19780,
+    "p25": 17656,
+    "p75": 22858
+   },
+   "kb": 142
+  },
+  "stegny": {
+   "kwartaly": 117,
+   "with_n5": 34,
+   "msi_price": {
+    "n": 905,
+    "med": 18346,
+    "p25": 16191,
+    "p75": 20124
+   },
+   "kb": 111
+  },
+  "szamocin": {
+   "kwartaly": 88,
+   "with_n5": 9,
+   "msi_price": {
+    "n": 319,
+    "med": 9934,
+    "p25": 7704,
+    "p75": 12356
+   },
+   "kb": 69
+  },
+  "szamoty": {
+   "kwartaly": 15,
+   "with_n5": 13,
+   "msi_price": {
+    "n": 3256,
+    "med": 12408,
+    "p25": 11061,
+    "p75": 14650
+   },
+   "kb": 14
+  },
+  "szczesliwice": {
+   "kwartaly": 107,
+   "with_n5": 35,
+   "msi_price": {
+    "n": 694,
+    "med": 17875,
+    "p25": 15573,
+    "p75": 19792
+   },
+   "kb": 104
+  },
+  "szmulowizna": {
+   "kwartaly": 41,
+   "with_n5": 11,
+   "msi_price": {
+    "n": 307,
+    "med": 18138,
+    "p25": 16116,
+    "p75": 19966
+   },
+   "kb": 43
+  },
+  "tarchomin": {
+   "kwartaly": 104,
+   "with_n5": 22,
+   "msi_price": {
+    "n": 733,
+    "med": 13700,
+    "p25": 12330,
+    "p75": 15258
+   },
+   "kb": 106
+  },
+  "targowek-fabryczny": {
+   "kwartaly": 24,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 0,
+    "med": null,
+    "p25": null,
+    "p75": null
+   },
+   "kb": 22
+  },
+  "targowek-mieszkaniowy": {
+   "kwartaly": 98,
+   "with_n5": 30,
+   "msi_price": {
+    "n": 475,
+    "med": 14565,
+    "p25": 12795,
+    "p75": 16802
+   },
+   "kb": 104
+  },
+  "teren-wydzielony-rezerwat-las-kabacki": {
+   "kwartaly": 1,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 0,
+    "med": null,
+    "p25": null,
+    "p75": null
+   },
+   "kb": 1
+  },
+  "ujazdow": {
+   "kwartaly": 22,
+   "with_n5": 11,
+   "msi_price": {
+    "n": 112,
+    "med": 21196,
+    "p25": 17324,
+    "p75": 25752
+   },
+   "kb": 22
+  },
+  "ulrychow": {
+   "kwartaly": 63,
+   "with_n5": 22,
+   "msi_price": {
+    "n": 894,
+    "med": 16910,
+    "p25": 15318,
+    "p75": 18942
+   },
+   "kb": 62
+  },
+  "ursynow-centrum": {
+   "kwartaly": 113,
+   "with_n5": 17,
+   "msi_price": {
+    "n": 364,
+    "med": 16984,
+    "p25": 15273,
+    "p75": 18208
+   },
+   "kb": 114
+  },
+  "ursynow-polnocny": {
+   "kwartaly": 94,
+   "with_n5": 11,
+   "msi_price": {
+    "n": 166,
+    "med": 15952,
+    "p25": 14192,
+    "p75": 17811
+   },
+   "kb": 89
+  },
+  "utrata": {
+   "kwartaly": 1,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 0,
+    "med": null,
+    "p25": null,
+    "p75": null
+   },
+   "kb": 1
+  },
+  "wawer": {
+   "kwartaly": 149,
+   "with_n5": 5,
+   "msi_price": {
+    "n": 77,
+    "med": 13194,
+    "p25": 11153,
+    "p75": 14484
+   },
+   "kb": 136
+  },
+  "wawrzyszew": {
+   "kwartaly": 22,
+   "with_n5": 6,
+   "msi_price": {
+    "n": 401,
+    "med": 18572,
+    "p25": 16942,
+    "p75": 20118
+   },
+   "kb": 22
+  },
+  "wesola-centrum": {
+   "kwartaly": 79,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 11,
+    "med": 12754,
+    "p25": 10058,
+    "p75": 13491
+   },
+   "kb": 78
+  },
+  "wierzbno": {
+   "kwartaly": 89,
+   "with_n5": 40,
+   "msi_price": {
+    "n": 532,
+    "med": 17464,
+    "p25": 15626,
+    "p75": 21068
+   },
+   "kb": 94
+  },
+  "wilanow-krolewski": {
+   "kwartaly": 22,
+   "with_n5": 1,
+   "msi_price": {
+    "n": 30,
+    "med": 17598,
+    "p25": 15930,
+    "p75": 19154
+   },
+   "kb": 20
+  },
+  "wilanow-niski": {
+   "kwartaly": 127,
+   "with_n5": 1,
+   "msi_price": {
+    "n": 33,
+    "med": 16010,
+    "p25": 13738,
+    "p75": 18746
+   },
+   "kb": 119
+  },
+  "wilanow-wysoki": {
+   "kwartaly": 27,
+   "with_n5": 6,
+   "msi_price": {
+    "n": 54,
+    "med": 14117,
+    "p25": 12408,
+    "p75": 14976
+   },
+   "kb": 27
+  },
+  "wola-grzybowska": {
+   "kwartaly": 73,
+   "with_n5": 2,
+   "msi_price": {
+    "n": 23,
+    "med": 12121,
+    "p25": 11256,
+    "p75": 12961
+   },
+   "kb": 74
+  },
+  "wolka-weglowa": {
+   "kwartaly": 67,
+   "with_n5": 2,
+   "msi_price": {
+    "n": 170,
+    "med": 10712,
+    "p25": 9405,
+    "p75": 12200
+   },
+   "kb": 52
+  },
+  "wrzeciono": {
+   "kwartaly": 27,
+   "with_n5": 21,
+   "msi_price": {
+    "n": 358,
+    "med": 14920,
+    "p25": 13274,
+    "p75": 16888
+   },
+   "kb": 28
+  },
+  "wyczolki": {
+   "kwartaly": 32,
+   "with_n5": 12,
+   "msi_price": {
+    "n": 420,
+    "med": 17432,
+    "p25": 14107,
+    "p75": 19117
+   },
+   "kb": 29
+  },
+  "wygledow": {
+   "kwartaly": 94,
+   "with_n5": 17,
+   "msi_price": {
+    "n": 237,
+    "med": 22595,
+    "p25": 18182,
+    "p75": 26858
+   },
+   "kb": 88
+  },
+  "zacisze": {
+   "kwartaly": 431,
+   "with_n5": 12,
+   "msi_price": {
+    "n": 231,
+    "med": 13720,
+    "p25": 12390,
+    "p75": 15172
+   },
+   "kb": 419
+  },
+  "zaluski": {
+   "kwartaly": 21,
+   "with_n5": 0,
+   "msi_price": {
+    "n": 0,
+    "med": null,
+    "p25": null,
+    "p75": null
+   },
+   "kb": 16
+  },
+  "zawady": {
+   "kwartaly": 177,
+   "with_n5": 18,
+   "msi_price": {
+    "n": 268,
+    "med": 15968,
+    "p25": 13368,
+    "p75": 18714
+   },
+   "kb": 149
+  },
+  "zeran": {
+   "kwartaly": 90,
+   "with_n5": 28,
+   "msi_price": {
+    "n": 1433,
+    "med": 13235,
+    "p25": 10602,
+    "p75": 15095
+   },
+   "kb": 86
+  },
+  "zerzen": {
+   "kwartaly": 466,
+   "with_n5": 13,
+   "msi_price": {
+    "n": 281,
+    "med": 12942,
+    "p25": 9873,
+    "p75": 14843
+   },
+   "kb": 407
+  },
+  "zielona-grzybowa": {
+   "kwartaly": 199,
+   "with_n5": 5,
+   "msi_price": {
+    "n": 67,
+    "med": 12513,
+    "p25": 11803,
+    "p75": 13539
+   },
+   "kb": 175
+  }
+ }
+}

@@ -1,0 +1,179 @@
+import { Marker, type Map as MlMap } from 'maplibre-gl'
+import { Navigation } from 'lucide-react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
+import { CATEGORY_COLORS } from '../app/dictionary'
+import { CATEGORY_ICONS } from '../app/icons'
+import type { CategoryKey } from '../app/types'
+import type { LngLat } from '../mock/osiedla'
+import { mix } from './palette'
+
+export interface Pin {
+  id: string
+  coord: LngLat
+  label: string
+  category?: CategoryKey
+  kind?: 'place' | 'start' | 'end' | 'investment'
+  /** Investment pins: the year shown on the pin. */
+  year?: number
+}
+
+interface PlacePinsProps {
+  map: MlMap
+  pins: Pin[]
+  accent: string
+  deep: string
+  activeId?: string | null
+  /** Stagger between pins of the first batch (ms). */
+  stagger?: number
+  onPick?: (pin: Pin) => void
+}
+
+/** Pins are ~70 px tall and ~40 px wide: two pins clash when their feet are closer than this on both axes. */
+const CLEAR_X = 46
+const CLEAR_Y = 74
+/** Candidate nudges for a crowded investment pin, tried in order (sideways first: pins are tall). */
+const NUDGES: [number, number][] = [
+  [50, 0],
+  [-50, 0],
+  [100, 0],
+  [-100, 0],
+  [50, -78],
+  [-50, -78],
+  [0, -80],
+  [150, 0],
+  [-150, 0],
+]
+
+type Shift = Record<string, [number, number]>
+
+/**
+ * Pins step aside (in screen space) when they would cover another one: route ends stay put, then
+ * places in list order (two places at one address no longer stack), then investments.
+ */
+function computeShifts(map: MlMap, pins: Pin[]): Shift {
+  const rank = (p: Pin) => (p.kind === 'start' || p.kind === 'end' ? 0 : p.kind === 'investment' ? 2 : 1)
+  const order = [...pins].sort((a, b) => rank(a) - rank(b))
+  const placed: { x: number; y: number }[] = []
+  const out: Shift = {}
+  const free = (x: number, y: number) => placed.every((f) => Math.abs(f.x - x) >= CLEAR_X || Math.abs(f.y - y) >= CLEAR_Y)
+  for (const p of order) {
+    const s = map.project(p.coord)
+    let d: [number, number] = [0, 0]
+    if (rank(p) > 0 && !free(s.x, s.y)) d = NUDGES.find(([dx, dy]) => free(s.x + dx, s.y + dy)) ?? NUDGES[0]
+    out[p.id] = d
+    placed.push({ x: s.x + d[0], y: s.y + d[1] })
+  }
+  return out
+}
+
+/**
+ * HTML pins standing on the 3D map: a disc with the category icon on a short stem, dropping in
+ * one after another; investments are diamonds with their year. Markers are diffed by id, so a pin
+ * added later (timeline scrub, route ends) drops in alone and the others stay put.
+ * MapLibre owns the marker elements; React renders into them via portals.
+ */
+export function PlacePins({ map, pins, accent, deep, activeId, stagger = 80, onPick }: PlacePinsProps) {
+  const [hosts, setHosts] = useState<Record<string, HTMLDivElement>>({})
+  const [shift, setShift] = useState<Shift>({})
+  const markers = useRef(new Map<string, Marker>())
+  /** Entry delay per pin, fixed when the pin first appears. */
+  const delays = useRef(new Map<string, number>())
+  const pinsRef = useRef(pins)
+  const key = pins.map((p) => `${p.id}@${p.coord.join(',')}`).join('|')
+
+  useEffect(() => {
+    pinsRef.current = pins
+    const ms = markers.current
+    const want = new Set(pins.map((p) => p.id))
+    for (const [id, m] of ms)
+      if (!want.has(id)) {
+        m.remove()
+        ms.delete(id)
+        delays.current.delete(id)
+      }
+    const firstBatch = ms.size === 0
+    let fresh = 0
+    for (const p of pins) {
+      const m = ms.get(p.id)
+      if (m) {
+        m.setLngLat(p.coord)
+        continue
+      }
+      const el = document.createElement('div')
+      el.className = `cin-pin-host is-${p.kind ?? 'place'}`
+      ms.set(p.id, new Marker({ element: el, anchor: 'bottom', pitchAlignment: 'viewport', rotationAlignment: 'viewport' }).setLngLat(p.coord).addTo(map))
+      delays.current.set(p.id, firstBatch ? fresh * stagger : fresh * 90)
+      fresh++
+    }
+    const next: Record<string, HTMLDivElement> = {}
+    for (const [id, m] of ms) next[id] = m.getElement() as HTMLDivElement
+    // marker hosts exist only after MapLibre creates them — syncing with an external system
+    // eslint-disable-next-line react/set-state-in-effect
+    setHosts(next)
+    setShift(computeShifts(map, pins))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, key])
+
+  // keep the pins clear of each other whenever the camera settles (zoom changes the spacing)
+  useEffect(() => {
+    const onEnd = () => setShift(computeShifts(map, pinsRef.current))
+    map.on('moveend', onEnd)
+    return () => {
+      map.off('moveend', onEnd)
+    }
+  }, [map])
+
+  useEffect(() => {
+    const ms = markers.current
+    return () => {
+      for (const m of ms.values()) m.remove()
+      ms.clear()
+    }
+  }, [map])
+
+  return (
+    <>
+      {pins.map((p) => {
+        const host = hosts[p.id]
+        if (!host) return null
+        const kind = p.kind ?? 'place'
+        const Icon = p.category ? CATEGORY_ICONS[p.category] : null
+        let glyph: ReactNode = Icon ? <Icon size={kind === 'investment' ? 13 : 16} strokeWidth={2.2} aria-hidden /> : null
+        if (kind === 'start') glyph = <span className="cin-pin__you">Ty</span>
+        if (!glyph) glyph = <Navigation size={15} strokeWidth={2.2} aria-hidden />
+        const [dx, dy] = shift[p.id] ?? [0, 0]
+        // places take their category colour (same as the map filters, POI and 3D buildings)
+        const pin = p.category && kind !== 'start' ? CATEGORY_COLORS[p.category] : accent
+        const pinDeep = p.category && kind !== 'start' ? mix(pin, '#16161d', 0.38) : deep
+        return createPortal(
+          <div className="cin-pin-shift" style={{ transform: `translate(${dx}px, ${dy}px)` }}>
+            <button
+              type="button"
+              className={`cin-pin is-${kind}${activeId === p.id ? ' is-active' : ''}${dx || dy ? ' is-nudged' : ''}`}
+              style={{ '--pin': pin, '--pin-deep': pinDeep, '--d': `${delays.current.get(p.id) ?? 0}ms` } as CSSProperties}
+              onClick={() => onPick?.(p)}
+              aria-label={p.label}
+            >
+              {kind === 'investment' ? (
+                <>
+                  <span className="cin-pin__year tabular">{p.year}</span>
+                  <span className="cin-pin__diamond">
+                    <span className="cin-pin__diamond-glyph">{glyph}</span>
+                  </span>
+                </>
+              ) : (
+                <span className="cin-pin__head">{glyph}</span>
+              )}
+              <span className="cin-pin__stem" aria-hidden />
+              <span className="cin-pin__foot" aria-hidden />
+              <span className="cin-pin__label">{p.label}</span>
+            </button>
+          </div>,
+          host,
+          p.id,
+        )
+      })}
+    </>
+  )
+}

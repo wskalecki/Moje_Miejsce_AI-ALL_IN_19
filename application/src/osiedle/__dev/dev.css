@@ -1,0 +1,72 @@
+.dev {
+  position: fixed;
+  inset: 0;
+}
+
+.dev-map {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 50% at 30% 40%, rgba(124, 92, 255, 0.1), transparent 70%),
+    radial-gradient(40% 40% at 60% 70%, rgba(19, 163, 150, 0.08), transparent 70%),
+    radial-gradient(circle at 1px 1px, rgba(22, 22, 29, 0.08) 1px, transparent 0) 0 0 / 18px 18px,
+    #ece8e1;
+  padding: 20px;
+  font-size: 13px;
+}
+
+.dev--page .dev-map {
+  display: none;
+}
+
+.dev-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.dev-seg {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.dev-seg button,
+.dev-open {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a4a57;
+}
+
+.dev-seg button[aria-pressed='true'] {
+  background: #16161d;
+  color: #fff;
+}
+
+.dev-open {
+  background: #16161d;
+  color: #fff;
+}
+
+.dev-log {
+  margin-top: 16px;
+  padding: 0;
+  list-style: none;
+  font: 11px/16px ui-monospace, monospace;
+  color: #4a4a57;
+  max-width: 440px;
+}
+
+/* `?bg=busy`: worst-case backdrop for the glass panel — dense "buildings" and a red glow line. */
+.dev--busy .dev-map {
+  background:
+    linear-gradient(100deg, transparent 49.6%, rgba(229, 72, 77, 0.9) 49.8%, rgba(229, 72, 77, 0.9) 50.2%, transparent 50.4%),
+    repeating-linear-gradient(90deg, #9c8f84 0 22px, #f2d6c4 22px 40px, #6f655d 40px 52px, #f7ece4 52px 80px),
+    repeating-linear-gradient(0deg, rgba(22, 22, 29, 0.35) 0 6px, transparent 6px 34px);
+  background-blend-mode: normal, multiply, normal;
+}

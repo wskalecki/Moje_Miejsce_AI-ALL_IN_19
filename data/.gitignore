@@ -10,13 +10,18 @@
 !scripts/**
 !boundaries/
 !boundaries/**
-# ETL outputs (no personal data); raw/ stays ignored: API dumps include BO authors' names
-!poi/
-!poi/**
+# Imported from origin/mikolaj (ETL outputs without personal data; raw/ stays ignored)
+!poi_mikolaj/
+!poi_mikolaj/**
 !lines/
 !lines/**
-# Travel times for the map; the full grid and other grid outputs stay ignored
+# Travel times (mikolaj) and noise shares; other grid outputs (siatka) stay ignored
 !grid/
 !grid/czasy_przejazdu.geojson
+# Curated, cited content of the featured osiedla (input of scripts/build_featured_content.py)
+!featured/
+!featured/*.json
+# Local backups of ignored outputs
+_local_backup/
 # Python bytecode (overrides the !scripts/** re-include above)
 __pycache__/
