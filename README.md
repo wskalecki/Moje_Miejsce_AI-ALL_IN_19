@@ -2,11 +2,11 @@
 
 **Znajdź w Warszawie okolicę, która pasuje do Twojego życia, zanim zaczniesz szukać mieszkania.**
 
-Zespół **AI - ALL IN** · **Warsaw Open Data Hackathon 2026** (17–18.10.2026, 42 Warsaw) · wyzwanie **3 „Warszawa: Twój ruch!”**
+Zespół nr **19 AI ALL IN** · **Warsaw Open Data Hackathon 2026** (17–18.10.2026, 42 Warsaw) · wyzwanie **3 „Warszawa: Twój ruch!”**
 
 | | |
 |---|---|
-| Prezentacja (8 slajdów, z filmem) | [`presentation/pitch/deck/index.html`](presentation/pitch/deck/index.html) · PDF: [`presentation/pitch/deck/export/moje-miejsce-pitch.pdf`](presentation/pitch/deck/export/moje-miejsce-pitch.pdf) |
+| Prezentacja (8 slajdów, z filmem) | PDF do zgłoszenia: [`presentation/3_AI-ALL-IN_mojeMiejsce.pdf`](presentation/3_AI-ALL-IN_mojeMiejsce.pdf) · [`presentation/pitch/deck/index.html`](presentation/pitch/deck/index.html) · PDF: [`presentation/pitch/deck/export/moje-miejsce-pitch.pdf`](presentation/pitch/deck/export/moje-miejsce-pitch.pdf) |
 | Film prezentujący system (2:25) | [`presentation/pitch/deck/media/moje-miejsce-system.mp4`](presentation/pitch/deck/media/moje-miejsce-system.mp4) |
 | Skrypt wystąpienia | [`presentation/pitch/skrypt-wystapienia.md`](presentation/pitch/skrypt-wystapienia.md) |
 
