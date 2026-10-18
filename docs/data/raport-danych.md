@@ -264,6 +264,36 @@ Otwarte sprawy:
 - Oś czasu w UI kończy się na 2030 r. Wydarzenia z 2031, 2040 i 2044 są w danych, ale suwak ich jeszcze nie pokazuje (zadanie I2-7). Etykieta „w toku” dla wydarzeń z 2026 r. wynika z logiki osi czasu, a nie ze statusu w danych.
 - Wykres „Korki w ciągu doby” ma progi 35 i 65 oraz podpowiedź „Wyjedź o…”, zaprojektowane pod dawny indeks. Na prawdziwym spowolnieniu z rozkładu (maksymalnie 12–17%) wykres zawsze pokazuje „płynnie” i podpowiedź „Tu rzadko stoi się w korkach”. To prawda dla rozkładu autobusów i tramwajów, ale nie dla ruchu aut. Do przeprojektowania razem z warstwą korków (I2-6).
 
+## Iteracja 2b — top 3 dla seniora (18.10.2026)
+
+Wyróżnione osiedla to teraz 3 najlepsze dla **seniora** w rankingu aplikacji (`src/app/ranking.ts`, domyślne wagi
+seniora; decyzja w `docs/core/mock-iteracja-2.md`): **Groszówka** (#1, 84%), **Wilanów Królewski** (#2, 84%),
+**Stare Bielany** (#3, 75%). Muranów i Natolin usunięte z `OSIEDLA` razem ze zdjęciami i warstwami 3D
+(`data/featured/muranow.json` i `natolin.json` zostają jako opisane źródłami dane wejściowe).
+
+Treść nowych osiedli powstała tymi samymi skryptami i według tych samych zasad co w tabeli wyżej (nic nie jest
+wymyślone ani strojone):
+
+| Pole | Groszówka | Wilanów Królewski |
+|---|---|---|
+| `highlights` (OSM / GTFS) | 9: las w Groszówce (bez oficjalnej nazwy, `natural=wood`), Las Milowy, rez. Bagno Jacka, biblioteka Wesoła, kościół Opatrzności Bożej, przychodnia rej. nr 1 (Kilińskiego 48), apteka, przystanek kolejowy Warszawa Wesoła (`ztm:2911`), Społem (Miła 1) | 9: Park Wilanowski, rez. Morysin (punkt — brak poligonu w cache), Muzeum Pałacu, CK Wilanów i UTW (Kolegiacka 3), kościół św. Anny, przychodnia Wiertnicza 81, Medicover Klimczaka 1, pętla Wilanów (`ztm:304402`), FRAC (Wiertnicza 88) |
+| `routes` (OSRM) | przychodnia ×3, kultura ×3, park i las ×3 | przychodnia ×3, kultura ×3, park ×3 |
+| `timeline` (źródła czytane 18.10.2026) | 5 wydarzeń: tunel pod torami (w budowie, 2027), kanalizacja MPWiK (do 2030), plan miejscowy kompleksu sportowego (bez terminu), trasa Niemcewicza–Wspólna (2028–2030), S17/WOW (2036–2038); żadne nie zmienia wskaźników | 6 wydarzeń: dworzec Kolei Wilanowskiej (2026), 2 projekty BO 2026, konserwacja pałacu (do 2030), Morysin (bez terminu), M4 do Wilanowa („do 2044”). Tylko M4 ma `effect`: stacja przy skwerze Kulczyckiego (lokalizacja wstępna wg źródła z IV 2026) → `metro_dist_m` 3 530 → 506 m, komunikacja +15 |
+| `prices` (RCN) | mediana 12 983 zł/m², **n = 3** (bez kwartyli — mała próba, głównie domy) | mediana 17 598 zł/m², n = 30, kwartyle 15 930–19 154 |
+| `traffic` (GTFS) | szczyt 6% | szczyt 19% |
+| `portals` | Otodom / Morizon `groszowka` (sprawdzone) | Otodom / Morizon `wilanow-krolewski` (sprawdzone) |
+| `heroImages` (Commons) | 6: CC0 ×4 (Cybularny), CC BY-SA 4.0 ×2 | 6: CC BY-SA 4.0 ×4, CC BY-SA 3.0 pl ×2 |
+| warstwy 3D | `public/data/3d/groszowka/` (2 442 budynki) | `public/data/3d/wilanow-krolewski/` (2 902 budynki) |
+
+Zmiany w generatorze (`build_featured_content.py`):
+- `traffic`: godziny bez żadnego kursu autobusu ani tramwaju w obszarze (w nowych osiedlach 0–3 w nocy) mają
+  wartość 0 — nie ma czego spowalniać. Wcześniej cała krzywa była odrzucana. Liczba takich godzin jest w logu.
+- `summary` / `tagline` nie podają już miejsca w rankingu z `osiedla-metrics.json` (offline, wszystkie 10 kategorii) —
+  kłóciło się z miejscem na ekranie, które liczy się na żywo z wag użytkownika. Tagline seniora to teraz dwie
+  najmocniejsze kategorie (waga profilu × wynik), np. „14 przychodni i 8 aptek w 1 km · 10 supermarketów w 1 km”.
+- `match` / `rank` w mocku to nadal migawka z `osiedla-scores.json` (np. Groszówka „senior #85” przy wagach
+  wszystkich 10 kategorii) — UI ich nie pokazuje, gdy jest mapa; nagłówek panelu bierze miejsce z rankingu mapy.
+
 ## Kwartały — status danych
 
 Trzeci poziom mapy, czyli kwartał: kilka budynków między ulicami, `application/public/data/fine/<msi_id>.geojson`. Fakty dla każdego kwartału są w `application/public/data/fine-metrics/<msi_id>.json` (`{<id kwartału>: {...}}`). Schemat, źródła i podsumowanie dla każdego obszaru MSI są w `fine-metrics/index.json`. Skrypt: `data/scripts/siatka/.venv/bin/python -I data/scripts/build_kwartal_metrics.py [--only muranow,natolin]` (ok. 20 s dla całego miasta).

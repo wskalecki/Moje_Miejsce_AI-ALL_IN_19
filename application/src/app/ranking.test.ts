@@ -2,10 +2,12 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { CATEGORY_ORDER, DEFAULT_PRIORITIES } from './dictionary.ts'
+import { CATEGORY_ORDER, DEFAULT_PRIORITIES, DEFAULT_PROFILE } from './dictionary.ts'
 import { normCats, rankOsiedla, type ScoresFile } from './ranking.ts'
 import { deriveWeights } from './weights.ts'
 import { weightedMatch } from '../map/weighting.ts'
+import { DEFAULT_FILTER_SECTIONS } from '../map/categoryFilterRows.ts'
+import { OSIEDLA } from '../mock/osiedla.ts'
 
 const cats = (v: number, over: Partial<Record<(typeof CATEGORY_ORDER)[number], number>> = {}) => ({
   cats: Object.fromEntries(CATEGORY_ORDER.map((c) => [c, over[c] ?? v])),
@@ -37,10 +39,28 @@ test('missing categories fall back to 50; zycie_nocne alias is read', () => {
   assert.equal(n.zielen, 50)
 })
 
-test('real data: the featured osiedla hold their documented places (docs/core/mock-iteracja-2.md)', () => {
-  const scores = JSON.parse(readFileSync(new URL('../../public/data/osiedla-scores.json', import.meta.url), 'utf8')) as ScoresFile
-  const rankFor = (p: 'student' | 'rodzina' | 'senior', id: string) => rankOsiedla(scores, deriveWeights(p, DEFAULT_PRIORITIES[p])).rank.get(id)
-  assert.equal(rankFor('student', 'muranow'), 10)
-  assert.equal(rankFor('senior', 'stare-bielany'), 3)
-  assert.equal(rankFor('rodzina', 'natolin'), 17)
+const realScores = () =>
+  JSON.parse(readFileSync(new URL('../../public/data/osiedla-scores.json', import.meta.url), 'utf8')) as ScoresFile
+const seniorDefaults = () => deriveWeights(DEFAULT_PROFILE, DEFAULT_PRIORITIES[DEFAULT_PROFILE])
+
+test('real data: senior top 3 under the default weights (docs/core/mock-iteracja-2.md "Decyzja: top 3 dla seniora")', () => {
+  const r = rankOsiedla(realScores(), seniorDefaults(), DEFAULT_FILTER_SECTIONS.score)
+  assert.deepEqual(r.order.slice(0, 3), ['groszowka', 'wilanow-krolewski', 'stare-bielany'])
+  assert.deepEqual(r.order.slice(0, 3).map((id) => r.match.get(id)), [84, 84, 75])
+})
+
+test('real data: the osiedla with full content are exactly that top 3, best first', () => {
+  const r = rankOsiedla(realScores(), seniorDefaults(), DEFAULT_FILTER_SECTIONS.score)
+  assert.deepEqual(
+    OSIEDLA.map((o) => o.msiId),
+    r.order.slice(0, 3),
+  )
+  for (const o of OSIEDLA) assert.equal(o.profile, 'senior')
+})
+
+test('real data: other weights put other osiedla on top (the #1–#3 pills move)', () => {
+  const w = { ...seniorDefaults(), cisza: 0, zielen: 0, kultura: 100, gastronomia: 100 }
+  const top = rankOsiedla(realScores(), w, DEFAULT_FILTER_SECTIONS.score).order.slice(0, 3)
+  assert.equal(top.length, 3)
+  assert.ok(!top.includes('groszowka') && !top.includes('wilanow-krolewski'), top.join(','))
 })

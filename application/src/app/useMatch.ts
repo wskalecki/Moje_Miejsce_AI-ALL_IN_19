@@ -9,7 +9,7 @@
  *
  * API
  *
- *   const { match, rank, total, isTop, ready } = useMatch('muranow')
+ *   const { match, rank, total, isTop, ready } = useMatch('stare-bielany')
  *   //  match  number | null   0–100, rounded (null while the scores file loads or for an unknown id)
  *   //  rank   number | null   1 = best for the current weights
  *   //  total  number | null   number of ranked osiedla (143)

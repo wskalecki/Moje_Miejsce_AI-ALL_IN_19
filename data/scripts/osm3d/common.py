@@ -16,9 +16,9 @@ OUT_ROOT = REPO / "application" / "public" / "data" / "3d"
 BOUNDARIES = REPO / "data" / "boundaries" / "warszawa_osiedla.geojson"
 POI_DIR = REPO / "data" / "poi"
 
-# Featured MSI areas (after the real-data ranking, 2026-10-17 evening). Override with
-# OSM3D_AREAS=powisle,saska-kepa to build other areas.
-FEATURED_AREAS = [a for a in os.environ.get("OSM3D_AREAS", "muranow,stare-bielany,natolin").split(",") if a]
+# Featured MSI areas = the senior top 3 of the app ranking (2026-10-18, docs/core/mock-iteracja-2.md).
+# Override with OSM3D_AREAS=powisle,saska-kepa to build other areas.
+FEATURED_AREAS = [a for a in os.environ.get("OSM3D_AREAS", "groszowka,wilanow-krolewski,stare-bielany").split(",") if a]
 AREA_BUFFER_M = 600
 
 # Metric CRS for buffers/areas/distances (PUWG 1992).

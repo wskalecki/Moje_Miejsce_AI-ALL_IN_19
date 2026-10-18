@@ -1,4 +1,154 @@
 {
+  "groszowka": [
+    {
+      "file": "/osiedla/groszowka/01.jpg",
+      "title": "File:2024 Warszawa-Wesoła Broniewskiego 19, 1.jpg",
+      "description": "Biała willa z ceglastym dachem przy ul. Broniewskiego 19, w gminnej ewidencji zabytków",
+      "author": "Cybularny",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:2024_Warszawa-Weso%C5%82a_Broniewskiego_19,_1.jpg",
+      "width": 5324,
+      "height": 3993,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG",
+      "thumb": "/osiedla/groszowka/thumb.jpg wycięta z 01.jpg"
+    },
+    {
+      "file": "/osiedla/groszowka/02.jpg",
+      "title": "File:2025 Warszawa-Wesoła 1 Maja 13, 1.jpg",
+      "description": "Drewniany dom przy ul. 1 Maja 13, w gminnej ewidencji zabytków",
+      "author": "Cybularny",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:2025_Warszawa-Weso%C5%82a_1_Maja_13,_1.jpg",
+      "width": 5314,
+      "height": 3986,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/groszowka/03.jpg",
+      "title": "File:Las Milowy z gory.png",
+      "description": "Las Milowy i domy Wesołej z lotu ptaka",
+      "author": "Sylwester Kominek",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Las_Milowy_z_gory.png",
+      "width": 3646,
+      "height": 2430,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/groszowka/04.jpg",
+      "title": "File:Rezerwat przyrody Bagno Jacka, Wesoła, Warszawa 5.jpg",
+      "description": "Rezerwat przyrody Bagno Jacka w Wesołej",
+      "author": "Dariusz Kowalczyk",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Rezerwat_przyrody_Bagno_Jacka,_Weso%C5%82a,_Warszawa_5.jpg",
+      "width": 1620,
+      "height": 1080,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/groszowka/05.jpg",
+      "title": "File:2024 Warszawa Wesoła ratusz, 1.jpg",
+      "description": "Urząd Dzielnicy Wesoła przy ul. 1 Praskiego Pułku",
+      "author": "Cybularny",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:2024_Warszawa_Weso%C5%82a_ratusz,_1.jpg",
+      "width": 5244,
+      "height": 3934,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/groszowka/06.jpg",
+      "title": "File:2024 Warszawa-Wesoła Niemcewicza 82, opuszczony szpital, 1.jpg",
+      "description": "Opuszczone budynki dawnego szpitala przy ul. Niemcewicza 82 wśród kwitnących bzów",
+      "author": "Cybularny",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:2024_Warszawa-Weso%C5%82a_Niemcewicza_82,_opuszczony_szpital,_1.jpg",
+      "width": 5859,
+      "height": 3906,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    }
+  ],
+  "wilanow-krolewski": [
+    {
+      "file": "/osiedla/wilanow-krolewski/01.jpg",
+      "title": "File:Warszawa Wilanow aerial photographs 2019 P06.jpg",
+      "description": "Pałac w Wilanowie z dziedzińcem honorowym i ogrodami, widok z lotu ptaka",
+      "author": "Fallaner",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Warszawa_Wilanow_aerial_photographs_2019_P06.jpg",
+      "width": 4000,
+      "height": 3000,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG",
+      "thumb": "/osiedla/wilanow-krolewski/thumb.jpg wycięta z 01.jpg"
+    },
+    {
+      "file": "/osiedla/wilanow-krolewski/02.jpg",
+      "title": "File:2018-07-06 Pałac w Wilanowie 15.jpg",
+      "description": "Ogród przy Pałacu w Wilanowie latem",
+      "author": "Maksym Kozlenko",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2018-07-06_Pa%C5%82ac_w_Wilanowie_15.jpg",
+      "width": 5184,
+      "height": 3456,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/wilanow-krolewski/03.jpg",
+      "title": "File:Kościół św. Anny w Wilanowie.jpg",
+      "description": "Kościół św. Anny przy ul. Stanisława Kostki Potockiego",
+      "author": "A.Osytek",
+      "license": "CC BY-SA 3.0 pl",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:Ko%C5%9Bci%C3%B3%C5%82_%C5%9Bw._Anny_w_Wilanowie.jpg",
+      "width": 3758,
+      "height": 2521,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/wilanow-krolewski/04.jpg",
+      "title": "File:Most Rzymski, Park Wilanowski, rezerwat przyrody Morysin, Warszawa.jpg",
+      "description": "Most Rzymski w parku wilanowskim jesienią",
+      "author": "Dariusz Kowalczyk",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Most_Rzymski,_Park_Wilanowski,_rezerwat_przyrody_Morysin,_Warszawa.jpg",
+      "width": 1620,
+      "height": 1080,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/wilanow-krolewski/05.jpg",
+      "title": "File:Kanał Sobieskiego, rezerwat przyrody Morysin, Wilanów, Warszawa 9.jpg",
+      "description": "Kanał Sobieskiego w rezerwacie przyrody Morysin jesienią",
+      "author": "Dariusz Kowalczyk",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Kana%C5%82_Sobieskiego,_rezerwat_przyrody_Morysin,_Wilan%C3%B3w,_Warszawa_9.jpg",
+      "width": 1620,
+      "height": 1080,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    },
+    {
+      "file": "/osiedla/wilanow-krolewski/06.jpg",
+      "title": "File:Warszawa - Wilanów - Skwer Prymasowski.jpg",
+      "description": "Skwer Prymasowski z ławkami przed kościołem św. Anny",
+      "author": "Jolanta Dyr",
+      "license": "CC BY-SA 3.0 pl",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:Warszawa_-_Wilan%C3%B3w_-_Skwer_Prymasowski.jpg",
+      "width": 2048,
+      "height": 1536,
+      "modification": "kadrowanie/zmiana rozmiaru do 1600 px, rekompresja JPEG"
+    }
+  ],
   "muranow": [
     {
       "file": "/osiedla/muranow/01.jpg",
