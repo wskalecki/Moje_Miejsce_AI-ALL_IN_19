@@ -19,7 +19,6 @@ export const SEG = {
   ],
   map: [
     { from: m.map + 0.4, to: m.solo, rate: 1.4 },
-    { from: m.solo, to: m.preview, rate: 1.6 },
     { from: m.preview, to: m.reweight, rate: 2.0 },
   ],
   reweight: [
@@ -29,22 +28,22 @@ export const SEG = {
   ],
   fly: [{ from: m.pick + 0.6, to: m.panel + 0.6, rate: 1.0 }],
   panel: [
-    { from: m.panel + 0.6, to: m.scores, rate: 1.3 },
+    { from: m.panel + 0.6, to: m.scores, rate: 4.0 },
     { from: m.scores, to: m.places, rate: 1.2 },
     { from: m.places, to: m.routes, rate: 1.8 },
-    { from: m.routes, to: m.commute, rate: 1.8 },
+    { from: m.routes, to: m.commute, rate: 4.0 },
     { from: m.commute, to: m.traffic, rate: 1.3 },
-    { from: m.traffic, to: m.prices, rate: 1.5 },
+    { from: m.traffic, to: m.prices, rate: 2.6 },
     { from: m.prices, to: m.timeline, rate: 1.4 },
   ],
   timeline: [
-    { from: m.timeline, to: m.investments, rate: 1.5 },
-    { from: m.investments, to: m.layers, rate: 1.6 },
+    { from: m.timeline, to: m.investments, rate: 2.2 },
+    { from: m.investments, to: m.layers, rate: 2.6 },
   ],
-  // opening the layers menu is dead time: run it fast up to just before the first toggle
+  // opening the layers menu is dead time; the building-colour toggle is skipped, traffic runs fast
   layers: [
     { from: m.layers, to: (m.layerBuildings ?? m.layers + 11.6) - 0.6, rate: 3.0 },
-    { from: (m.layerBuildings ?? m.layers + 11.6) - 0.6, to: m.end, rate: 1.8 },
+    { from: (m.layerTraffic ?? m.layers + 17) - 0.6, to: m.end, rate: 2.6 },
   ],
 } satisfies Record<string, Segment[]>
 
