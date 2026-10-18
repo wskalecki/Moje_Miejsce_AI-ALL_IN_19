@@ -4,7 +4,7 @@
  * React context + sessionStorage live in `storeCore.ts`.
  */
 import { DEFAULT_PRIORITIES, DEFAULT_PROFILE, PROFILES, isCategoryKey, isHorizon, isProfileId } from './dictionary.ts'
-import { TIMELINE_FIRST_YEAR, TIMELINE_LAST_YEAR } from './config.ts'
+import { FIRST_YEAR as TIMELINE_FIRST_YEAR, LAST_YEAR as TIMELINE_LAST_YEAR } from '../osiedle/timelineMath.ts'
 import type { AppState, CategoryKey, Horizon, ProfileId } from './types.ts'
 import { ALL_GASTRONOMY_CUISINES, sanitizeGastronomyCuisines, type GastronomyCuisine } from '../map/gastronomyCuisine.ts'
 import {

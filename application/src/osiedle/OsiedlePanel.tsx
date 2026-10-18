@@ -14,8 +14,8 @@ import { Prices } from './Prices'
 import { Ring } from './Ring'
 import { Routes } from './Routes'
 import { EASE_EMPHASIZED, defaultMode, useInView } from './shared'
-import { Timeline, TimelineTeaser } from './Timeline'
-import { FIRST_YEAR, eventsUpTo, matchAtYear, statDeltasAtYear, statsAtYear, toTimelineYear, type TimelineYear } from './timelineMath'
+import { Timeline } from './Timeline'
+import { FIRST_YEAR, eventsUpTo, matchAtYear, statDeltasAtYear, statsAtYear, toStop, type TimelineYear } from './timelineMath'
 import { TrafficChart } from './TrafficChart'
 import './osiedle.css'
 
@@ -36,12 +36,10 @@ export interface OsiedlePanelProps {
   onHoverPlace?: (id: string | null) => void
   /** Destination or mode picked → draw the route; null when the panel closes. */
   onShowRoute?: (route: Route | null, mode?: TravelMode) => void
-  /** Controlled timeline year (store `timelineYear`); uncontrolled (starts at 2026) when omitted. */
+  /** Controlled timeline year (store `timelineYear`, snapped to its 5-year stop); uncontrolled (starts at today) when omitted. */
   timelineYear?: number
-  /** Timeline year changed (and once when the timeline opens) with the events of year ≤ Y, for map markers. */
+  /** Timeline stop changed (and once when the panel opens) with the dated events of year ≤ Y, for map markers. */
   onTimelineYear?: (year: TimelineYear, events: TimelineEvent[]) => void
-  /** "Pokaż prognozę" on the `chwila` teaser asks to switch the horizon to `stale`. */
-  onHorizonChange?: (horizon: Horizon) => void
   /** Highlight id currently emphasised from the map side (marker hover). */
   activePlaceId?: string | null
   /** Explicit hero video; default probes `/osiedla/<slug>/flyover.{webm,mp4}`; `false` = photos only. */
@@ -59,7 +57,7 @@ const DEMO_NOTE = 'Wersja demonstracyjna — liczby policzone z otwartych danych
 /**
  * Osiedle detail panel (spec §4.5) in the map's card language: a fixed head (back, name, rank,
  * match ring) over a scrolling body — photos, key numbers, category bars, places, routes, commute,
- * traffic, prices, timeline 2026 → 2030, credits.
+ * traffic, prices, timeline dziś → 2045 (5-year stops), credits.
  */
 export function OsiedlePanel(props: OsiedlePanelProps) {
   // Keyed by slug: switching osiedle starts from a clean state (gallery, route, scroll, reveal).
@@ -81,7 +79,6 @@ function PanelBody({
   heroVideo,
   timelineYear,
   onTimelineYear,
-  onHorizonChange,
   className,
 }: OsiedlePanelProps) {
   const reduce = useReducedMotion()
@@ -95,39 +92,22 @@ function PanelBody({
   const isBest = rank === 1
   const msiName = MSI_NAMES[osiedle.msiId]
 
-  // Timeline (spec §4.6): full for `stale`; for `chwila` a teaser whose "Pokaż prognozę" switches the
-  // horizon to `stale` (store) and opens the timeline in place right away, even before the prop flips.
-  const [expanded, setExpanded] = useState(false)
-  const timelineOn = horizon === 'stale' || expanded
-  const focusTimeline = useRef(false)
-  const expandTimeline = () => {
-    onHorizonChange?.('stale')
-    setExpanded(true)
-    focusTimeline.current = true
-  }
-  // The button disappears with the teaser: move focus to the timeline heading and bring it into view.
-  useEffect(() => {
-    if (!timelineOn || !focusTimeline.current) return
-    focusTimeline.current = false
-    const head = document.getElementById('op-tl-title')
-    head?.focus({ preventScroll: true })
-    head?.closest('section')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
-  }, [timelineOn, reduce])
-  const [ownYear, setOwnYear] = useState<TimelineYear>(toTimelineYear(timelineYear ?? FIRST_YEAR))
-  const year = timelineYear != null ? toTimelineYear(timelineYear) : ownYear
+  // Timeline (spec §4.6): the same full timeline for both horizons; the year snaps to its 5-year stop.
+  const [ownYear, setOwnYear] = useState<TimelineYear>(toStop(timelineYear ?? FIRST_YEAR))
+  const year = timelineYear != null ? toStop(timelineYear) : ownYear
   const onYearRef = useRef(onTimelineYear)
   const setYear = useCallback((y: TimelineYear) => {
     setOwnYear(y)
     onYearRef.current?.(y, eventsUpTo(osiedle, y))
   }, [osiedle])
-  // Tell the map once when the timeline opens (markers for year ≤ current).
+  // Tell the map once when the panel opens (markers for year ≤ current).
   useEffect(() => {
-    if (timelineOn) onYearRef.current?.(year, eventsUpTo(osiedle, year))
+    onYearRef.current?.(year, eventsUpTo(osiedle, year))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timelineOn])
-  const values = timelineOn ? statsAtYear(osiedle, year) : osiedle.stats
-  const deltas = timelineOn ? statDeltasAtYear(osiedle, year) : undefined
-  const match = timelineOn ? matchAtYear(osiedle, profile, year, todayMatch) : todayMatch
+  }, [])
+  const values = statsAtYear(osiedle, year)
+  const deltas = statDeltasAtYear(osiedle, year)
+  const match = matchAtYear(osiedle, profile, year, todayMatch)
 
   // Routes — first destination selected by default. The route is on the map only while the section is
   // in view: scrolling away (or picking a place) clears it and the camera returns to the osiedle.
@@ -258,11 +238,7 @@ function PanelBody({
         <Commute rows={osiedle.commute} />
         <TrafficChart traffic={osiedle.traffic} road={osiedle.trafficRoad} />
         <Prices osiedle={osiedle} horizon={horizon} />
-        {timelineOn ? (
-          <Timeline osiedle={osiedle} profile={profile} year={year} onYear={setYear} baseMatch={todayMatch} />
-        ) : (
-          <TimelineTeaser name={osiedle.name} onExpand={expandTimeline} />
-        )}
+        <Timeline osiedle={osiedle} profile={profile} year={year} onYear={setYear} baseMatch={todayMatch} />
 
         <footer className="op-foot">
           <Credits slug={osiedle.slug} images={osiedle.heroImages} />
