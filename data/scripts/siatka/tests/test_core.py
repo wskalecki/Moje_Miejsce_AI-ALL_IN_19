@@ -17,7 +17,7 @@ def grid():
 
 
 def test_grid_covers_warsaw_with_contract_ids(grid):
-    assert len(grid.cells) == 608
+    assert len(grid.cells) == 8572  # 250 m team grid (gridVersion 3), Warsaw only
     assert all(c.district for c in grid.cells)
     # Pałac Kultury lands in Śródmieście with the same ID as the team's assign_cell
     cid = grid.assign(21.0067, 52.2318)

@@ -70,6 +70,7 @@ from shapely.ops import nearest_points
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import generate_grid  # noqa: E402
+from osm_geometry import element_polygons, find_green_cache  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 FEATURED = ROOT / "data/featured"
@@ -77,7 +78,6 @@ METRICS = ROOT / "application/public/data/osiedla-metrics.json"
 SCORES = ROOT / "application/public/data/osiedla-scores.json"
 OSIEDLA_GEO = ROOT / "data/boundaries/warszawa_osiedla.geojson"
 TRAVEL = ROOT / "data/grid/czasy_przejazdu.geojson"
-GREEN_CACHE = ROOT / "data/raw/osm/e39479af49a915ad.json"
 TRAFFIC = ROOT / "application/public/data/3d/{slug}/traffic.json"
 KWARTAL_INDEX = ROOT / "application/public/data/fine-metrics/index.json"
 RCN_CSV = ROOT / "data/rcn/lokale_mieszkalne.csv"
@@ -184,51 +184,21 @@ def load_green(ids: set[str]) -> dict[str, dict]:
     out = {}
     if not ids:
         return out
-    for el in json.loads(GREEN_CACHE.read_text())["elements"]:
+    green_cache = find_green_cache(ROOT / "data/raw/osm")
+    for el in json.loads(green_cache.read_text())["elements"]:
         key = f"{el['type']}/{el['id']}"
         if key not in ids:
             continue
-        rings = []
-        if el["type"] == "way" and el.get("geometry"):
-            rings = [el["geometry"]]
-        elif el["type"] == "relation":
-            rings = [m["geometry"] for m in el.get("members", []) if m.get("role") == "outer" and m.get("geometry")]
-        if el["type"] == "way":
-            polys = [Polygon([(p["lon"], p["lat"]) for p in r]) for r in rings if len(r) >= 4]
-        else:
-            # relation outer members are open segments: merge them into closed rings
-            lines = [LineString([(p["lon"], p["lat"]) for p in r]) for r in rings if len(r) >= 2]
-            merged = shapely.line_merge(shapely.union_all(lines))
-            polys = list(shapely.get_parts(shapely.polygonize(list(shapely.get_parts(merged)))))
-        if not polys:  # relation without member geometry in the cache -> Nominatim polygon (cached)
-            polys = [shape(nominatim_polygon(key))]
-        geom = shapely.make_valid(shapely.union_all([shapely.make_valid(p) for p in polys]))
+        polys = element_polygons(el)  # multipolygons with holes; the cache keeps relation members
+        if not polys:
+            continue
+        geom = shapely.make_valid(shapely.union_all(polys))
         g = g2180(geom)
         out[key] = {"geom": geom, "geom2180": g, "area_ha": g.area / 10_000, "name": el.get("tags", {}).get("name")}
     missing = ids - set(out)
     if missing:
-        raise SystemExit(f"green polygons not found in {GREEN_CACHE.name}: {sorted(missing)}")
+        raise SystemExit(f"green polygons not found in {green_cache.name}: {sorted(missing)}")
     return out
-
-
-def nominatim_polygon(key: str) -> dict:
-    """GeoJSON polygon of an OSM object from Nominatim /lookup (cached in data/raw/featured_osm/)."""
-    cache = ROOT / "data/raw/featured_osm" / (key.replace("/", "_") + ".json")
-    if cache.exists():
-        return json.loads(cache.read_text())
-    if OFFLINE:
-        raise RuntimeError(f"Nominatim cache miss in --offline mode: {key}")
-    t, i = key.split("/")
-    url = f"https://nominatim.openstreetmap.org/lookup?osm_ids={t[0].upper()}{i}&polygon_geojson=1&format=json"
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
-    res = json.load(urllib.request.urlopen(req, timeout=60))
-    time.sleep(1.1)
-    geo = res[0]["geojson"]
-    if geo["type"] not in ("Polygon", "MultiPolygon"):
-        raise SystemExit(f"Nominatim returned {geo['type']} for {key}")
-    cache.parent.mkdir(parents=True, exist_ok=True)
-    cache.write_text(json.dumps(geo))
-    return geo
 
 
 def green_entry(anchor, g) -> list[float]:
