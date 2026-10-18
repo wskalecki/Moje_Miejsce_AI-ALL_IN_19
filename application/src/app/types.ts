@@ -37,7 +37,7 @@ export interface AppState {
   weights: Record<CategoryKey, number>
   horizon: Horizon | null
   timelineYear: number
-  /** Featured slugs whose cinematic interlude was already shown this session. */
+  /** Featured slugs whose full (night highlight) fly-in was already shown this session. */
   visited: string[]
   /** Optional POI subtypes to show on the map (filter panel checkboxes). Empty = none. */
   poiInterests: string[]
