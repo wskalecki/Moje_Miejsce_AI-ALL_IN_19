@@ -15,3 +15,6 @@ __pycache__/
 
 # Netlify CLI local state
 .netlify/
+
+# Presentation zip for submission (built locally, ~84 MB)
+/*.zip
