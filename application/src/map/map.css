@@ -505,7 +505,7 @@
   left: var(--smap-edge);
   top: var(--smap-panel-top, 96px);
   width: var(--smap-panel-width);
-  max-height: calc(100% - var(--smap-panel-top, 96px) - 196px);
+  max-height: calc(100% - var(--smap-panel-top, 96px) - 176px);
   display: flex;
   flex-direction: column;
   overflow: visible;
