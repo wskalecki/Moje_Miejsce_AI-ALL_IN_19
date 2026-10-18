@@ -13,7 +13,7 @@ import { Places } from './Places'
 import { Prices } from './Prices'
 import { Ring } from './Ring'
 import { Routes } from './Routes'
-import { EASE_EMPHASIZED, defaultMode, useSeenOnce } from './shared'
+import { EASE_EMPHASIZED, defaultMode, useInView } from './shared'
 import { Timeline, TimelineTeaser } from './Timeline'
 import { FIRST_YEAR, eventsUpTo, matchAtYear, statDeltasAtYear, statsAtYear, toTimelineYear, type TimelineYear } from './timelineMath'
 import { TrafficChart } from './TrafficChart'
@@ -129,18 +129,18 @@ function PanelBody({
   const deltas = timelineOn ? statDeltasAtYear(osiedle, year) : undefined
   const match = timelineOn ? matchAtYear(osiedle, profile, year, todayMatch) : todayMatch
 
-  // Places
-  const [placeId, setPlaceId] = useState<string | null>(null)
-  const shownPlaceId = activePlaceId ?? placeId
-  const selectPlace = (p: Highlight) => {
-    setPlaceId(p.id)
-    onFocusPlace?.(p.coord, p)
-  }
-
-  // Routes — first destination selected by default, drawn once the section scrolls into view.
+  // Routes — first destination selected by default. The route is on the map only while the section is
+  // in view: scrolling away (or picking a place) clears it and the camera returns to the osiedle.
   const [routeId, setRouteId] = useState(osiedle.routes[0]?.id ?? '')
   const [mode, setMode] = useState<TravelMode>(() => (osiedle.routes[0] ? defaultMode(osiedle.routes[0]) : 'pieszo'))
-  const [routesRef, routesSeen] = useSeenOnce<HTMLDivElement>(0.4)
+  const [routesRef, routesInView] = useInView<HTMLDivElement>(scrollRef)
+  // a place picked while the routes are in view takes the map over until the user comes back to them
+  const [routeDismissed, setRouteDismissed] = useState(false)
+  const [wasInView, setWasInView] = useState(routesInView)
+  if (wasInView !== routesInView) {
+    setWasInView(routesInView)
+    if (!routesInView) setRouteDismissed(false)
+  }
   const showRoute = useRef(onShowRoute)
   const back = useRef(onBack)
   useEffect(() => {
@@ -149,13 +149,48 @@ function PanelBody({
     onYearRef.current = onTimelineYear
   })
   const route = osiedle.routes.find((r) => r.id === routeId) ?? osiedle.routes[0]
+  const routeOn = routesInView && !routeDismissed && !!route
+  const routeShown = useRef(false)
   useEffect(() => {
-    if (routesSeen && route) showRoute.current?.(route, mode)
-  }, [routesSeen, route, mode])
+    if (!routeOn) {
+      if (routeShown.current) {
+        routeShown.current = false
+        showRoute.current?.(null)
+      }
+      return
+    }
+    // a short wait on the way in, so scrolling past the section doesn't send the camera off and back
+    const t = window.setTimeout(
+      () => {
+        routeShown.current = true
+        showRoute.current?.(route, mode)
+      },
+      routeShown.current ? 0 : 250,
+    )
+    return () => window.clearTimeout(t)
+  }, [routeOn, route, mode])
   useEffect(() => () => showRoute.current?.(null), [])
   const selectRoute = (r: Route) => {
+    setRouteDismissed(false)
     setRouteId(r.id)
     setMode((m) => (r.minutes[m] != null ? m : defaultMode(r)))
+  }
+  const selectMode = (m: TravelMode) => {
+    setRouteDismissed(false)
+    setMode(m)
+  }
+
+  // Places — a place picked while a route is shown clears the route first, then the camera flies there.
+  const [placeId, setPlaceId] = useState<string | null>(null)
+  const shownPlaceId = activePlaceId ?? placeId
+  const selectPlace = (p: Highlight) => {
+    setPlaceId(p.id)
+    setRouteDismissed(true)
+    if (routeShown.current) {
+      routeShown.current = false
+      showRoute.current?.(null)
+    }
+    onFocusPlace?.(p.coord, p)
   }
 
   // Focus the heading on open (spec §10), Esc goes back.
@@ -217,7 +252,7 @@ function PanelBody({
         <Places places={osiedle.highlights} activeId={shownPlaceId} onSelect={selectPlace} onHover={onHoverPlace} hasMap={!!onFocusPlace} />
         {osiedle.routes.length > 0 && (
           <div ref={routesRef}>
-            <Routes routes={osiedle.routes} selectedId={route?.id ?? ''} mode={mode} onSelect={selectRoute} onMode={setMode} />
+            <Routes routes={osiedle.routes} selectedId={route?.id ?? ''} mode={mode} onSelect={selectRoute} onMode={selectMode} />
           </div>
         )}
         <Commute rows={osiedle.commute} />

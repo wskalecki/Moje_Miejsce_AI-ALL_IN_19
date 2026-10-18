@@ -211,6 +211,8 @@ function CinematicStage({
   /** Jump to the end of the running fly-in (Esc / Space / Enter). */
   const finishRef = useRef<(() => void) | null>(null)
   const savedCam = useRef<{ center: LngLat; zoom: number } | null>(null)
+  /** A route is on the map (its fit moved the camera off the osiedle framing). */
+  const routeOn = useRef(false)
   const stageRef = useRef<Stage>('idle')
   // a real deep link is the document's first URL — not a click on the overview that beat the lazy
   // cinematic chunk (then `slug` is already set on mount, but the full shot must still play)
@@ -297,6 +299,7 @@ function CinematicStage({
       scene.director.stopOrbit(true)
       setActive(o)
       setRoute(null)
+      routeOn.current = false
       setActivePin(null)
       setPinsOn(false)
       setEvents([])
@@ -383,6 +386,7 @@ function CinematicStage({
     setStageBoth('leaving')
     setPinsOn(false)
     setRoute(null)
+    routeOn.current = false
     setActivePin(null)
     setEvents([])
     scene.showRoute(null, 'student')
@@ -496,8 +500,16 @@ function CinematicStage({
       scene.showRoute(r?.geometry ?? null, profile)
       if (!r) {
         scene.director.hold(false)
+        // the panel left its routes: back to the osiedle framing (not while flying off or leaving)
+        const t = scene.target(active.slug)
+        if (routeOn.current && t && stageRef.current === 'panel') {
+          const land = landing(map, active, t, t.bearing)
+          map.easeTo({ center: land.center, zoom: land.zoom, pitch: land.pitch, bearing: land.bearing, padding: land.padding, duration: 1000, easing: easeInOutCubic, essential: true })
+        }
+        routeOn.current = false
         return
       }
+      routeOn.current = true
       scene.director.hold(true)
       setActivePin(null)
       const coords = r.geometry.coordinates
