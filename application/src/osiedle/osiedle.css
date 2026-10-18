@@ -1900,6 +1900,76 @@
   color: var(--op-ink-3);
 }
 
+/* event with a cited source: the title link covers the card (opens in a new tab) */
+.op-ev__card {
+  position: relative;
+}
+
+.op-ev__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.op-ev__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.op-ev__ext {
+  display: inline-block;
+  margin-left: 5px;
+  vertical-align: -1px;
+  color: var(--op-ink-3);
+  transition:
+    transform 200ms var(--op-ease),
+    color 160ms;
+}
+
+.op-ev__hint {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.op-ev__card:has(.op-ev__link) {
+  transition:
+    box-shadow 400ms,
+    background-color 160ms,
+    transform 120ms;
+}
+
+.op-ev__card:has(.op-ev__link:hover) {
+  background: #fff;
+}
+
+.op-ev__link:hover {
+  color: var(--op-accent-deep);
+}
+
+.op-ev__link:hover .op-ev__ext {
+  color: var(--op-accent-deep);
+  transform: translate(1px, -1px);
+}
+
+/* the ring goes round the whole card, not just the title */
+.op .op-ev__link:focus-visible {
+  outline: none;
+}
+
+.op-ev__link:focus-visible::after {
+  outline: 2px solid var(--op-accent);
+  outline-offset: 2px;
+}
+
+.op-ev__card:has(.op-ev__link:active) {
+  transform: scale(0.99);
+}
+
 @media (max-width: 767px) {
   .op-tl__change {
     grid-template-columns: 16px minmax(0, 1fr) 64px 36px;

@@ -544,7 +544,7 @@ function CinematicStage({
   const invPins = useMemo<Pin[]>(
     () =>
       events.flatMap((ev) =>
-        ev.coord ? [{ id: `inv-${ev.id}`, coord: ev.coord, label: `${ev.year} · ${ev.title}`, category: ev.category, kind: 'investment' as const, year: ev.year }] : [],
+        ev.coord ? [{ id: `inv-${ev.id}`, coord: ev.coord, label: `${ev.year} · ${ev.title}`, category: ev.category, kind: 'investment' as const, year: ev.year, href: ev.sourceUrl }] : [],
       ),
     [events],
   )

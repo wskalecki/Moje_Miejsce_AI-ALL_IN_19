@@ -175,6 +175,17 @@
 .cin-pin.is-investment:focus-visible .cin-pin__diamond {
   transform: rotate(45deg) scale(1.15);
 }
+/* investment with a cited source: the pin is a link (new tab) */
+a.cin-pin {
+  color: inherit;
+  text-decoration: none;
+}
+.cin-pin__ext {
+  display: inline-block;
+  margin-left: 5px;
+  vertical-align: -1px;
+  color: var(--color-ink-3);
+}
 
 @keyframes cin-inv-in {
   0% {
