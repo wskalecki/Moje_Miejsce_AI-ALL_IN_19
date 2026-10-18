@@ -171,3 +171,14 @@ export function allVisible(map: MlMap, points: Pt[], padding = panelPadding()): 
     return s.x >= padding.left + inset.left * 0.6 && s.x <= W - padding.right - inset.right * 0.6 && s.y >= padding.top + inset.top * 0.6 && s.y <= H - padding.bottom - inset.bottom * 0.6
   })
 }
+
+/**
+ * True when `b` is within the inner half of a top-down `w × h` view centred on `a` at `zoom`: the camera
+ * can then zoom straight between them (no pull-back arc) without the subject leaving the frame.
+ */
+export function nearInView(a: Pt, b: Pt, zoom: number, w: number, h: number): boolean {
+  const ws = 512 * 2 ** zoom
+  const dx = Math.abs(mercX(a[0]) - mercX(b[0])) * ws
+  const dy = Math.abs(mercY(a[1]) - mercY(b[1])) * ws
+  return dx <= w * 0.5 && dy <= h * 0.5
+}

@@ -224,6 +224,10 @@ export function MapView({
       // them, and a second fly-in lands on a grey map); the size is a cap, the zoom levels the budget
       maxTileCacheSize: 480,
       maxTileCacheZoomLevels: 40,
+      // let the tiles of the levels a fast zoom passes through finish loading: details fill in
+      // progressively during the fly-in, and the zoom back out finds them cached (a cached parent
+      // is not used for a tile that was never requested, so the climb would show blank ground)
+      cancelPendingTileRequestsWhileZooming: false,
       dragRotate: false,
       pitchWithRotate: false,
     })

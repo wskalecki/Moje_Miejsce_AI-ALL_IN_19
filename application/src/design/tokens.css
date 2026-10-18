@@ -20,9 +20,6 @@
   --accent: var(--student); --accent-soft: var(--student-soft);
   --accent-mid: var(--student-mid); --accent-deep: var(--student-deep);
 
-  /* Night (cinematic) */
-  --night-bg: #0B0E17;  --night-surface: rgba(14, 18, 30, 0.62);  --night-ink: #F3F1EC;
-
   /* Glass */
   --glass: rgba(255, 255, 255, 0.72);
   --glass-strong: rgba(255, 255, 255, 0.86);

@@ -1,26 +1,28 @@
 /**
- * Cinematic transition into a featured osiedle and back (spec 4.4 / 4.5 "Powrót").
+ * Transition into a featured osiedle and back (spec 4.4 / 4.5 "Powrót"). The map keeps its normal
+ * daylight style throughout — the osiedle is only softly highlighted.
  *
- * Timeline of the highlight fly-in (first visit, t = click):
- *   0      lock the map, UI chrome fades, the city dims to night around the osiedle, overlays fade out
- *   0      flyTo straight to the panel framing (all places in the free map area, pitch 57; 3.2 s,
- *          ease-in-out cubic); 3D buildings rise with the camera (zoom-driven height, GPU-only)
- *   700    the osiedle outline draws itself (glow + bright head), then a glint keeps running along it
- *   2400   the night eases into daylight 3D (1.3 s) while the camera settles
- *   3200   the camera lands: panel slides in, slow sway starts; pins drop 400 ms later
+ * Timeline of the fly-in (first visit, t = click):
+ *   0      lock the map, UI chrome fades, heat / fills fade out; the osiedle's highlight (light accent
+ *          tint, gentle glow, crisp outline with a slow glint) fades in over 400 ms
+ *   0      one continuous camera move straight to the panel framing (all places in the free map area,
+ *          pitch 57; 1150 ms, quick start and a long soft deceleration) — a pure zoom-in when the
+ *          osiedle is in view, no pull-back
+ *   750    3D buildings fade in over the last 400 ms while they rise with the zoom (GPU-only)
+ *   1050   the panel slides in (320 ms) as the camera settles; slow sway starts; pins drop 400 ms later
  *
- * Second visit / `?szybko=1`: the same fly-in in daylight (2.6 s; 2 s from another osiedle).
+ * Second visit / `?szybko=1`: the same move in 950 ms; from another osiedle an arced flight (1300 ms).
  * Deep link and `prefers-reduced-motion`: jump straight to the end state. Esc / Space / Enter during
  * the flight jump to the panel.
  *
- * Way back: panel and pins leave, buildings sink and fade (800 ms), labels hide during the climb,
- * flyTo the saved overview camera (pitch 0, 1800 ms), heat and labels return late, focus goes back
- * to the osiedle's card.
+ * Way back: panel and pins leave, highlight and buildings fade (400 ms), labels hide during the climb,
+ * the camera zooms out to the saved overview (pitch 0, 900 ms), heat and labels return late, focus
+ * goes back to the osiedle's card.
  */
 import { AnimatePresence } from 'motion/react'
 import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson'
 import type { Map as MlMap } from 'maplibre-gl'
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 import { back } from '../app/router'
 import { useAppStore } from '../app/useAppStore'
 import type { CategoryKey, Horizon, ProfileId } from '../app/types'
@@ -28,32 +30,46 @@ import { ACCENTS } from '../design/tokens'
 import type { MapApi } from '../map/MapView'
 import { homeCamera, homePadding } from '../map/camera'
 import { OSIEDLA, OSIEDLA_BY_SLUG, type LngLat, type Osiedle, type OsiedleSlug, type Route, type TimelineEvent } from '../mock/osiedla'
-import { allVisible, corePoints, frame, metersBetween, LAND_PITCH, type Framing, type Pt } from './framing'
-import { loadPanel, type PlaceFit } from './panelLoader'
+import { allVisible, corePoints, frame, metersBetween, nearInView, LAND_PITCH, type Framing, type Pt } from './framing'
+import { loadPanel, type OsiedlePanelProps, type PlaceFit } from './panelLoader'
 import { PlacePins, type Pin } from './PlacePins'
 import { prefetchTiles } from './prefetch'
 import type { AreaLayers } from '../map3d/AreaLayers'
 import { categoryKinds } from '../map3d/kinds'
-import { CinemaScene, easeInOutCubic, type SceneTarget } from './scene'
+import { CinemaScene, easeFlight, easeInOutCubic, type SceneTarget } from './scene'
 import './cinematic.css'
 
-const Panel = lazy(loadPanel)
+const LazyPanel = lazy(loadPanel)
+/**
+ * The panel component once its chunk is in (preloaded at the click). Rendered directly, so the
+ * mount at the landing never suspends — React holds a suspended reveal back by ~300 ms.
+ */
+let loadedPanel: ComponentType<OsiedlePanelProps> | null = null
+const preloadPanel = () =>
+  loadPanel()
+    .then((m) => {
+      loadedPanel = m.default
+    })
+    .catch(() => undefined)
 const Osm3dOverlay = lazy(() => import('../map3d/Osm3dOverlay'))
 
 type Stage = 'idle' | 'flying' | 'panel' | 'leaving'
 type Mode = 'full' | 'quick' | 'instant'
 
 const ORBIT_DEG_S = 1.5
-/** First visit: the night highlight fly-in. */
-const FLY_MS = 3200
-/** Second visit / `?szybko=1`: daylight fly-in. */
-const QUICK_FLY_MS = 2600
-/** From one osiedle straight to another. */
-const HOP_MS = 2000
-/** Night → daylight crossfade (ms), started `DAY_LEAD_MS` before the camera lands. */
-const DAY_MS = 1300
-const DAY_LEAD_MS = 800
-const BACK_MS = 1800
+/** First visit: camera flight to the panel framing. */
+const FLY_MS = 1150
+/** Second visit / `?szybko=1`. */
+const QUICK_FLY_MS = 950
+/** From one osiedle straight to another (an arc over the city). */
+const HOP_MS = 1300
+/** Fade-in of the osiedle highlight, from the click. */
+const HIGHLIGHT_MS = 400
+/** The 3D buildings fade in over the last `BUILDINGS_MS` of the flight. */
+const BUILDINGS_MS = 400
+/** The panel starts sliding in this long before the camera lands. */
+const PANEL_LEAD_MS = 100
+const BACK_MS = 900
 /** Deep link: max wait for the tiles under the panel framing before lifting the veil anyway. */
 const TILE_WAIT_MS = 2400
 const ZERO = { top: 0, bottom: 0, left: 0, right: 0 }
@@ -179,8 +195,6 @@ function CinematicStage({
   const [active, setActive] = useState<Osiedle | null>(null)
   const [pinsOn, setPinsOn] = useState(false)
   const [veil, setVeil] = useState(false)
-  /** Dusk dip while the city turns to night (first visit). */
-  const [dusk, setDusk] = useState(false)
   const [route, setRoute] = useState<Route | null>(null)
   const [activePin, setActivePin] = useState<string | null>(null)
   const [hoverPin, setHoverPin] = useState<string | null>(null)
@@ -224,6 +238,11 @@ function CinematicStage({
   // ------------------------------------------------------------------ tile warm-up
   // The 3 featured osiedla are fetched into the HTTP cache once the overview is idle.
   useEffect(() => prefetchTiles(map, OSIEDLA.map((o) => o.center), () => stageRef.current !== 'idle'), [map])
+  // the panel chunk too, so even the first fly-in (and a reduced-motion jump) mounts it without a wait
+  useEffect(() => {
+    const t = window.setTimeout(() => void preloadPanel(), 2500)
+    return () => window.clearTimeout(t)
+  }, [])
 
   /** Deep link: lift the veil once the tiles under the camera are in (or after `TILE_WAIT_MS`). */
   const whenTilesReady = useCallback(
@@ -267,7 +286,7 @@ function CinematicStage({
         savedCam.current = { center: [c.lng, c.lat], zoom: map.getZoom() }
       }
       // the panel mounts the moment the camera lands: have its chunk parsed by then
-      void loadPanel().catch(() => undefined)
+      void preloadPanel()
       busyRef.current(true)
       api.setInteractive(false)
       scene.lock()
@@ -277,7 +296,6 @@ function CinematicStage({
       setActivePin(null)
       setPinsOn(false)
       setEvents([])
-      setDusk(false)
       storeRef.current.setYear(2026)
       scene.showRoute(null, o.profile)
       // own OSM buildings, roads and traffic for the osiedle (basemap extrusion stays when it has none)
@@ -301,7 +319,7 @@ function CinematicStage({
         const land = landing(map, o, t, t.bearing)
         map.jumpTo({ center: land.center, zoom: land.zoom, pitch: land.pitch, bearing: land.bearing, padding: land.padding })
         scene.setLook('day', o.slug, 0)
-        scene.traceOutline(0, { glint: !reduce })
+        scene.startOutline({ glint: !reduce })
         whenTilesReady(() => setVeil(false))
         setStageBoth('panel')
         markVisited(o.slug)
@@ -313,17 +331,16 @@ function CinematicStage({
       }
 
       setStageBoth('flying')
-      // first visit: the city dims to night around the glowing outline, daylight returns as the camera
-      // lands; second visit / ?szybko=1: the same flight in daylight
-      const night = mode === 'full'
-      const flyMs = !fromOverview ? HOP_MS : night ? FLY_MS : QUICK_FLY_MS
+      const flyMs = !fromOverview ? HOP_MS : mode === 'full' ? FLY_MS : QUICK_FLY_MS
       const land = landing(map, o, t, t.bearing)
-      if (night) {
-        scene.setLook('night', o.slug, 1200)
-        setDusk(true)
-        at(1900, () => setDusk(false))
-        at(flyMs - DAY_LEAD_MS, () => scene.setLook('day', o.slug, DAY_MS))
-      } else scene.setLook('day', o.slug, 1200)
+      // the highlight fades in at once; the buildings wait for the last stretch, where they rise
+      scene.setLook('day', o.slug, HIGHLIGHT_MS, { buildingsDelay: flyMs - BUILDINGS_MS, buildingsMs: BUILDINGS_MS })
+      scene.startOutline()
+      // from the overview the camera zooms straight in (peak of the flight = where it starts) as long as
+      // the osiedle is in view; otherwise (another osiedle, a far-off map) MapLibre's arc over the city
+      const c = map.getCenter()
+      const el = map.getContainer()
+      const direct = fromOverview && nearInView([c.lng, c.lat], land.center, map.getZoom(), el.clientWidth, el.clientHeight)
       map.flyTo({
         center: land.center,
         zoom: land.zoom,
@@ -331,26 +348,23 @@ function CinematicStage({
         bearing: land.bearing,
         padding: land.padding,
         duration: flyMs,
-        curve: 1.42,
-        easing: easeInOutCubic,
+        ...(direct ? { minZoom: map.getZoom() } : { curve: 1.42 }),
+        easing: easeFlight,
         essential: true,
       })
-      at(night ? 700 : 500, () => scene.traceOutline(night ? 1600 : 1200))
-      // the panel comes in as the camera lands — no waiting on the street tiles: the parent tiles stay
-      // drawn and the detail fills in under the panel (a cover here would only add dead time)
-      at(flyMs, () => {
+      // the panel comes in as the camera settles — no waiting on the street tiles: the parent tiles
+      // stay drawn and the detail fills in under the panel (a cover here would only add dead time)
+      at(flyMs - PANEL_LEAD_MS, () => {
         finishRef.current = null
         openPanel(0)
       })
       finishRef.current = () => {
         clearTimers()
         finishRef.current = null
-        setDusk(false)
         map.stop()
-        map.easeTo({ center: land.center, zoom: land.zoom, pitch: land.pitch, bearing: land.bearing, padding: land.padding, duration: 700, essential: true })
-        if (scene.state.look !== 'day') scene.setLook('day', o.slug, 600)
-        scene.traceOutline(0)
-        openPanel(150)
+        map.easeTo({ center: land.center, zoom: land.zoom, pitch: land.pitch, bearing: land.bearing, padding: land.padding, duration: 450, easing: easeFlight, essential: true })
+        scene.setLook('day', o.slug, 250)
+        openPanel(120)
       }
     },
     [api, map, scene, markVisited, whenTilesReady],
@@ -367,7 +381,6 @@ function CinematicStage({
     setRoute(null)
     setActivePin(null)
     setEvents([])
-    setDusk(false)
     scene.showRoute(null, 'student')
     scene.director.stopAll()
     scene.lock()
@@ -376,12 +389,31 @@ function CinematicStage({
     const ae = document.activeElement as HTMLElement | null
     if (ae && (ae.closest('.cin-root') || ae === map.getCanvas())) ae.blur()
     const el = map.getContainer()
-    const home = homeCamera(map, homePadding(true, el.clientWidth))
-    const cam = savedCam.current ?? { center: home.center, zoom: home.zoom }
+    // (the home camera only without a saved one: fitted under the panel padding it can overflow the canvas)
+    const cam =
+      savedCam.current ??
+      (() => {
+        const home = homeCamera(map, homePadding(true, el.clientWidth))
+        return { center: home.center, zoom: home.zoom }
+      })()
     const dur = reduce ? 0 : BACK_MS
-    // buildings sink with the zoom and fade (800 ms); labels hide for the climb; heat + labels return late
-    scene.setLook('overview', null, reduce ? 0 : 1100, { fadeOut: reduce ? 0 : 800, overlayDelay: reduce ? 0 : Math.round(BACK_MS * 0.62) })
-    map.flyTo({ center: cam.center, zoom: cam.zoom, pitch: 0, bearing: 0, padding: ZERO, duration: dur, curve: 1.3, easing: easeInOutCubic, essential: true })
+    // highlight and buildings fade (400 ms) as they sink with the zoom; labels hide for the climb;
+    // heat + labels return late
+    scene.setLook('overview', null, reduce ? 0 : 700, { fadeOut: reduce ? 0 : 400, overlayDelay: reduce ? 0 : Math.round(BACK_MS * 0.55) })
+    // a straight zoom-out (never past the overview zoom) when the overview still frames this spot
+    const c = map.getCenter()
+    const direct = nearInView([c.lng, c.lat], cam.center, cam.zoom, el.clientWidth, el.clientHeight)
+    map.flyTo({
+      center: cam.center,
+      zoom: cam.zoom,
+      pitch: 0,
+      bearing: 0,
+      padding: ZERO,
+      duration: dur,
+      ...(direct ? { minZoom: Math.min(cam.zoom, map.getZoom()) } : { curve: 1.3 }),
+      easing: easeFlight,
+      essential: true,
+    })
     at(dur + 60, () => {
       scene.restoreInteraction()
       api.setInteractive(true)
@@ -570,14 +602,12 @@ function CinematicStage({
   }
   const activeFit = fitOf(active?.slug)
 
-  const cinema = stage === 'flying'
   const showPanel = stage === 'panel' && active
   const areaLayers = showPanel && area?.slug === active.slug ? area.layers : null
+  const Panel = loadedPanel ?? LazyPanel
 
   return (
     <div className={`cin-root is-${stage}`}>
-      <div className={`cin-vignette${cinema ? ' is-on' : ''}`} aria-hidden />
-      <div className={`cin-dusk${dusk ? ' is-dip' : ''}`} aria-hidden />
       <div className={`cin-veil${veil ? ' is-on' : ''}`} aria-hidden />
 
       {active && pinsOn && (

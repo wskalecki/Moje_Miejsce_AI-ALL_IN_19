@@ -178,8 +178,8 @@ function PanelBody({
       aria-labelledby="op-title"
       initial={reduce ? { opacity: 0 } : enterFrom}
       animate={{ x: 0, y: 0, opacity: 1 }}
-      exit={reduce ? { opacity: 0 } : { ...enterFrom, transition: { duration: 0.3, ease: EASE_EMPHASIZED } }}
-      transition={{ duration: reduce ? 0.2 : 0.45, ease: EASE_EMPHASIZED }}
+      exit={reduce ? { opacity: 0 } : { ...enterFrom, transition: { duration: 0.25, ease: EASE_EMPHASIZED } }}
+      transition={{ duration: reduce ? 0.2 : 0.32, ease: EASE_EMPHASIZED }}
     >
       <header className="op-head">
         <button type="button" className="op-head__back" onClick={onBack} aria-label="Wróć do mapy" title="Wróć do mapy">

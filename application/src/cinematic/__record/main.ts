@@ -95,7 +95,7 @@ window.__ready = new Promise<void>((resolve) => {
     const L = LIGHT.golden
     const sunAzimuth = (o.cameraBearing + MOVE.bearing / 2 + SUN_FROM_FRAME_DEG + 360) % 360
     map.setLight({ anchor: L.anchor, position: [L.position[0], sunAzimuth, L.position[2]], color: L.color, intensity: L.intensity })
-    scene.traceOutline(0, { glint: false })
+    scene.startOutline({ glint: false })
     await idle()
     // second pass: tiles requested by the first frame (sky, far tiles) have arrived
     await idle()
