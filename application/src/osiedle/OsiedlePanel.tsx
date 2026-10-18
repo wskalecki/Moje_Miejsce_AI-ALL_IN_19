@@ -10,9 +10,10 @@ import { Commute } from './Commute'
 import { Credits } from './Credits'
 import { Hero, type HeroVideo } from './Hero'
 import { Places } from './Places'
+import { routeFrom } from './osrm'
 import { Prices } from './Prices'
 import { Ring } from './Ring'
-import { Routes } from './Routes'
+import { Routes, type StartStatus } from './Routes'
 import { EASE_EMPHASIZED, defaultMode, useInView } from './shared'
 import { Timeline } from './Timeline'
 import { FIRST_YEAR, eventsUpTo, matchAtYear, statDeltasAtYear, statsAtYear, toStop, type TimelineYear } from './timelineMath'
@@ -41,6 +42,11 @@ export interface OsiedlePanelProps {
   timelineYear?: number
   /** Timeline stop changed (and once when the panel opens) with the dated events of year ≤ Y, for map markers. */
   onTimelineYear?: (year: TimelineYear, events: TimelineEvent[]) => void
+  /**
+   * Wait for one click on the map and resolve its point (null = cancelled, e.g. Esc); calling it
+   * again while it waits cancels. Enables the own start point of "Droga do…".
+   */
+  onPickPoint?: () => Promise<LngLat | null>
   /** Highlight id currently emphasised from the map side (marker hover). */
   activePlaceId?: string | null
   /** Explicit hero video; default probes `/osiedla/<slug>/flyover.{webm,mp4}`; `false` = photos only. */
@@ -86,6 +92,7 @@ function PanelBody({
   onFocusPlace,
   onHoverPlace,
   onShowRoute,
+  onPickPoint,
   activePlaceId,
   heroVideo,
   timelineYear,
@@ -145,13 +152,63 @@ function PanelBody({
   }
   const showRoute = useRef(onShowRoute)
   const back = useRef(onBack)
+  const pickRef = useRef(onPickPoint)
   useEffect(() => {
     showRoute.current = onShowRoute
     back.current = onBack
+    pickRef.current = onPickPoint
     onYearRef.current = onTimelineYear
   })
   const picked = osiedle.routes.find((r) => r.id === routeId) ?? osiedle.routes[0]
-  const route = picked
+
+  // Own start point (pin + map click): the picked destination re-routed live; results kept per point+destination.
+  const [start, setStart] = useState<LngLat | null>(null)
+  const [picking, setPicking] = useState(false)
+  const [fromStart, setFromStart] = useState<Record<string, Route | 'error'>>({})
+  const startKey = start && picked ? `${start.join(',')}|${picked.id}` : null
+  const startResult = startKey ? fromStart[startKey] : undefined
+  const startStatus: StartStatus = picking ? 'picking' : !startKey ? 'none' : startResult === undefined ? 'loading' : startResult === 'error' ? 'error' : 'ok'
+  const startRoute = startResult && startResult !== 'error' ? startResult : null
+  useEffect(() => {
+    if (!start || !picked || !startKey || fromStart[startKey] !== undefined) return
+    const ctrl = new AbortController()
+    routeFrom(start, picked, ctrl.signal).then(
+      (r) => setFromStart((m) => ({ ...m, [startKey]: r })),
+      () => {
+        if (!ctrl.signal.aborted) setFromStart((m) => ({ ...m, [startKey]: 'error' }))
+      },
+    )
+    return () => ctrl.abort()
+  }, [start, picked, startKey, fromStart])
+  const pickingRef = useRef(false)
+  const pickStart = useCallback(async () => {
+    const pick = pickRef.current
+    if (!pick) return
+    // a second press while waiting cancels the pending pick (it resolves null)
+    if (pickingRef.current) return void pick()
+    pickingRef.current = true
+    setPicking(true)
+    const p = await pick()
+    pickingRef.current = false
+    setPicking(false)
+    if (p) {
+      setStart(p)
+      setRouteDismissed(false)
+    }
+  }, [])
+  const clearStart = useCallback(() => setStart(null), [])
+  // folding the routes (or closing the panel) mid-pick gives the map click back
+  useEffect(() => {
+    if (!routesOpen && pickingRef.current) void pickRef.current?.()
+  }, [routesOpen])
+  useEffect(
+    () => () => {
+      if (pickingRef.current) void pickRef.current?.()
+    },
+    [],
+  )
+
+  const route = startRoute ?? picked
   const routeOn = routesOpen && routesInView && !routeDismissed && !!route
   const routeShown = useRef(false)
   useEffect(() => {
@@ -291,6 +348,10 @@ function PanelBody({
               onMode={selectMode}
               open={routesOpen}
               onOpenChange={openRoutes}
+              fromStart={startRoute}
+              startStatus={startStatus}
+              onPickStart={onPickPoint ? pickStart : undefined}
+              onClearStart={clearStart}
             />
           </div>
         )}

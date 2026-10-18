@@ -27,6 +27,8 @@ export interface OsiedlePanelProps {
   onFocusPlace?: (lngLat: LngLat) => void
   onHoverPlace?: (id: string | null) => void
   onShowRoute?: (route: Route | null) => void
+  /** One map click → its point (null = cancelled); "Droga do…" uses it for an own start point. */
+  onPickPoint?: () => Promise<LngLat | null>
   activePlaceId?: string | null
   /** Controlled timeline year (store `timelineYear`). */
   timelineYear?: number

@@ -535,6 +535,43 @@ function CinematicStage({
     [active, map, scene, profile],
   )
 
+  // own start point of "Droga do…": the next map click (crosshair cursor) resolves its point; Esc, a
+  // second call, leaving or another osiedle cancel (null). The orbit holds still meanwhile.
+  const cancelPick = useRef<(() => void) | null>(null)
+  const pickPoint = useCallback((): Promise<LngLat | null> => {
+    if (cancelPick.current) {
+      cancelPick.current()
+      return Promise.resolve(null)
+    }
+    return new Promise((resolve) => {
+      const box = map.getCanvasContainer()
+      const done = (p: LngLat | null) => {
+        map.off('click', onClick)
+        window.removeEventListener('keydown', onKey, true)
+        box.classList.remove('cin-picking')
+        cancelPick.current = null
+        if (!routeOn.current) scene.director.hold(false)
+        resolve(p)
+      }
+      const onClick = (e: { lngLat: { lng: number; lat: number } }) => done([e.lngLat.lng, e.lngLat.lat])
+      // capture + preventDefault: the panel's Esc (= back to the map) skips a handled key
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key !== 'Escape') return
+        e.preventDefault()
+        done(null)
+      }
+      map.on('click', onClick)
+      window.addEventListener('keydown', onKey, true)
+      box.classList.add('cin-picking')
+      scene.director.hold(true)
+      cancelPick.current = () => done(null)
+    })
+  }, [map, scene])
+  useEffect(() => {
+    if (stage !== 'panel') cancelPick.current?.()
+  }, [stage, active])
+  useEffect(() => () => cancelPick.current?.(), [])
+
   // timeline: the panel reports the year and the events up to it; the year lives in the store
   const onTimelineYear = useCallback((y: number, evs: TimelineEvent[]) => {
     storeRef.current.setYear(y)
@@ -649,6 +686,7 @@ function CinematicStage({
               onFocusPlace={focusPlace}
               onHoverPlace={setHoverPin}
               onShowRoute={showRoute}
+              onPickPoint={pickPoint}
               activePlaceId={activePin}
               timelineYear={timelineYear}
               onTimelineYear={onTimelineYear}

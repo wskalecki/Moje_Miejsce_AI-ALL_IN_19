@@ -894,6 +894,93 @@
   font-weight: 500;
 }
 
+.op-start {
+  margin-bottom: 8px;
+}
+.op-start__row {
+  display: flex;
+  gap: 6px;
+}
+.op-start__pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 12px 0 10px;
+  border-radius: 10px;
+  background: rgba(22, 22, 29, 0.06);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--op-ink-2);
+  text-align: left;
+  transition:
+    background-color 160ms,
+    color 160ms,
+    box-shadow 160ms;
+}
+.op-start__pick span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.op-start__pick:hover {
+  color: var(--op-ink);
+}
+.op-start__pick:focus-visible,
+.op-start__clear:focus-visible {
+  outline: 2px solid var(--op-accent);
+  outline-offset: 1px;
+}
+.op-start.is-picking .op-start__pick,
+.op-start.is-ok .op-start__pick,
+.op-start.is-loading .op-start__pick {
+  background: #fff;
+  color: var(--op-accent-deep);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--op-accent) 35%, transparent);
+}
+.op-start.is-picking .op-start__pick svg {
+  animation: op-start-bob 900ms var(--op-ease-std) infinite alternate;
+}
+@keyframes op-start-bob {
+  to {
+    transform: translateY(-2px);
+  }
+}
+.op-start.is-error .op-start__note {
+  color: var(--color-bad, #d9534f);
+}
+.op-start__clear {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(22, 22, 29, 0.06);
+  color: var(--op-ink-2);
+  transition: background-color 160ms, color 160ms;
+}
+.op-start__clear:hover {
+  background: rgba(22, 22, 29, 0.1);
+  color: var(--op-ink);
+}
+.op-start__note:empty {
+  display: none;
+}
+.op-start__note {
+  margin: 6px 2px 0;
+  font-size: 11.5px;
+  line-height: 16px;
+  color: var(--op-ink-3);
+}
+.op-route.is-busy .op-modes,
+.op-route.is-busy .op-route__summary {
+  opacity: 0.45;
+  transition: opacity var(--d-base, 200ms) var(--op-ease-std);
+}
+
 .op-route {
   border-radius: 14px;
   background: var(--chrome-row-bg, rgba(255, 255, 255, 0.5));
@@ -1489,6 +1576,9 @@
   .op-bars__chev,
   .op-credits__chev {
     transition: none;
+  }
+  .op-start.is-picking .op-start__pick svg {
+    animation: none;
   }
   .op-traffic__plot {
     clip-path: none;
