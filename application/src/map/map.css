@@ -511,6 +511,14 @@
 .smap__right[data-open] {
   pointer-events: auto;
 }
+/* switching categories: the closing and the opening drawer share one cell, so the new one never
+   shows up below the old one and jumps to the top */
+.smap__right {
+  display: grid;
+}
+.smap__right > * {
+  grid-area: 1 / 1;
+}
 /* the controls step aside for the drawer at once and fade in there — sliding, they crossed the drawer */
 .smap.is-detail-open .smap__tr {
   right: calc(var(--smap-edge) + 320px + 14px);
