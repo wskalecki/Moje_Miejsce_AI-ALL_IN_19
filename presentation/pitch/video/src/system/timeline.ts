@@ -31,7 +31,7 @@ export const SEG = {
     { from: m.panel + 0.6, to: m.scores, rate: 4.0 },
     { from: m.scores, to: m.places, rate: 1.2 },
     { from: m.places, to: m.routes, rate: 1.8 },
-    { from: m.routes, to: m.commute, rate: 1.8 },
+    { from: m.routes, to: m.commute, rate: 4.0 },
     { from: m.commute, to: m.traffic, rate: 1.3 },
     { from: m.traffic, to: m.prices, rate: 2.6 },
     { from: m.prices, to: m.timeline, rate: 1.4 },
