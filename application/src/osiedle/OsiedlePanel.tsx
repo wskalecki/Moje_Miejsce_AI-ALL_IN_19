@@ -4,12 +4,11 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DEFAULT_PRIORITIES } from '../app/dictionary'
 import type { CategoryId, Horizon, ProfileId } from '../app/types'
 import type { PlaceFit } from '../cinematic/panelLoader'
-import type { Highlight, LngLat, Osiedle, Route, TimelineEvent, TravelMode } from '../mock/osiedla'
+import type { Osiedle, Route, TimelineEvent, TravelMode } from '../mock/osiedla'
 import { CategoryBars } from './CategoryBars'
 import { Commute } from './Commute'
 import { Credits } from './Credits'
 import { Hero, type HeroVideo } from './Hero'
-import { Places } from './Places'
 import { Prices } from './Prices'
 import { Ring } from './Ring'
 import { Routes } from './Routes'
@@ -30,18 +29,12 @@ export interface OsiedlePanelProps {
   /** `overlay` = place card in the map's left column over the 3D map; `page` = standalone full page. */
   layout?: 'overlay' | 'page'
   onBack: () => void
-  /** Highlight clicked → fly the map there. */
-  onFocusPlace?: (lngLat: LngLat, place: Highlight) => void
-  /** Highlight hovered / focused (null = left) → scale its map marker. */
-  onHoverPlace?: (id: string | null) => void
   /** Destination or mode picked → draw the route; null when the panel closes. */
   onShowRoute?: (route: Route | null, mode?: TravelMode) => void
   /** Controlled timeline year (store `timelineYear`, snapped to its 5-year stop); uncontrolled (starts at today) when omitted. */
   timelineYear?: number
   /** Timeline stop changed (and once when the panel opens) with the dated events of year ≤ Y, for map markers. */
   onTimelineYear?: (year: TimelineYear, events: TimelineEvent[]) => void
-  /** Highlight id currently emphasised from the map side (marker hover). */
-  activePlaceId?: string | null
   /** Explicit hero video; default probes `/osiedla/<slug>/flyover.{webm,mp4}`; `false` = photos only. */
   heroVideo?: HeroVideo | false
   className?: string
@@ -56,7 +49,6 @@ const MSI_NAMES: Record<string, string> = {
 // update that re-renders the panel (each is pure in its props and its own state).
 const HeroSection = memo(Hero)
 const CategoryBarsSection = memo(CategoryBars)
-const PlacesSection = memo(Places)
 const RoutesSection = memo(Routes)
 const CommuteSection = memo(Commute)
 const TrafficSection = memo(TrafficChart)
@@ -68,8 +60,9 @@ const DEMO_NOTE = 'Wersja demonstracyjna — liczby policzone z otwartych danych
 
 /**
  * Osiedle detail panel (spec §4.5) in the map's card language: a fixed head (back, name, rank,
- * match ring) over a scrolling body — photos, key numbers, category bars, places, routes, commute,
- * traffic, prices, timeline dziś → 2045 (5-year stops), credits.
+ * match ring) over a scrolling body — photos, key numbers, category bars, routes, commute, traffic,
+ * prices, timeline dziś → 2045 (5-year stops), credits. "Ważne miejsca" sit in the map's right column
+ * (`PlacesPanel`, rendered by the cinematic layer).
  */
 export function OsiedlePanel(props: OsiedlePanelProps) {
   // Keyed by slug: switching osiedle starts from a clean state (gallery, route, scroll, reveal).
@@ -84,10 +77,7 @@ function PanelBody({
   priorities,
   layout = 'overlay',
   onBack,
-  onFocusPlace,
-  onHoverPlace,
   onShowRoute,
-  activePlaceId,
   heroVideo,
   timelineYear,
   onTimelineYear,
@@ -177,22 +167,6 @@ function PanelBody({
     setMode(m)
   }, [])
 
-  // Places — a place picked while a route is shown clears the route first, then the camera flies there.
-  const [placeId, setPlaceId] = useState<string | null>(null)
-  const shownPlaceId = activePlaceId ?? placeId
-  const selectPlace = useCallback(
-    (p: Highlight) => {
-      setPlaceId(p.id)
-      setRouteDismissed(true)
-      if (routeShown.current) {
-        routeShown.current = false
-        showRoute.current?.(null)
-      }
-      onFocusPlace?.(p.coord, p)
-    },
-    [onFocusPlace],
-  )
-
   // Focus the heading on open (spec §10), Esc goes back.
   useEffect(() => {
     titleRef.current?.focus({ preventScroll: true })
@@ -249,7 +223,6 @@ function PanelBody({
         {osiedle.tagline && <p className="op-lead">{osiedle.tagline}</p>}
 
         <CategoryBarsSection profile={profile} priorities={prios} values={values} deltas={deltas} />
-        <PlacesSection places={osiedle.highlights} activeId={shownPlaceId} onSelect={selectPlace} onHover={onHoverPlace} hasMap={!!onFocusPlace} />
         {osiedle.routes.length > 0 && (
           <div ref={routesRef}>
             <RoutesSection routes={osiedle.routes} selectedId={route?.id ?? ''} mode={mode} onSelect={selectRoute} onMode={selectMode} />

@@ -29,7 +29,8 @@ import type { CategoryKey, Horizon, ProfileId } from '../app/types'
 import { ACCENTS } from '../design/tokens'
 import type { MapApi } from '../map/MapView'
 import { homeCamera, homePadding } from '../map/camera'
-import { OSIEDLA, OSIEDLA_BY_SLUG, type LngLat, type Osiedle, type OsiedleSlug, type Route, type TimelineEvent } from '../mock/osiedla'
+import { OSIEDLA, OSIEDLA_BY_SLUG, type Highlight, type LngLat, type Osiedle, type OsiedleSlug, type Route, type TimelineEvent } from '../mock/osiedla'
+import { PlacesPanel } from '../osiedle/PlacesPanel'
 import { allVisible, corePoints, frame, metersBetween, nearInView, LAND_PITCH, type Framing, type Pt } from './framing'
 import { loadPanel, type OsiedlePanelProps, type PlaceFit } from './panelLoader'
 import { PlacePins, type Pin } from './PlacePins'
@@ -594,6 +595,16 @@ function CinematicStage({
     [focusPlace],
   )
 
+  // "Ważne miejsca" (right column): a place picked while a route is shown clears the route first, then
+  // the camera flies there (the panel's route stays picked and comes back with the routes section)
+  const pickPlace = useCallback(
+    (h: Highlight) => {
+      if (routeOn.current) showRoute(null)
+      focusPlace(h.coord)
+    },
+    [showRoute, focusPlace],
+  )
+
   // the category of the place hovered in the panel (or its pin) highlights those buildings in 3D
   const hoverKinds = useMemo(() => {
     const id = hoverPin ?? activePin
@@ -629,11 +640,27 @@ function CinematicStage({
         <PlacePins map={map} pins={pins} accent={owner.accent} deep={owner.deep} activeId={hoverPin ?? activePin} onPick={onPick} />
       )}
 
-      {areaLayers && (
-        <Suspense fallback={null}>
-          <Osm3dOverlay area={areaLayers} focusKinds={hoverKinds} />
-        </Suspense>
-      )}
+      {/* right column: the places next to their pins, the map layers under them */}
+      <div className="cin-side">
+        <AnimatePresence>
+          {showPanel && (
+            <PlacesPanel
+              key={active.slug}
+              profile={profile}
+              places={active.highlights}
+              activeId={activePin}
+              onSelect={pickPlace}
+              onHover={setHoverPin}
+              hasMap
+            />
+          )}
+        </AnimatePresence>
+        {areaLayers && (
+          <Suspense fallback={null}>
+            <Osm3dOverlay area={areaLayers} focusKinds={hoverKinds} docked />
+          </Suspense>
+        )}
+      </div>
 
       <AnimatePresence>
         {showPanel && (
@@ -646,10 +673,7 @@ function CinematicStage({
               priorities={[...priorities]}
               layout="overlay"
               onBack={goBack}
-              onFocusPlace={focusPlace}
-              onHoverPlace={setHoverPin}
               onShowRoute={showRoute}
-              activePlaceId={activePin}
               timelineYear={timelineYear}
               onTimelineYear={onTimelineYear}
             />

@@ -14,9 +14,11 @@ interface Osm3dOverlayProps {
   area: AreaLayers
   /** Kinds highlighted from outside (e.g. the category of the place hovered in the panel). */
   focusKinds?: readonly BuildingKind[] | null
+  /** In the osiedle view's right column (stacked under "Ważne miejsca", no own positioning). */
+  docked?: boolean
 }
 
-export function Osm3dOverlay({ area, focusKinds = null }: Osm3dOverlayProps) {
+export function Osm3dOverlay({ area, focusKinds = null, docked = false }: Osm3dOverlayProps) {
   const [legendKind, setLegendKind] = useState<BuildingKind | null>(null)
   const storeFocus = useBuildingFocus()
   const [colorByKind, setColorByKind] = useState(false)
@@ -100,7 +102,7 @@ export function Osm3dOverlay({ area, focusKinds = null }: Osm3dOverlayProps) {
   const doc = area.data.traffic
 
   return (
-    <div className="m3d">
+    <div className={docked ? 'm3d m3d--docked' : 'm3d'}>
       <details className="m3d-card chrome-box m3d-advanced">
         <summary className="m3d-advanced__sum">Warstwy mapy</summary>
         <div className="m3d-advanced__body">

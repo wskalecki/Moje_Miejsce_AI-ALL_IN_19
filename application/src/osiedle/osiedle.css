@@ -721,6 +721,73 @@
   color: var(--cat, var(--op-accent));
 }
 
+/* ---------- Places card in the map's right column (PlacesPanel, cinematic `.cin-side`) ---------- */
+
+.op--side {
+  flex: 0 1 auto;
+  min-height: 0;
+  padding: var(--chrome-card-pad, 16px 10px 10px);
+  pointer-events: auto;
+}
+
+.op--side .op-sec {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
+  border-top: 0;
+}
+
+.op--side .op-sec__head {
+  padding: 0 6px;
+}
+
+/* the list scrolls inside the card; 4 px of room keeps the focus ring unclipped */
+.op--side .op-places {
+  min-height: 0;
+  margin: -4px;
+  padding: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+/* < 1024 px: one row of place chips across the top of the map strip, under the header pill */
+@media (max-width: 1023px) {
+  .op--side {
+    position: absolute;
+    top: calc(var(--chrome-edge, 12px) + 52px);
+    left: var(--chrome-edge, 12px);
+    right: var(--chrome-edge, 12px);
+    padding: 6px;
+    border-radius: 18px;
+  }
+  .op--side .op-sec__head {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .op--side .op-places {
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    overflow: auto hidden;
+    scroll-snap-type: x proximity;
+  }
+  .op--side .op-place {
+    grid-template-columns: 28px auto;
+    max-width: 220px;
+    scroll-snap-align: start;
+  }
+  .op--side .op-place__meta,
+  .op--side .op-place__go {
+    display: none;
+  }
+}
+
 /* ---------- Routes ---------- */
 
 .op-pills {
