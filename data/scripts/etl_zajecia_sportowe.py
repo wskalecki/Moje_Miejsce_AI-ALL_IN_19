@@ -3,7 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyproj>=3.6"]
 # ///
-"""ETL: free city sports classes → data/poi_mikolaj/sport.geojson (docs/data/poi-schema.md).
+"""ETL: free city sports classes → data/poi/sport.geojson (docs/data/poi-schema.md).
 
 Catalog slug: `zajecia-sportowe` (API action `get_bmm_zajecia_sportowe`), licence CC BY — Urząd m.st. Warszawy.
 
@@ -25,12 +25,12 @@ from typing import Any
 
 from generate_grid import load_districts
 from geocode_address import Geocoder
-from poi_common import POI_DIR, Districts, merge_into, point_feature
+from poi_common import Districts, merge_into, point_feature
 from um_api import DATA_DIR, ApiError, fetch
 
 SLUG = "zajecia-sportowe"
 ACTION = "bmm_zajecia_sportowe"
-OUT_PATH = POI_DIR / "sport.geojson"
+OUT_PATH = DATA_DIR / "poi" / "sport.geojson"
 
 
 def names(items: list[dict[str, Any]] | None) -> list[str]:

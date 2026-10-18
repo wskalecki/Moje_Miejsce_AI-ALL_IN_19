@@ -104,7 +104,7 @@ Use as a checklist if we illustrate a similar project:
 
 *Image credits in source: © Dorota Cichoń, Aleksandra Chylak, Oliwia Jagła, Karolina Supron.*
 
-### Suggested graphic design specs (for `3_AI-ALL IN_Moje Miejsce/graphics/`)
+### Suggested graphic design specs (for `presentation/graphics/`)
 
 - **Palette**: urban neutrals (stone, glass) + **vegetation greens** + **heat-island gradient** (cool → **red** at transit basement).
 - **Typography**: clear sans for data/labels; **comic or rounded display** optional for “AI narrator” callouts only — keep maps and metrics readable.

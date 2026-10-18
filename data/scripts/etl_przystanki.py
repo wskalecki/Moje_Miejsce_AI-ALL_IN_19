@@ -3,7 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyproj>=3.6"]
 # ///
-"""ETL: public transport stops → data/poi_mikolaj/transit.geojson (docs/data/poi-schema.md).
+"""ETL: public transport stops → data/poi/transit.geojson (docs/data/poi-schema.md).
 
 Catalog slug: `lokalizacja-przystanow-komunikacji-miejskiej`
 (API action `get_ztm_przystanki_komunikacji_miejskiej` — differs from the slug),
@@ -24,12 +24,12 @@ from pathlib import Path
 from typing import Any
 
 from generate_grid import load_districts
-from poi_common import POI_DIR, Districts, merge_into, point_feature
+from poi_common import Districts, merge_into, point_feature
 from um_api import DATA_DIR, ApiError, fetch
 
 SLUG = "lokalizacja-przystanow-komunikacji-miejskiej"
 ACTION = "ztm_przystanki_komunikacji_miejskiej"
-OUT_PATH = POI_DIR / "transit.geojson"
+OUT_PATH = DATA_DIR / "poi" / "transit.geojson"
 
 
 def record(row: dict[str, Any]) -> dict[str, str]:

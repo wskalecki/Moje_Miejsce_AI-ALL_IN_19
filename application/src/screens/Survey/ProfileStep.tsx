@@ -41,8 +41,6 @@ export function ProfileStep({
     e.preventDefault()
     setFocusIdx(next)
     refs.current[next]?.focus()
-    // In a short scrolling sheet (landscape phone) focus alone leaves a tall card half hidden.
-    refs.current[next]?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
   }
 
   return (

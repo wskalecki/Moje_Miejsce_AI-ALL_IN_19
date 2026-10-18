@@ -59,4 +59,4 @@ The **data** developer adds datasets under [`../../data/`](../../data/). Documen
 
 ## Presentation assets
 
-Place demo 3D models in [`../../3_AI-ALL IN_Moje Miejsce/models/`](../../3_AI-ALL%20IN_Moje%20Miejsce/models/) and slide/visual assets in [`../../3_AI-ALL IN_Moje Miejsce/graphics/`](../../3_AI-ALL%20IN_Moje%20Miejsce/graphics/). Prefer Git LFS for large binaries.
+Place demo 3D models in [`../../presentation/models/`](../../presentation/models/) and slide/visual assets in [`../../presentation/graphics/`](../../presentation/graphics/). Prefer Git LFS for large binaries.

@@ -11,7 +11,7 @@
  * Playwright is a one-off tool (kept out of package.json):
  *   mkdir -p /tmp/rec && cd /tmp/rec && npm i playwright && npx playwright install chromium
  *   cd application && npx vite --port 5176
- *   PLAYWRIGHT=/tmp/rec/node_modules/playwright/index.mjs node "3_AI-ALL IN_Moje Miejsce/pitch/tools/record-demo.mjs"
+ *   PLAYWRIGHT=/tmp/rec/node_modules/playwright/index.mjs node presentation/pitch/tools/record-demo.mjs
  */
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'

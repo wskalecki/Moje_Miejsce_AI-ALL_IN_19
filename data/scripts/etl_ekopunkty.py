@@ -3,7 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyproj>=3.6"]
 # ///
-"""ETL: waste and reuse points → data/poi_mikolaj/amenities.geojson (docs/data/poi-schema.md).
+"""ETL: waste and reuse points → data/poi/amenities.geojson (docs/data/poi-schema.md).
 
 Catalog slug: `eko-punkty` (API action `get_bos_ekopunkty`), licence CC BY — Urząd m.st. Warszawy.
 
@@ -24,12 +24,12 @@ from pathlib import Path
 from typing import Any
 
 from generate_grid import load_districts
-from poi_common import POI_DIR, Districts, merge_into, point_feature
+from poi_common import Districts, merge_into, point_feature
 from um_api import DATA_DIR, ApiError, fetch
 
 SLUG = "eko-punkty"
 ACTION = "bos_ekopunkty"
-OUT_PATH = POI_DIR / "amenities.geojson"
+OUT_PATH = DATA_DIR / "poi" / "amenities.geojson"
 
 SUBTYPES = {
     "Odbiór przeterminowanych leków": "medicine_disposal",

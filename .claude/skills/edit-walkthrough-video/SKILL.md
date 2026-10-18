@@ -12,7 +12,7 @@ Wyjście: `video/out/<nazwa>.mp4` (render 2880×1620, 30 kl./s) + kopia 2560×14
 
 Działający projekt w tym repo — kopiuj z niego, nie pisz od zera:
 
-| Plik (`3_AI-ALL IN_Moje Miejsce/pitch/video/src/`) | Co zawiera |
+| Plik (`presentation/pitch/video/src/`) | Co zawiera |
 |---|---|
 | `components/ui.tsx` | `Recording` (odtwarza kawałki nagrania), `Camera` (eased zoom po kluczach), `BrowserFrame`, `Chapter`, `Callouts`, `Paper` (tło), `Logo`, `SceneFade`, `sec()` |
 | `system/timeline.ts` | lista cięć (EDL): segmenty `{from, to, rate}` liczone od znaczników, kolejność scen, `PLACED`, `TOTAL_FRAMES` |
@@ -24,11 +24,11 @@ Działający projekt w tym repo — kopiuj z niego, nie pisz od zera:
 ## Procedura
 
 ### 1. Projekt
-Najprościej dodać nową kompozycję do istniejącego `3_AI-ALL IN_Moje Miejsce/pitch/video` (wspólne komponenty). Dla innego produktu skopiuj cały katalog `video/` bez `node_modules` i `out`, podmień `theme.ts` (kolory, fonty z design tokens aplikacji) i `Logo`.
+Najprościej dodać nową kompozycję do istniejącego `presentation/pitch/video` (wspólne komponenty). Dla innego produktu skopiuj cały katalog `video/` bez `node_modules` i `out`, podmień `theme.ts` (kolory, fonty z design tokens aplikacji) i `Logo`.
 ```bash
-cd "3_AI-ALL IN_Moje Miejsce/pitch/video" && npm i
+cd presentation/pitch/video && npm i
 ```
-`remotion.config.ts` ustawia `publicDir` na `../assets` — nagrania, b-roll i dźwięki leżą w `3_AI-ALL IN_Moje Miejsce/pitch/assets` i są dostępne przez `staticFile('clips/NAME.mp4')`.
+`remotion.config.ts` ustawia `publicDir` na `../assets` — nagrania, b-roll i dźwięki leżą w `presentation/pitch/assets` i są dostępne przez `staticFile('clips/NAME.mp4')`.
 
 ### 2. Lista cięć (`timeline.ts`)
 Importuj znaczniki i zapisz każdą scenę jako segmenty nagrania z prędkością:
@@ -88,7 +88,7 @@ Czekając na render w tle, nie odpytuj w pętli `pgrep -f "remotion render"` —
 Jeśli w `assets/music/` jest już utwór, użyj go ponownie. Gdy jest krótszy od filmu, zagraj go dwa razy z 3-sekundowym przenikaniem na cięciu sceny, a drugie przejście przesuń tak, by naturalne zakończenie utworu wypadło na ostatniej klatce — gotowy wzór w `System.tsx` (`firstPass` / `secondPass`). Głośność 0.8, wejście 1.5 s, wyciszenie 1.4 s; w kodowaniu do prezentacji `loudnorm=I=-16`.
 
 ## Opcjonalnie: dźwięk i b-roll (płatne, OpenRouter)
-Tylko gdy użytkownik wprost chce lektora/muzykę/ujęcia AI — zapytaj o zgodę na koszt (~5 USD za całość). Działające skrypty: `3_AI-ALL IN_Moje Miejsce/pitch/tools/tts.py` (ElevenLabs v4 przez `/api/v1/audio/speech`), `music_or.py` (Lyria 3 Pro, wymaga `stream: true`), `video_gen.py` (Veo 3.1, `/api/v1/videos`), `transcribe.py` (Gemini — kontrola, czy lektor mówi dokładnie tekst ze skryptu). Kompozycja `Showcase` pokazuje ściszanie muzyki pod lektorem. Gemini TTS potrafi dopisywać własne zdania — zawsze transkrybuj i porównuj. Klucze tylko w `.env`, nigdy w repo.
+Tylko gdy użytkownik wprost chce lektora/muzykę/ujęcia AI — zapytaj o zgodę na koszt (~5 USD za całość). Działające skrypty: `presentation/pitch/tools/tts.py` (ElevenLabs v4 przez `/api/v1/audio/speech`), `music_or.py` (Lyria 3 Pro, wymaga `stream: true`), `video_gen.py` (Veo 3.1, `/api/v1/videos`), `transcribe.py` (Gemini — kontrola, czy lektor mówi dokładnie tekst ze skryptu). Kompozycja `Showcase` pokazuje ściszanie muzyki pod lektorem. Gemini TTS potrafi dopisywać własne zdania — zawsze transkrybuj i porównuj. Klucze tylko w `.env`, nigdy w repo.
 
 ## Czego nie robić
 - Nie wpisuj fałszywych URL-i ani danych, których nie ma w aplikacji/katalogu.
