@@ -233,6 +233,7 @@ export class CinemaScene {
   private light: { color: string; intensity: number } = { color: LIGHT.day.color, intensity: LIGHT.day.intensity }
   private routeRaf = 0
   private stopGlint: (() => void) | null = null
+  private lineColorCache: { key: string; colors: { base: string; head: string } } | null = null
   private labelTimer = 0
   private buildingsTimer = 0
   /** True once the 3D buildings of the current osiedle are (being) faded in. */
@@ -676,9 +677,14 @@ export class CinemaScene {
   /** Line colour used by the outline core for the current look. */
   private lineColors(): { base: string; head: string } {
     const owner = (this.current.slug && this.targets.get(this.current.slug)?.owner) || 'student'
+    // read by the glint ~30× a second: re-mix only when the owner or the look changed
+    const key = `${owner}|${this.current.look}`
+    if (this.lineColorCache?.key === key) return this.lineColorCache.colors
     const a = ACCENTS[owner]
-    if (this.current.look === 'golden') return { base: mix(a.accent, '#ffffff', 0.25), head: '#ffffff' }
-    return { base: a.deep, head: mix(a.accent, '#ffffff', 0.7) }
+    const colors =
+      this.current.look === 'golden' ? { base: mix(a.accent, '#ffffff', 0.25), head: '#ffffff' } : { base: a.deep, head: mix(a.accent, '#ffffff', 0.7) }
+    this.lineColorCache = { key, colors }
+    return colors
   }
 
   /** Show the crisp outline of the osiedle, then keep a slow glint running along it. */
@@ -717,9 +723,10 @@ export class CinemaScene {
     this.paint(CIN_LAYER.routeCasing, 'line-opacity', 0.95, 200)
     const start = performance.now()
     const dur = 900
+    const head = rgba(color, 1)
     const step = (now: number) => {
       const t = Math.min(1, (now - start) / dur)
-      this.map.setPaintProperty(CIN_LAYER.route, 'line-gradient', drawGradient(easeOutCubic(t), color, rgba(color, 1)))
+      this.map.setPaintProperty(CIN_LAYER.route, 'line-gradient', drawGradient(easeOutCubic(t), color, head))
       if (t < 1) this.routeRaf = requestAnimationFrame(step)
     }
     this.map.setPaintProperty(CIN_LAYER.route, 'line-gradient', drawGradient(0, color, color))

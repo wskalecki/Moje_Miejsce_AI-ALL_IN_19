@@ -1,4 +1,5 @@
 import { Maximize2, Minus, Plus } from 'lucide-react'
+import { memo } from 'react'
 
 interface MapControlsProps {
   onZoomIn: () => void
@@ -7,7 +8,7 @@ interface MapControlsProps {
 }
 
 /** Top-right camera controls in the app's glass style (spec 4.3). */
-export function MapControls({ onZoomIn, onZoomOut, onReset }: MapControlsProps) {
+export const MapControls = memo(function MapControls({ onZoomIn, onZoomOut, onReset }: MapControlsProps) {
   return (
     <div className="smap-controls" role="toolbar" aria-label="Sterowanie mapą">
       <div className="smap-controls__group">
@@ -23,4 +24,4 @@ export function MapControls({ onZoomIn, onZoomOut, onReset }: MapControlsProps) 
       </button>
     </div>
   )
-}
+})

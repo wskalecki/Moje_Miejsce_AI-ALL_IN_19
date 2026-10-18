@@ -108,6 +108,8 @@ const PADDED_BOUNDS: [[number, number], [number, number]] = [
 ]
 
 const NO_PRIORITIES: readonly CategoryKey[] = []
+/** Stable defaults: a fresh `[]` per render would re-run every memo / effect that depends on them. */
+const NO_STRINGS: readonly string[] = []
 
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -124,9 +126,9 @@ export function MapView({
   horizon = 'stale',
   onHorizonChange,
   chrome = true,
-  poiInterests = [],
+  poiInterests = NO_STRINGS,
   onTogglePoiInterest,
-  gastronomyCuisines = [],
+  gastronomyCuisines = NO_STRINGS,
   onToggleGastronomyCuisine,
   filterSections: filterSectionsProp,
   onFilterSectionsChange,
@@ -301,25 +303,40 @@ export function MapView({
         .catch(() => undefined)
       void loadMetrics().then((m) => !cancelled && setMetrics(m))
       let poiKey: string | undefined
-      map.on('mousemove', (e) => {
+      let poiPoint: { x: number; y: number } | null = null
+      let poiRaf = 0
+      // one POI query per frame (mousemove can fire several times per frame), always for the latest point
+      const poiTick = () => {
+        poiRaf = 0
+        if (!poiPoint || cancelled) return
+        const point = poiPoint
         const layers = [POI_LAYER.interestsEdu, POI_LAYER.interestsTransit, POI_LAYER.interests, POI_LAYER.solo, POI_LAYER.pri].filter(
           (l) => map.getLayer(l) && map.getLayoutProperty(l, 'visibility') !== 'none',
         )
-        const f = layers.length && interactiveRef.current ? map.queryRenderedFeatures(e.point, { layers })[0] : undefined
+        const f = layers.length && interactiveRef.current ? map.queryRenderedFeatures([point.x, point.y], { layers })[0] : undefined
         if (!f) {
           if (poiKey !== undefined) setPoiHover(null)
           poiKey = undefined
           return
         }
         const tip = poiTipRef.current
-        if (tip) tip.style.transform = `translate3d(${Math.round(e.point.x)}px, ${Math.round(e.point.y)}px, 0)`
+        if (tip) tip.style.transform = `translate3d(${Math.round(point.x)}px, ${Math.round(point.y)}px, 0)`
         const pr = f.properties ?? {}
         const key = `${(f.geometry as GeoJSON.Point).coordinates.join(',')}|${pr.n}`
         if (key === poiKey) return
         poiKey = key
         setPoiHover({ key, c: Number(pr.c), n: String(pr.n ?? ''), t: String(pr.t ?? ''), s: String(pr.s ?? '') })
+      }
+      map.on('mousemove', (e) => {
+        poiPoint = { x: e.point.x, y: e.point.y }
+        if (!poiRaf) poiRaf = requestAnimationFrame(poiTick)
       })
-      map.getCanvasContainer().addEventListener('mouseleave', () => setPoiHover(null))
+      map.getCanvasContainer().addEventListener('mouseleave', () => {
+        poiPoint = null
+        cancelAnimationFrame(poiRaf)
+        poiRaf = 0
+        setPoiHover(null)
+      })
       map.easeTo({ ...homeCamera(map, padding()), duration: reducedMotion() ? 0 : 1600 })
       fitWithoutPanelRef.current = !chromeRef.current
       map.on('movestart', (e) => {
@@ -403,10 +420,15 @@ export function MapView({
   const ranking = useMemo(() => {
     if (!data) return null
     const match = new Map<string, number>()
-    for (const o of data.info.values()) match.set(o.id, weightedMatch(catsForRanking(o), weights, null, scoreCats))
     const sh = shares(weights, null, scoreCats)
-    const exact = (o: OsiedleInfo) => CATEGORY_ORDER.reduce((v, c, i) => v + sh[i] * catsForRanking(o)[c], 0)
-    const order = [...data.info.values()].map((o) => ({ id: o.id, v: exact(o) })).sort((a, b) => b.v - a.v || a.id.localeCompare(b.id))
+    const order: { id: string; v: number }[] = []
+    for (const o of data.info.values()) {
+      // one category record per osiedle (the personal gastronomia score is a POI scan)
+      const cats = catsForRanking(o)
+      match.set(o.id, weightedMatch(cats, weights, null, scoreCats))
+      order.push({ id: o.id, v: CATEGORY_ORDER.reduce((v, c, i) => v + sh[i] * cats[c], 0) })
+    }
+    order.sort((a, b) => b.v - a.v || a.id.localeCompare(b.id))
     const rank = new Map(order.map((x, i) => [x.id, i + 1]))
     return { match, rank, order: order.map((x) => x.id), total: order.length }
   }, [data, weights, catsForRanking, scoreCats])
@@ -512,6 +534,9 @@ export function MapView({
   const highlighted: string | null = panelHover ?? (hoveredId && topKey.split('|').includes(hoveredId) ? hoveredId : null)
 
   const zoomBy = useCallback((dz: number) => mapRef.current?.easeTo({ zoom: (mapRef.current?.getZoom() ?? 11) + dz, duration: 300 }), [])
+  const zoomIn = useCallback(() => zoomBy(1), [zoomBy])
+  const zoomOut = useCallback(() => zoomBy(-1), [zoomBy])
+  const closeDetail = useCallback(() => setDetailCat(null), [])
   const reset = useCallback(() => {
     const map = mapRef.current
     const el = containerRef.current
@@ -589,7 +614,7 @@ export function MapView({
                 <CategoryFilterPanel
                   key={openDetailCat}
                   category={openDetailCat}
-                  onClose={() => setDetailCat(null)}
+                  onClose={closeDetail}
                   filterSections={filterSections}
                   weight={categoryHasSlider(openDetailCat, filterSections) ? weights[openDetailCat] : 0}
                   gastronomyCuisines={gastronomyCuisines}
@@ -605,7 +630,7 @@ export function MapView({
           <Legend profile={profile} zoomedIn={zoomedIn} solo={solo} heatSource={data?.heatSource ?? null} />
         </div>
         <div className="smap__tr">
-          <MapControls onZoomIn={() => zoomBy(1)} onZoomOut={() => zoomBy(-1)} onReset={reset} />
+          <MapControls onZoomIn={zoomIn} onZoomOut={zoomOut} onReset={reset} />
         </div>
       </div>
       <Toast seq={toastSeq} message="Pełny profil tego osiedla wkrótce" />

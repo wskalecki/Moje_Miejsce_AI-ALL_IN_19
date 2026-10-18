@@ -1,10 +1,11 @@
 import { AnimatePresence } from 'motion/react'
-import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
+import { Component, lazy, memo, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react'
 import { PRELOAD_DATA_URLS } from '../../app/config'
 import { prefetchMap } from '../../app/mapLoader'
 import { DEFAULT_PROFILE } from '../../app/dictionary'
 import { startedFromIntro } from '../../app/freshStart'
 import { navigate, useRouter } from '../../app/router'
+import type { ProfileId } from '../../app/types'
 import { useAppStore } from '../../app/useAppStore'
 import type { FeaturedRank } from '../../map/FeaturedMarkers'
 import type { MapApi } from '../../map/MapView'
@@ -14,8 +15,10 @@ import { PreferencesModal } from './PreferencesModal'
 import { SentenceBar } from './SentenceBar'
 import './mapScreen.css'
 
-const LazyMapView = lazy(() => import('../../map/MapView'))
-const LazyCinema = lazy(() => import('../../cinematic/CinematicLayer'))
+// memo: a store change the map doesn't take (timeline year, visited, busy…) re-renders only this
+// screen, not the whole MapView / CinematicLayer tree (their props are stable references)
+const LazyMapView = lazy(() => import('../../map/MapView').then((mod) => ({ default: memo(mod.default) })))
+const LazyCinema = lazy(() => import('../../cinematic/CinematicLayer').then((mod) => ({ default: memo(mod.default) })))
 
 class MapErrorBoundary extends Component<{ children: ReactNode; onError: () => void }, { error: Error | null }> {
   state = { error: null as Error | null }
@@ -68,6 +71,14 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
   }, [badSlug])
   const activeSlug = badSlug ? null : slug
 
+  const onSelectFeatured = useCallback((s: string) => navigate(`/mapa/${s}${quick ? '?szybko=1' : ''}`), [quick])
+  const onMapReady = useCallback((_m: unknown, a: MapApi) => setApi(a), [])
+  const onFeaturedRanks = useCallback(
+    (bySlug: Readonly<Record<string, FeaturedRank>>, total: number) => setRanks({ bySlug, total }),
+    [],
+  )
+  const onProfileChange = useCallback((p: ProfileId) => setProfile(p), [setProfile])
+
   const finishPrefs = () => {
     setPrefsOpen(false)
     if (!matching) setMatching(true)
@@ -98,9 +109,9 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
             onHorizonChange={setHorizon}
             selectedSlug={activeSlug}
             chrome={!busy && !prefsOpen}
-            onSelectFeatured={(s) => navigate(`/mapa/${s}${quick ? '?szybko=1' : ''}`)}
-            onMapReady={(_m, a) => setApi(a)}
-            onFeaturedRanks={(bySlug, total) => setRanks({ bySlug, total })}
+            onSelectFeatured={onSelectFeatured}
+            onMapReady={onMapReady}
+            onFeaturedRanks={onFeaturedRanks}
           />
         </Suspense>
         {api && (
@@ -125,7 +136,7 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
       <SentenceBar
         hidden={prefsOpen || ((!!activeSlug || busy) && !placeOpen)}
         profile={profile}
-        onProfileChange={(p) => setProfile(p)}
+        onProfileChange={onProfileChange}
       />
 
       <AnimatePresence>

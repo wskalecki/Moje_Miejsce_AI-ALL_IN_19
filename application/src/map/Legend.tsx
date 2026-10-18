@@ -1,4 +1,5 @@
 import { Info } from 'lucide-react'
+import { memo } from 'react'
 import { ACCENTS, CATEGORY_COLORS, categoryLabel, categoryTones } from './tokens'
 import type { CategoryKey, Profile } from './types'
 
@@ -15,7 +16,7 @@ const ramp = (t: { soft: string; mid: string; base: string; deep: string }) =>
   `linear-gradient(90deg, ${t.soft}00 0%, ${t.soft} 14%, ${t.mid} 48%, ${t.base} 76%, ${t.deep} 100%)`
 
 /** Bottom-left legend: what the colour means (weighted match or one category), zoom hint, method tooltip. */
-export function Legend({ profile, zoomedIn, solo, heatSource }: LegendProps) {
+export const Legend = memo(function Legend({ profile, zoomedIn, solo, heatSource }: LegendProps) {
   const a = ACCENTS[profile]
   const title = solo
     ? solo === 'cisza'
@@ -76,4 +77,4 @@ export function Legend({ profile, zoomedIn, solo, heatSource }: LegendProps) {
       </p>
     </div>
   )
-}
+})

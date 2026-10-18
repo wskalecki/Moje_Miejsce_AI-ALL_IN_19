@@ -374,7 +374,7 @@ function CinematicStage({
         openPanel(120)
       }
     },
-    [api, map, scene, markVisited, whenTilesReady],
+    [api, map, scene, markVisited, whenTilesReady, profile],
   )
 
   // ------------------------------------------------------------------ exit

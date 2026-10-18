@@ -41,10 +41,11 @@ export const POI_INTEREST_GROUPS: readonly PoiInterestGroup[] = [
     ],
   },
   {
+    // Row stays in „Podgląd na mapie”, but with nothing to pick there is no detail panel.
     id: 'zakupy',
     title: 'Zakupy',
     category: 'zakupy',
-    options: [{ subtype: 'supermarket', label: 'Supermarkety i sklepy' }],
+    options: [],
   },
   {
     id: 'kultura',
@@ -99,7 +100,7 @@ function normalizePoiSubtype(raw: string): PoiSubtypeKey | null {
 }
 
 export function poiInterestGroupForCategory(cat: CategoryKey): PoiInterestGroup | undefined {
-  return POI_INTEREST_GROUPS.find((g) => g.category === cat)
+  return POI_INTEREST_GROUPS.find((g) => g.category === cat && g.options.length > 0)
 }
 
 export function sanitizePoiInterests(raw: unknown): PoiSubtypeKey[] {
