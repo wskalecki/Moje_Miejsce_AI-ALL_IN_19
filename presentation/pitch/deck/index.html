@@ -67,7 +67,7 @@
   .chip { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 999px; font-size: 22px; font-weight: 600; background: #fff; box-shadow: inset 0 0 0 1px rgba(22,22,29,.08); }
 
   /* ── 2 problem ── */
-  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: auto; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 90px; }
   .pcard { padding: 44px 42px 46px; min-height: 380px; display: flex; flex-direction: column; }
   .pcard .ico { width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center; }
   .pcard h3 { font-family: var(--display); font-size: 40px; letter-spacing: -0.02em; margin-top: 34px; }
@@ -183,7 +183,7 @@
     <div class="f3"></div>
     <div class="pad">
       <div class="kicker rise"><span class="n">01</span> Problem</div>
-      <h2 class="rise" style="--d:80">Ogłoszenie pokazuje mieszkanie. Nie pokazuje życia wokół niego.</h2>
+      <h2 class="rise" style="--d:80">Ogłoszenie pokazuje mieszkanie.<br>Nie pokazuje życia wokół niego.</h2>
       <div class="grid3">
         <div class="card pcard rise" style="--d:200">
           <div class="ico" style="background:#FFEDE6"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FF6B4A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
@@ -193,7 +193,7 @@
         <div class="card pcard rise" style="--d:300">
           <div class="ico" style="background:#EEEAFF"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#7C5CFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h6"/></svg></div>
           <h3>Dane istnieją, ale są rozproszone</h3>
-          <p>Hałas w&nbsp;jednym serwisie, ceny w&nbsp;drugim, rozkłady w&nbsp;trzecim. Nikt nie składa ich w&nbsp;jeden obraz Twojej okolicy.</p>
+          <p>Hałas w&nbsp;jednym serwisie, ceny w&nbsp;drugim, rozkłady w&nbsp;trzecim.</p>
         </div>
         <div class="card pcard rise" style="--d:400">
           <div class="ico" style="background:#DFF5F2"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#13A396" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></div>
@@ -202,7 +202,7 @@
         </div>
       </div>
     </div>
-    <div class="foot"><span class="brand"><svg width="26" height="26" viewBox="0 0 20 20"><use href="#mark"/></svg>Moje Miejsce</span><span>2 / 8</span></div>
+    <div class="foot"><span class="brand"><svg width="26" height="26" viewBox="0 0 20 20"><use href="#mark"/></svg>Moje Miejsce</span><span>2 / 7</span></div>
     <div class="notes">
       Szukając mieszkania, przeglądamy setki ogłoszeń. Każde mówi o&nbsp;metrażu i&nbsp;cenie, ale żadne nie mówi, jak się tam żyje. A&nbsp;to decyzja na lata: przedszkole, szkoła, codzienny dojazd. Potrzebne dane istnieją – portal otwartych danych, rejestr cen, mapy hałasu, rozkłady ZTM – ale są rozproszone i&nbsp;nikt nie łączy ich w&nbsp;jeden obraz zrozumiały dla zwykłego mieszkańca.
     </div>
@@ -229,7 +229,7 @@
         </div>
       </div>
     </div>
-    <div class="foot"><span class="brand"><svg width="26" height="26" viewBox="0 0 20 20"><use href="#mark"/></svg>Moje Miejsce</span><span>3 / 8</span></div>
+    <div class="foot"><span class="brand"><svg width="26" height="26" viewBox="0 0 20 20"><use href="#mark"/></svg>Moje Miejsce</span><span>3 / 7</span></div>
     <div class="notes">
       Dlatego odwracamy kolejność: najpierw okolica, potem mieszkanie. Trzy kroki. Krótki profil – bez logowania. Mapa, która ocenia 143 warszawskie osiedla według twoich priorytetów. I&nbsp;widok osiedla z&nbsp;bliska, z&nbsp;konkretnymi liczbami. Zobaczcie, jak to działa. [włącz wideo]
     </div>
@@ -265,7 +265,7 @@
         <div class="org" style="left:84%;top:20px;--fd:-2.1s;height:150px"><img src="img/logos/osm.svg" alt="OpenStreetMap"/><span>OpenStreetMap</span></div>
       </div>
     </div>
-    <div class="foot"><span class="brand"><svg width="26" height="26" viewBox="0 0 20 20"><use href="#mark"/></svg>Moje Miejsce</span><span>5 / 8</span></div>
+    <div class="foot"><span class="brand"><svg width="26" height="26" viewBox="0 0 20 20"><use href="#mark"/></svg>Moje Miejsce</span><span>5 / 7</span></div>
     <div class="notes">
       Pod spodem jest 41 zbiorów danych z&nbsp;dziesięciu otwartych źródeł: portal i&nbsp;usługi mapowe miasta, Rejestr Cen Nieruchomości, mapy hałasu GIOŚ, rozkłady ZTM, OpenStreetMap. Mamy własny ETL w&nbsp;Pythonie i&nbsp;katalog danych, w&nbsp;którym każda liczba ma źródło, licencję i&nbsp;definicję, a&nbsp;walidator pilnuje reguł. Najważniejsza zasada: żadnego scrapowania ani ręcznego podkręcania wyników. W&nbsp;trakcie hackathonu sami znaleźliśmy w&nbsp;rankingu ręczne korekty i&nbsp;je usunęliśmy. Dziś aplikacja pokazuje rzeczywistą pozycję osiedla, nawet jeśli nie jest to pierwsze miejsce.
     </div>
@@ -286,30 +286,20 @@
         <div class="shot rise" style="--d:300"><img src="img/layers.jpg" alt="" style="object-position:92% 30%"/></div>
       </div>
     </div>
-    <div class="foot"><span class="brand"><svg width="26" height="26" viewBox="0 0 20 20"><use href="#mark"/></svg>Moje Miejsce</span><span>6 / 8</span></div>
+    <div class="foot"><span class="brand"><svg width="26" height="26" viewBox="0 0 20 20"><use href="#mark"/></svg>Moje Miejsce</span><span>6 / 7</span></div>
     <div class="notes">
       Wyzwanie W3 nosi nazwę „Twój ruch” – a&nbsp;ruch jest w&nbsp;samym centrum naszej aplikacji. Dojazd do pracy w&nbsp;szczycie liczymy z&nbsp;prawdziwych rozkładów ZTM, trasy do szkoły i&nbsp;przedszkola wyznaczamy w&nbsp;OSRM, a&nbsp;na mapie 3D widać, jak komunikacja zwalnia w&nbsp;ciągu doby. Nie pytamy, czy osiedle jest ładne, tylko czy twoje codzienne trasy mają sens.
     </div>
   </section>
 
-  <!-- 7 ─ Next -->
-  <section class="slide fields" data-time="20">
-    <div class="f3"></div>
-    <div class="pad"></div>
-    <div class="foot"><span class="brand"><svg width="26" height="26" viewBox="0 0 20 20"><use href="#mark"/></svg>Moje Miejsce</span><span>7 / 8</span></div>
-    <div class="notes">
-      Technicznie to lekka aplikacja: React i&nbsp;MapLibre na froncie, ETL w&nbsp;Pythonie, statyczne pliki na CDN – tanio i&nbsp;szybko. Kolejne kroki to widok 3D dla wszystkich osiedli, własny pin pracy zamiast trzech stałych celów, porównanie osiedli i&nbsp;oferty zawężone do okolicy. A&nbsp;miastu te same dane pokażą, gdzie brakuje przedszkoli, przychodni czy zieleni.
-    </div>
-  </section>
-
-  <!-- 8 ─ Close -->
+  <!-- 7 ─ Close -->
   <section class="slide close fields" data-time="10">
     <div class="f3"></div>
     <div class="center">
       <div class="rise" style="display:flex;align-items:center;gap:34px"><svg width="140" height="140" viewBox="0 0 20 20"><use href="#mark"/></svg><h1>Moje Miejsce</h1></div>
       <p class="lead rise" style="--d:160">Dziękujemy · zespół AI All In</p>
     </div>
-    <div class="foot"><span>Warsaw Open Data Hackathon 2026 · W3 „Warszawa: Twój ruch!”</span><span>8 / 8</span></div>
+    <div class="foot"><span>Warsaw Open Data Hackathon 2026 · W3 „Warszawa: Twój ruch!”</span><span>7 / 7</span></div>
     <div class="notes">
       Moje Miejsce: świadomie wybierz, gdzie mieszkać – na podstawie otwartych danych Warszawy. Dziękujemy – chętnie odpowiemy na pytania.
     </div>
