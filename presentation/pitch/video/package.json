@@ -1,0 +1,24 @@
+{
+  "name": "moje-miejsce-showcase-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Showcase out/moje-miejsce-showcase.mp4 --codec h264 --crf 16 --audio-bitrate 320k",
+    "still": "remotion still src/index.ts Showcase out/still.png",
+    "render:system": "remotion render src/index.ts System out/moje-miejsce-system.mp4 --codec h264 --crf 16 --scale 2 --audio-bitrate 320k",
+    "still:system": "remotion still src/index.ts System out/still-system.png"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
+    "@remotion/cli": "^4.0.536",
+    "@remotion/media-utils": "^4.0.536",
+    "@remotion/transitions": "^4.0.536",
+    "@types/react": "^19.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.536",
+    "typescript": "^7.0.2"
+  }
+}
