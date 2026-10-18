@@ -2,6 +2,7 @@ import { AnimatePresence } from 'motion/react'
 import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import { PRELOAD_DATA_URLS } from '../../app/config'
 import { prefetchMap } from '../../app/mapLoader'
+import { DEFAULT_PROFILE } from '../../app/dictionary'
 import { navigate, useRouter } from '../../app/router'
 import { useAppStore } from '../../app/useAppStore'
 import type { FeaturedRank } from '../../map/FeaturedMarkers'
@@ -42,7 +43,7 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
     setFilterSections,
   } = useAppStore()
   const { query } = useRouter()
-  const profile = state.profile ?? 'rodzina'
+  const profile = state.profile ?? DEFAULT_PROFILE
   const horizon = state.horizon ?? 'stale'
   const [api, setApi] = useState<MapApi | null>(null)
   const [busy, setBusy] = useState(false)

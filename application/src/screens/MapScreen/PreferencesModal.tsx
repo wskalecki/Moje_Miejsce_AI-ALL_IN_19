@@ -33,10 +33,10 @@ export function PreferencesModal({ open, onClose, onComplete }: PreferencesModal
   const [step, setStep] = useState<Step>('intro')
   const headingRef = useRef<HTMLHeadingElement>(null)
 
+  // always from the intro: the profile step shows the preselected (default) profile and can change it
   useEffect(() => {
-    if (!open) return
-    setStep(state.profile ? 2 : 'intro')
-  }, [open, state.profile])
+    if (open) setStep('intro')
+  }, [open])
 
   useEffect(() => {
     if (open) headingRef.current?.focus({ preventScroll: true })

@@ -24,6 +24,12 @@ export interface ProfileDef {
 
 export const PROFILE_ORDER: readonly ProfileId[] = ['student', 'rodzina', 'senior']
 
+/**
+ * The profile the demo assumes: the survey opens with it selected and the map ranks for it until the
+ * user picks another one (the 3 osiedla with full content are its top 3 — docs/core/mock-iteracja-2.md).
+ */
+export const DEFAULT_PROFILE: ProfileId = 'senior'
+
 export const PROFILES: Record<ProfileId, ProfileDef> = {
   student: {
     id: 'student',

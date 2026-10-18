@@ -267,11 +267,11 @@ export class CinemaScene {
   target(slug: string) {
     return this.targets.get(slug)
   }
+
   /** Colour owner of every target (= the active profile, so the highlight matches the map chrome). */
   setOwner(owner: ProfileId) {
     for (const t of this.targets.values()) t.owner = owner
   }
-
 
   get state() {
     return this.current

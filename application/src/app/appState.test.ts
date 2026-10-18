@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { INITIAL_STATE, parseState, reducer, type Action } from './appState.ts'
-import { CATEGORY_ORDER, DEFAULT_PRIORITIES } from './dictionary.ts'
+import { CATEGORY_ORDER, DEFAULT_PRIORITIES, DEFAULT_PROFILE } from './dictionary.ts'
 import { baseWeights, deriveWeights } from './weights.ts'
 import { applyFilterDrop, DEFAULT_FILTER_SECTIONS } from '../map/categoryFilterRows.ts'
 import { ALL_GASTRONOMY_CUISINES } from '../map/gastronomyCuisine.ts'
@@ -10,6 +10,18 @@ import type { AppState } from './types.ts'
 import { uiToWeight } from './weights.ts'
 
 const run = (...actions: Action[]): AppState => actions.reduce(reducer, INITIAL_STATE)
+
+test('a fresh session assumes the senior profile (demo default), horizon still unasked', () => {
+  assert.equal(DEFAULT_PROFILE, 'senior')
+  assert.equal(INITIAL_STATE.profile, 'senior')
+  assert.deepEqual(INITIAL_STATE.priorities, DEFAULT_PRIORITIES.senior)
+  assert.deepEqual(INITIAL_STATE.weights, deriveWeights('senior', DEFAULT_PRIORITIES.senior))
+  assert.equal(INITIAL_STATE.horizon, null)
+  // storage without a profile falls back to the same default; another profile can still be picked
+  assert.equal(parseState(JSON.stringify({ horizon: 'chwila' })).profile, 'senior')
+  assert.deepEqual(parseState(JSON.stringify({ horizon: 'chwila' })).priorities, DEFAULT_PRIORITIES.senior)
+  assert.equal(run({ type: 'setProfile', profile: 'student' }).profile, 'student')
+})
 
 test('setProfile initialises priorities, weights and horizon from the profile', () => {
   const s = run({ type: 'setProfile', profile: 'rodzina' })

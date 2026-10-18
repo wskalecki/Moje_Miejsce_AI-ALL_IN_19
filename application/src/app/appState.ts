@@ -3,7 +3,7 @@
  * Pure module (explicit `.ts` imports) so `node --test` can load it;
  * React context + sessionStorage live in `storeCore.ts`.
  */
-import { DEFAULT_PRIORITIES, PROFILES, isCategoryKey, isHorizon, isProfileId } from './dictionary.ts'
+import { DEFAULT_PRIORITIES, DEFAULT_PROFILE, PROFILES, isCategoryKey, isHorizon, isProfileId } from './dictionary.ts'
 import { TIMELINE_FIRST_YEAR, TIMELINE_LAST_YEAR } from './config.ts'
 import type { AppState, CategoryKey, Horizon, ProfileId } from './types.ts'
 import { ALL_GASTRONOMY_CUISINES, sanitizeGastronomyCuisines, type GastronomyCuisine } from '../map/gastronomyCuisine.ts'
@@ -17,10 +17,11 @@ import {
 import { isKnownPoiSubtype, sanitizePoiInterests } from '../map/poiInterests.ts'
 import { PRIORITY_WEIGHT, baseWeights, clampWeight, deriveWeights, sanitizeWeights, uiToWeight, weightToUi } from './weights.ts'
 
+/** Fresh session: the demo's assumed profile (senior) is preselected; wynajem/kupno is still asked. */
 export const INITIAL_STATE: AppState = {
-  profile: null,
-  priorities: [],
-  weights: deriveWeights(null, []),
+  profile: DEFAULT_PROFILE,
+  priorities: [...DEFAULT_PRIORITIES[DEFAULT_PROFILE]],
+  weights: deriveWeights(DEFAULT_PROFILE, DEFAULT_PRIORITIES[DEFAULT_PROFILE]),
   horizon: null,
   timelineYear: TIMELINE_FIRST_YEAR,
   visited: [],
@@ -162,8 +163,13 @@ export function parseState(raw: string | null): AppState {
   try {
     const p = JSON.parse(raw) as Partial<Record<keyof AppState, unknown>> & { filterRowOrder?: unknown } | null
     if (!p || typeof p !== 'object') return INITIAL_STATE
-    const profile = isProfileId(p.profile) ? p.profile : null
-    const priorities = Array.isArray(p.priorities) ? unique(p.priorities as CategoryKey[]) : []
+    // no stored profile → the demo's default profile with its default priorities
+    const profile = isProfileId(p.profile) ? p.profile : DEFAULT_PROFILE
+    const priorities = !isProfileId(p.profile)
+      ? [...DEFAULT_PRIORITIES[profile]]
+      : Array.isArray(p.priorities)
+        ? unique(p.priorities as CategoryKey[])
+        : []
     const weights = sanitizeWeights(p.weights, deriveWeights(profile, priorities))
     const filterSections = sanitizeFilterSections(p.filterSections, p.filterRowOrder)
     return {
