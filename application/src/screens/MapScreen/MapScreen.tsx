@@ -3,6 +3,7 @@ import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from '
 import { PRELOAD_DATA_URLS } from '../../app/config'
 import { prefetchMap } from '../../app/mapLoader'
 import { DEFAULT_PROFILE } from '../../app/dictionary'
+import { startedFromIntro } from '../../app/freshStart'
 import { navigate, useRouter } from '../../app/router'
 import { useAppStore } from '../../app/useAppStore'
 import type { FeaturedRank } from '../../map/FeaturedMarkers'
@@ -54,7 +55,7 @@ export function MapScreen({ slug, hidden = false }: { slug: string | null; hidde
   /** Rank and match of the featured osiedla exactly as the map pills show them. */
   const [ranks, setRanks] = useState<{ bySlug: Readonly<Record<string, FeaturedRank>>; total: number } | null>(null)
   const needsSetup = !state.profile || !state.horizon
-  const [prefsOpen, setPrefsOpen] = useState(needsSetup)
+  const [prefsOpen, setPrefsOpen] = useState(() => needsSetup && startedFromIntro())
   const quick = query.get('szybko') === '1'
 
   useEffect(() => {

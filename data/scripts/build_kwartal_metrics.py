@@ -144,7 +144,7 @@ def ensure_buildings():
         if path.exists():
             continue
         path.parent.mkdir(parents=True, exist_ok=True)
-        req = urllib.request.Request(BUILDINGS_WFS + urllib.parse.quote(cql), headers={"User-Agent": "okolica-data-etl"})
+        req = urllib.request.Request(BUILDINGS_WFS + urllib.parse.quote(cql), headers={"User-Agent": "moje-miejsce-data-etl"})
         with urllib.request.urlopen(req, timeout=900) as resp:
             raw = resp.read()
         if b'"features"' not in raw[:2000]:

@@ -12,3 +12,6 @@ __pycache__/
 
 # browser automation artefacts
 .playwright-mcp/
+
+# Netlify CLI local state
+.netlify/

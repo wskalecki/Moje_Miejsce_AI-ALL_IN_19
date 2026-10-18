@@ -94,7 +94,7 @@ PROFILES = ("student", "rodzina", "senior")
 CATS = ("cisza", "zielen", "komunikacja", "gastronomia", "sport", "kultura", "edukacja", "zdrowie", "zakupy", "zycieNocne")
 PROFILE_LABEL = {"student": "student", "rodzina": "rodzina z dziećmi", "senior": "senior"}
 OSRM = "https://routing.openstreetmap.de/routed-{profile}/route/v1/driving/{a};{b}?overview=full&geometries=geojson"
-UA = "OkolicaHackathon/1.0 (hackathon demo; featured osiedla content)"
+UA = "MojeMiejsceHackathon/1.0 (hackathon demo; featured osiedla content)"
 OFFLINE = "--offline" in sys.argv
 TODAY = "2026-10-18"
 

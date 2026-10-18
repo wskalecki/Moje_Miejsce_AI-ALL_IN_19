@@ -14,7 +14,6 @@ import {
 } from './categoryFilterRows'
 import { CategoryFilterPanel } from './CategoryFilterPanel'
 import {
-  DEMO_NOTE,
   MAP_BOUNDS,
   MAP_MAX_PITCH,
   MAP_MAX_ZOOM,
@@ -614,7 +613,6 @@ export function MapView({
         <div className="smap__tr">
           <MapControls onZoomIn={() => zoomBy(1)} onZoomOut={() => zoomBy(-1)} onReset={reset} />
         </div>
-        <p className="smap__note">{DEMO_NOTE}</p>
       </div>
       <Toast seq={toastSeq} message="Pełny profil tego osiedla wkrótce" />
     </div>

@@ -52,7 +52,7 @@ export const PROFILES: Record<ProfileId, ProfileDef> = {
   senior: {
     id: 'senior',
     title: 'Senior',
-    fragment: 'Jestem na emeryturze',
+    fragment: 'Jestem seniorem',
     description: 'Lekarz blisko, zieleń i kultura na co dzień.',
     pronoun: 'mnie',
     verb: 'szukam',

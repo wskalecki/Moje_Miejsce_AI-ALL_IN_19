@@ -77,18 +77,6 @@
   right: var(--smap-edge);
   top: var(--smap-edge);
 }
-.smap__note {
-  position: absolute;
-  right: var(--smap-edge);
-  bottom: 48px;
-  margin: 0;
-  max-width: 300px;
-  font-size: 11px;
-  line-height: 14px;
-  color: var(--smap-ink-3);
-  text-align: right;
-  pointer-events: none;
-}
 
 /* MapLibre attribution: compact, quiet */
 .smap .maplibregl-ctrl-bottom-right {
@@ -525,11 +513,6 @@
 }
 .smap.is-detail-open .smap__tr {
   right: calc(var(--smap-edge) + 320px + 14px);
-  transition: right 280ms var(--smap-ease);
-}
-.smap.is-detail-open .smap__note {
-  right: calc(var(--smap-edge) + 320px + 14px);
-  max-width: 240px;
   transition: right 280ms var(--smap-ease);
 }
 .smap-flt-cluster {
@@ -1632,7 +1615,7 @@
     margin: 0 12px 0 0;
   }
 
-  /* chrome becomes a bottom-anchored column: legend, sheet, demo note */
+  /* chrome becomes a bottom-anchored column: legend, sheet */
   .smap__chrome {
     display: flex;
     flex-direction: column;
@@ -1725,7 +1708,7 @@
     gap: 10px 12px;
   }
   .smap-flt {
-    padding: 12px 6px 6px;
+    padding: 12px 6px calc(6px + env(safe-area-inset-bottom, 0px));
     border-radius: 24px 24px 0 0;
     border-bottom: 0;
     box-shadow:
@@ -1792,20 +1775,6 @@
   }
   .smap-legend__tip {
     width: min(280px, calc(100vw - 48px));
-  }
-
-  /* the demo note closes the sheet */
-  .smap__note {
-    position: static;
-    order: 3;
-    max-width: none;
-    margin: 0;
-    padding: 0 16px calc(10px + env(safe-area-inset-bottom, 0px));
-    text-align: left;
-    font-size: 10.5px;
-    background: var(--smap-glass-strong);
-    -webkit-backdrop-filter: var(--smap-blur);
-    backdrop-filter: var(--smap-blur);
   }
 }
 /* phones: a west-pointing pill could run off the left edge — stack it above the dot */

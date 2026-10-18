@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { APP_NAME, APP_TAGLINE, PRELOAD_DATA_URLS } from '../../app/config'
 import { PROFILE_ORDER, PROFILES } from '../../app/dictionary'
 import { prefetchMap } from '../../app/mapLoader'
+import { markStartedFromIntro } from '../../app/freshStart'
 import { navigate } from '../../app/router'
 import type { ProfileId } from '../../app/types'
 import { AmbientBackground } from '../../components/ambient/AmbientBackground'
@@ -19,7 +20,10 @@ export function IntroScreen() {
   const reduce = useReducedMotion()
   const [active, setActive] = useState<ProfileId>('student')
 
-  const start = () => navigate('/mapa')
+  const start = () => {
+    markStartedFromIntro()
+    navigate('/mapa')
+  }
 
   useEffect(() => {
     prefetchMap(PRELOAD_DATA_URLS)

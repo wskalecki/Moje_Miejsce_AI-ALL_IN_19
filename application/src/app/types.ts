@@ -27,7 +27,7 @@ export type Horizon = 'chwila' | 'stale'
 /** Slugs of the featured osiedla — the senior top 3 with full content (src/mock/osiedla.ts). */
 export type FeaturedSlug = 'groszowka' | 'wilanow-krolewski' | 'stare-bielany'
 
-/** Persisted app state (sessionStorage `okolica.mock.v2`). */
+/** Persisted app state (sessionStorage `moje-miejsce.mock.v2`). */
 export interface AppState {
   profile: ProfileId | null
   /** Categories marked as priorities, in the order they were picked (no limit).
