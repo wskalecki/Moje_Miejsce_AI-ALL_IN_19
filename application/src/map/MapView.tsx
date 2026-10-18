@@ -268,7 +268,7 @@ export function MapView({
         isPinned: (id) => !!d.info.get(id)?.featuredSlug || topIdsRef.current.includes(id),
         onChange: (id) => {
           setHoveredId(id)
-          map.getCanvas().style.cursor = id && (d.info.get(id)?.featuredSlug || topIdsRef.current.includes(id)) ? 'pointer' : ''
+          map.getCanvas().style.cursor = id ? 'pointer' : ''
         },
         getCard: () => cardRef.current,
         getKeepOut: () => el.parentElement?.querySelector('.smap-toast.is-visible .smap-toast__inner')?.getBoundingClientRect() ?? null,

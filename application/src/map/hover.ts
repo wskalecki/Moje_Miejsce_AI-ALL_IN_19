@@ -3,7 +3,7 @@ import { LAYER, SOURCE } from './layers'
 import type { OsiedleInfo, Profile } from './types'
 
 /** Below this zoom only the pinned osiedla (live top 3 + those with full content) react to hover (spec 4.3). */
-export const HOVER_MIN_ZOOM = 11.5
+export const HOVER_MIN_ZOOM = 9
 const CARD_OFFSET = 16
 const EDGE = 12
 
