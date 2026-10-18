@@ -276,7 +276,7 @@
   color: var(--color-ink);
 }
 
-/* Step 2 — priority tiles: label + the weight this category gets on the map */
+/* Step 2 — priority tiles (on/off; weights on the map panel) */
 .priority-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -286,11 +286,9 @@
 }
 
 .priority-tile {
-  display: grid;
-  align-content: space-between;
-  gap: 18px;
-  min-height: 96px;
-  padding: 14px 14px 12px;
+  display: block;
+  min-height: 0;
+  padding: 14px;
   border-radius: var(--r-md);
   background: rgba(255, 255, 255, 0.5);
   box-shadow: inset 0 0 0 1px rgba(22, 22, 29, 0.09);
@@ -357,49 +355,6 @@
   background: var(--accent);
   box-shadow: none;
   color: #fff;
-}
-
-.priority-tile__weight {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.priority-tile__track {
-  position: relative;
-  flex: 1;
-  height: 3px;
-  border-radius: var(--r-pill);
-  background: rgba(22, 22, 29, 0.08);
-  overflow: hidden;
-}
-
-.priority-tile__track i {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--color-ink-3);
-  transform-origin: left center;
-  transition:
-    transform var(--d-slower) var(--ease-emphasized),
-    background-color var(--d-base) var(--ease-standard);
-}
-
-.priority-tile[aria-pressed='true'] .priority-tile__track i {
-  background: var(--accent);
-}
-
-.priority-tile__value {
-  min-width: 4ch;
-  text-align: right;
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 600;
-  color: var(--color-ink-3);
-}
-
-.priority-tile[aria-pressed='true'] .priority-tile__value {
-  color: var(--accent-deep);
 }
 
 /* Step 3 — horizon cards */

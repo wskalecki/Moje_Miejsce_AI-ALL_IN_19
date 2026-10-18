@@ -1,17 +1,16 @@
 /**
- * Every app open starts the demo from scratch: the previous load's session state and hints are dropped.
+ * Every app open starts the demo from scratch: the previous load's session state is dropped.
  * The preferences modal opens only on the way in from the intro ("Zacznij"); `/mapa` opened directly
  * shows the map with the default profile.
  *
  * Side-effect module: main.tsx imports it before the store reads sessionStorage.
  */
-import { PANEL_HINT_KEY, STORAGE_KEY } from './config'
+import { STORAGE_KEY } from './config'
 
-/** Forgets the stored app state and the dismissed panel hint (also used by Shift+R). */
+/** Forgets the stored app state (also used by Shift+R). */
 export function forgetSession(): void {
   try {
     window.sessionStorage.removeItem(STORAGE_KEY)
-    window.sessionStorage.removeItem(PANEL_HINT_KEY)
   } catch {
     /* storage unavailable (private mode) — nothing to forget */
   }

@@ -47,9 +47,9 @@ export function ProfileStep({
     <>
       <div className="survey__question">
         <h1 className="t-h1" ref={headingRef} tabIndex={-1} id="q-profile">
-          Na jakim etapie życia jesteś?
+          Wybierz swój profil
         </h1>
-        <p className="t-body t-secondary">Od tego zależy, co pokażemy na mapie najpierw.</p>
+        <p className="t-body t-secondary">Dostosujemy pierwsze wyniki na mapie do Twoich potrzeb.</p>
       </div>
 
       <div className="profile-cards" role="radiogroup" aria-labelledby="q-profile">

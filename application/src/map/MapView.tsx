@@ -44,7 +44,7 @@ import { loadPoi, type PoiData } from './poi'
 import { addPoiLayers, applyPoi, applyPoiEducation, applyPoiInterests, applyPoiTransit, POI_LAYER } from './poiLayer'
 import { weightToUi } from '../app/weights'
 import { Toast } from './Toast'
-import { ACCENTS, CATEGORY_COLORS, CATEGORY_ORDER, topCategories } from './tokens'
+import { ACCENTS, CATEGORY_ORDER, topCategories } from './tokens'
 import type { CategoryKey, FeaturedInfo, Horizon, OsiedleInfo, Profile } from './types'
 import { shares, weightedMatch, type Weights } from './weighting'
 import './map.css'
@@ -558,13 +558,7 @@ export function MapView({
       <div ref={poiTipRef} className={`smap-poi-tip${poiHover && chromeVisible ? ' is-visible' : ''}`} role="tooltip" aria-hidden={!poiHover}>
         {poiHover && (
           <span className="smap-poi-tip__inner" key={poiHover.key}>
-            <strong>
-              <i style={{ background: CATEGORY_COLORS[CATEGORY_ORDER[poiHover.c]] ?? '#8a8a99' }} aria-hidden />
-              {poiHover.n || poiHover.t}
-            </strong>
-            <span>
-              {poiHover.n ? `${poiHover.t} · ` : ''}źródło: {poiHover.s}
-            </span>
+            {poiHover.n || poiHover.t}
           </span>
         )}
       </div>

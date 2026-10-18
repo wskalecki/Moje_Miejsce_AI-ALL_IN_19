@@ -609,29 +609,6 @@
   color: var(--smap-accent-deep);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--smap-accent) 35%, transparent);
 }
-.smap-flt__hint {
-  margin: 0 8px 8px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--smap-accent) 10%, #fff);
-  border: 1px solid color-mix(in srgb, var(--smap-accent) 22%, transparent);
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--smap-ink-2);
-}
-.smap-flt__hint p {
-  margin: 0 0 8px;
-}
-.smap-flt__hint button {
-  border: 0;
-  padding: 0;
-  background: none;
-  font: inherit;
-  font-size: 12px;
-  font-weight: 650;
-  color: var(--smap-accent-deep);
-  cursor: pointer;
-}
 .smap-flt__subhead {
   margin: 4px 12px 6px;
   font-family: var(--smap-display);
@@ -1348,38 +1325,21 @@
   left: 0;
   bottom: 10px;
   transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  max-width: 240px;
+  box-sizing: border-box;
+  width: fit-content;
+  max-width: min(220px, 46vw);
   padding: 7px 11px;
   border-radius: 12px;
   background: rgba(22, 22, 29, 0.9);
   color: #fff;
   font-size: 12px;
-  line-height: 16px;
-  white-space: nowrap;
-  box-shadow: var(--smap-shadow-md);
-}
-.smap-poi-tip__inner strong i {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 6px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 1.5px #fff;
-  vertical-align: 0;
-}
-.smap-poi-tip__inner strong {
   font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.smap-poi-tip__inner span {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 11px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  box-shadow: var(--smap-shadow-md);
 }
 
 /* ---------- top-3 markers (live ranking, FeaturedMarkers.tsx) ---------- */

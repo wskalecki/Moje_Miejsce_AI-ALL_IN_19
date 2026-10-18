@@ -141,17 +141,24 @@ function IntroStep({ headingRef }: { headingRef: RefObject<HTMLHeadingElement | 
     <>
       <div className="survey__question">
         <h1 className="t-h1" ref={headingRef} tabIndex={-1} id="prefs-modal-title">
-          Dopasuj okolicę do siebie
+          Wybierz to, co dla Ciebie ważne
         </h1>
         <p className="t-body t-secondary">
-          Za chwilę wybierzesz profil, to co jest dla Ciebie najważniejsze na co dzień (cisza, zieleń, kultura, gastronomia) oraz wynajem lub kupno.
-          Szkoły, parki, komunikacja czy sklepy doprecyzujesz w panelu po lewej stronie mapy.
+          Zaznacz swoje priorytety (np. ciszę, zieleń, kulturę czy restauracje) i określ, czy szukasz mieszkania na
+          wynajem, czy na sprzedaż.
         </p>
       </div>
       <ul className="prefs-modal__hints">
-        <li><strong>Suwaki 0–5</strong> — od „nie liczy się” do „bardzo ważne”; 0 chowa kategorię z porównania.</li>
-        <li><strong>Podgląd na mapie</strong> — opcjonalnie pokaż parki, przystanki, szkoły i inne miejsca.</li>
-        <li>Mapa pod spodem już działa — możesz ją zobaczyć po zamknięciu tego okna.</li>
+        <li>
+          <strong>Skala 0–5:</strong> Ustaw ważność kategorii. Wartość „0” wyłącza dany parametr z porównania.
+        </li>
+        <li>
+          <strong>Filtry szczegółowe:</strong> Szkoły, parki, sklepy czy komunikację doprecyzujesz w panelu po lewej
+          stronie.
+        </li>
+        <li>
+          <strong>Miejsca na mapie:</strong> Włącz podgląd wybranych punktów bezpośrednio na mapie.
+        </li>
       </ul>
     </>
   )

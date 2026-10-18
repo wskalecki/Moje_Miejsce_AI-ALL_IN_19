@@ -45,9 +45,6 @@ export const TIMELINE_LAST_YEAR = 2040
 /** v2: adds `weights`, drops the 4-priority limit. */
 export const STORAGE_KEY = 'moje-miejsce.mock.v2'
 
-/** Panel tutorial dismissed (left filter hints). */
-export const PANEL_HINT_KEY = 'moje-miejsce.panelHint.v1'
-
 /** Left filter column width (px) — keep in sync with `--smap-panel-width` in map.css. */
 export const FILTER_PANEL_WIDTH = 416
 
