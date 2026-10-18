@@ -214,7 +214,7 @@ async function preview(cat, labels) {
   await wait(1800)
 }
 await preview('Zdrowie', ['Przychodnie i kliniki', 'Apteki'])
-await preview('Kultura', ['Biblioteki', 'Uniwersytety III wieku'])
+await preview('Kultura', ['Biblioteki'])
 
 mark('reweight')
 await click(page.getByRole('button', { name: 'Przenieś „Cisza” do: Podgląd na mapie' }), 900)

@@ -893,8 +893,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  max-height: 100%;
-  height: 100%;
+  max-height: calc(100dvh - var(--smap-panel-top, 96px) - 196px);
   padding: 14px 12px 12px;
   border-radius: var(--r-xl, 28px);
   background: var(--smap-glass-strong);
@@ -984,7 +983,8 @@
   padding: 0 2px;
   overflow-y: auto;
   min-height: 0;
-  flex: 1;
+  /* .smap__right has no definite height, so the list sizes to its chips and only shrinks when the drawer hits max-height */
+  flex: 0 1 auto;
   align-content: start;
   scrollbar-width: thin;
 }
