@@ -17,6 +17,7 @@ import { EASE_EMPHASIZED, defaultMode, useInView } from './shared'
 import { Timeline } from './Timeline'
 import { FIRST_YEAR, eventsUpTo, matchAtYear, statDeltasAtYear, statsAtYear, toStop, type TimelineYear } from './timelineMath'
 import { TrafficChart } from './TrafficChart'
+import { CollapsibleSection } from './ui'
 import './osiedle.css'
 
 export interface OsiedlePanelProps {
@@ -124,8 +125,14 @@ function PanelBody({
   const deltas = useMemo(() => statDeltasAtYear(osiedle, year), [osiedle, year])
   const match = matchAtYear(osiedle, profile, year, todayMatch)
 
+  // Sections: photos, stats and prices start open, the rest folded. Opening "Droga do…" folds the
+  // stats (the panel gets short enough for the route to stay in view) and scrolls to it.
+  const [photosOpen, setPhotosOpen] = useState(true)
+  const [statsOpen, setStatsOpen] = useState(true)
+  const [routesOpen, setRoutesOpen] = useState(false)
+
   // Routes — first destination selected by default. The route is on the map only while the section is
-  // in view: scrolling away (or picking a place) clears it and the camera returns to the osiedle.
+  // open and in view: scrolling away (or picking a place) clears it and the camera returns to the osiedle.
   const [routeId, setRouteId] = useState(osiedle.routes[0]?.id ?? '')
   const [mode, setMode] = useState<TravelMode>(() => (osiedle.routes[0] ? defaultMode(osiedle.routes[0]) : 'pieszo'))
   const [routesRef, routesInView] = useInView<HTMLDivElement>(scrollRef)
@@ -143,8 +150,9 @@ function PanelBody({
     back.current = onBack
     onYearRef.current = onTimelineYear
   })
-  const route = osiedle.routes.find((r) => r.id === routeId) ?? osiedle.routes[0]
-  const routeOn = routesInView && !routeDismissed && !!route
+  const picked = osiedle.routes.find((r) => r.id === routeId) ?? osiedle.routes[0]
+  const route = picked
+  const routeOn = routesOpen && routesInView && !routeDismissed && !!route
   const routeShown = useRef(false)
   useEffect(() => {
     if (!routeOn) {
@@ -165,6 +173,29 @@ function PanelBody({
     return () => window.clearTimeout(t)
   }, [routeOn, route, mode])
   useEffect(() => () => showRoute.current?.(null), [])
+  const openRoutes = useCallback(
+    (open: boolean) => {
+      setRoutesOpen(open)
+      if (!open) return
+      setStatsOpen(false)
+      // bring the routes to the top of the scroll area while the stats fold (--d-slow): the target is
+      // re-read every frame, since it moves up as the content above shrinks
+      const scroller = scrollRef.current
+      const el = routesRef.current
+      if (!scroller || !el) return
+      const from = scroller.scrollTop
+      const t0 = performance.now()
+      const dur = reduce ? 0 : 420
+      const step = (now: number) => {
+        const k = dur ? Math.min(1, (now - t0) / dur) : 1
+        const target = Math.max(0, el.offsetTop - 8)
+        scroller.scrollTop = from + (target - from) * (1 - (1 - k) ** 3)
+        if (k < 1) requestAnimationFrame(step)
+      }
+      requestAnimationFrame(step)
+    },
+    [routesRef, reduce],
+  )
   const selectRoute = useCallback((r: Route) => {
     setRouteDismissed(false)
     setRouteId(r.id)
@@ -243,14 +274,24 @@ function PanelBody({
       </header>
 
       <div ref={scrollRef} className="op__scroll">
-        <HeroSection osiedle={osiedle} video={heroVideo} />
+        <CollapsibleSection id="op-photos-title" title="Zdjęcia" section="Zdjęcia" className="op-sec--photos" open={photosOpen} onOpenChange={setPhotosOpen}>
+          <HeroSection osiedle={osiedle} video={heroVideo} active={photosOpen} />
+        </CollapsibleSection>
         {osiedle.tagline && <p className="op-lead">{osiedle.tagline}</p>}
 
-        <CategoryBarsSection profile={profile} priorities={prios} values={values} deltas={deltas} />
+        <CategoryBarsSection profile={profile} priorities={prios} values={values} deltas={deltas} open={statsOpen} onOpenChange={setStatsOpen} />
         <PlacesSection places={osiedle.highlights} activeId={shownPlaceId} onSelect={selectPlace} onHover={onHoverPlace} hasMap={!!onFocusPlace} />
         {osiedle.routes.length > 0 && (
           <div ref={routesRef}>
-            <RoutesSection routes={osiedle.routes} selectedId={route?.id ?? ''} mode={mode} onSelect={selectRoute} onMode={selectMode} />
+            <RoutesSection
+              routes={osiedle.routes}
+              selectedId={picked?.id ?? ''}
+              mode={mode}
+              onSelect={selectRoute}
+              onMode={selectMode}
+              open={routesOpen}
+              onOpenChange={openRoutes}
+            />
           </div>
         )}
         <CommuteSection rows={osiedle.commute} />

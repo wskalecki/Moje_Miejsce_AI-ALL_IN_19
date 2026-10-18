@@ -3,7 +3,7 @@ import { CATEGORY_ICONS } from '../app/icons'
 import type { Route, TravelMode } from '../mock/osiedla'
 import { formatKm, formatMin } from '../lib/format'
 import { MODE_META, availableModes, defaultMode } from './shared'
-import { SectionHead } from './ui'
+import { CollapsibleSection } from './ui'
 
 interface RoutesProps {
   routes: Route[]
@@ -11,34 +11,44 @@ interface RoutesProps {
   mode: TravelMode
   onSelect: (route: Route) => void
   onMode: (mode: TravelMode) => void
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 const groupKey = (r: Route) => r.group ?? r.id
 
-/** "Najkrótsza droga do…" (spec §4.5 pkt 5). */
-export function Routes({ routes, selectedId, mode, onSelect, onMode }: RoutesProps) {
-  const route = routes.find((r) => r.id === selectedId) ?? routes[0]
+/** "Najkrótsza droga do…" (spec §4.5 pkt 5), folded by default. */
+export function Routes({
+  routes,
+  selectedId,
+  mode,
+  onSelect,
+  onMode,
+  open,
+  onOpenChange,
+}: RoutesProps) {
+  const picked = routes.find((r) => r.id === selectedId) ?? routes[0]
+  const route = picked
   // One pill per group (e.g. "Uczelnia"); a group with several destinations gets a second row to choose from.
   const groups = useMemo(() => {
     const out: { key: string; first: Route }[] = []
     for (const r of routes) if (!out.some((g) => g.key === groupKey(r))) out.push({ key: groupKey(r), first: r })
     return out
   }, [routes])
-  if (!route) return null
+  if (!route || !picked) return null
   const alternatives = routes.filter((r) => groupKey(r) === groupKey(route))
   const modes = availableModes(route)
   const activeMode = modes.includes(mode) ? mode : defaultMode(route)
   const minutes = route.minutes[activeMode]
 
   return (
-    <section className="op-sec" aria-labelledby="op-routes-title" data-section="Droga do…">
-      <SectionHead id="op-routes-title" title="Droga do…" />
+    <CollapsibleSection id="op-routes-title" title="Droga do…" section="Droga do…" open={open} onOpenChange={onOpenChange}>
       <div className="op-pills" role="radiogroup" aria-label="Rodzaj celu">
         {groups.map((g) => {
           const Icon = CATEGORY_ICONS[g.first.category]
           const on = g.key === groupKey(route)
           return (
-            <button key={g.key} type="button" role="radio" aria-checked={on} className={`op-pill${on ? ' is-on' : ''}`} onClick={() => onSelect(on ? route : g.first)}>
+            <button key={g.key} type="button" role="radio" aria-checked={on} className={`op-pill${on ? ' is-on' : ''}`} onClick={() => onSelect(on ? picked : g.first)}>
               <Icon size={15} strokeWidth={2.1} aria-hidden />
               {g.first.label}
             </button>
@@ -48,7 +58,7 @@ export function Routes({ routes, selectedId, mode, onSelect, onMode }: RoutesPro
       {alternatives.length > 1 && (
         <div className="op-pills op-pills--dest" role="radiogroup" aria-label="Cel">
           {alternatives.map((r) => {
-            const on = r.id === route.id
+            const on = r.id === picked.id
             return (
               <button key={r.id} type="button" role="radio" aria-checked={on} className={`op-pill op-pill--dest${on ? ' is-on' : ''}`} onClick={() => onSelect(r)}>
                 {r.destinationName}
@@ -97,6 +107,6 @@ export function Routes({ routes, selectedId, mode, onSelect, onMode }: RoutesPro
           </span>
         </p>
       </div>
-    </section>
+    </CollapsibleSection>
   )
 }
