@@ -205,21 +205,21 @@ export const OSIEDLA: Osiedle[] = [
     "district": "Śródmieście",
     "profile": "student",
     "tagline": "Metro 610 m · 108 lokali gastronomicznych · 5 uczelni w 1 km",
-    "summary": "1. miejsce na 143 osiedla dla profilu „student” (91% dopasowania): metro 610 m, 18 425 odjazdów dziennie z przystanków w 1 km; 108 lokali gastronomicznych w 1 km. Słabiej: hałas ≥ 60 dB na 48% powierzchni.",
+    "summary": "1. miejsce na 143 osiedla dla profilu „student” (92% dopasowania): metro 610 m, 18 425 odjazdów dziennie z przystanków w 1 km; 108 lokali gastronomicznych w 1 km. Słabiej: hałas ≥ 60 dB na 48% powierzchni.",
     "summaryKind": "z-danych",
-    "aiSummary": "1. miejsce na 143 osiedla dla profilu „student” (91% dopasowania): metro 610 m, 18 425 odjazdów dziennie z przystanków w 1 km; 108 lokali gastronomicznych w 1 km. Słabiej: hałas ≥ 60 dB na 48% powierzchni.",
+    "aiSummary": "1. miejsce na 143 osiedla dla profilu „student” (92% dopasowania): metro 610 m, 18 425 odjazdów dziennie z przystanków w 1 km; 108 lokali gastronomicznych w 1 km. Słabiej: hałas ≥ 60 dB na 48% powierzchni.",
     "center": [20.99461, 52.24861],
     "cameraBearing": 200,
     "cameraZoom": 15.6,
     "match": {
-      "student": 91,
-      "rodzina": 76,
-      "senior": 75
+      "student": 92,
+      "rodzina": 78,
+      "senior": 77
     },
     "rank": {
       "student": 1,
       "rodzina": 4,
-      "senior": 4
+      "senior": 5
     },
     "heroImages": [
       {
@@ -255,7 +255,7 @@ export const OSIEDLA: Osiedle[] = [
     ],
     "stats": {
       "cisza": 19,
-      "zielen": 42,
+      "zielen": 54,
       "komunikacja": 96,
       "gastronomia": 96,
       "sport": 99,
@@ -381,7 +381,7 @@ export const OSIEDLA: Osiedle[] = [
       {
         "key": "green_share_1km",
         "label": "Parki i lasy (≥ 1 ha) w 1 km",
-        "value": 4.4,
+        "value": 4.3,
         "unit": "%",
         "source": "OpenStreetMap (Overpass API), siatka ETL"
       },
@@ -966,21 +966,21 @@ export const OSIEDLA: Osiedle[] = [
     "district": "Ursynów",
     "profile": "rodzina",
     "tagline": "Metro 150 m · 26 przedszkoli i 101 placów zabaw w 1 km",
-    "summary": "2. miejsce na 143 osiedla dla profilu „rodzina z dziećmi” (77% dopasowania): 26 przedszkoli i 7 szkół podstawowych w 1 km; parki i lasy na 10% terenu w promieniu 1 km, najbliższy 120 m.",
+    "summary": "3. miejsce na 143 osiedla dla profilu „rodzina z dziećmi” (79% dopasowania): 26 przedszkoli i 7 szkół podstawowych w 1 km; parki i lasy na 8% terenu w promieniu 1 km, najbliższy 120 m.",
     "summaryKind": "z-danych",
-    "aiSummary": "2. miejsce na 143 osiedla dla profilu „rodzina z dziećmi” (77% dopasowania): 26 przedszkoli i 7 szkół podstawowych w 1 km; parki i lasy na 10% terenu w promieniu 1 km, najbliższy 120 m.",
+    "aiSummary": "3. miejsce na 143 osiedla dla profilu „rodzina z dziećmi” (79% dopasowania): 26 przedszkoli i 7 szkół podstawowych w 1 km; parki i lasy na 8% terenu w promieniu 1 km, najbliższy 120 m.",
     "center": [21.0568, 52.13982],
     "cameraBearing": 160,
     "cameraZoom": 15.6,
     "match": {
       "student": 73,
-      "rodzina": 77,
-      "senior": 76
+      "rodzina": 79,
+      "senior": 77
     },
     "rank": {
       "student": 32,
-      "rodzina": 2,
-      "senior": 2
+      "rodzina": 3,
+      "senior": 4
     },
     "heroImages": [
       {
@@ -1016,7 +1016,7 @@ export const OSIEDLA: Osiedle[] = [
     ],
     "stats": {
       "cisza": 63,
-      "zielen": 70,
+      "zielen": 80,
       "komunikacja": 58,
       "gastronomia": 83,
       "sport": 84,
@@ -1142,7 +1142,7 @@ export const OSIEDLA: Osiedle[] = [
       {
         "key": "green_share_1km",
         "label": "Parki i lasy (≥ 1 ha) w 1 km",
-        "value": 10.1,
+        "value": 7.5,
         "unit": "%",
         "source": "OpenStreetMap (Overpass API), siatka ETL"
       },
@@ -1684,19 +1684,19 @@ export const OSIEDLA: Osiedle[] = [
     "district": "Bielany",
     "profile": "senior",
     "tagline": "Metro 240 m · 14 przychodni i 8 aptek w 1 km",
-    "summary": "1. miejsce na 143 osiedla dla profilu „senior” (77% dopasowania): 14 przychodni i 8 aptek w 1 km; 10 supermarketów w 1 km.",
+    "summary": "1. miejsce na 143 osiedla dla profilu „senior” (81% dopasowania): 14 przychodni i 8 aptek w 1 km; 10 supermarketów w 1 km.",
     "summaryKind": "z-danych",
-    "aiSummary": "1. miejsce na 143 osiedla dla profilu „senior” (77% dopasowania): 14 przychodni i 8 aptek w 1 km; 10 supermarketów w 1 km.",
+    "aiSummary": "1. miejsce na 143 osiedla dla profilu „senior” (81% dopasowania): 14 przychodni i 8 aptek w 1 km; 10 supermarketów w 1 km.",
     "center": [20.94954, 52.27966],
     "cameraBearing": 330,
     "cameraZoom": 15.6,
     "match": {
-      "student": 84,
-      "rodzina": 79,
-      "senior": 77
+      "student": 85,
+      "rodzina": 83,
+      "senior": 81
     },
     "rank": {
-      "student": 9,
+      "student": 7,
       "rodzina": 1,
       "senior": 1
     },
@@ -1734,7 +1734,7 @@ export const OSIEDLA: Osiedle[] = [
     ],
     "stats": {
       "cisza": 50,
-      "zielen": 50,
+      "zielen": 77,
       "komunikacja": 81,
       "gastronomia": 71,
       "sport": 96,

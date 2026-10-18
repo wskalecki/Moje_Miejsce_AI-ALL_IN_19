@@ -67,9 +67,6 @@ import shapely
 from pyproj import Transformer
 from shapely.geometry import Point, Polygon, shape
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from osm_geometry import element_polygons, find_green_cache  # noqa: E402
-
 REPO = Path(__file__).resolve().parents[2]
 FINE = REPO / "application/public/data/fine"
 OUT = REPO / "application/public/data/fine-metrics"
@@ -223,16 +220,32 @@ def load_points(path: Path, subtypes: set[str]):
 
 
 def load_green():
-    """OSM leisure=park / landuse=forest / natural=wood areas >= 1 ha, multipolygons with holes (siatka cache)."""
-    src = find_green_cache(OSM_RAW)
+    """OSM leisure=park / landuse=forest / natural=wood outer rings >= 1 ha (siatka cache)."""
+    src = None
+    for f in OSM_RAW.glob("*.json"):
+        if f.name.endswith(".meta.json") or f.stat().st_size < 5_000_000:
+            continue
+        head = f.read_text()[:400_000]
+        if '"leisure": "park"' in head or '"leisure":"park"' in head:
+            src = f
+    if src is None:
+        raise SystemExit("OSM park cache not found in data/raw/osm (run the siatka ETL)")
     parks, forests = ([], []), ([], [])
     for el in json.loads(src.read_text())["elements"]:
         tags = el.get("tags", {})
+        if el["type"] == "way" and el.get("geometry"):
+            rings = [el["geometry"]]
+        elif el["type"] == "relation":
+            rings = [m["geometry"] for m in el.get("members", []) if m.get("role") == "outer" and m.get("geometry")]
+        else:
+            continue
         polys = []
-        for pg in element_polygons(el):
-            poly = shapely.make_valid(to2180(pg))
-            if poly.area >= MIN_GREEN_M2:
-                polys.append(poly)
+        for ring in rings:
+            pts = [(g["lon"], g["lat"]) for g in ring]
+            if len(pts) >= 4 and pts[0] == pts[-1]:
+                poly = to2180(Polygon(pts))
+                if poly.is_valid and poly.area >= MIN_GREEN_M2:
+                    polys.append(poly)
         if not polys:
             continue
         g = shapely.union_all(polys)
