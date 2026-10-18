@@ -1,40 +1,29 @@
-import type { ExpressionSpecification, Map as MlMap } from 'maplibre-gl'
+import type { ExpressionSpecification, GeoJSONSource, Map as MlMap } from 'maplibre-gl'
+import type { MapData } from './data'
 import { hover, LAYER, SOURCE } from './layers'
 import { ACCENTS } from './tokens'
+import type { Profile } from './types'
 
-/** Colour of the profile each featured osiedle is presented for (`profile` in src/mock/osiedla.ts). */
-const ownerColor = (k: 'base' | 'mid' | 'deep'): ExpressionSpecification => [
-  'match',
-  ['get', 'owner'],
-  'student',
-  ACCENTS.student[k],
-  'rodzina',
-  ACCENTS.rodzina[k],
-  ACCENTS.senior[k],
-]
+/**
+ * The "top 3" marking: a thin outline (+ a faint tint on hover) around the 3 osiedla that rank best
+ * under the current weights. Every osiedle keeps the same score fill as the rest of the map — the
+ * marking only outlines the live top 3 and moves with the ranking (`setTopShapes`).
+ *
+ * The layer ids stay `featured-*` because the cinematic transition fades them with the other overlays.
+ */
+const fillOpacity: ExpressionSpecification = ['case', hover, 0.16, 0]
+const glowOpacity: ExpressionSpecification = ['case', hover, 0.32, 0]
 
-/** The featured osiedle that ranks #1 under the current weights (if any) is drawn a bit stronger. */
-const isBest = (best: string | null): ExpressionSpecification => ['==', ['get', 'featured_slug'], best ?? '']
-
-function fillOpacity(best: string | null): ExpressionSpecification {
-  return ['case', hover, 0.24, isBest(best), 0.14, 0.08]
-}
-function glowWidth(best: string | null): ExpressionSpecification {
-  return ['case', hover, 18, isBest(best), 14, 10]
-}
-function glowOpacity(best: string | null): ExpressionSpecification {
-  return ['case', hover, 0.8, isBest(best), 0.6, 0.42]
-}
-
-/** Spec 5.2 #6–7: glow (wide blurred line) + crisp 2 px line, always visible, above osiedla outlines. */
-export function addFeaturedLayers(map: MlMap, best: string | null) {
+export function addFeaturedLayers(map: MlMap, profile: Profile) {
+  const a = ACCENTS[profile]
   const before = map.getLayer(LAYER.label) ? LAYER.label : undefined
+  map.addSource(SOURCE.top, { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'id' })
   map.addLayer(
     {
       id: LAYER.featuredFill,
       type: 'fill',
-      source: SOURCE.featured,
-      paint: { 'fill-color': ownerColor('base'), 'fill-opacity': fillOpacity(best) },
+      source: SOURCE.top,
+      paint: { 'fill-color': a.base, 'fill-opacity': fillOpacity },
     },
     before,
   )
@@ -42,14 +31,9 @@ export function addFeaturedLayers(map: MlMap, best: string | null) {
     {
       id: LAYER.featuredGlow,
       type: 'line',
-      source: SOURCE.featured,
+      source: SOURCE.top,
       layout: { 'line-join': 'round' },
-      paint: {
-        'line-color': ownerColor('base'),
-        'line-blur': 6,
-        'line-width': glowWidth(best),
-        'line-opacity': glowOpacity(best),
-      },
+      paint: { 'line-color': a.base, 'line-blur': 4, 'line-width': 8, 'line-opacity': glowOpacity },
     },
     before,
   )
@@ -57,21 +41,31 @@ export function addFeaturedLayers(map: MlMap, best: string | null) {
     {
       id: LAYER.featuredLine,
       type: 'line',
-      source: SOURCE.featured,
+      source: SOURCE.top,
       layout: { 'line-join': 'round' },
       paint: {
-        'line-color': ownerColor('deep'),
-        'line-width': ['case', hover, 2.6, 2],
-        'line-opacity': 0.95,
+        'line-color': a.deep,
+        'line-width': ['interpolate', ['linear'], ['zoom'], 10, ['case', hover, 2, 1.4], 15, ['case', hover, 2.6, 2]],
+        'line-opacity': 0.72,
       },
     },
     before,
   )
 }
 
-export function applyFeaturedBest(map: MlMap, best: string | null) {
+/** Outline exactly these osiedla (MSI ids, best first). */
+export function setTopShapes(map: MlMap, data: MapData, ids: readonly string[]) {
+  const src = map.getSource(SOURCE.top) as GeoJSONSource | undefined
+  if (!src) return
+  const want = new Set(ids)
+  src.setData({ type: 'FeatureCollection', features: data.osiedla.features.filter((f) => want.has(f.properties?.id as string)) })
+}
+
+/** The marking follows the profile accent of the map chrome. */
+export function applyFeaturedProfile(map: MlMap, profile: Profile) {
   if (!map.getLayer(LAYER.featuredFill)) return
-  map.setPaintProperty(LAYER.featuredFill, 'fill-opacity', fillOpacity(best))
-  map.setPaintProperty(LAYER.featuredGlow, 'line-width', glowWidth(best))
-  map.setPaintProperty(LAYER.featuredGlow, 'line-opacity', glowOpacity(best))
+  const a = ACCENTS[profile]
+  map.setPaintProperty(LAYER.featuredFill, 'fill-color', a.base)
+  map.setPaintProperty(LAYER.featuredGlow, 'line-color', a.base)
+  map.setPaintProperty(LAYER.featuredLine, 'line-color', a.deep)
 }

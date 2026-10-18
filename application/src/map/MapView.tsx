@@ -26,12 +26,12 @@ import { warmBasemap } from './basemap'
 import { homeCamera, homePadding } from './camera'
 import { loadMapData, type MapData } from './data'
 import { deriveWeights, sanitizeWeights } from '../app/weights'
-import { addFeaturedLayers, applyFeaturedBest } from './featuredLayers'
-import { FeaturedMarkers, type FeaturedRank } from './FeaturedMarkers'
+import { addFeaturedLayers, applyFeaturedProfile, setTopShapes } from './featuredLayers'
+import { FeaturedMarkers, type FeaturedRank, type TopItem } from './FeaturedMarkers'
 import { FilterPanel } from './FilterPanel'
 import { HOVER_MIN_ZOOM, HoverController } from './hover'
 import { HoverCard, type HoverCardData } from './HoverCard'
-import { addMapLayers, applyMix, applyProfile, LAYER, SOURCE, type Mix } from './layers'
+import { addMapLayers, applyLabelFilter, applyMix, applyProfile, LAYER, SOURCE, type Mix } from './layers'
 import { Legend } from './Legend'
 import { MapControls } from './MapControls'
 import { factsFor, loadMetrics, type MetricsIndex } from './metrics'
@@ -46,7 +46,7 @@ import { addPoiLayers, applyPoi, applyPoiEducation, applyPoiInterests, applyPoiT
 import { weightToUi } from '../app/weights'
 import { Toast } from './Toast'
 import { ACCENTS, CATEGORY_COLORS, CATEGORY_ORDER, topCategories } from './tokens'
-import type { CategoryKey, FeaturedInfo, FeaturedSlug, Horizon, OsiedleInfo, Profile } from './types'
+import type { CategoryKey, FeaturedInfo, Horizon, OsiedleInfo, Profile } from './types'
 import { shares, weightedMatch, type Weights } from './weighting'
 import './map.css'
 
@@ -62,7 +62,7 @@ export interface MapApi {
   sources: typeof SOURCE
   featured: FeaturedInfo[]
   info: Map<string, OsiedleInfo>
-  /** Polygons of the 3 featured osiedla (`properties.featured_slug`). */
+  /** Polygons of the featured osiedla, the ones with full content (`properties.featured_slug`). */
   shapes: MapData['featuredShapes']
 }
 
@@ -83,7 +83,7 @@ export interface MapViewProps {
   onSelectFeatured: (slug: string) => void
   /** Called once, after the style, data and all map layers are ready. */
   onMapReady?: (map: MlMap, api: MapApi) => void
-  /** Rank and match of the featured osiedla (the numbers on their pills) whenever they change. */
+  /** Rank and match of the featured osiedla (the live ranking the pills use) whenever they change. */
   onFeaturedRanks?: (ranks: Readonly<Record<string, FeaturedRank>>, total: number) => void
   /** Presenter switch: when given, the filter panel shows a 3-profile toggle that calls this. */
   onProfileChange?: (p: Profile) => void
@@ -144,6 +144,8 @@ export function MapView({
   const interactiveRef = useRef(true)
   const chromeVisible = chrome && !selectedSlug
   const chromeRef = useRef(chromeVisible)
+  /** MSI ids of the live top 3 (pills + outline), best first — read by the map click / hover handlers. */
+  const topIdsRef = useRef<readonly string[]>([])
 
   // ---- weights: the store's when given, else a local copy (dev harness) ----
   const defaults = useMemo(() => deriveWeights(profile, priorities), [profile, priorities])
@@ -188,7 +190,7 @@ export function MapView({
   const [data, setData] = useState<MapData | null>(null)
   const [mapInst, setMapInst] = useState<MlMap | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
-  const [panelHover, setPanelHover] = useState<FeaturedSlug | null>(null)
+  const [panelHover, setPanelHover] = useState<string | null>(null)
   const [zoomedIn, setZoomedIn] = useState(false)
   const [toastSeq, setToastSeq] = useState(0)
   const [detailCat, setDetailCat] = useState<CategoryKey | null>(null)
@@ -245,21 +247,22 @@ export function MapView({
       const d = await dataP
       if (cancelled) return
       addMapLayers(map, d, profileRef.current, mixRef.current)
-      addFeaturedLayers(map, null)
+      addFeaturedLayers(map, profileRef.current)
       appliedProfile.current = profileRef.current
       hoverRef.current = new HoverController(map, {
         getProfile: () => profileRef.current,
         info: d.info,
         extraLayers: () => [LAYER.featuredFill],
+        isPinned: (id) => !!d.info.get(id)?.featuredSlug || topIdsRef.current.includes(id),
         onChange: (id) => {
           setHoveredId(id)
-          map.getCanvas().style.cursor = id && d.info.get(id)?.featuredSlug ? 'pointer' : ''
+          map.getCanvas().style.cursor = id && (d.info.get(id)?.featuredSlug || topIdsRef.current.includes(id)) ? 'pointer' : ''
         },
         getCard: () => cardRef.current,
         getKeepOut: () => el.parentElement?.querySelector('.smap-toast.is-visible .smap-toast__inner')?.getBoundingClientRect() ?? null,
       })
 
-      // Only the 3 featured osiedla open; any other osiedle shows the "wkrótce" toast.
+      // Only the osiedla with full content open; any other one (also a top-3 one) shows the "wkrótce" toast.
       map.on('click', (e) => {
         if (!interactiveRef.current) return
         const layers = [LAYER.featuredFill, LAYER.fill(profileRef.current)]
@@ -270,7 +273,8 @@ export function MapView({
           if (slug) onSelectRef.current(slug)
           return
         }
-        if (hits.length && map.getZoom() >= HOVER_MIN_ZOOM) setToastSeq((n) => n + 1)
+        const topHit = hits.some((f) => topIdsRef.current.includes(f.properties?.id as string))
+        if (hits.length && (topHit || map.getZoom() >= HOVER_MIN_ZOOM)) setToastSeq((n) => n + 1)
       })
 
       setData(d)
@@ -340,6 +344,7 @@ export function MapView({
     if (!map || !data) return
     if (appliedProfile.current === profile) return
     applyProfile(map, profile, appliedProfile.current)
+    applyFeaturedProfile(map, profile)
     appliedProfile.current = profile
   }, [profile, data])
 
@@ -388,7 +393,7 @@ export function MapView({
     const exact = (o: OsiedleInfo) => CATEGORY_ORDER.reduce((v, c, i) => v + sh[i] * catsForRanking(o)[c], 0)
     const order = [...data.info.values()].map((o) => ({ id: o.id, v: exact(o) })).sort((a, b) => b.v - a.v || a.id.localeCompare(b.id))
     const rank = new Map(order.map((x, i) => [x.id, i + 1]))
-    return { match, rank, total: order.length }
+    return { match, rank, order: order.map((x) => x.id), total: order.length }
   }, [data, weights, catsForRanking, scoreCats])
 
   const featuredRanks = useMemo(() => {
@@ -397,7 +402,18 @@ export function MapView({
     for (const f of data.featured) out[f.slug] = { rank: ranking.rank.get(f.msiId) ?? 0, match: ranking.match.get(f.msiId) ?? 0 }
     return out
   }, [data, ranking])
-  const bestSlug = data?.featured.find((f) => featuredRanks[f.slug]?.rank === 1)?.slug ?? null
+  // ---- the live top 3: pills #1–#3 + a thin outline; they move when the weights change ----
+  const topKey = ranking ? ranking.order.slice(0, 3).join('|') : ''
+  const topItems: TopItem[] = useMemo(() => {
+    if (!data || !ranking || !topKey) return []
+    return topKey.split('|').map((id) => {
+      const o = data.info.get(id)!
+      return { id, slug: o.featuredSlug, name: o.name, center: o.labelPoint, rank: ranking.rank.get(id) ?? 0, match: ranking.match.get(id) ?? 0 }
+    })
+  }, [data, ranking, topKey])
+  useLayoutEffect(() => {
+    topIdsRef.current = topKey ? topKey.split('|') : []
+  }, [topKey])
   // the osiedle view shows the same rank and match as the pills (one ranking, one source)
   const onRanksRef = useRef(onFeaturedRanks)
   useLayoutEffect(() => {
@@ -408,8 +424,11 @@ export function MapView({
   }, [featuredRanks, ranking])
   useEffect(() => {
     const map = mapRef.current
-    if (map && data) applyFeaturedBest(map, bestSlug)
-  }, [bestSlug, data])
+    if (!map || !data) return
+    const ids = topKey ? topKey.split('|') : []
+    setTopShapes(map, data, ids)
+    applyLabelFilter(map, ids)
+  }, [topKey, data])
 
   const visibleMapSubs = useMemo(
     () => poiSubtypesVisibleOnMap(poiInterests, filterSections, weights),
@@ -438,11 +457,9 @@ export function MapView({
     hoverRef.current?.setEnabled(!selectedSlug)
   }, [selectedSlug, data])
 
-  // ---- panel / marker hover → same feature-state highlight on the map ----
+  // ---- marker hover → same feature-state highlight on the map ----
   useEffect(() => {
-    if (!data) return
-    const msi = panelHover ? data.featured.find((f) => f.slug === panelHover)?.msiId : null
-    hoverRef.current?.highlight(msi ?? null)
+    if (data) hoverRef.current?.highlight(panelHover)
   }, [panelHover, data])
 
   useLayoutEffect(() => {
@@ -477,7 +494,7 @@ export function MapView({
     () => (hovered?.featuredSlug && data ? (data.featured.find((f) => f.slug === hovered.featuredSlug) ?? null) : null),
     [hovered, data],
   )
-  const highlighted: FeaturedSlug | null = panelHover ?? hoveredFeatured?.slug ?? null
+  const highlighted: string | null = panelHover ?? (hoveredId && topKey.split('|').includes(hoveredId) ? hoveredId : null)
 
   const zoomBy = useCallback((dz: number) => mapRef.current?.easeTo({ zoom: (mapRef.current?.getZoom() ?? 11) + dz, duration: 300 }), [])
   const reset = useCallback(() => {
@@ -485,8 +502,10 @@ export function MapView({
     const el = containerRef.current
     if (map && el) map.flyTo({ ...homeCamera(map, homePadding(true, el.clientWidth)), duration: 1400, essential: true })
   }, [])
-  const select = useCallback((slug: FeaturedSlug) => {
-    if (interactiveRef.current) onSelectRef.current(slug)
+  const select = useCallback((item: TopItem) => {
+    if (!interactiveRef.current) return
+    if (item.slug) onSelectRef.current(item.slug)
+    else setToastSeq((n) => n + 1)
   }, [])
 
   const a = ACCENTS[profile]
@@ -513,8 +532,7 @@ export function MapView({
       {data && mapInst && (
         <FeaturedMarkers
           map={mapInst}
-          featured={data.featured}
-          ranks={featuredRanks}
+          items={topItems}
           highlighted={highlighted}
           selectedSlug={selectedSlug}
           onSelect={select}

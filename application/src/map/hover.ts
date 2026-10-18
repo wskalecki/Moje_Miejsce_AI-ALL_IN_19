@@ -2,7 +2,7 @@ import type { Map as MlMap, MapMouseEvent, PointLike } from 'maplibre-gl'
 import { LAYER, SOURCE } from './layers'
 import type { OsiedleInfo, Profile } from './types'
 
-/** Below this zoom only featured osiedla react to hover (spec 4.3). */
+/** Below this zoom only the pinned osiedla (live top 3 + those with full content) react to hover (spec 4.3). */
 export const HOVER_MIN_ZOOM = 11.5
 const CARD_OFFSET = 16
 const EDGE = 12
@@ -16,6 +16,8 @@ export interface HoverOptions {
   getCard: () => HTMLElement | null
   /** Extra layers to query (e.g. featured fill, added in T6). */
   extraLayers?: () => string[]
+  /** Osiedla that react to hover at any zoom (default: those with full content). */
+  isPinned?: (id: string) => boolean
   /** Element the card must not cover (e.g. the visible toast), in client coordinates. */
   getKeepOut?: () => DOMRect | null
 }
@@ -79,7 +81,7 @@ export class HoverController {
   /** Zooming out below the threshold drops hover on non-featured osiedla, even without mouse movement. */
   private onZoom = () => {
     if (!this.current || this.map.getZoom() >= HOVER_MIN_ZOOM) return
-    if (!this.opts.info.get(this.current)?.featuredSlug) this.set(null)
+    if (!this.pinned(this.current)) this.set(null)
   }
 
   /** The map moved under a still cursor — re-query once. */
@@ -104,10 +106,10 @@ export class HoverController {
     for (const f of hits) {
       const fid = (f.properties?.id as string | undefined) ?? null
       if (!fid) continue
-      const isFeatured = !!this.opts.info.get(fid)?.featuredSlug
-      if (zoom >= HOVER_MIN_ZOOM || isFeatured) {
+      const isPinned = this.pinned(fid)
+      if (zoom >= HOVER_MIN_ZOOM || isPinned) {
         id = fid
-        if (isFeatured) break
+        if (isPinned) break
       }
     }
     this.set(id)
@@ -130,8 +132,11 @@ export class HoverController {
 
   private featureState(id: string, hover: boolean) {
     if (this.map.getSource(SOURCE.osiedla)) this.map.setFeatureState({ source: SOURCE.osiedla, id }, { hover })
-    if (this.opts.info.get(id)?.featuredSlug && this.map.getSource(SOURCE.featured))
-      this.map.setFeatureState({ source: SOURCE.featured, id }, { hover })
+    if (this.map.getSource(SOURCE.top)) this.map.setFeatureState({ source: SOURCE.top, id }, { hover })
+  }
+
+  private pinned(id: string): boolean {
+    return this.opts.isPinned ? this.opts.isPinned(id) : !!this.opts.info.get(id)?.featuredSlug
   }
 
   /** Keep the card inside the map container; flip to the other side of the cursor near edges. */
