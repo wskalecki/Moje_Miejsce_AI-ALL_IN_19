@@ -1,7 +1,7 @@
 <h1 align="center">Moje Miejsce</h1>
 
 <p align="center">
-  <b>Znajdź w Warszawie okolicę, która pasuje do Twojego życia — zanim zaczniesz szukać mieszkania.</b><br>
+  <b>Znajdź w Warszawie okolicę, która pasuje do Twojego życia - zanim zaczniesz szukać mieszkania.</b><br>
   Mapa 143 osiedli dopasowana do Twojego profilu, na otwartych danych m.st. Warszawy.
 </p>
 
