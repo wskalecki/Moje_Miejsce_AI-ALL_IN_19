@@ -1,5 +1,5 @@
 import { Marker, type Map as MlMap } from 'maplibre-gl'
-import { useEffect, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { FeaturedSlug, LngLat } from './types'
 
@@ -61,7 +61,14 @@ interface FeaturedMarkersProps {
  * top, the pills move to them. All three look the same; only the number differs. React renders the
  * content through portals, so a re-rank does not recreate markers that stay in the top 3.
  */
-export function FeaturedMarkers({ map, items, highlighted, selectedSlug, onSelect, onHover }: FeaturedMarkersProps) {
+export const FeaturedMarkers = memo(function FeaturedMarkers({
+  map,
+  items,
+  highlighted,
+  selectedSlug,
+  onSelect,
+  onHover,
+}: FeaturedMarkersProps) {
   const [els, setEls] = useState<Record<string, HTMLDivElement>>({})
   const sides = useMemo(() => pillSides(items), [items])
   // one marker per osiedle position; a re-rank among the same three keeps them
@@ -128,4 +135,4 @@ export function FeaturedMarkers({ map, items, highlighted, selectedSlug, onSelec
       })}
     </>
   )
-}
+})
