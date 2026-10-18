@@ -4,19 +4,19 @@
  *
  * Timeline of the fly-in (first visit, t = click):
  *   0      lock the map, UI chrome fades, heat / fills fade out; the osiedle's highlight (light accent
- *          tint, gentle glow, crisp outline with a slow glint) fades in over 400 ms
+ *          tint, gentle glow, crisp outline with a slow glint) fades in over 600 ms
  *   0      one continuous camera move straight to the panel framing (all places in the free map area,
- *          pitch 57; 1150 ms, quick start and a long soft deceleration) — a pure zoom-in when the
+ *          pitch 57; 1700 ms, gentle start and a long soft deceleration) — a pure zoom-in when the
  *          osiedle is in view, no pull-back
- *   750    3D buildings fade in over the last 400 ms while they rise with the zoom (GPU-only)
- *   1050   the panel slides in (320 ms) as the camera settles; slow sway starts; pins drop 400 ms later
+ *   1100   3D buildings fade in over the last 600 ms while they rise with the zoom (GPU-only)
+ *   1600   the panel slides in (320 ms) as the camera settles; slow sway starts; pins drop 400 ms later
  *
- * Second visit / `?szybko=1`: the same move in 950 ms; from another osiedle an arced flight (1300 ms).
+ * Second visit / `?szybko=1`: the same move in 1300 ms; from another osiedle an arced flight (1700 ms).
  * Deep link and `prefers-reduced-motion`: jump straight to the end state. Esc / Space / Enter during
  * the flight jump to the panel.
  *
  * Way back: panel and pins leave, highlight and buildings fade (400 ms), labels hide during the climb,
- * the camera zooms out to the saved overview (pitch 0, 900 ms), heat and labels return late, focus
+ * the camera zooms out to the saved overview (pitch 0, 1200 ms), heat and labels return late, focus
  * goes back to the osiedle's card.
  */
 import { AnimatePresence } from 'motion/react'
@@ -58,18 +58,18 @@ type Mode = 'full' | 'quick' | 'instant'
 
 const ORBIT_DEG_S = 1.5
 /** First visit: camera flight to the panel framing. */
-const FLY_MS = 1150
+const FLY_MS = 1700
 /** Second visit / `?szybko=1`. */
-const QUICK_FLY_MS = 950
+const QUICK_FLY_MS = 1300
 /** From one osiedle straight to another (an arc over the city). */
-const HOP_MS = 1300
+const HOP_MS = 1700
 /** Fade-in of the osiedle highlight, from the click. */
-const HIGHLIGHT_MS = 400
+const HIGHLIGHT_MS = 600
 /** The 3D buildings fade in over the last `BUILDINGS_MS` of the flight. */
-const BUILDINGS_MS = 400
+const BUILDINGS_MS = 600
 /** The panel starts sliding in this long before the camera lands. */
 const PANEL_LEAD_MS = 100
-const BACK_MS = 900
+const BACK_MS = 1200
 /** Deep link: max wait for the tiles under the panel framing before lifting the veil anyway. */
 const TILE_WAIT_MS = 2400
 const ZERO = { top: 0, bottom: 0, left: 0, right: 0 }
@@ -170,6 +170,10 @@ export function CinematicLayer(props: CinematicLayerProps) {
       setScene(null)
     }
   }, [map, shapes])
+  // the highlight takes the accent of the active profile, like the map chrome and the panel
+  useEffect(() => {
+    scene?.setOwner?.(props.profile)
+  }, [scene, props.profile])
   return scene ? <CinematicStage {...props} scene={scene} /> : null
 }
 
@@ -297,7 +301,7 @@ function CinematicStage({
       setPinsOn(false)
       setEvents([])
       storeRef.current.setYear(2026)
-      scene.showRoute(null, o.profile)
+      scene.showRoute(null, profile)
       // own OSM buildings, roads and traffic for the osiedle (basemap extrusion stays when it has none)
       // (guarded: a scene instance from before a hot reload may lack the method)
       const load = typeof scene.ensureArea === 'function' ? scene.ensureArea(o.slug) : Promise.resolve(null)

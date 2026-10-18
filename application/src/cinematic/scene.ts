@@ -132,7 +132,7 @@ function cubicBezier(x1: number, y1: number, x2: number, y2: number) {
 }
 
 /** Camera flights: a quick, gentle start and a long soft deceleration into the landing. */
-export const easeFlight = cubicBezier(0.32, 0, 0.12, 1)
+export const easeFlight = cubicBezier(0.42, 0, 0.18, 1)
 
 function outerRings(shape: Feature<Polygon | MultiPolygon>): Position[][] {
   const g = shape.geometry
@@ -267,6 +267,11 @@ export class CinemaScene {
   target(slug: string) {
     return this.targets.get(slug)
   }
+  /** Colour owner of every target (= the active profile, so the highlight matches the map chrome). */
+  setOwner(owner: ProfileId) {
+    for (const t of this.targets.values()) t.owner = owner
+  }
+
 
   get state() {
     return this.current
