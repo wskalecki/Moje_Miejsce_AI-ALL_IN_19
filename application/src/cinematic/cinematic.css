@@ -25,6 +25,30 @@
   transition: none;
 }
 
+/* ---------- right column: "Ważne miejsca" over "Warstwy mapy" ---------- */
+
+/* Desktop: a column at the right edge, clear of the place card; the places card shrinks (its list
+   scrolls) when the map layers open under it. */
+.cin-side {
+  position: absolute;
+  top: var(--chrome-edge);
+  right: var(--chrome-edge);
+  bottom: var(--chrome-edge);
+  width: var(--chrome-side);
+  display: flex;
+  flex-direction: column;
+  gap: var(--chrome-gap);
+  pointer-events: none;
+}
+
+/* Phones and tablets: no column — the places strip and the map layers place themselves in the map
+   strip above the sheet (osiedle.css `.op--side`, map3d.css `.m3d`). */
+@media (max-width: 1023px) {
+  .cin-side {
+    display: contents;
+  }
+}
+
 /* ---------- place pins ---------- */
 
 .cin-pin-host {

@@ -4,12 +4,11 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DEFAULT_PRIORITIES } from '../app/dictionary'
 import type { CategoryId, Horizon, ProfileId } from '../app/types'
 import type { PlaceFit } from '../cinematic/panelLoader'
-import type { Highlight, LngLat, Osiedle, Route, TimelineEvent, TravelMode } from '../mock/osiedla'
+import type { LngLat, Osiedle, Route, TimelineEvent, TravelMode } from '../mock/osiedla'
 import { CategoryBars } from './CategoryBars'
 import { Commute } from './Commute'
 import { Credits } from './Credits'
 import { Hero, type HeroVideo } from './Hero'
-import { Places } from './Places'
 import { routeFrom } from './osrm'
 import { Prices } from './Prices'
 import { Ring } from './Ring'
@@ -32,10 +31,6 @@ export interface OsiedlePanelProps {
   /** `overlay` = place card in the map's left column over the 3D map; `page` = standalone full page. */
   layout?: 'overlay' | 'page'
   onBack: () => void
-  /** Highlight clicked → fly the map there. */
-  onFocusPlace?: (lngLat: LngLat, place: Highlight) => void
-  /** Highlight hovered / focused (null = left) → scale its map marker. */
-  onHoverPlace?: (id: string | null) => void
   /** Destination or mode picked → draw the route; null when the panel closes. */
   onShowRoute?: (route: Route | null, mode?: TravelMode) => void
   /** Controlled timeline year (store `timelineYear`, snapped to its 5-year stop); uncontrolled (starts at today) when omitted. */
@@ -47,8 +42,6 @@ export interface OsiedlePanelProps {
    * again while it waits cancels. Enables the own start point of "Droga do…".
    */
   onPickPoint?: () => Promise<LngLat | null>
-  /** Highlight id currently emphasised from the map side (marker hover). */
-  activePlaceId?: string | null
   /** Explicit hero video; default probes `/osiedla/<slug>/flyover.{webm,mp4}`; `false` = photos only. */
   heroVideo?: HeroVideo | false
   className?: string
@@ -63,7 +56,6 @@ const MSI_NAMES: Record<string, string> = {
 // update that re-renders the panel (each is pure in its props and its own state).
 const HeroSection = memo(Hero)
 const CategoryBarsSection = memo(CategoryBars)
-const PlacesSection = memo(Places)
 const RoutesSection = memo(Routes)
 const CommuteSection = memo(Commute)
 const TrafficSection = memo(TrafficChart)
@@ -73,8 +65,9 @@ const CreditsSection = memo(Credits)
 
 /**
  * Osiedle detail panel (spec §4.5) in the map's card language: a fixed head (back, name, rank,
- * match ring) over a scrolling body — photos, key numbers, category bars, places, routes, commute,
- * traffic, prices, timeline dziś → 2045 (5-year stops), credits.
+ * match ring) over a scrolling body — photos, key numbers, category bars, routes, commute, traffic,
+ * prices, timeline dziś → 2045 (5-year stops), credits. "Ważne miejsca" sit in the map's right column
+ * (`PlacesPanel`, rendered by the cinematic layer).
  */
 export function OsiedlePanel(props: OsiedlePanelProps) {
   // Keyed by slug: switching osiedle starts from a clean state (gallery, route, scroll, reveal).
@@ -89,11 +82,8 @@ function PanelBody({
   priorities,
   layout = 'overlay',
   onBack,
-  onFocusPlace,
-  onHoverPlace,
   onShowRoute,
   onPickPoint,
-  activePlaceId,
   heroVideo,
   timelineYear,
   onTimelineYear,
@@ -143,13 +133,6 @@ function PanelBody({
   const [routeId, setRouteId] = useState(osiedle.routes[0]?.id ?? '')
   const [mode, setMode] = useState<TravelMode>(() => (osiedle.routes[0] ? defaultMode(osiedle.routes[0]) : 'pieszo'))
   const [routesRef, routesInView] = useInView<HTMLDivElement>(scrollRef)
-  // a place picked while the routes are in view takes the map over until the user comes back to them
-  const [routeDismissed, setRouteDismissed] = useState(false)
-  const [wasInView, setWasInView] = useState(routesInView)
-  if (wasInView !== routesInView) {
-    setWasInView(routesInView)
-    if (!routesInView) setRouteDismissed(false)
-  }
   const showRoute = useRef(onShowRoute)
   const back = useRef(onBack)
   const pickRef = useRef(onPickPoint)
@@ -191,10 +174,7 @@ function PanelBody({
     const p = await pick()
     pickingRef.current = false
     setPicking(false)
-    if (p) {
-      setStart(p)
-      setRouteDismissed(false)
-    }
+    if (p) setStart(p)
   }, [])
   const clearStart = useCallback(() => setStart(null), [])
   // folding the routes (or closing the panel) mid-pick gives the map click back
@@ -209,7 +189,7 @@ function PanelBody({
   )
 
   const route = startRoute ?? picked
-  const routeOn = routesOpen && routesInView && !routeDismissed && !!route
+  const routeOn = routesOpen && routesInView && !!route
   const routeShown = useRef(false)
   useEffect(() => {
     if (!routeOn) {
@@ -254,30 +234,12 @@ function PanelBody({
     [routesRef, reduce],
   )
   const selectRoute = useCallback((r: Route) => {
-    setRouteDismissed(false)
     setRouteId(r.id)
     setMode((m) => (r.minutes[m] != null ? m : defaultMode(r)))
   }, [])
   const selectMode = useCallback((m: TravelMode) => {
-    setRouteDismissed(false)
     setMode(m)
   }, [])
-
-  // Places — a place picked while a route is shown clears the route first, then the camera flies there.
-  const [placeId, setPlaceId] = useState<string | null>(null)
-  const shownPlaceId = activePlaceId ?? placeId
-  const selectPlace = useCallback(
-    (p: Highlight) => {
-      setPlaceId(p.id)
-      setRouteDismissed(true)
-      if (routeShown.current) {
-        routeShown.current = false
-        showRoute.current?.(null)
-      }
-      onFocusPlace?.(p.coord, p)
-    },
-    [onFocusPlace],
-  )
 
   // Focus the heading on open (spec §10), Esc goes back.
   useEffect(() => {
@@ -337,7 +299,6 @@ function PanelBody({
         {osiedle.tagline && <p className="op-lead">{osiedle.tagline}</p>}
 
         <CategoryBarsSection profile={profile} priorities={prios} values={values} deltas={deltas} open={statsOpen} onOpenChange={setStatsOpen} />
-        <PlacesSection places={osiedle.highlights} activeId={shownPlaceId} onSelect={selectPlace} onHover={onHoverPlace} hasMap={!!onFocusPlace} />
         {osiedle.routes.length > 0 && (
           <div ref={routesRef}>
             <RoutesSection

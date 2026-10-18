@@ -52,6 +52,7 @@
   --chrome-gap: 16px;             /* gap between floating boxes */
   --chrome-col: 416px;            /* left column: header pill, filter card, place card */
   --chrome-top: 96px;             /* top of the left-column card, under the header pill */
+  --chrome-side: 296px;           /* right column of the osiedle view: places, map layers */
   --chrome-card-pad: 16px 10px 10px;
   --chrome-card-radius: var(--r-xl);
   --chrome-box-radius: var(--r-lg);

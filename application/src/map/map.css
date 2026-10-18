@@ -511,9 +511,15 @@
 .smap__right[data-open] {
   pointer-events: auto;
 }
+/* the controls step aside for the drawer at once and fade in there — sliding, they crossed the drawer */
 .smap.is-detail-open .smap__tr {
   right: calc(var(--smap-edge) + 320px + 14px);
-  transition: right 280ms var(--smap-ease);
+  animation: smap-tr-in 200ms var(--smap-ease-std) both;
+}
+@keyframes smap-tr-in {
+  from {
+    opacity: 0;
+  }
 }
 .smap-flt-cluster {
   position: relative;

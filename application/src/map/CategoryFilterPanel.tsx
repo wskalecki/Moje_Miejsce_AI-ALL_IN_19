@@ -105,6 +105,7 @@ export const CategoryFilterPanel = memo(function CategoryFilterPanel({
   const lead = leadText(category, filterSections)
   const status = statusLine(category, filterSections, weight, gastronomyCuisines, poiInterests)
 
+  // The drawer appears where it stands: one fade on the wrapper (instant with reduced motion), no slide.
   return (
     <m.div
       className="smap-flt-detail-wrap"
@@ -114,16 +115,12 @@ export const CategoryFilterPanel = memo(function CategoryFilterPanel({
       transition={{ duration: 0.24, ease: EASE }}
     >
       <button type="button" className="smap-flt-detail__backdrop" aria-label="Zamknij" onClick={onClose} />
-      <m.aside
+      <aside
         className="smap-flt-detail"
         role="dialog"
         aria-labelledby={TITLE_ID}
         aria-modal="true"
         style={{ '--cat': CATEGORY_COLORS[category] } as CSSProperties}
-        initial={reduce ? false : { opacity: 0, x: 18 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={reduce ? undefined : { opacity: 0, x: 14 }}
-        transition={{ duration: 0.34, ease: EASE }}
       >
         <header className="smap-flt-detail__head">
           <div className="smap-flt-detail__title-row">
@@ -173,7 +170,7 @@ export const CategoryFilterPanel = memo(function CategoryFilterPanel({
         <footer className="smap-flt-detail__foot">
           <button type="button" className="smap-flt-detail__done" onClick={onClose}>Gotowe</button>
         </footer>
-      </m.aside>
+      </aside>
     </m.div>
   )
 })
