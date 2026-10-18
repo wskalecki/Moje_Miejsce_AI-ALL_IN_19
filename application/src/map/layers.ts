@@ -269,9 +269,11 @@ export function addMapLayers(map: MlMap, data: MapData, profile: Profile, mix: M
       source: SOURCE.osiedla,
       layout: { 'line-join': 'round' },
       paint: {
+        // every osiedle keeps a thin outline at every zoom (it reads as clickable); the top 3 get the
+        // thicker accent line from featuredLayers on top
         'line-color': 'rgba(40,30,80,0.42)',
-        'line-width': ['interpolate', ['linear'], ['zoom'], 12, 0.7, 15, 1.4],
-        'line-opacity': ['interpolate', ['linear'], ['zoom'], Z0, 0, Z1, 1],
+        'line-width': ['interpolate', ['linear'], ['zoom'], 9, 0.45, 12, 0.8, 15, 1.4],
+        'line-opacity': ['interpolate', ['linear'], ['zoom'], 9, 0.55, Z1, 1],
       },
     },
     beforeLabels,
