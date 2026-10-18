@@ -28,7 +28,7 @@ Use `feat` for new capability, `fix` for bugs. Keep the subject short and impera
 | `docs/core/` | Product concept, decisions (`koncept-aplikacji.md`) |
 | `docs/sources/` | Reference notes |
 | `data/` | Datasets and ETL — see `docs/data/`, rule `.cursor/rules/data-developer.mdc` |
-| `presentation/` | Demo graphics and 3D |
+| `3_AI-ALL-IN_mojeMiejsce/` | Demo graphics and 3D |
 
 ## Data knowledge base
 

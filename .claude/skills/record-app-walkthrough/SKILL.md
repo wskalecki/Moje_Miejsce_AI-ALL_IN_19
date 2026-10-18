@@ -9,7 +9,7 @@ Wynik: **jedno ciągłe nagranie** `NAME.mp4` (domyślnie 3200×1800 = viewport 
 
 Dlaczego tak, a nie nagrywanie ekranu ręcznie: skrypt jest powtarzalny (nowa wersja aplikacji = nowe nagranie w 4 min), ruch kursora jest płynny i ludzki, nie ma literówek ani zawahań, a znaczniki dają montażowi dokładne czasy. Nic nie kosztuje — żadnych płatnych modeli.
 
-Działający przykład w tym repo: `presentation/pitch/tools/record-system.mjs` (ankieta → mapa → zmiana wag → osiedle → oś czasu → warstwy 3D).
+Działający przykład w tym repo: `3_AI-ALL-IN_mojeMiejsce/pitch/tools/record-system.mjs` (ankieta → mapa → zmiana wag → osiedle → oś czasu → warstwy 3D).
 
 ## Wymagania
 
@@ -36,7 +36,7 @@ Obejrzyj PNG narzędziem Read. Dla głębszych stanów (po modalu, po kliknięci
 Preferowane lokatory (od najbardziej odpornych): `getByRole('button', { name })`, `getByRole('slider', { name })`, `locator('.klasa', { hasText })`, `[data-section="…"]`. Unikaj współrzędnych na sztywno — wyjątek: ruch „w pustą przestrzeń”, żeby kursor nie zasłaniał treści.
 
 ### 3. Napisz skrypt
-Skopiuj `scripts/record.mjs` obok projektu (np. `presentation/<coś>/tools/record-<nazwa>.mjs`) i edytuj **tylko sekcję SCRIPT**. Dostępne pomocniki:
+Skopiuj `scripts/record.mjs` obok projektu (np. `3_AI-ALL-IN_mojeMiejsce/<coś>/tools/record-<nazwa>.mjs`) i edytuj **tylko sekcję SCRIPT**. Dostępne pomocniki:
 
 | Funkcja | Do czego |
 |---|---|
@@ -59,14 +59,14 @@ Zasady, które robią różnicę:
 
 ### 4. Nagraj
 ```bash
-BASE=http://localhost:5176 NAME=system OUT_DIR=presentation/pitch/assets/clips \
+BASE=http://localhost:5176 NAME=system OUT_DIR=3_AI-ALL-IN_mojeMiejsce/pitch/assets/clips \
   PLAYWRIGHT=$PLAYWRIGHT node path/to/record-<nazwa>.mjs
 ```
 Trwa tyle, ile scenariusz + ~15 s rozgrzewki + kodowanie (w 3200×1800 ok. 5–10 min; plik ~350 MB — nie do gita). Na końcu wypisuje liczbę klatek i średni fps (dobrze: 25–50). `--keep-frames` zostawia klatki JPEG do debugowania.
 
 ### 5. Sprawdź nagranie (obowiązkowo)
 ```bash
-python3 .claude/skills/record-app-walkthrough/scripts/contact-sheet.py presentation/pitch/assets/clips/system.mp4 /tmp/sheets --every 5
+python3 .claude/skills/record-app-walkthrough/scripts/contact-sheet.py 3_AI-ALL-IN_mojeMiejsce/pitch/assets/clips/system.mp4 /tmp/sheets --every 5
 ```
 Obejrzyj każdy arkusz (Read). Szukaj: niezamkniętych popoverów, kliknięć w zły element, ładujących się kafelków, kursora zasłaniającego treść, pustych ekranów. Popraw skrypt i nagraj ponownie — to tanie.
 

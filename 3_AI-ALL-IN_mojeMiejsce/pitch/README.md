@@ -22,8 +22,8 @@ Skille dla agentów (Claude Code), żeby powtórzyć to samo dla nowej wersji ap
 
 ```bash
 cd application && npx vite --port 5176 --strictPort        # 1. aplikacja
-PLAYWRIGHT=/tmp/rec/node_modules/playwright/index.mjs node presentation/pitch/tools/record-system.mjs   # 2. nagranie (~4 min)
-cd presentation/pitch/video && npm i && npm run render:system   # 3. render 2880×1620 (~40 min) → out/moje-miejsce-system.mp4
+PLAYWRIGHT=/tmp/rec/node_modules/playwright/index.mjs node 3_AI-ALL-IN_mojeMiejsce/pitch/tools/record-system.mjs   # 2. nagranie (~4 min)
+cd 3_AI-ALL-IN_mojeMiejsce/pitch/video && npm i && npm run render:system   # 3. render 2880×1620 (~40 min) → out/moje-miejsce-system.mp4
 ffmpeg -i out/moje-miejsce-system.mp4 -vf scale=2560:1440:flags=lanczos -c:v libx264 -preset slow -crf 20 -pix_fmt yuv420p \
   -af loudnorm=I=-16:TP=-1.5:LRA=11 -c:a aac -b:a 192k -movflags +faststart ../deck/media/moje-miejsce-system.mp4
 ```
@@ -51,13 +51,13 @@ Montaż jest sterowany znacznikami z nagrania (`video/src/timeline.ts`). Po zmia
 # 1. aplikacja lokalnie
 cd application && npx vite --port 5176
 # 2. nagranie (Playwright poza package.json, jak w application/scripts/record-flyovers.mjs)
-PLAYWRIGHT=/tmp/rec/node_modules/playwright/index.mjs node presentation/pitch/tools/record-demo.mjs
+PLAYWRIGHT=/tmp/rec/node_modules/playwright/index.mjs node 3_AI-ALL-IN_mojeMiejsce/pitch/tools/record-demo.mjs
 # 3. render
-cd presentation/pitch/video && npm i && npm run render
+cd 3_AI-ALL-IN_mojeMiejsce/pitch/video && npm i && npm run render
 # 4. normalizacja głośności i kopia do prezentacji
 ffmpeg -i out/moje-miejsce-showcase.mp4 -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=11 -c:a aac -b:a 256k ../deck/media/moje-miejsce-showcase.mp4
 # 5. eksport PDF/PPTX
-PLAYWRIGHT=… node presentation/pitch/tools/deck-screens.mjs && python3 presentation/pitch/tools/export-deck.py
+PLAYWRIGHT=… node 3_AI-ALL-IN_mojeMiejsce/pitch/tools/deck-screens.mjs && python3 3_AI-ALL-IN_mojeMiejsce/pitch/tools/export-deck.py
 ```
 
 Klucze: `OPENROUTER_API_KEY` (lektor, muzyka, b-roll) i `GOOGLE_AI_API_KEY` (transkrypcja). Nigdy ich nie commitujemy.

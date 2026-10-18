@@ -6,9 +6,9 @@ Zespół nr **19 AI ALL IN** · **Warsaw Open Data Hackathon 2026** (17–18.10.
 
 | | |
 |---|---|
-| Prezentacja (8 slajdów, z filmem) | PDF do zgłoszenia: [`presentation/3_AI-ALL-IN_mojeMiejsce.pdf`](presentation/3_AI-ALL-IN_mojeMiejsce.pdf) · [`presentation/pitch/deck/index.html`](presentation/pitch/deck/index.html) · PDF: [`presentation/pitch/deck/export/moje-miejsce-pitch.pdf`](presentation/pitch/deck/export/moje-miejsce-pitch.pdf) |
-| Film prezentujący system (2:25) | [`presentation/pitch/deck/media/moje-miejsce-system.mp4`](presentation/pitch/deck/media/moje-miejsce-system.mp4) |
-| Skrypt wystąpienia | [`presentation/pitch/skrypt-wystapienia.md`](presentation/pitch/skrypt-wystapienia.md) |
+| Prezentacja (8 slajdów, z filmem) | PDF do zgłoszenia: [`3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce.pdf`](3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce.pdf) · [`3_AI-ALL-IN_mojeMiejsce/pitch/deck/index.html`](3_AI-ALL-IN_mojeMiejsce/pitch/deck/index.html) · PDF: [`3_AI-ALL-IN_mojeMiejsce/pitch/deck/export/moje-miejsce-pitch.pdf`](3_AI-ALL-IN_mojeMiejsce/pitch/deck/export/moje-miejsce-pitch.pdf) |
+| Film prezentujący system (2:25) | [`3_AI-ALL-IN_mojeMiejsce/pitch/deck/media/moje-miejsce-system.mp4`](3_AI-ALL-IN_mojeMiejsce/pitch/deck/media/moje-miejsce-system.mp4) |
+| Skrypt wystąpienia | [`3_AI-ALL-IN_mojeMiejsce/pitch/skrypt-wystapienia.md`](3_AI-ALL-IN_mojeMiejsce/pitch/skrypt-wystapienia.md) |
 
 ## Co robi aplikacja
 
@@ -53,7 +53,7 @@ Pełna lista założeń z uzasadnieniem jest w sekcji `assumptions` w [`data/cat
 | Aplikacja | React 19, TypeScript, Vite, MapLibre GL JS, Motion, lucide-react; podkład mapy OpenFreeMap |
 | Dane i ETL | Python 3.11+ (uv), Shapely, pyproj; skrypty w [`data/scripts/`](data/scripts/), framework wskaźników w [`data/scripts/siatka/`](data/scripts/siatka/) |
 | Routing komunikacji | GTFS ZTM + własny router CSA ([`data/scripts/transit_router.py`](data/scripts/transit_router.py)) |
-| Wideo i prezentacja | Remotion, Playwright, ffmpeg ([`presentation/pitch/`](presentation/pitch/)) |
+| Wideo i prezentacja | Remotion, Playwright, ffmpeg ([`3_AI-ALL-IN_mojeMiejsce/pitch/`](3_AI-ALL-IN_mojeMiejsce/pitch/)) |
 | Wdrożenie | Netlify ([`application/netlify.toml`](application/netlify.toml)) |
 
 Przy pracy korzystaliśmy z asystentów AI (Claude Code, Cursor).
@@ -81,7 +81,7 @@ Testy aplikacji: `npm test`. Testy skryptów danych: `uv run --with pytest --wit
 | [`application/`](application/) | Aplikacja Moje Miejsce (React + Vite + MapLibre) |
 | [`data/`](data/) | Katalog danych, wyniki ETL i skrypty |
 | [`docs/`](docs/) | Dokumentacja: dane ([`docs/data/`](docs/data/)), koncept i specyfikacja ([`docs/core/`](docs/core/)), notatki |
-| [`presentation/`](presentation/) | Prezentacja, film i narzędzia do nagrań |
+| [`3_AI-ALL-IN_mojeMiejsce/`](3_AI-ALL-IN_mojeMiejsce/) | Prezentacja, film i narzędzia do nagrań |
 | [`pomysly-mati/`](pomysly-mati/) | Ranking pomysłów z początku hackathonu |
 
 ## Jak pracujemy

@@ -14,7 +14,7 @@
 | Colorable buildings (MVP) | Data-driven `fill-extrusion-color` by height; stretch: GeoJSON footprints in `data/buildings/` |
 | POI | MapLibre `circle` layer (lub deck.gl później) |
 
-Avoid Cesium / Three-only map for hackathon scope. Use Blender → GLB in `presentation/models/` for pitch only.
+Avoid Cesium / Three-only map for hackathon scope. Use Blender → GLB in `3_AI-ALL-IN_mojeMiejsce/models/` for pitch only.
 
 ## Dependencies
 
