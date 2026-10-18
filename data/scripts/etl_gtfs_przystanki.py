@@ -3,7 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyproj>=3.6"]
 # ///
-"""ETL: lines and modes per stop from the GTFS timetable → data/poi/transit.geojson.
+"""ETL: lines and modes per stop from the GTFS timetable → data/poi_mikolaj/transit.geojson.
 
 Run after etl_przystanki.py (it rewrites transit.geojson). For one weekday of the feed it adds
 to every stop post `meta.linie`, `meta.tryby` and `meta.odjazdy_dzien` (departures that day),
@@ -25,10 +25,10 @@ from pathlib import Path
 
 from generate_grid import load_districts
 from gtfs_feed import ATTRIBUTION, Feed, platform_parent
-from poi_common import point_feature, write_collection
+from poi_common import POI_DIR, point_feature, write_collection
 from um_api import DATA_DIR
 
-OUT_PATH = DATA_DIR / "poi" / "transit.geojson"
+OUT_PATH = POI_DIR / "transit.geojson"
 STOPS_SOURCE = "lokalizacja-przystanow-komunikacji-miejskiej"
 SOURCE = "gtfs"
 STATION_SUBTYPES = {"metro": "metro_station", "kolej": "rail_station"}

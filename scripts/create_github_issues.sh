@@ -69,7 +69,7 @@ issue "Persona cards (Kasia / Marek / Ania and Tomek)" "Owner: P5" design
 
 issue "Building 3D tint rules for MapLibre extrusion" "Owner: P5 + P4" design 3d
 
-issue "Pitch deck and hero graphic; optional Blender GLB" "presentation/ folder. Owner: P5" design 3d
+issue "Pitch deck and hero graphic; optional Blender GLB" "3_AI-ALL IN_Moje Miejsce/ folder. Owner: P5" design 3d
 
 issue "Stretch: RSPO schools and metro stations import" "Owner: P2" data
 

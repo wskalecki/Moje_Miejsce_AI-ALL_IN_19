@@ -3,7 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyproj>=3.6"]
 # ///
-"""ETL: public toilets → data/poi/amenities.geojson (docs/data/poi-schema.md).
+"""ETL: public toilets → data/poi_mikolaj/amenities.geojson (docs/data/poi-schema.md).
 
 Catalog slug: `toalety` (API action `get_m_toalety`), licence CC BY — Urząd m.st. Warszawy.
 `cell_id` comes from the team grid (`assign_cell` in generate_grid.py), whatever its version.
@@ -24,12 +24,12 @@ from pathlib import Path
 from typing import Any
 
 from generate_grid import load_districts
-from poi_common import Districts, merge_into, point_feature
+from poi_common import POI_DIR, Districts, merge_into, point_feature
 from um_api import DATA_DIR, ApiError, fetch
 
 SLUG = "toalety"
 ACTION = "m_toalety"
-OUT_PATH = DATA_DIR / "poi" / "amenities.geojson"
+OUT_PATH = POI_DIR / "amenities.geojson"
 
 
 def flag(value: Any) -> bool | None:

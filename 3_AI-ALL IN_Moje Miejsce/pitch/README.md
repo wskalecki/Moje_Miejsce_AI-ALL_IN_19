@@ -2,7 +2,7 @@
 
 | Plik | Co to jest |
 |------|------------|
-| [`deck/index.html`](deck/index.html) | Prezentacja (8 slajdów, 16:9) z osadzonym filmem. Otwórz w Chrome. **N** pokazuje notatki i stoper, **F** włącza pełny ekran |
+| [`deck/index.html`](deck/index.html) | Prezentacja (7 slajdów, 16:9) z osadzonym filmem. Otwórz w Chrome. **N** pokazuje notatki i stoper, **F** włącza pełny ekran |
 | `deck/media/moje-miejsce-system.mp4` | **Prezentacja systemu**: film 2:25, 1440p, z muzyką, bez lektora — profil seniora, zmiana wag i top 3, Groszówka ze wszystkimi sekcjami, oś czasu z inwestycjami, warstwy 3D, plansza z danymi |
 | `deck/export/moje-miejsce-pitch.pdf` | Eksport slajdów do PDF (bez filmu). PPTX z filmem generuje `tools/export-deck.py` (poza gitem — ponad 50 MB) |
 | [`skrypt-wystapienia.md`](skrypt-wystapienia.md) | Tekst wystąpienia z czasami (razem ok. 4:35) i źródła liczb |
@@ -22,8 +22,8 @@ Skille dla agentów (Claude Code), żeby powtórzyć to samo dla nowej wersji ap
 
 ```bash
 cd application && npx vite --port 5176 --strictPort        # 1. aplikacja
-PLAYWRIGHT=/tmp/rec/node_modules/playwright/index.mjs node presentation/pitch/tools/record-system.mjs   # 2. nagranie (~4 min)
-cd presentation/pitch/video && npm i && npm run render:system   # 3. render 2880×1620 (~40 min) → out/moje-miejsce-system.mp4
+PLAYWRIGHT=/tmp/rec/node_modules/playwright/index.mjs node "3_AI-ALL IN_Moje Miejsce/pitch/tools/record-system.mjs"   # 2. nagranie (~4 min)
+cd "3_AI-ALL IN_Moje Miejsce/pitch/video" && npm i && npm run render:system   # 3. render 2880×1620 (~40 min) → out/moje-miejsce-system.mp4
 ffmpeg -i out/moje-miejsce-system.mp4 -vf scale=2560:1440:flags=lanczos -c:v libx264 -preset slow -crf 20 -pix_fmt yuv420p \
   -af loudnorm=I=-16:TP=-1.5:LRA=11 -c:a aac -b:a 192k -movflags +faststart ../deck/media/moje-miejsce-system.mp4
 ```
@@ -51,13 +51,13 @@ Montaż jest sterowany znacznikami z nagrania (`video/src/timeline.ts`). Po zmia
 # 1. aplikacja lokalnie
 cd application && npx vite --port 5176
 # 2. nagranie (Playwright poza package.json, jak w application/scripts/record-flyovers.mjs)
-PLAYWRIGHT=/tmp/rec/node_modules/playwright/index.mjs node presentation/pitch/tools/record-demo.mjs
+PLAYWRIGHT=/tmp/rec/node_modules/playwright/index.mjs node "3_AI-ALL IN_Moje Miejsce/pitch/tools/record-demo.mjs"
 # 3. render
-cd presentation/pitch/video && npm i && npm run render
+cd "3_AI-ALL IN_Moje Miejsce/pitch/video" && npm i && npm run render
 # 4. normalizacja głośności i kopia do prezentacji
 ffmpeg -i out/moje-miejsce-showcase.mp4 -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=11 -c:a aac -b:a 256k ../deck/media/moje-miejsce-showcase.mp4
 # 5. eksport PDF/PPTX
-PLAYWRIGHT=… node presentation/pitch/tools/deck-screens.mjs && python3 presentation/pitch/tools/export-deck.py
+PLAYWRIGHT=… node "3_AI-ALL IN_Moje Miejsce/pitch/tools/deck-screens.mjs" && python3 "3_AI-ALL IN_Moje Miejsce/pitch/tools/export-deck.py"
 ```
 
 Klucze: `OPENROUTER_API_KEY` (lektor, muzyka, b-roll) i `GOOGLE_AI_API_KEY` (transkrypcja). Nigdy ich nie commitujemy.
@@ -67,3 +67,11 @@ Klucze: `OPENROUTER_API_KEY` (lektor, muzyka, b-roll) i `GOOGLE_AI_API_KEY` (tra
 - **Remotion** jest darmowy dla osób prywatnych i firm do 3 osób. Przy komercyjnym użyciu w większym zespole potrzebna jest [licencja firmowa](https://remotion.pro/license).
 - Lektor, muzyka i b-roll są wygenerowane przez AI. Ujęcia z Veo to ilustracja, a nie prawdziwe miejsca (wieża na horyzoncie przelotu tylko przypomina Pałac Kultury).
 - Wszystkie ujęcia aplikacji to prawdziwe nagranie działającej wersji (commit `2b31bc6`, gałąź `feat/unified-place-view`), bez makiet.
+
+## Kopia do zgłoszenia
+
+`../3_AI-ALL IN_Moje Miejsce.html` to kopia `deck/index.html` ze ścieżkami do `pitch/deck/`. Po zmianie slajdów odśwież ją:
+
+```bash
+sed -E 's#(src="|url\(|poster=")(img|media|fonts)/#\1pitch/deck/\2/#g' "3_AI-ALL IN_Moje Miejsce/pitch/deck/index.html" > "3_AI-ALL IN_Moje Miejsce/3_AI-ALL IN_Moje Miejsce.html"
+```

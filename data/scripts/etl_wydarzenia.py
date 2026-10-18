@@ -3,7 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyproj>=3.6"]
 # ///
-"""ETL: city events calendar → data/poi/culture.geojson (docs/data/poi-schema.md).
+"""ETL: city events calendar → data/poi_mikolaj/culture.geojson (docs/data/poi-schema.md).
 
 Catalog slug: `kalendarz-wydarzen` (API action `get_bmm_kalendarz_wydarzen`),
 licence CC BY — Urząd m.st. Warszawy.
@@ -26,12 +26,12 @@ from pathlib import Path
 from typing import Any
 
 from generate_grid import load_districts
-from poi_common import Districts, merge_into, point_feature
+from poi_common import POI_DIR, Districts, merge_into, point_feature
 from um_api import DATA_DIR, ApiError, fetch
 
 SLUG = "kalendarz-wydarzen"
 ACTION = "bmm_kalendarz_wydarzen"
-OUT_PATH = DATA_DIR / "poi" / "culture.geojson"
+OUT_PATH = POI_DIR / "culture.geojson"
 MAX_OCCURRENCES = 20
 
 _SHORT_OFFSET = re.compile(r"([+-]\d{2})$")

@@ -9,8 +9,14 @@
   <img src="docs/img/readme/01-intro.jpg" alt="Ekran startowy Moje Miejsce" width="860">
 </p>
 
-> Projekt zespołu **AI All In** na **Warsaw Open Data Hackathon 2026** (kampus 42 Warsaw, 17–18.10.2026), wyzwanie W3 „Warszawa: Twój ruch!”.
+> Projekt zespołu nr **19 AI ALL IN** na **Warsaw Open Data Hackathon 2026** (kampus 42 Warsaw, 17–18.10.2026), wyzwanie W3 „Warszawa: Twój ruch!”.
 > *English:* Moje Miejsce ("My Place") ranks Warsaw's 143 neighbourhoods for a personal profile (student, family, senior) using only open data, and lets you explore each one in 3D.
+
+| | |
+|---|---|
+| Prezentacja (z filmem) | HTML: [`3_AI-ALL IN_Moje Miejsce/3_AI-ALL IN_Moje Miejsce.html`](3_AI-ALL%20IN_Moje%20Miejsce/3_AI-ALL%20IN_Moje%20Miejsce.html) (otwórz w przeglądarce, strzałki zmieniają slajdy) · PDF (zapasowy): [`3_AI-ALL IN_Moje Miejsce/3_AI-ALL IN_Moje Miejsce (plik zapasowy).pdf`](3_AI-ALL%20IN_Moje%20Miejsce/3_AI-ALL%20IN_Moje%20Miejsce%20%28plik%20zapasowy%29.pdf) |
+| Film prezentujący system (2:25) | [`3_AI-ALL IN_Moje Miejsce/pitch/deck/media/moje-miejsce-system.mp4`](3_AI-ALL%20IN_Moje%20Miejsce/pitch/deck/media/moje-miejsce-system.mp4) |
+| Skrypt wystąpienia | [`3_AI-ALL IN_Moje Miejsce/pitch/skrypt-wystapienia.md`](3_AI-ALL%20IN_Moje%20Miejsce/pitch/skrypt-wystapienia.md) |
 
 ## Problem
 
@@ -71,7 +77,8 @@ Kontrola jakości (w `application/`): `npm test`, `npm run typecheck`, `npm run 
 | [`application/`](application/) | aplikacja (React + Vite) |
 | [`data/`](data/) | dane, skrypty ETL i katalog danych |
 | [`docs/`](docs/) | koncept, dane i źródła, design, setup, notatki zespołu |
-| [`presentation/`](presentation/) | prezentacja dla jury: slajdy, film produktowy, skrypt wystąpienia |
+| [`3_AI-ALL IN_Moje Miejsce/`](3_AI-ALL%20IN_Moje%20Miejsce/) | prezentacja dla jury: slajdy, film produktowy, skrypt wystąpienia |
+| [`pomysly-mati/`](pomysly-mati/) | ranking pomysłów z początku hackathonu |
 | [`prototypes/`](prototypes/) | warianty interfejsu sprawdzane przed wyborem kierunku |
 | [`scripts/`](scripts/) | skrypty pomocnicze repozytorium |
 
