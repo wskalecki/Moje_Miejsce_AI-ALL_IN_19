@@ -15,7 +15,7 @@ interface Osm3dOverlayProps {
   area: AreaLayers
   /** Kinds highlighted from outside (e.g. the category of the place hovered in the panel). */
   focusKinds?: readonly BuildingKind[] | null
-  /** In the osiedle view's right column (stacked under "Ważne miejsca", no own positioning). */
+  /** In the osiedle view's right column (stacked above "Ważne miejsca", no own positioning). */
   docked?: boolean
 }
 

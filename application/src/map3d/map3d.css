@@ -26,7 +26,7 @@
   pointer-events: auto;
 }
 
-/* In the osiedle view's right column (desktop): stacked under "Ważne miejsca", no own positioning. */
+/* In the osiedle view's right column (desktop): stacked above "Ważne miejsca", no own positioning. */
 @media (min-width: 1024px) {
   .m3d--docked {
     position: relative;

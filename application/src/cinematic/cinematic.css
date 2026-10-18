@@ -25,10 +25,10 @@
   transition: none;
 }
 
-/* ---------- right column: "Ważne miejsca" over "Warstwy mapy" ---------- */
+/* ---------- right column: "Warstwy mapy" over "Ważne miejsca" ---------- */
 
 /* Desktop: a column at the right edge, clear of the place card; the places card shrinks (its list
-   scrolls) when the map layers open under it. */
+   scrolls) when the map layers open above it. */
 .cin-side {
   position: absolute;
   top: var(--chrome-edge);

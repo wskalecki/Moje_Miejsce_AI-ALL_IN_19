@@ -677,8 +677,13 @@ function CinematicStage({
         <PlacePins map={map} pins={pins} accent={owner.accent} deep={owner.deep} activeId={hoverPin ?? activePin} onPick={onPick} />
       )}
 
-      {/* right column: the places next to their pins, the map layers under them */}
+      {/* right column: the map layers on top, the places next to their pins under them */}
       <div className="cin-side">
+        {areaLayers && (
+          <Suspense fallback={null}>
+            <Osm3dOverlay area={areaLayers} focusKinds={hoverKinds} docked />
+          </Suspense>
+        )}
         <AnimatePresence>
           {showPanel && (
             <PlacesPanel
@@ -692,11 +697,6 @@ function CinematicStage({
             />
           )}
         </AnimatePresence>
-        {areaLayers && (
-          <Suspense fallback={null}>
-            <Osm3dOverlay area={areaLayers} focusKinds={hoverKinds} docked />
-          </Suspense>
-        )}
       </div>
 
       <AnimatePresence>

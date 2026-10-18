@@ -1,92 +1,89 @@
-# Moje Miejsce
+<h1 align="center">Moje Miejsce</h1>
 
-**Znajdź w Warszawie okolicę, która pasuje do Twojego życia, zanim zaczniesz szukać mieszkania.**
+<p align="center">
+  <b>Znajdź w Warszawie okolicę, która pasuje do Twojego życia - zanim zaczniesz szukać mieszkania.</b><br>
+  Mapa 143 osiedli dopasowana do Twojego profilu, na otwartych danych m.st. Warszawy.
+</p>
 
-Zespół nr **19 AI ALL IN** · **Warsaw Open Data Hackathon 2026** (17–18.10.2026, 42 Warsaw) · wyzwanie **3 „Warszawa: Twój ruch!”**
+<p align="center">
+  <img src="docs/img/readme/01-intro.jpg" alt="Ekran startowy Moje Miejsce" width="860">
+</p>
+
+> Projekt zespołu nr **19 AI ALL IN** na **Warsaw Open Data Hackathon 2026** (kampus 42 Warsaw, 17–18.10.2026), wyzwanie W3 „Warszawa: Twój ruch!”.
+> *English:* Moje Miejsce ("My Place") ranks Warsaw's 143 neighbourhoods for a personal profile (student, family, senior) using only open data, and lets you explore each one in 3D.
 
 | | |
 |---|---|
-| Prezentacja (8 slajdów, z filmem) | HTML: [`3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce.html`](3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce.html) (otwórz w przeglądarce, strzałki zmieniają slajdy) · PDF (zapasowy): [`3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce (plik zapasowy).pdf`](3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce%20%28plik%20zapasowy%29.pdf) · [`3_AI-ALL-IN_mojeMiejsce/pitch/deck/index.html`](3_AI-ALL-IN_mojeMiejsce/pitch/deck/index.html) · PDF: [`3_AI-ALL-IN_mojeMiejsce/pitch/deck/export/moje-miejsce-pitch.pdf`](3_AI-ALL-IN_mojeMiejsce/pitch/deck/export/moje-miejsce-pitch.pdf) |
+| Prezentacja (z filmem) | HTML: [`3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce.html`](3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce.html) (otwórz w przeglądarce, strzałki zmieniają slajdy) · PDF (zapasowy): [`3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce (plik zapasowy).pdf`](3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce%20%28plik%20zapasowy%29.pdf) |
 | Film prezentujący system (2:25) | [`3_AI-ALL-IN_mojeMiejsce/pitch/deck/media/moje-miejsce-system.mp4`](3_AI-ALL-IN_mojeMiejsce/pitch/deck/media/moje-miejsce-system.mp4) |
 | Skrypt wystąpienia | [`3_AI-ALL-IN_mojeMiejsce/pitch/skrypt-wystapienia.md`](3_AI-ALL-IN_mojeMiejsce/pitch/skrypt-wystapienia.md) |
 
-## Co robi aplikacja
+## Problem
 
-1. **Profil.** Użytkownik wybiera etap życia (student, rodzina, senior), zaznacza, co jest dla niego ważne (np. cisza, zieleń, kultura, gastronomia), i czy szuka najmu, czy kupna.
-2. **Mapa dopasowania.** Mapa ciepła całej Warszawy pokazuje, gdzie okolica najlepiej pasuje do jego wag. Suwaki 0–5 zmieniają wynik na żywo, a ranking 143 osiedli (obszary Miejskiego Systemu Informacji) aktualizuje się od razu.
-3. **Panel osiedla.** Dla wybranego osiedla: wynik w każdej kategorii na tle średniej Warszawy, ważne miejsca w pobliżu z czasem dojścia, czas dojazdu komunikacją do trzech centrów biurowych, ceny mieszkań z Rejestru Cen Nieruchomości, hałas oraz oś czasu 2026–2030 z inwestycjami miejskimi i projektami budżetu obywatelskiego.
-4. **Warstwy.** Na mapie można włączyć punkty z danych miasta (przystanki, szkoły, apteki, zieleń, kultura, sport i inne) oraz widok 3D wybranych osiedli.
+Ogłoszenia mieszkaniowe mówią o metrażu i cenie, a nie o tym, **jak się żyje w okolicy**: czy jest cicho, zielono, czy blisko do lekarza, szkoły, kultury i komunikacji. Ta wiedza jest rozsiana po wielu miejskich zbiorach danych. Moje Miejsce zbiera ją w jednym obrazie i pokazuje, **które osiedla pasują do Ciebie**, a nie do „średniego mieszkańca”.
 
-Wszystkie liczby pochodzą z otwartych danych, bez ręcznych korekt. Opisy w panelu powstają ze stałego szablonu na podstawie metryk.
+## Jak to działa
 
-## Wykorzystane dane miejskie
+1. **Wybierasz profil** (Student, Rodzina, Senior) i to, co jest dla Ciebie ważne: cisza, zieleń, kultura, gastronomia, sport, zdrowie, komunikacja, edukacja, zakupy, życie nocne. Wagę każdej kategorii ustawiasz suwakiem 0–5.
+2. **Mapa pokazuje dopasowanie**: heatmapa liczona na siatce 250 × 250 m oraz ranking osiedli w procentach, osobno dla wynajmu i kupna.
+3. **Wchodzisz w osiedle**: kamera przelatuje w widok 3D, a panel pokazuje wskaźniki, ważne miejsca z czasem dojścia, drogi do przychodni, parku czy kultury (także z własnego punktu startowego), dojazd, korki w ciągu doby, ceny i **oś czasu inwestycji do 2045 roku** z linkami do źródeł.
 
-Pełny wykaz 42 zbiorów z licencjami, metodami i datami pobrania jest w katalogu danych [`data/catalog.json`](data/catalog.json), opisanym w [`docs/data/katalog-danych.md`](docs/data/katalog-danych.md). Zweryfikowane endpointy i pułapki API opisuje [`docs/data/zrodla-danych.md`](docs/data/zrodla-danych.md).
+<table>
+  <tr>
+    <td width="50%"><img src="docs/img/readme/02-profil.jpg" alt="Wybór profilu"><br><sub><b>Profil</b>: student, rodzina albo senior ustawia punkt wyjścia.</sub></td>
+    <td width="50%"><img src="docs/img/readme/03-mapa.jpg" alt="Mapa z heatmapą dopasowania"><br><sub><b>Mapa</b>: heatmapa dopasowania, ranking osiedli i suwaki ważności.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/img/readme/04-osiedle.jpg" alt="Panel osiedla z widokiem 3D"><br><sub><b>Osiedle</b>: widok 3D, wskaźniki, ważne miejsca i warstwy mapy.</sub></td>
+    <td><img src="docs/img/readme/05-os-czasu.jpg" alt="Oś czasu inwestycji"><br><sub><b>Oś czasu</b>: inwestycje do 2045 roku, każda z linkiem do źródła.</sub></td>
+  </tr>
+</table>
 
-**Otwarte dane m.st. Warszawy:**
+<p align="center"><img src="docs/img/readme/06-mobile.jpg" alt="Widok mobilny" width="260"><br><sub>Działa także na telefonie.</sub></p>
 
-| Źródło | Zbiory |
-|---|---|
-| [Portal otwartych danych (API)](https://dane.um.warszawa.pl) | przystanki komunikacji miejskiej, toalety, defibrylatory AED, otwarte boiska szkolne, zajęcia sportowe, monitoring jakości powietrza, kalendarz wydarzeń, utrudnienia w ruchu, budżet obywatelski 2019–2027, trasy turystyczne, eko-punkty, parkingi, pogoda (stacje ZOM) |
-| [Usługi mapowe (WFS)](https://wfs.um.warszawa.pl/serwis) | granice dzielnic, obszary MSI (osiedla), biblioteki, uniwersytety trzeciego wieku, wejścia do metra, punkty adresowe, budynki |
-| [Rejestr Cen Nieruchomości](https://architektura.um.warszawa.pl/udostepniane-dane-rcn1) | transakcje lokali mieszkalnych |
+## Na jakich danych
 
-**Inne otwarte źródła:** rozkład jazdy ZTM w formacie GTFS ([mirror M. Kuranowskiego](https://mkuran.pl/gtfs/)), strategiczne mapy hałasu GIOŚ (Lden i Lnight, 2022), OpenStreetMap (szkoły, przedszkola, apteki, przychodnie, sklepy, parki, gastronomia, planowane linie metra i tramwaju, budynki 3D), trasy piesze i rowerowe OSRM, geokoder Nominatim oraz zdjęcia z Wikimedia Commons na licencjach CC.
+Wszystko pochodzi z otwartych źródeł, a **każdy plik, zbiór i metryka jest zapisany w [katalogu danych](data/catalog.json)** (10 źródeł, 41 zbiorów, 127 metryk; [podgląd](docs/data/katalog-danych.md)). Metryki są wyłącznie `REAL` (wprost ze zbioru) albo `DERIVED` (jawny wzór na zbiorach). Brak danych to `null` z podanym powodem, nigdy wartość zastępcza.
 
-Dane: © m.st. Warszawa, GIOŚ, ZTM Warszawa, współtwórcy OpenStreetMap (ODbL).
+| Źródło | Do czego |
+|--------|----------|
+| Portal otwartych danych i usługi mapowe m.st. Warszawy | granice 143 osiedli, przystanki, toalety, boiska, AED, jakość powietrza, wydarzenia, utrudnienia drogowe, budżet obywatelski |
+| Rejestr Cen Nieruchomości (RCN) | ceny transakcyjne mieszkań na osiedlach |
+| GIOŚ | strategiczne mapy hałasu (drogi i kolej) |
+| ZTM Warszawa (GTFS) | komunikacja, godzinowe spowolnienia na drogach z rozkładu |
+| OpenStreetMap, OSRM | parki, szkoły, sklepy, budynki 3D, czasy dojścia i dojazdu |
+| Wikimedia Commons | zdjęcia osiedli (autor i licencja przy każdym) |
 
-## Założenia projektu
+Żadnych cen scrapowanych z portali ogłoszeniowych: walidator danych (`data/scripts/validate_data.py`) takie źródła odrzuca. Licencje i wymagane oznaczenia źródeł są w katalogu, a w aplikacji widać „Dane: m.st. Warszawa, GUGiK, GIOŚ, ZTM · © współtwórcy OpenStreetMap”.
 
-Pełna lista założeń z uzasadnieniem jest w sekcji `assumptions` w [`data/catalog.json`](data/catalog.json). Najważniejsze:
+## Technologia
 
-- **Jednostki przestrzenne.** Siatka zespołu to kwadraty 250 m w układzie EPSG:2180 ([`docs/data/grid-schema.md`](docs/data/grid-schema.md)). Wyniki agregujemy do 143 osiedli MSI i 14 576 kwartałów ulicznych.
-- **Odległości.** Liczymy w linii prostej w EPSG:2180, a metryki „w promieniu 1 km” obejmują obiekty w tym promieniu. Czas pieszo w interfejsie to odległość × 1,3 przy 78 m/min.
-- **Czasy przejazdu komunikacją.** Własny router na rozkładzie GTFS (Connection Scan Algorithm) z dojściem pieszym do 800 m i przesiadkami pieszymi do 400 m, z co najmniej 60 s na przesiadkę. Liczymy średnią dla przyjazdów 07:30–09:00 w dzień roboczy. Rozkład nie obejmuje Kolei Mazowieckich ani WKD.
-- **Ocena.** Wynik kategorii to pozycja względna osiedla na tle całej Warszawy (percentyl). Wagi kategorii dla profili są jawne i jednakowe dla wszystkich osiedli.
-- **Ceny.** Z RCN bierzemy tylko lokale mieszkalne sprzedane na wolnym rynku, o powierzchni od 15 m² i cenie 3–60 tys. zł/m².
-- **Polityka danych.** Wyłącznie źródła miejskie, publiczne lub otwarte. Żadnych danych zebranych z portali ogłoszeniowych i żadnych danych osobowych: imion i nazwisk autorów projektów budżetu obywatelskiego nie kopiujemy.
-
-## Technologie
-
-| Warstwa | Narzędzia |
-|---|---|
-| Aplikacja | React 19, TypeScript, Vite, MapLibre GL JS, Motion, lucide-react; podkład mapy OpenFreeMap |
-| Dane i ETL | Python 3.11+ (uv), Shapely, pyproj; skrypty w [`data/scripts/`](data/scripts/), framework wskaźników w [`data/scripts/siatka/`](data/scripts/siatka/) |
-| Routing komunikacji | GTFS ZTM + własny router CSA ([`data/scripts/transit_router.py`](data/scripts/transit_router.py)) |
-| Wideo i prezentacja | Remotion, Playwright, ffmpeg ([`3_AI-ALL-IN_mojeMiejsce/pitch/`](3_AI-ALL-IN_mojeMiejsce/pitch/)) |
-| Wdrożenie | Netlify ([`application/netlify.toml`](application/netlify.toml)) |
-
-Przy pracy korzystaliśmy z asystentów AI (Claude Code, Cursor).
+React 19 · TypeScript · Vite · MapLibre GL (mapa, warstwy 3D) · Motion (animacje) · opcjonalnie Supabase. Dane przetwarzają skrypty Python w [`data/scripts/`](data/scripts/) (ETL, siatka 250 m w układzie EPSG:2180, metryki osiedli i kwartałów). Mapa bazowa to OpenFreeMap, więc aplikacja działa **bez żadnych kluczy API**.
 
 ## Uruchomienie
 
-Aplikacja działa bez kluczy API i bez backendu: czyta przygotowane pliki z [`application/public/data/`](application/public/data/). Wymaga Node.js 20+ (zalecany 22).
-
 ```bash
 cd application
-npm install
-npm run dev
+npm ci
+npm run dev        # http://localhost:5173
 ```
 
-Potem otwórz adres podany przez Vite (zwykle `http://localhost:5173`).
-
-Testy aplikacji: `npm test`. Testy skryptów danych: `uv run --with pytest --with pyproj --with shapely pytest data/scripts/tests -q`.
-
-**Odświeżenie danych** jest opcjonalne, bo gotowe pliki są w repozytorium. Zbiory z portalu API wymagają klucza `UM_WARSZAWA_API_KEY` w pliku `data/.env`, który nie jest w repozytorium. Kolejność kroków opisują [`data/README.md`](data/README.md) i [`docs/data/siatka-etl.md`](docs/data/siatka-etl.md).
+Kontrola jakości (w `application/`): `npm test`, `npm run typecheck`, `npm run lint`, `npm run build`. Opcjonalne zmienne (Supabase, własny styl mapy): [`application/.env.example`](application/.env.example), szczegóły w [`docs/setup/README.md`](docs/setup/README.md). Dane i ich odtwarzanie: [`docs/data/START-here-data-dev.md`](docs/data/START-here-data-dev.md).
 
 ## Struktura repozytorium
 
 | Folder | Zawartość |
-|---|---|
-| [`application/`](application/) | Aplikacja Moje Miejsce (React + Vite + MapLibre) |
-| [`data/`](data/) | Katalog danych, wyniki ETL i skrypty |
-| [`docs/`](docs/) | Dokumentacja: dane ([`docs/data/`](docs/data/)), koncept i specyfikacja ([`docs/core/`](docs/core/)), notatki |
-| [`3_AI-ALL-IN_mojeMiejsce/`](3_AI-ALL-IN_mojeMiejsce/) | Prezentacja, film i narzędzia do nagrań |
-| [`pomysly-mati/`](pomysly-mati/) | Ranking pomysłów z początku hackathonu |
+|--------|-----------|
+| [`application/`](application/) | aplikacja (React + Vite) |
+| [`data/`](data/) | dane, skrypty ETL i katalog danych |
+| [`docs/`](docs/) | koncept, dane i źródła, design, setup, notatki zespołu |
+| [`3_AI-ALL-IN_mojeMiejsce/`](3_AI-ALL-IN_mojeMiejsce/) | prezentacja dla jury: slajdy, film produktowy, skrypt wystąpienia |
+| [`pomysly-mati/`](pomysly-mati/) | ranking pomysłów z początku hackathonu |
+| [`prototypes/`](prototypes/) | warianty interfejsu sprawdzane przed wyborem kierunku |
+| [`scripts/`](scripts/) | skrypty pomocnicze repozytorium |
+
+Na start: koncept [`docs/core/koncept-aplikacji.md`](docs/core/koncept-aplikacji.md), źródła danych [`docs/data/zrodla-danych.md`](docs/data/zrodla-danych.md), system wizualny [`docs/design/visual-system.md`](docs/design/visual-system.md).
 
 ## Jak pracujemy
 
-1. **`master`** to gałąź integracyjna. Nie commitujemy na niej feature’ów ani fixów.
-2. **Jedna zmiana = jedna gałąź:** `feat/krótki-slug` lub `fix/krótki-slug`, potem merge do `master` (PR mile widziany).
-3. **Commity:** `feat: short title`, `fix: short title` (Conventional Commits).
-4. Szczegóły: [`CLAUDE.md`](CLAUDE.md), reguły Cursor: [`.cursor/rules/git-standards.mdc`](.cursor/rules/git-standards.mdc).
+`master` to gałąź integracyjna; zmiany idą przez osobne gałęzie `feat/…`, `fix/…`, `docs/…` i PR, a commity mają postać `feat: krótki tytuł`. Szczegóły: [`CLAUDE.md`](CLAUDE.md) i [`.cursor/rules/git-standards.mdc`](.cursor/rules/git-standards.mdc).
