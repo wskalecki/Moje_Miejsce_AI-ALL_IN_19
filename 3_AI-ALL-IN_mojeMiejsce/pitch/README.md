@@ -67,3 +67,11 @@ Klucze: `OPENROUTER_API_KEY` (lektor, muzyka, b-roll) i `GOOGLE_AI_API_KEY` (tra
 - **Remotion** jest darmowy dla osób prywatnych i firm do 3 osób. Przy komercyjnym użyciu w większym zespole potrzebna jest [licencja firmowa](https://remotion.pro/license).
 - Lektor, muzyka i b-roll są wygenerowane przez AI. Ujęcia z Veo to ilustracja, a nie prawdziwe miejsca (wieża na horyzoncie przelotu tylko przypomina Pałac Kultury).
 - Wszystkie ujęcia aplikacji to prawdziwe nagranie działającej wersji (commit `2b31bc6`, gałąź `feat/unified-place-view`), bez makiet.
+
+## Kopia do zgłoszenia
+
+`../3_AI-ALL-IN_mojeMiejsce.html` to kopia `deck/index.html` ze ścieżkami do `pitch/deck/`. Po zmianie slajdów odśwież ją:
+
+```bash
+sed -E 's#(src="|url\(|poster=")(img|media|fonts)/#\1pitch/deck/\2/#g' 3_AI-ALL-IN_mojeMiejsce/pitch/deck/index.html > 3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce.html
+```
