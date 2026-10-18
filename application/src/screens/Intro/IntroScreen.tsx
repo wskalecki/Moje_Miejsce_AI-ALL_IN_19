@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { APP_NAME, APP_TAGLINE, PRELOAD_DATA_URLS } from '../../app/config'
 import { PROFILE_ORDER, PROFILES } from '../../app/dictionary'
 import { prefetchMap } from '../../app/mapLoader'
+import { markStartedFromIntro } from '../../app/freshStart'
 import { navigate } from '../../app/router'
 import type { ProfileId } from '../../app/types'
 import { AmbientBackground } from '../../components/ambient/AmbientBackground'
@@ -19,7 +20,10 @@ export function IntroScreen() {
   const reduce = useReducedMotion()
   const [active, setActive] = useState<ProfileId>('student')
 
-  const start = () => navigate('/mapa')
+  const start = () => {
+    markStartedFromIntro()
+    navigate('/mapa')
+  }
 
   useEffect(() => {
     prefetchMap(PRELOAD_DATA_URLS)
@@ -66,9 +70,6 @@ export function IntroScreen() {
       </header>
 
       <section className="intro__content">
-        <m.p className="t-micro intro__eyebrow" {...rise(0.05)}>
-          Hackathon W3 · Warszawa: Twój ruch!
-        </m.p>
         <m.h1 className="t-display-xl intro__title" {...rise(0.12)}>
           {APP_NAME}
         </m.h1>
@@ -79,7 +80,6 @@ export function IntroScreen() {
           <Button size="lg" iconRight={ArrowRight} onClick={start}>
             Zacznij
           </Button>
-          <p className="t-small intro__hint">3 pytania · 30 sekund · bez logowania</p>
         </m.div>
       </section>
 

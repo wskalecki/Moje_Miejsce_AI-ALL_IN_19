@@ -1,0 +1,365 @@
+{
+  "slug": "groszowka",
+  "msiId": "groszowka",
+  "profile": "senior",
+  "camera": {
+    "bearing": 150,
+    "zoom": 15.2
+  },
+  "highlights": [
+    {
+      "id": "las-groszowka",
+      "name": "Las w Groszówce",
+      "category": "zielen",
+      "coord": [
+        21.23582,
+        52.23581
+      ],
+      "osm": "way/43526918",
+      "green": "way/43526918",
+      "description": "Kompleks leśny w granicach osiedla, na południe i wschód od zabudowy."
+    },
+    {
+      "id": "las-milowy",
+      "name": "Las Milowy",
+      "category": "zielen",
+      "coord": [
+        21.2336,
+        52.24746
+      ],
+      "osm": "relation/20318589",
+      "green": "relation/20318589",
+      "description": "Wąski, kilkukilometrowy pas lasu na północ od Groszówki."
+    },
+    {
+      "id": "bagno-jacka",
+      "name": "Rezerwat Bagno Jacka",
+      "category": "zielen",
+      "coord": [
+        21.21702,
+        52.25774
+      ],
+      "osm": "way/158703007",
+      "description": "Rezerwat przyrody (torfowisko) w Wesołej, utworzony w 1981 r."
+    },
+    {
+      "id": "biblioteka-wesola",
+      "name": "Biblioteka Publiczna w Dzielnicy Wesoła",
+      "category": "kultura",
+      "coord": [
+        21.22386,
+        52.24836
+      ],
+      "osm": "node/1658229347",
+      "description": "Biblioteka publiczna, ul. 1 Praskiego Pułku WP 31."
+    },
+    {
+      "id": "kosciol-opatrznosci",
+      "name": "Kościół Opatrzności Bożej",
+      "category": "kultura",
+      "coord": [
+        21.21283,
+        52.25217
+      ],
+      "osm": "way/440098821",
+      "description": "Zabytkowy kościół z lat 1935–1939 z polichromiami Jerzego Nowosielskiego, ul. ks. Piotra Skargi 2."
+    },
+    {
+      "id": "przychodnia-nr1",
+      "name": "Przychodnia Rejonowa nr 1",
+      "category": "zdrowie",
+      "coord": [
+        21.22281,
+        52.25241
+      ],
+      "osm": "way/959758125",
+      "description": "Publiczna przychodnia (SZPZLO Warszawa-Wesoła), POZ i poradnie specjalistyczne, ul. Kilińskiego 48."
+    },
+    {
+      "id": "apteka-remedium",
+      "name": "Apteka „Remedium”",
+      "category": "zdrowie",
+      "coord": [
+        21.22727,
+        52.25006
+      ],
+      "osm": "node/2025606818",
+      "description": "Apteka przy ul. Armii Krajowej (Wesoła-Centrum)."
+    },
+    {
+      "id": "pkp-wesola",
+      "name": "Warszawa Wesoła (kolej)",
+      "category": "komunikacja",
+      "coord": [
+        21.22392,
+        52.2541
+      ],
+      "osm": "ztm:2911",
+      "description": "Najbliższy przystanek kolejowy, linia kolejowa nr 2 (Warszawa – Terespol)."
+    },
+    {
+      "id": "spolem-mila",
+      "name": "Sklep Społem",
+      "category": "zakupy",
+      "coord": [
+        21.22427,
+        52.25329
+      ],
+      "osm": "node/5261601481",
+      "description": "Sklep spożywczy WSS Społem, ul. Miła 1."
+    }
+  ],
+  "routeGroups": [
+    {
+      "group": "przychodnia",
+      "label": "Przychodnia",
+      "category": "zdrowie",
+      "destinations": [
+        {
+          "id": "przychodnia-nr1",
+          "name": "Przychodnia Rejonowa nr 1",
+          "coord": [
+            21.22281,
+            52.25241
+          ],
+          "osm": "way/959758125"
+        },
+        {
+          "id": "przychodnia-nr4",
+          "name": "Przychodnia Rejonowa nr 4",
+          "coord": [
+            21.22573,
+            52.21928
+          ],
+          "osm": "node/13207062036"
+        },
+        {
+          "id": "przychodnia-nr2",
+          "name": "Przychodnia Rejonowa nr 2",
+          "coord": [
+            21.1888,
+            52.24513
+          ],
+          "osm": "relation/12899546"
+        }
+      ]
+    },
+    {
+      "group": "kultura",
+      "label": "Kultura",
+      "category": "kultura",
+      "destinations": [
+        {
+          "id": "biblioteka-wesola",
+          "name": "Biblioteka Publiczna w Dzielnicy Wesoła",
+          "coord": [
+            21.22386,
+            52.24836
+          ],
+          "osm": "node/1658229347"
+        },
+        {
+          "id": "mok-wesola",
+          "name": "Miejski Ośrodek Kultury",
+          "coord": [
+            21.24364,
+            52.25054
+          ],
+          "osm": "node/2025239832"
+        },
+        {
+          "id": "kosciol-opatrznosci",
+          "name": "Kościół Opatrzności Bożej",
+          "coord": [
+            21.21283,
+            52.25217
+          ],
+          "osm": "way/440098821"
+        }
+      ]
+    },
+    {
+      "group": "park",
+      "label": "Park i las",
+      "category": "zielen",
+      "destinations": [
+        {
+          "id": "las-groszowka",
+          "name": "Las w Groszówce",
+          "green": "way/43526918",
+          "osm": "way/43526918"
+        },
+        {
+          "id": "las-milowy",
+          "name": "Las Milowy",
+          "green": "relation/20318589",
+          "osm": "relation/20318589"
+        },
+        {
+          "id": "barciucha",
+          "name": "Las Barciucha",
+          "green": "way/1150197052",
+          "osm": "way/1150197052"
+        }
+      ]
+    }
+  ],
+  "portals": [
+    {
+      "name": "Otodom",
+      "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/wesola/groszowka",
+      "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/wesola/groszowka"
+    },
+    {
+      "name": "Morizon",
+      "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/groszowka/",
+      "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/groszowka/"
+    }
+  ],
+  "timeline": [
+    {
+      "id": "tunel-1-praskiego-pulku",
+      "title": "Tunel pod torami w ciągu ul. 1 Praskiego Pułku",
+      "description": "Tunel zastąpi przejazd przy przystanku Warszawa Wesoła: dwa pasy, chodnik, droga rowerowa, windy na perony i do przystanków na Okuniewskiej. Koszt blisko 94 mln zł, wykonawca Eurovia.",
+      "category": "komunikacja",
+      "status": "w budowie",
+      "year": 2027,
+      "yearUncertain": false,
+      "yearNote": "Miasto (V 2026): tunel „powinien być gotowy do drugiej połowy 2027 roku”; SZRM (VIII 2026): zakończenie „w drugiej połowie 2027 r.”.",
+      "coord": [
+        21.22398,
+        52.2538
+      ],
+      "sourceUrl": "https://um.warszawa.pl/-/budowa-tunelu-w-wesolej-zmiany-w-ruchu",
+      "sourceTitle": "Budowa tunelu w Wesołej – zmiany w ruchu (Miasto Warszawa)",
+      "sourceDate": "2026-05-12",
+      "statusEvidence": "Przejazd zamknięty od 15.05.2026; SZRM 28.08.2026: ściany szczelinowe po północnej stronie torów gotowe, trwa przekładanie sieci, kolejny etap to płyta stropowa: https://szrm.pl/aktualnosci/postepuja-prace-przy-budowie-tunelu-w-wesolej-2404/",
+      "checkedAt": "2026-10-18",
+      "effect": null,
+      "effectNote": "Nowy dojazd do istniejącego przystanku kolejowego; nie zmienia odległości do kolei ani liczby odjazdów → brak wpływu na wskaźniki.",
+      "coordNote": "punkt orientacyjny: dotychczasowy przejazd kolejowy w ciągu ul. 1 Praskiego Pułku przy przystanku Warszawa Wesoła (ok. 1,2 km na północ od Groszówki)"
+    },
+    {
+      "id": "kompleks-sportowy-groszowka",
+      "title": "Plan dla „Kompleksu sportowo-rekreacyjnego Groszówka”",
+      "description": "Rada Warszawy uchwaliła plan miejscowy dla ok. 5 ha wokół CLXIII LO przy ul. Słowackiego. Dopuszcza m.in. halę sportową, boisko, lodowisko i dom kultury. Decyzji o budowie jeszcze nie ma.",
+      "category": "sport",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Uchwalony jest tylko plan miejscowy (15.01.2026); miasto nie podało terminu ani finansowania kompleksu.",
+      "coord": [
+        21.2101,
+        52.24316
+      ],
+      "sourceUrl": "https://um.warszawa.pl/-/nowe-plany-zagospodarowania-przestrzennego-dla-czterech-warszawskich-dzielnic",
+      "sourceTitle": "Nowe plany zagospodarowania przestrzennego dla czterech warszawskich dzielnic (Miasto Warszawa)",
+      "sourceDate": "2026-01-15",
+      "statusEvidence": "„Nowy plan pozwoli na lokalizację »Kompleksu sportowo-rekreacyjnego Groszówka«” — plan uchwalony na sesji 15.01.2026; nie znaleziono projektu ani przetargu na kompleks (stan 18.10.2026).",
+      "checkedAt": "2026-10-18",
+      "effect": null,
+      "effectNote": "Plan tylko dopuszcza obiekty, nie przesądza o ich budowie → brak wpływu na wskaźniki.",
+      "yearHorizon": 2040,
+      "yearPlacement": "bez terminu"
+    },
+    {
+      "id": "kanalizacja-groszowka",
+      "title": "Kanalizacja na osiedlu Groszówka (MPWiK)",
+      "description": "Ok. 2,5 km kanalizacji w ul. Narutowicza, 1 Maja, Niemcewicza, Asnyka, Skłodowskiej-Curie i Rejtana oraz pompownia przy ul. Szerokiej. Zadanie wciąż na etapie projektu i pozwoleń.",
+      "category": "zielen",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Zadanie z planu MPWiK na lata 2022–2030; MPWiK (IX 2024): termin budowy ustali po uzyskaniu pozwolenia na budowę.",
+      "coord": [
+        21.21403,
+        52.24559
+      ],
+      "sourceUrl": "https://mpwik.com.pl/download.php?id=7699",
+      "sourceTitle": "Zadania inwestycyjne realizowane na terenie Dzielnicy Wesoła, stan na 31 sierpnia 2025 (MPWiK)",
+      "sourceDate": "2025-08-31",
+      "statusEvidence": "Zadanie wymienione wśród „na etapie prac projektowych i pozyskiwania decyzji administracyjnych” (31.08.2025). Na sesji rady dzielnicy MPWiK zapowiadał pozwolenie do połowy 2025 r. i wycinkę drzew: https://wesola.pl/artykul/inwestycje-mpwik-w-wesolej-opoznienia-wycinka-drzew-i-wyzwania-techniczne",
+      "checkedAt": "2026-10-18",
+      "effect": null,
+      "effectNote": "Sieć kanalizacyjna nie jest wskaźnikiem w aplikacji; kategoria „zieleń” jako najbliższa (ochrona środowiska, możliwa wycinka drzew) → brak wpływu na wskaźniki.",
+      "coordNote": "punkt orientacyjny: ul. Asnyka (środek obszaru prac)",
+      "yearHorizon": 2030,
+      "yearPlacement": "plan MPWiK na lata 2022–2030"
+    },
+    {
+      "id": "trasa-niemcewicza-wspolna",
+      "title": "Przebudowa ul. Niemcewicza i Wspólnej z trasą rowerową",
+      "description": "ZDM chce zbudować ok. 3 km ciągu pieszo-rowerowego od ratusza Wesołej do ul. Płatnerskiej, wyremontować chodnik po południowej stronie Niemcewicza i poprawić przejścia dla pieszych.",
+      "category": "komunikacja",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Wesoła.pl (VII 2025): „realizacja robót budowlanych zaplanowana jest na lata 2028–2030”; najpierw 24 miesiące na projekt.",
+      "coord": [
+        21.21785,
+        52.24624
+      ],
+      "sourceUrl": "https://wesola.pl/artykul/trzy-oferty-na-projekt-przebudowy-trasy-rowerowej-niemcewicza-wspolna-co-dalej-z-inwestycja-w-wesolej",
+      "sourceTitle": "Trzy oferty na projekt przebudowy trasy rowerowej Niemcewicza–Wspólna (Wesoła.pl)",
+      "sourceDate": "2025-07-24",
+      "statusEvidence": "Przetarg ZDM na projekt: 3 oferty, wszystkie powyżej budżetu 800 tys. zł (ZDM 24.07.2025: https://zdm.waw.pl/aktualnosci/zaprojektujemy-rowerowy-korytarz-w-wesolej/); nie znaleziono informacji o podpisaniu umowy (stan 18.10.2026).",
+      "checkedAt": "2026-10-18",
+      "effect": null,
+      "effectNote": "Drogi rowerowe i chodniki nie wchodzą do wskaźników komunikacji → brak wpływu. Ul. Niemcewicza biegnie północną granicą Groszówki.",
+      "yearHorizon": 2030,
+      "yearPlacement": "plan: roboty 2028–2030"
+    },
+    {
+      "id": "wow-s17",
+      "title": "Wschodnia Obwodnica Warszawy (S17) przez Wesołą",
+      "description": "Brakujący ok. 16 km odcinek S17 Drewnica – Warszawa Wschód przez Wesołą. GDDKiA zleciła studium (V 2026); wszystkie warianty mają dopuszczać tunel. Przebieg wciąż nieustalony.",
+      "category": "komunikacja",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "GDDKiA (V 2026): dokumentacja w 2030 r., budowa szacunkowo 2036–2038 (wcześniej 2031–2035).",
+      "sourceUrl": "https://tvn24.pl/tvnwarszawa/wesola/domkniecie-wschodniej-obwodnicy-warszawy-przesuniete-o-trzy-lata-st9071105",
+      "sourceTitle": "Domknięcie Wschodniej Obwodnicy Warszawy przesunięte o trzy lata (TVN Warszawa)",
+      "sourceDate": "2026-05-28",
+      "statusEvidence": "Umowa na STEŚ z Transprojekt-Warszawa (ponad 7,4 mln zł, 48 miesięcy) podpisana w V 2026; wniosek o decyzję środowiskową planowany na 2028 r. (Wesoła.pl 28.05.2026: https://wesola.pl/artykul/umowa-na-projekt-wschodniej-obwodnicy-warszawy-podpisana-budowa-najwczesniej-w-2036-roku).",
+      "checkedAt": "2026-10-18",
+      "effect": null,
+      "effectNote": "Przebieg i węzły nieustalone → nie da się policzyć wpływu na hałas ani komunikację.",
+      "coordNote": "przebieg nieustalony, bez znacznika na mapie",
+      "yearHorizon": 2038,
+      "yearPlacement": "GDDKiA: budowa 2036–2038"
+    }
+  ],
+  "heroImages": [
+    {
+      "src": "/osiedla/groszowka/01.jpg",
+      "alt": "Biała willa z ceglastym dachem przy ul. Broniewskiego 19, w gminnej ewidencji zabytków",
+      "credit": "fot. Cybularny, CC0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/groszowka/02.jpg",
+      "alt": "Drewniany dom przy ul. 1 Maja 13, w gminnej ewidencji zabytków",
+      "credit": "fot. Cybularny, CC0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/groszowka/03.jpg",
+      "alt": "Las Milowy i domy Wesołej z lotu ptaka",
+      "credit": "fot. Sylwester Kominek, CC BY-SA 4.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/groszowka/04.jpg",
+      "alt": "Rezerwat przyrody Bagno Jacka w Wesołej",
+      "credit": "fot. Dariusz Kowalczyk, CC BY-SA 4.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/groszowka/05.jpg",
+      "alt": "Urząd Dzielnicy Wesoła przy ul. 1 Praskiego Pułku",
+      "credit": "fot. Cybularny, CC0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/groszowka/06.jpg",
+      "alt": "Opuszczone budynki dawnego szpitala przy ul. Niemcewicza 82 wśród kwitnących bzów",
+      "credit": "fot. Cybularny, CC0, Wikimedia Commons"
+    }
+  ]
+}

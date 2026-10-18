@@ -25,6 +25,8 @@ export const SOURCE = {
   heat: 'heat',
   osiedla: 'osiedla',
   featured: 'featured',
+  /** The live top 3 under the current weights (outline only, see featuredLayers.ts). */
+  top: 'top3',
   labels: 'osiedla-labels',
   outline: 'warsaw-outline',
   mask: 'warsaw-mask',
@@ -41,8 +43,6 @@ const HEAT_GAMMA = 0.8
 /** Fade window for heat → osiedla (spec 4.3). */
 const Z0 = 11.5
 const Z1 = 12.5
-
-const notFeatured: FilterSpecification = ['!=', ['get', 'featured'], 1]
 
 export const hover: ExpressionSpecification = ['boolean', ['feature-state', 'hover'], false]
 
@@ -119,11 +119,10 @@ function fillColor(p: Profile, mix: Mix, stops: number[]): ExpressionSpecificati
   ] as ExpressionSpecification
 }
 
-/** Ramp stops = quantiles of the mixed match over the non-featured osiedla (QA #18). */
+/** Ramp stops = quantiles of the mixed match over all osiedla (QA #18). */
 function mixStops(data: MapData, mix: Mix): number[] {
   const vals: number[] = []
   for (const f of data.osiedla.features) {
-    if (f.properties?.featured === 1) continue
     let v = 0
     mix.shares.forEach((k, i) => (v += k * (Number(f.properties?.[`c${i}`]) || 0)))
     vals.push(v)
@@ -222,8 +221,6 @@ export function addMapLayers(map: MlMap, data: MapData, profile: Profile, mix: M
         id: LAYER.fill(p),
         type: 'fill',
         source: SOURCE.osiedla,
-        // featured osiedla are tinted by their own layers in the colour of the profile they belong to
-        filter: notFeatured,
         paint: {
           'fill-color': fillColor(p, mix, stops),
           'fill-opacity': fillOpacity(p === profile),
@@ -240,11 +237,11 @@ export function addMapLayers(map: MlMap, data: MapData, profile: Profile, mix: M
       id: LAYER.hoverFill,
       type: 'fill',
       source: SOURCE.osiedla,
-      filter: notFeatured,
       paint: {
         'fill-color': ACCENTS[profile].base,
         'fill-color-transition': TRANSITION,
-        'fill-opacity': ['interpolate', ['linear'], ['zoom'], Z0, ['case', hover, 0.14, 0], Z1, ['case', hover, 0.26, 0]],
+        // hovering any osiedle tints it at every zoom, so it reads as clickable (no always-on mesh)
+        'fill-opacity': ['interpolate', ['linear'], ['zoom'], 9, ['case', hover, 0.22, 0], Z1, ['case', hover, 0.26, 0]],
       },
     },
     beforeRoads,
@@ -286,7 +283,6 @@ export function addMapLayers(map: MlMap, data: MapData, profile: Profile, mix: M
       id: LAYER.hoverLine,
       type: 'line',
       source: SOURCE.osiedla,
-      filter: notFeatured,
       layout: { 'line-join': 'round' },
       paint: {
         'line-color': ACCENTS[profile].base,
@@ -342,4 +338,11 @@ export function applyProfile(map: MlMap, profile: Profile, prev: Profile | null)
   }
   map.setPaintProperty(LAYER.hoverFill, 'fill-color', ACCENTS[profile].base)
   map.setPaintProperty(LAYER.hoverLine, 'line-color', ACCENTS[profile].base)
+}
+
+/** Hide the name labels of the osiedla that carry a top-3 pill (the pill already names them). */
+export function applyLabelFilter(map: MlMap, hiddenIds: readonly string[]) {
+  if (!map.getLayer(LAYER.label)) return
+  const filter: FilterSpecification | null = hiddenIds.length ? ['!', ['in', ['get', 'id'], ['literal', [...hiddenIds]]]] : null
+  map.setFilter(LAYER.label, filter)
 }

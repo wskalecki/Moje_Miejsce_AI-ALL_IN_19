@@ -42,7 +42,7 @@ def fetch_page(source: str, page: int, indicator: str) -> dict:
         "zrodloHalasu": SOURCES[source], "wskaznik": indicator,
         "liczbaElementowNaStronie": PAGE, "numerStrony": page,
     })
-    req = urllib.request.Request(f"{API}?{q}", headers={"User-Agent": "okolica-hackathon/1.0"})
+    req = urllib.request.Request(f"{API}?{q}", headers={"User-Agent": "moje-miejsce-hackathon/1.0"})
     for attempt in range(4):
         try:
             with urllib.request.urlopen(req, timeout=300) as r:

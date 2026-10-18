@@ -18,13 +18,12 @@
 }
 .prefs-modal__sheet {
   position: relative;
-  width: min(720px, 100%);
-  max-height: min(92vh, 880px);
+  width: min(760px, 100%);
+  max-height: min(calc(100dvh - 32px), 880px);
   display: grid;
-  grid-template-rows: auto auto 1fr auto;
-  /* minmax(0, …): wide content must not widen the track, or the header (close button) gets clipped */
+  /* minmax(0, 1fr): wide step content must never widen the sheet past its frame */
   grid-template-columns: minmax(0, 1fr);
-  container-type: inline-size;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.8);
@@ -36,11 +35,10 @@
 }
 .prefs-modal__head {
   display: grid;
-  /* minmax(0, …) lets the progress bar shrink on 320 px phones instead of pushing out the close button */
-  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
   align-items: center;
   gap: 8px;
-  padding: 12px 12px 0;
+  padding: 14px 14px 0;
 }
 .prefs-modal__back,
 .prefs-modal__close {
@@ -53,10 +51,18 @@
   background: rgba(22, 22, 29, 0.06);
   color: var(--color-ink, #16161d);
   cursor: pointer;
+  transition:
+    background-color var(--d-base) var(--ease-standard),
+    opacity var(--d-base) var(--ease-standard);
 }
+.prefs-modal__back:hover,
+.prefs-modal__close:hover:not(:disabled) {
+  background: rgba(22, 22, 29, 0.1);
+}
+/* First run: nothing to go back to yet, so the close button is only a quiet placeholder. */
 .prefs-modal__close:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
+  opacity: 0.3;
+  cursor: default;
 }
 .prefs-modal__progress {
   display: flex;
@@ -64,11 +70,13 @@
   gap: 6px;
 }
 .prefs-modal__seg {
-  flex: 0 1 40px;
-  min-width: 12px;
+  width: 40px;
   height: 4px;
   border-radius: 999px;
   background: rgba(22, 22, 29, 0.12);
+  transition:
+    background-color var(--d-slow) var(--ease-standard),
+    opacity var(--d-slow) var(--ease-standard);
 }
 .prefs-modal__seg[data-state='done'],
 .prefs-modal__seg[data-state='current'] {
@@ -80,73 +88,30 @@
 .prefs-modal__logo {
   display: flex;
   justify-content: center;
-  padding: 4px 0 0;
+  padding: 2px 0 0;
   opacity: 0.85;
 }
-.prefs-modal__body {
-  overflow: auto;
-  min-height: 0;
-  padding: 0 8px;
-}
+/* The step content scrolls inside the sheet; header and footer stay put. */
 .prefs-modal__body.survey {
   position: static;
   inset: auto;
   display: block;
-  /* the sheet clips (overflow: hidden), so the body has to scroll on short screens */
-  overflow-x: hidden;
-  overflow-y: auto;
+  min-height: 0;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
 }
 .prefs-modal__body .survey__body {
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 8px 20px 16px;
+  padding: 12px 28px 24px;
 }
-/* survey.css sizes the profile cards for the full-screen survey (3 × ≥280 px, switched by viewport
-   width); inside the 720 px sheet they follow the sheet's own width instead. */
-.prefs-modal .profile-cards {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+.prefs-modal__body .survey__question {
+  margin-bottom: 20px;
 }
-.prefs-modal .profile-card {
-  min-height: 0;
-  flex-direction: column;
-  align-items: stretch;
-}
-.prefs-modal .profile-card__art {
-  width: auto;
-  height: 132px;
-}
-.prefs-modal .profile-card__text {
-  padding: 14px 8px 6px;
-}
-@container (max-width: 560px) {
-  .prefs-modal .profile-cards {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  .prefs-modal .profile-card {
-    flex-direction: row;
-    align-items: center;
-  }
-  .prefs-modal .profile-card__art {
-    width: 96px;
-    height: 96px;
-    flex: none;
-  }
-  .prefs-modal .profile-card__text {
-    padding: 4px 28px 4px 16px;
-  }
-}
-/* 320 px phones: the title otherwise runs under the check circle in the card's top-right corner */
-@container (max-width: 320px) {
-  .prefs-modal .profile-card__art {
-    width: 72px;
-    height: 72px;
-  }
-  .prefs-modal .profile-card__text {
-    padding: 4px 36px 4px 12px;
-  }
+.prefs-modal__body .survey__question p {
+  max-width: 64ch;
+  text-wrap: pretty;
 }
 .prefs-modal__hints {
   margin: 16px 0 0;
@@ -158,10 +123,128 @@
   color: var(--color-ink-2, #5c5c6a);
 }
 .prefs-modal__foot {
-  padding: 12px 20px 20px;
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px 28px 20px;
   border-top: 1px solid rgba(22, 22, 29, 0.08);
 }
-.prefs-modal__foot .btn {
-  width: 100%;
-  justify-content: center;
+
+/* Step 1 — profile cards: three columns that always fit the sheet */
+.prefs-modal .profile-cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.prefs-modal .profile-card {
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 0;
+  padding: 8px;
+}
+.prefs-modal .profile-art {
+  width: auto;
+  height: 132px;
+}
+.prefs-modal .profile-card__text {
+  padding: 14px 8px 8px;
+  gap: 4px;
+}
+.prefs-modal .profile-card__title {
+  font-size: 20px;
+  line-height: 26px;
+}
+
+/* Step 2 — four tiles in one row; icon + check on top so the label gets the full tile width */
+.prefs-modal .priority-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: auto;
+}
+.prefs-modal .priority-tile {
+  min-height: 0;
+  gap: 14px;
+}
+.prefs-modal .priority-tile__head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'icon check'
+    'label label';
+  row-gap: 10px;
+  align-items: center;
+}
+.prefs-modal .priority-tile__icon {
+  grid-area: icon;
+  margin-top: 0;
+}
+.prefs-modal .priority-tile__check {
+  grid-area: check;
+}
+.prefs-modal .priority-tile__label {
+  grid-area: label;
+  min-width: 0;
+}
+
+/* Step 3 — wynajem / kupno */
+.prefs-modal .horizon-cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.prefs-modal .horizon-card {
+  min-height: 0;
+  padding: 24px 56px 24px 24px;
+}
+
+@media (max-width: 640px) {
+  .prefs-modal {
+    padding: 12px;
+  }
+  .prefs-modal__sheet {
+    max-height: calc(100dvh - 24px);
+    border-radius: 24px;
+  }
+  .prefs-modal__body .survey__body {
+    padding: 8px 20px 20px;
+  }
+  .prefs-modal__foot {
+    padding: 12px 20px 16px;
+  }
+  .prefs-modal__foot .ui-btn {
+    width: 100%;
+  }
+  .prefs-modal .profile-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .prefs-modal .profile-card {
+    flex-direction: row;
+    align-items: center;
+  }
+  .prefs-modal .profile-art {
+    width: 76px;
+    height: 76px;
+    flex: none;
+  }
+  .prefs-modal .profile-art__face {
+    width: 44px;
+    height: 44px;
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--accent-soft) 80%, white),
+      0 8px 16px -8px color-mix(in srgb, var(--accent-deep) 55%, transparent);
+  }
+  .prefs-modal .profile-art__face svg {
+    width: 22px;
+    height: 22px;
+  }
+  .prefs-modal .profile-card__text {
+    padding: 4px 40px 4px 16px;
+  }
+  .prefs-modal .priority-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .prefs-modal .horizon-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .prefs-modal .horizon-card {
+    padding: 20px 52px 20px 20px;
+  }
 }

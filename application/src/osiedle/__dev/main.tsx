@@ -5,6 +5,7 @@ import '@fontsource-variable/inter'
 import '@fontsource-variable/plus-jakarta-sans'
 import '../../design/tokens.css'
 import '../../design/global.css'
+import '../../design/chrome.css'
 import './dev.css'
 import { Harness } from './Harness'
 

@@ -215,31 +215,55 @@
   padding: 12px;
 }
 
-.profile-card__art {
+/* Profile "face": icon medallion on its own accent-tinted patch of the cell grid */
+.profile-art {
   position: relative;
-  display: block;
+  display: grid;
+  place-items: center;
   height: 196px;
   border-radius: var(--r-lg);
   overflow: hidden;
-  background: var(--accent-soft);
+  background: color-mix(in srgb, var(--accent-soft) 70%, white);
+  transition: filter var(--d-slower) var(--ease-standard);
 }
 
-.profile-card__art img {
+.profile-art__grid {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition:
-    transform 1200ms var(--ease-emphasized),
-    filter var(--d-slower) var(--ease-standard);
+  fill: var(--accent);
+  transition: transform 1200ms var(--ease-emphasized);
 }
 
-.profile-card:hover .profile-card__art img,
-.profile-card[data-selected] .profile-card__art img {
-  transform: scale(1.03);
+.profile-art__face {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--accent-deep);
+  box-shadow:
+    0 0 0 6px color-mix(in srgb, var(--accent-soft) 80%, white),
+    0 0 0 7px color-mix(in srgb, var(--accent) 18%, transparent),
+    0 12px 24px -10px color-mix(in srgb, var(--accent-deep) 55%, transparent);
+  transition: transform var(--d-slow) var(--ease-emphasized);
 }
 
-.profile-card[data-dimmed]:not(:hover):not(:focus-visible) .profile-card__art img {
-  filter: grayscale(0.6);
+.profile-card:hover .profile-art__grid,
+.profile-card[data-selected] .profile-art__grid {
+  transform: scale(1.04);
+}
+
+.profile-card:hover .profile-art__face,
+.profile-card[data-selected] .profile-art__face {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.profile-card[data-dimmed]:not(:hover):not(:focus-visible) .profile-art {
+  filter: grayscale(0.7);
 }
 
 .profile-card__text {
@@ -252,14 +276,7 @@
   color: var(--color-ink);
 }
 
-.profile-card__credit {
-  margin-top: 6px;
-  font-size: 11px;
-  line-height: 15px;
-  color: var(--color-ink-3);
-}
-
-/* Step 2 — priority tiles: label + the weight this category gets on the map */
+/* Step 2 — priority tiles (on/off; weights on the map panel) */
 .priority-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -269,11 +286,9 @@
 }
 
 .priority-tile {
-  display: grid;
-  align-content: space-between;
-  gap: 18px;
-  min-height: 96px;
-  padding: 14px 14px 12px;
+  display: block;
+  min-height: 0;
+  padding: 14px;
   border-radius: var(--r-md);
   background: rgba(255, 255, 255, 0.5);
   box-shadow: inset 0 0 0 1px rgba(22, 22, 29, 0.09);
@@ -342,49 +357,6 @@
   color: #fff;
 }
 
-.priority-tile__weight {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.priority-tile__track {
-  position: relative;
-  flex: 1;
-  height: 3px;
-  border-radius: var(--r-pill);
-  background: rgba(22, 22, 29, 0.08);
-  overflow: hidden;
-}
-
-.priority-tile__track i {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--color-ink-3);
-  transform-origin: left center;
-  transition:
-    transform var(--d-slower) var(--ease-emphasized),
-    background-color var(--d-base) var(--ease-standard);
-}
-
-.priority-tile[aria-pressed='true'] .priority-tile__track i {
-  background: var(--accent);
-}
-
-.priority-tile__value {
-  min-width: 4ch;
-  text-align: right;
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 600;
-  color: var(--color-ink-3);
-}
-
-.priority-tile[aria-pressed='true'] .priority-tile__value {
-  color: var(--accent-deep);
-}
-
 /* Step 3 — horizon cards */
 .horizon-cards {
   display: grid;
@@ -434,7 +406,7 @@
     flex-direction: row;
     align-items: center;
   }
-  .profile-card__art {
+  .profile-art {
     width: 104px;
     height: 104px;
     flex: none;

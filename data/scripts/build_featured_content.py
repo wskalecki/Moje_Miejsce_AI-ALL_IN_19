@@ -2,7 +2,11 @@
 # requires-python = ">=3.11"
 # dependencies = ["numpy>=2", "shapely>=2", "pyproj>=3.6"]
 # ///
-"""Content of the 3 featured osiedla -> application/src/mock/osiedla.ts (generated, do not edit by hand).
+"""Content of the featured osiedla -> application/src/mock/osiedla.ts (generated, do not edit by hand).
+
+The featured osiedla are the senior top 3 of the app's own ranking (src/app/ranking.ts with the senior
+default weights, the profile the demo assumes) — see docs/core/mock-iteracja-2.md "Decyzja: top 3 dla
+seniora"; src/app/ranking.test.ts fails if that top 3 changes.
 
 Every number in the output is either read from a committed dataset or derived here by an explicit
 method; researched facts (timeline, prices, photos, place names) come from the hand-curated, cited
@@ -84,15 +88,15 @@ RCN_CSV = ROOT / "data/rcn/lokale_mieszkalne.csv"
 OSRM_CACHE = ROOT / "data/raw/featured_osrm"
 OUT_TS = ROOT / "application/src/mock/osiedla.ts"
 
-# order = profile order of the app (student, rodzina, senior)
-SLUGS = ("muranow", "natolin", "stare-bielany")
+# senior top 3 of the app ranking (src/app/ranking.ts, senior default weights), best first
+SLUGS = ("groszowka", "wilanow-krolewski", "stare-bielany")
 PROFILES = ("student", "rodzina", "senior")
 CATS = ("cisza", "zielen", "komunikacja", "gastronomia", "sport", "kultura", "edukacja", "zdrowie", "zakupy", "zycieNocne")
 PROFILE_LABEL = {"student": "student", "rodzina": "rodzina z dziećmi", "senior": "senior"}
 OSRM = "https://routing.openstreetmap.de/routed-{profile}/route/v1/driving/{a};{b}?overview=full&geometries=geojson"
-UA = "OkolicaHackathon/1.0 (hackathon demo; featured osiedla content)"
+UA = "MojeMiejsceHackathon/1.0 (hackathon demo; featured osiedla content)"
 OFFLINE = "--offline" in sys.argv
-TODAY = "2026-10-17"
+TODAY = "2026-10-18"
 
 TO_2180 = Transformer.from_crs(4326, 2180, always_xy=True)
 TO_4326 = Transformer.from_crs(2180, 4326, always_xy=True)
@@ -402,8 +406,9 @@ def texts(o: dict, profile: str, weights: dict) -> tuple[str, str, list[str]]:
     if cats[weak] >= 50:
         weak = min((c for c in CATS if c not in strong), key=lambda c: cats[c])
         weak = weak if cats[weak] < 30 else None
-    rank, match = o["rank"][profile], o["match"][profile]
-    s1 = f"{rank}. miejsce na 143 osiedla dla profilu „{PROFILE_LABEL[profile]}” ({match}% dopasowania): " \
+    # no rank / match in the text: the app ranks live by the user's weights (src/app/ranking.ts), the
+    # offline profile rank of osiedla-metrics.json would contradict the numbers on screen
+    s1 = f"Dla profilu „{PROFILE_LABEL[profile]}” najmocniej: " \
          f"{phrase(strong[0], m, profile)}; {phrase(strong[1], m, profile)}."
     s2 = f" Słabiej: {phrase(weak, m, profile)}." if weak else ""
     tag_parts = {
@@ -411,7 +416,8 @@ def texts(o: dict, profile: str, weights: dict) -> tuple[str, str, list[str]]:
                     phrase("edukacja", m, profile)],
         "rodzina": [phrase("komunikacja", m, profile).split(",")[0],
                     f"{int(m['kindergartens_1km']['value'])} przedszkoli i {int(m['playgrounds_1km']['value'])} placów zabaw w 1 km"],
-        "senior": [phrase("komunikacja", m, profile).split(",")[0], phrase("zdrowie", m, profile)],
+        # the two strongest categories for the senior weights (what the osiedle is picked for)
+        "senior": [phrase(strong[0], m, profile).split(",")[0], phrase(strong[1], m, profile).split(",")[0]],
     }[profile]
     tagline = " · ".join(tag_parts)
     tagline = tagline[0].upper() + tagline[1:]
@@ -571,9 +577,12 @@ def main() -> int:
         if tp.exists():
             tj = json.loads(tp.read_text())
             med = tj["area"]["median"]
-            if len(med) == 24 and all(v is not None for v in med):
-                traffic = [int(round(100 * v)) for v in med]
-                traffic_note = f"{tj['source']}; {tj.get('serviceDate', '')}"
+            # an hour without any bus / tram trip in the area (night) has no slowdown to measure: 0
+            if len(med) == 24 and sum(v is not None for v in med) >= 18:
+                traffic = [int(round(100 * v)) if v is not None else 0 for v in med]
+                idle = [h for h, v in enumerate(med) if v is None]
+                traffic_note = f"{tj['source']}; {tj.get('serviceDate', '')}" + (
+                    f"; godziny bez kursów {idle} = 0" if idle else "")
 
         # ---- timeline with derived deltas
         idx = scorer.ids.index(msi)
@@ -647,8 +656,10 @@ def main() -> int:
 
 
 TS_HEADER = '''/**
- * Content of the 3 featured osiedla (one per profile), chosen from the honest real-data ranking
- * (docs/core/mock-iteracja-2.md): Muranów (student), Natolin (rodzina), Stare Bielany (senior).
+ * Content of the 3 featured osiedla: the senior top 3 of the app's own ranking (src/app/ranking.ts with
+ * the senior default weights — the profile the demo assumes), best first: Groszówka, Wilanów Królewski,
+ * Stare Bielany (docs/core/mock-iteracja-2.md, "Decyzja: top 3 dla seniora"). On the map the #1–#3
+ * badges follow the live ranking; only these three have full content.
  *
  * GENERATED by data/scripts/build_featured_content.py — do not edit by hand; edit the cited inputs in
  * data/feature d/<slug>.json and re-run. Provenance of every field: docs/data/raport-danych.md,
@@ -677,7 +688,7 @@ export type CategoryId =
   | 'zycieNocne'
 export type TravelMode = 'pieszo' | 'rower' | 'komunikacja' | 'auto'
 export type LngLat = [number, number]
-export type OsiedleSlug = 'muranow' | 'natolin' | 'stare-bielany'
+export type OsiedleSlug = 'groszowka' | 'wilanow-krolewski' | 'stare-bielany'
 
 export interface HeroImage {
   src: string

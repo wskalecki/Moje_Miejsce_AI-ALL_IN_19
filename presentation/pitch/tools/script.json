@@ -1,0 +1,39 @@
+{
+  "voice": "pNInz6obpgDQGcFmaJgB",
+  "scenes": [
+    {
+      "id": "s1-hook",
+      "text": "Szukasz mieszkania w Warszawie. Przeglądasz setki ogłoszeń: metraż, cena, piętro. Ale żadne z nich nie powie ci, jak naprawdę będzie się tam żyło."
+    },
+    {
+      "id": "s2-brand",
+      "text": "Poznaj Moje Miejsce. Najpierw znajdź miejsce, które pasuje do twojego życia. Mieszkanie znajdziesz potem."
+    },
+    {
+      "id": "s3-survey",
+      "text": "Trzy pytania, trzydzieści sekund, bez logowania. Etap życia, codzienne priorytety oraz to, czy chcesz wynająć, czy kupić."
+    },
+    {
+      "id": "s4-map",
+      "text": "Moje Miejsce od razu ocenia sto czterdzieści trzy warszawskie osiedla pod kątem twojego profilu. Im cieplejszy kolor, tym lepsze dopasowanie. Zmieniasz wagi, a mapa przelicza się na żywo. Najedź na kategorię, a zobaczysz, gdzie w mieście jest jej najwięcej."
+    },
+    {
+      "id": "s5-fly",
+      "text": "Wybierz osiedle i przeleć nad jego ulicami w trzech wymiarach."
+    },
+    {
+      "id": "s6-panel",
+      "text": "Zamiast ogólników dostajesz konkrety: metro sto pięćdziesiąt metrów od domu i dwadzieścia sześć przedszkoli w promieniu kilometra. Każdą kategorię porównasz ze średnią dla Warszawy. Zobaczysz trasę do szkoły pieszo i rowerem, dojazd do pracy w godzinach szczytu, ceny z rzeczywistych transakcji i inwestycje, które zmienią okolicę w najbliższych latach."
+    },
+    {
+      "id": "s7-data",
+      "text": "Pod spodem pracuje czterdzieści jeden zbiorów danych z dziesięciu otwartych źródeł: od portalu miasta i rejestru cen nieruchomości, przez mapy hałasu i rozkłady ZTM, po OpenStreetMap. Każda liczba ma swoje źródło."
+    },
+    {
+      "id": "s8-close",
+      "text": "Moje Miejsce. Świadomie wybierz, gdzie mieszkać."
+    }
+  ],
+  "model": "elevenlabs/eleven-v4",
+  "voice_name": "Adam (ElevenLabs)"
+}

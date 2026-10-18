@@ -7,6 +7,7 @@ import { AnimatePresence, useReducedMotion } from 'motion/react'
 import * as m from 'motion/react-m'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { MATCHING_DURATION_MS } from '../../app/config'
+import { DEFAULT_PROFILE } from '../../app/dictionary'
 import { useOsiedlaScores } from '../../app/useMatch'
 import { useAppStore } from '../../app/useAppStore'
 import { AmbientBackground } from '../../components/ambient/AmbientBackground'
@@ -95,7 +96,7 @@ export function MatchingScreen({ onDone }: { onDone: () => void }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.6, ease: EASE.emphasized }}
       >
-        <WarsawArt profile={state.profile ?? 'rodzina'} />
+        <WarsawArt profile={state.profile ?? DEFAULT_PROFILE} />
       </m.div>
 
       <div className="matching__content">

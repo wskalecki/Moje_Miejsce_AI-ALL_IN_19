@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moje Miejsce — 10 wariantów UI</title>
+<style>
+  :root {
+    --bg: #E9EAEC;
+    --bar: #FFFFFF;
+    --ink: #1C1D21;
+    --ink-2: #5D6069;
+    --line: #D5D7DC;
+    --focus: #2F6BFF;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); }
+  body { display: grid; grid-template-rows: auto 1fr; }
+
+  header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 10px 16px; background: var(--bar);
+    border-bottom: 1px solid var(--line);
+    position: relative; z-index: 2;
+  }
+  h1 { font-size: 14px; font-weight: 650; margin: 0; white-space: nowrap; }
+  h1 span { font-weight: 400; color: var(--ink-2); }
+
+  nav { display: flex; gap: 2px; overflow-x: auto; flex: 1; scrollbar-width: none; }
+  nav button {
+    all: unset; cursor: pointer; white-space: nowrap;
+    font-size: 13px; padding: 7px 10px; border-radius: 6px; color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  nav button b { font-weight: 600; color: var(--ink); margin-right: 6px; }
+  nav button:hover { background: #F1F2F4; }
+  nav button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  nav button[aria-pressed="true"] b { color: #fff; }
+  nav button .fav { color: #E0A100; margin-left: 4px; }
+
+  .tools { display: flex; gap: 6px; align-items: center; }
+  .seg { display: flex; background: #F1F2F4; border-radius: 7px; padding: 2px; }
+  .seg button, .tool {
+    all: unset; cursor: pointer; font-size: 12.5px; padding: 6px 10px; border-radius: 5px; color: var(--ink-2);
+  }
+  .seg button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+  .tool { border: 1px solid var(--line); }
+  .tool:hover { background: #F6F7F8; }
+  .tool[aria-pressed="true"] { border-color: #E0A100; color: #8A6200; }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  main { position: relative; min-height: 0; overflow: hidden; }
+
+  /* single view */
+  .stage { position: absolute; inset: 0; display: grid; place-items: center; overflow: auto; }
+  .stage iframe { border: 0; background: #fff; width: 100%; height: 100%; display: block; }
+  .stage.mobile { padding: 24px; }
+  .stage.mobile .device {
+    width: 390px; height: min(844px, calc(100% - 8px)); border-radius: 36px; overflow: hidden;
+    box-shadow: 0 0 0 10px #1C1D21, 0 30px 80px -20px rgba(0,0,0,.45);
+  }
+  .stage:not(.mobile) .device { width: 100%; height: 100%; }
+
+  .caption {
+    position: absolute; left: 16px; bottom: 16px; max-width: 460px; z-index: 3;
+    background: rgba(28,29,33,.92); color: #fff; padding: 12px 14px; border-radius: 8px;
+    font-size: 13px; line-height: 1.45;
+  }
+  .caption strong { display: block; font-size: 14px; margin-bottom: 2px; }
+  .caption button { all: unset; cursor: pointer; position: absolute; top: 6px; right: 9px; opacity: .6; font-size: 16px; }
+  .caption[hidden] { display: none; }
+
+  /* grid view */
+  .grid { position: absolute; inset: 0; overflow: auto; padding: 20px; display: none;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; align-content: start; }
+  .grid.on { display: grid; }
+  .thumb { all: unset; cursor: pointer; display: block; }
+  .thumb .frame { position: relative; aspect-ratio: 1440 / 900; overflow: hidden; border-radius: 6px;
+    background: #fff; box-shadow: 0 0 0 1px var(--line); }
+  .thumb iframe { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; border: 0;
+    transform-origin: 0 0; pointer-events: none; }
+  .thumb:hover .frame { box-shadow: 0 0 0 2px var(--ink); }
+  .thumb p { margin: 8px 2px 0; font-size: 13px; }
+  .thumb p b { font-weight: 600; }
+  .thumb p span { color: var(--ink-2); }
+
+  @media (max-width: 900px) { h1 span, .tools .hide-sm { display: none; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Moje Miejsce <span>— 10 kierunków UI</span></h1>
+  <nav id="tabs" aria-label="Warianty"></nav>
+  <div class="tools">
+    <div class="seg" role="group" aria-label="Widok">
+      <button id="vOne" aria-pressed="true">Jeden</button>
+      <button id="vGrid" aria-pressed="false">Wszystkie</button>
+    </div>
+    <div class="seg hide-sm" role="group" aria-label="Urządzenie">
+      <button id="dDesk" aria-pressed="true">Desktop</button>
+      <button id="dMob" aria-pressed="false">Telefon</button>
+    </div>
+    <button class="tool" id="fav" aria-pressed="false" title="Oznacz jako ulubiony (F)">☆ Ulubiony</button>
+    <a class="tool hide-sm" id="open" target="_blank" rel="noopener">Otwórz osobno</a>
+  </div>
+</header>
+<main>
+  <div class="stage" id="stage"><div class="device"><iframe id="frame" title="Podgląd wariantu"></iframe></div></div>
+  <div class="caption" id="caption"><button id="capClose" aria-label="Ukryj opis">×</button><strong id="capTitle"></strong><span id="capText"></span></div>
+  <div class="grid" id="grid"></div>
+</main>
+<script>
+const VARIANTS = [
+  { file: '01-plan-miasta.html', name: 'Plan miasta', text: 'Kartografia drukowanego planu miasta: mapa na cały ekran, nazwy kursywą, legenda i skorowidz jak na planie PPWK.' },
+  { file: '02-wayfinding.html', name: 'Wayfinding', text: 'Język oznakowania metra i ZTM: granat, żółty sygnał, piktogramy, dojazdy jak tablica odjazdów.' },
+  { file: '03-nordycki.html', name: 'Nordycki', text: 'Spokojny skandynawski produkt nieruchomościowy: split-screen, dużo powietrza, sosnowa zieleń.' },
+  { file: '04-przewodnik.html', name: 'Przewodnik', text: 'Redakcyjna rozkładówka jak przewodnik miejski: duży szeryf, zdjęcie, wpisy o miejscach, mapa jako lokalizator.' },
+  { file: '05-natywny.html', name: 'Natywny', text: 'Konwencje Apple (Mapy na macOS): sidebar z rankingiem, inspector, grupowane listy, font systemowy.' },
+  { file: '06-szwajcarski.html', name: 'Szwajcarski', text: 'International Typographic Style: siatka modularna, ogromna typografia, czerń, biel i czerwień.' },
+  { file: '07-analityk.html', name: 'Analityk', text: 'Gęste narzędzie pracy: tabela 143 osiedli, mapa, inspektor i porównanie z medianą Warszawy.' },
+  { file: '08-neon.html', name: 'Neon', text: 'Nocna Warszawa i dziedzictwo neonów z lat 60.: ciemny granat, oszczędne neonowe akcenty.' },
+  { file: '09-riso.html', name: 'Riso', text: 'Druk risograficzny: farby nakładane multiply, raster półtonowy na mapie, duotone zdjęć.' },
+  { file: '10-pracownia.html', name: 'Pracownia', text: 'Premium architektoniczny: zdjęcie na pełen ekran, lekki grotesk, ciemna plansza planu sytuacyjnego.' },
+];
+const $ = (id) => document.getElementById(id);
+const favs = new Set(JSON.parse(localStorage.getItem('mm-favs') || '[]'));
+let current = Math.max(0, Math.min(9, (parseInt(location.hash.slice(1)) || 1) - 1));
+let mode = 'one', device = 'desk';
+
+function renderTabs() {
+  $('tabs').innerHTML = VARIANTS.map((v, i) =>
+    `<button data-i="${i}" aria-pressed="${i === current && mode === 'one'}"><b>${String(i + 1).padStart(2, '0')}</b>${v.name}${favs.has(i) ? '<span class="fav">★</span>' : ''}</button>`
+  ).join('');
+}
+function show(i) {
+  current = i; mode = 'one';
+  const v = VARIANTS[i];
+  $('frame').src = 'variants/' + v.file;
+  $('open').href = 'variants/' + v.file;
+  $('capTitle').textContent = `${String(i + 1).padStart(2, '0')} ${v.name}`;
+  $('capText').textContent = v.text;
+  $('fav').setAttribute('aria-pressed', favs.has(i));
+  $('fav').textContent = favs.has(i) ? '★ Ulubiony' : '☆ Ulubiony';
+  history.replaceState(null, '', '#' + (i + 1));
+  setMode('one');
+}
+function setMode(m) {
+  mode = m;
+  $('vOne').setAttribute('aria-pressed', m === 'one');
+  $('vGrid').setAttribute('aria-pressed', m === 'grid');
+  $('grid').classList.toggle('on', m === 'grid');
+  $('stage').style.visibility = m === 'one' ? 'visible' : 'hidden';
+  $('caption').style.display = m === 'one' ? '' : 'none';
+  if (m === 'grid' && !$('grid').children.length) buildGrid();
+  if (m === 'grid') scaleThumbs();
+  renderTabs();
+}
+function buildGrid() {
+  $('grid').innerHTML = VARIANTS.map((v, i) => `
+    <button class="thumb" data-i="${i}">
+      <div class="frame"><iframe loading="lazy" src="variants/${v.file}" tabindex="-1" title="${v.name}"></iframe></div>
+      <p><b>${String(i + 1).padStart(2, '0')} ${v.name}</b> <span>${v.text}</span></p>
+    </button>`).join('');
+}
+function scaleThumbs() {
+  document.querySelectorAll('.thumb .frame').forEach((f) => {
+    f.querySelector('iframe').style.transform = `scale(${f.clientWidth / 1440})`;
+  });
+}
+function setDevice(d) {
+  device = d;
+  $('dDesk').setAttribute('aria-pressed', d === 'desk');
+  $('dMob').setAttribute('aria-pressed', d === 'mob');
+  $('stage').classList.toggle('mobile', d === 'mob');
+}
+
+$('tabs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) show(+b.dataset.i); });
+$('grid').addEventListener('click', (e) => { const b = e.target.closest('.thumb'); if (b) show(+b.dataset.i); });
+$('vOne').onclick = () => show(current);
+$('vGrid').onclick = () => setMode('grid');
+$('dDesk').onclick = () => setDevice('desk');
+$('dMob').onclick = () => setDevice('mob');
+$('capClose').onclick = () => $('caption').hidden = true;
+$('fav').onclick = () => {
+  favs.has(current) ? favs.delete(current) : favs.add(current);
+  localStorage.setItem('mm-favs', JSON.stringify([...favs]));
+  show(current);
+};
+window.addEventListener('resize', () => mode === 'grid' && scaleThumbs());
+window.addEventListener('keydown', (e) => {
+  if (e.target.closest && e.target.closest('input, textarea')) return;
+  if (e.key === 'ArrowRight' && e.altKey) show((current + 1) % 10);
+  else if (e.key === 'ArrowLeft' && e.altKey) show((current + 9) % 10);
+  else if (/^[0-9]$/.test(e.key) && !e.metaKey && !e.ctrlKey) show(e.key === '0' ? 9 : +e.key - 1);
+  else if (e.key === 'g') setMode(mode === 'grid' ? 'one' : 'grid');
+  else if (e.key === 'f') $('fav').click();
+});
+show(current);
+</script>
+</body>
+</html>

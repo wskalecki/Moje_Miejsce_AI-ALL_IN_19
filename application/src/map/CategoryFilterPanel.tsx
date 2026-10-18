@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
 import { useReducedMotion } from 'motion/react'
 import * as m from 'motion/react-m'
-import type { CSSProperties } from 'react'
+import { memo, type CSSProperties } from 'react'
 import { CATEGORY_ICONS } from '../app/icons'
 import { weightToUi } from '../app/weights'
 import {
@@ -87,7 +87,7 @@ function leadText(category: CategoryKey, sections: FilterSections): string {
   return ''
 }
 
-export function CategoryFilterPanel({
+export const CategoryFilterPanel = memo(function CategoryFilterPanel({
   category,
   onClose,
   weight,
@@ -176,4 +176,4 @@ export function CategoryFilterPanel({
       </m.aside>
     </m.div>
   )
-}
+})

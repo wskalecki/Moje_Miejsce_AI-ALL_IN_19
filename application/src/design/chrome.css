@@ -1,0 +1,143 @@
+/*
+ * Map chrome — the card language of /mapa (src/map/map.css: filter card, legend, rows) as shared
+ * classes, so the osiedle view (/mapa/:slug) and its 3D boxes use the same surfaces, type and rows.
+ * Values: tokens.css "Map chrome".
+ */
+
+/* Large card in the left column (filter card "Twoja okolica", place card). */
+.chrome-card {
+  border-radius: var(--chrome-card-radius);
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--chrome-card-shadow);
+}
+
+/* Small floating box (legend, map layers). */
+.chrome-box {
+  border-radius: var(--chrome-box-radius);
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--chrome-box-shadow);
+}
+
+/* Card title ("Twoja okolica"). */
+.chrome-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+
+/* Section heading inside a card ("Liczy się dla mnie"). */
+.chrome-subhead {
+  font-family: var(--font-display);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 650;
+  color: var(--color-ink);
+}
+
+/* Group label inside a section ("Podgląd na mapie"). */
+.chrome-label {
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink-3);
+}
+
+/* Tinted category square (set --cat). */
+.chrome-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--cat, var(--accent)) 13%, #fff);
+  color: var(--cat, var(--accent-deep));
+}
+
+/* Row of a card list. */
+.chrome-row {
+  min-height: 40px;
+  border-radius: var(--chrome-row-radius);
+  background: var(--chrome-row-bg);
+  box-shadow: var(--chrome-row-ring);
+}
+
+/* Two-or-more option segmented control (Wynajem / Kupno). */
+.chrome-seg {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 6px;
+}
+.chrome-seg > button {
+  min-width: 0;
+  height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--chrome-row-radius);
+  background: rgba(22, 22, 29, 0.06);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink-2);
+  cursor: pointer;
+  transition:
+    background-color var(--d-fast) var(--ease-standard),
+    color var(--d-fast) var(--ease-standard);
+}
+.chrome-seg > button:hover {
+  color: var(--color-ink);
+}
+.chrome-seg > button[aria-checked='true'],
+.chrome-seg > button[aria-selected='true'],
+.chrome-seg > button.is-on {
+  background: #fff;
+  color: var(--accent-deep);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+/* Tinted hint box ("Suwak 0–5 ustawia wagę…"). */
+.chrome-hint {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 10%, #fff);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-ink-2);
+}
+
+/* Quiet pill button ("Przywróć profil"). */
+.chrome-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: rgba(22, 22, 29, 0.05);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-ink);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.chrome-btn:hover {
+  background: #fff;
+  color: var(--accent-deep);
+  box-shadow: var(--shadow-md);
+}

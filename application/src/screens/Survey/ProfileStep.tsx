@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type KeyboardEvent, type RefObject } from 
 import { PROFILE_ORDER, PROFILES } from '../../app/dictionary'
 import { useAppStore } from '../../app/useAppStore'
 import type { ProfileId } from '../../app/types'
-import { PROFILE_PHOTOS } from './photos'
+import { ProfileArt } from './ProfileArt'
 
 const ADVANCE_MS = 400
 
@@ -49,15 +49,14 @@ export function ProfileStep({
     <>
       <div className="survey__question">
         <h1 className="t-h1" ref={headingRef} tabIndex={-1} id="q-profile">
-          Na jakim etapie życia jesteś?
+          Wybierz swój profil
         </h1>
-        <p className="t-body t-secondary">Od tego zależy, co pokażemy na mapie najpierw.</p>
+        <p className="t-body t-secondary">Dostosujemy pierwsze wyniki na mapie do Twoich potrzeb.</p>
       </div>
 
       <div className="profile-cards" role="radiogroup" aria-labelledby="q-profile">
         {PROFILE_ORDER.map((p, i) => {
           const def = PROFILES[p]
-          const photo = PROFILE_PHOTOS[p]
           const selected = state.profile === p
           return (
             <div
@@ -82,15 +81,10 @@ export function ProfileStep({
               <span className="choice-card__check" aria-hidden>
                 <Check size={14} strokeWidth={3} />
               </span>
-              <span className="profile-card__art">
-                <img src={photo.src} alt="" width={720} height={450} decoding="async" draggable={false} />
-              </span>
+              <ProfileArt profile={p} />
               <span className="profile-card__text">
                 <span className="t-h2 profile-card__title">{def.title}</span>
                 <span className="t-body t-secondary">{def.description}</span>
-                <span className="profile-card__credit">
-                  {photo.place} · {photo.credit}
-                </span>
               </span>
             </div>
           )

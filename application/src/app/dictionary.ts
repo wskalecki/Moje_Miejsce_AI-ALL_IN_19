@@ -24,12 +24,18 @@ export interface ProfileDef {
 
 export const PROFILE_ORDER: readonly ProfileId[] = ['student', 'rodzina', 'senior']
 
+/**
+ * The profile the demo assumes: the survey opens with it selected and the map ranks for it until the
+ * user picks another one (the 3 osiedla with full content are its top 3 — docs/core/mock-iteracja-2.md).
+ */
+export const DEFAULT_PROFILE: ProfileId = 'senior'
+
 export const PROFILES: Record<ProfileId, ProfileDef> = {
   student: {
     id: 'student',
     title: 'Student',
     fragment: 'Studiuję',
-    description: 'Uczelnia, znajomi i miasto po zajęciach.',
+    description: 'Uczelnia, dobra komunikacja i życie nocne.',
     pronoun: 'mnie',
     verb: 'szukam',
     defaultHorizon: 'chwila',
@@ -38,7 +44,7 @@ export const PROFILES: Record<ProfileId, ProfileDef> = {
     id: 'rodzina',
     title: 'Rodzina',
     fragment: 'Mamy rodzinę',
-    description: 'Przedszkole, park i spokojne wieczory.',
+    description: 'Przedszkola, plac zabaw, parki i spokój.',
     pronoun: 'nas',
     verb: 'szukamy',
     defaultHorizon: 'stale',
@@ -46,8 +52,8 @@ export const PROFILES: Record<ProfileId, ProfileDef> = {
   senior: {
     id: 'senior',
     title: 'Senior',
-    fragment: 'Jestem na emeryturze',
-    description: 'Lekarz blisko, zieleń i kultura na co dzień.',
+    fragment: 'Jestem seniorem',
+    description: 'Blisko lekarza, dużo zieleni i cisza.',
     pronoun: 'mnie',
     verb: 'szukam',
     defaultHorizon: 'stale',

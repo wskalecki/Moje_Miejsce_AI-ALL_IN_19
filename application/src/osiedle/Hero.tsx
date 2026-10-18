@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronLeft, ChevronRight, Play } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Play } from 'lucide-react'
 import { useReducedMotion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Osiedle } from '../mock/osiedla'
@@ -13,7 +13,6 @@ interface HeroProps {
   osiedle: Osiedle
   /** Explicit video; `undefined` = try `/osiedla/<slug>/flyover.{webm,mp4}`; `false` = photos only. */
   video?: HeroVideo | false
-  onBack: () => void
 }
 
 const AUTOPLAY_MS = 5000
@@ -27,7 +26,7 @@ type VideoState = 'probing' | 'ok' | 'fail'
  * crossfade gallery (arrows, dots, autoplay every 5 s). The gallery is always mounted under
  * the video, so a missing or broken video never leaves a blank frame.
  */
-export function Hero({ osiedle, video, onBack }: HeroProps) {
+export function Hero({ osiedle, video }: HeroProps) {
   const reduce = useReducedMotion()
   const photos = osiedle.heroImages
   const [index, setIndex] = useState(0)
@@ -136,11 +135,6 @@ export function Hero({ osiedle, video, onBack }: HeroProps) {
 
         <div className="op-hero__scrim" aria-hidden />
       </div>
-
-      <button type="button" className="op-hero__back" onClick={onBack}>
-        <ArrowLeft size={16} strokeWidth={2.4} aria-hidden />
-        <span>Mapa</span>
-      </button>
 
       {photos.length > 1 && (
         <>

@@ -1,7 +1,7 @@
 /**
- * Map side of the cinematic transition (spec 4.4, 5.2, 5.4): night/day basemap palettes,
- * the dim mask with an osiedle-shaped hole, the glowing outline with a running glint,
- * 3D buildings that rise with the camera, sky/fog/light and the route line of the panel.
+ * Map side of the transition into an osiedle (spec 4.4, 5.2): a soft highlight of the osiedle
+ * (light accent tint, gentle glow and a crisp outline with a running glint) on the normal daylight
+ * map, 3D buildings that rise with the camera, sky/fog/light and the route line of the panel.
  *
  * Everything is added once and then only driven with constant paint values + `*-transition`,
  * so the GPU interpolates and no tile is re-laid-out during the shot.
@@ -22,9 +22,9 @@ import { PROFILES } from '../map/types'
 import { AreaLayers } from '../map3d/AreaLayers'
 import { areaHas3d, coverage, loadArea, type Coverage } from '../map3d/areaData'
 import { Director } from './director'
-import { buildingRamp, DIM, GOLDEN, LIGHT, mix, NIGHT, rgba, SKY, type BasemapKey, type BasemapPalette, type SkyPreset } from './palette'
+import { buildingRamp, GOLDEN, LIGHT, mix, rgba, SKY, type BasemapKey, type BasemapPalette, type SkyPreset } from './palette'
 
-export type Look = 'overview' | 'night' | 'day' | 'golden'
+export type Look = 'overview' | 'day' | 'golden'
 
 export interface SceneTarget {
   slug: string
@@ -44,15 +44,18 @@ export interface LookOptions {
   overlayDelay?: number
   /** Overview only: duration (ms) of the buildings and outline fade-out. */
   fadeOut?: number
+  /** Osiedle looks: the 3D buildings fade in after this delay (ms), over `buildingsMs`. */
+  buildingsDelay?: number
+  /** Osiedle looks: fade-in of the 3D buildings (ms); defaults to the look duration. */
+  buildingsMs?: number
 }
 
-const SRC = { dim: 'cin-dim', outline: 'cin-outline', route: 'cin-route' } as const
+const SRC = { tint: 'cin-tint', outline: 'cin-outline', route: 'cin-route' } as const
 export const CIN_LAYER = {
-  dim: 'cin-dim',
-  glowWide: 'cin-glow-wide',
+  tint: 'cin-tint',
   glow: 'cin-glow',
   line: 'cin-line',
-  bld: (slug: string, look: 'night' | 'day') => `cin-bld-${slug}-${look === 'night' ? 'n' : 'd'}`,
+  bld: (slug: string) => `cin-bld-${slug}`,
   routeCasing: 'cin-route-casing',
   route: 'cin-route',
 } as const
@@ -63,6 +66,11 @@ const BUILDING_RADIUS_M = 2600
 const Z_RISE_SPAN = 1.2
 const Z_RISE_TO = 0.3
 const BLD_OPACITY = 0.94
+/** The highlight of the selected osiedle — close to the featured style of the overview map. */
+const HIGHLIGHT = {
+  day: { tint: 0.12, glow: 0.4 },
+  golden: { tint: 0.1, glow: 0.5 },
+} as const
 /** Buildings fade from the "lit" to the ambient ramp over this distance past the lit radius. */
 const LIT_FALLOFF_M = 650
 
@@ -89,25 +97,51 @@ const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] }
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3
 export const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2)
 
+/** CSS-style cubic-bezier(x1, y1, x2, y2) easing (Newton iterations, then bisection). */
+function cubicBezier(x1: number, y1: number, x2: number, y2: number) {
+  const cx = 3 * x1
+  const bx = 3 * (x2 - x1) - cx
+  const ax = 1 - cx - bx
+  const cy = 3 * y1
+  const by = 3 * (y2 - y1) - cy
+  const ay = 1 - cy - by
+  const x = (u: number) => ((ax * u + bx) * u + cx) * u
+  const dx = (u: number) => (3 * ax * u + 2 * bx) * u + cx
+  const y = (u: number) => ((ay * u + by) * u + cy) * u
+  return (t: number) => {
+    if (t <= 0) return 0
+    if (t >= 1) return 1
+    let u = t
+    for (let i = 0; i < 6; i++) {
+      const d = dx(u)
+      if (Math.abs(d) < 1e-6) break
+      u -= (x(u) - t) / d
+    }
+    if (u < 0 || u > 1 || Math.abs(x(u) - t) > 1e-4) {
+      let lo = 0
+      let hi = 1
+      u = t
+      for (let i = 0; i < 24; i++) {
+        if (x(u) < t) lo = u
+        else hi = u
+        u = (lo + hi) / 2
+      }
+    }
+    return y(u)
+  }
+}
+
+/** Camera flights: a quick, gentle start and a long soft deceleration into the landing. */
+export const easeFlight = cubicBezier(0.42, 0, 0.18, 1)
+
 function outerRings(shape: Feature<Polygon | MultiPolygon>): Position[][] {
   const g = shape.geometry
   return g.type === 'Polygon' ? [g.coordinates[0]] : g.coordinates.map((p) => p[0])
 }
 
-function dimMask(shape: Feature<Polygon | MultiPolygon>): Feature<Polygon> {
-  const world: Position[] = [
-    [19.0, 50.8],
-    [23.0, 50.8],
-    [23.0, 53.6],
-    [19.0, 53.6],
-    [19.0, 50.8],
-  ]
-  return { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [world, ...outerRings(shape)] } }
-}
-
 /**
- * Clean an outline ring for the wide glow: MSI rings carry runs of metre-long zigzag segments,
- * which a 34 px blurred line with round joins turns into spikes at close zoom. Drop near-duplicate
+ * Clean an outline ring for the glow: MSI rings carry runs of metre-long zigzag segments,
+ * which a blurred line with round joins turns into spikes at close zoom. Drop near-duplicate
  * vertices, then Douglas–Peucker with a few metres of tolerance.
  */
 function simplifyRing(ring: Position[], tolM = 3): Position[] {
@@ -158,7 +192,7 @@ function outlineLines(shape: Feature<Polygon | MultiPolygon>): FeatureCollection
   }
 }
 
-/** line-gradient that "draws" a line up to `p` with a bright head. */
+/** line-gradient that "draws" a line up to `p` with a bright head (the route of the panel). */
 function drawGradient(p: number, color: string, head: string): ExpressionSpecification {
   if (p >= 0.999) return ['interpolate', ['linear'], ['line-progress'], 0, color, 1, color]
   const a = Math.max(0.0005, p)
@@ -197,10 +231,13 @@ export class CinemaScene {
   private skyRaf = 0
   private lightRaf = 0
   private light: { color: string; intensity: number } = { color: LIGHT.day.color, intensity: LIGHT.day.intensity }
-  private traceRaf = 0
   private routeRaf = 0
   private stopGlint: (() => void) | null = null
+  private lineColorCache: { key: string; colors: { base: string; head: string } } | null = null
   private labelTimer = 0
+  private buildingsTimer = 0
+  /** True once the 3D buildings of the current osiedle are (being) faded in. */
+  private buildingsOn = false
   private handlers: Record<string, boolean> = {}
   private current: { slug: string | null; look: Look } = { slug: null, look: 'overview' }
   /** Look used for the "day" building layers (`golden` on the recording page). */
@@ -232,6 +269,11 @@ export class CinemaScene {
     return this.targets.get(slug)
   }
 
+  /** Colour owner of every target (= the active profile, so the highlight matches the map chrome). */
+  setOwner(owner: ProfileId) {
+    for (const t of this.targets.values()) t.owner = owner
+  }
+
   get state() {
     return this.current
   }
@@ -248,26 +290,16 @@ export class CinemaScene {
 
     this.snapshotBasemap()
 
-    map.addSource(SRC.dim, { type: 'geojson', data: EMPTY })
+    map.addSource(SRC.tint, { type: 'geojson', data: EMPTY })
     map.addSource(SRC.outline, { type: 'geojson', data: EMPTY, lineMetrics: true })
     map.addSource(SRC.route, { type: 'geojson', data: EMPTY, lineMetrics: true })
 
     map.addLayer(
       {
-        id: CIN_LAYER.dim,
+        id: CIN_LAYER.tint,
         type: 'fill',
-        source: SRC.dim,
-        paint: { 'fill-color': DIM.night.color, 'fill-opacity': 0, 'fill-antialias': false },
-      },
-      firstSymbol,
-    )
-    map.addLayer(
-      {
-        id: CIN_LAYER.glowWide,
-        type: 'line',
-        source: SRC.outline,
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#7C5CFF', 'line-width': 34, 'line-blur': 26, 'line-opacity': 0 },
+        source: SRC.tint,
+        paint: { 'fill-color': '#7C5CFF', 'fill-opacity': 0, 'fill-antialias': false },
       },
       firstSymbol,
     )
@@ -277,7 +309,7 @@ export class CinemaScene {
         type: 'line',
         source: SRC.outline,
         layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#B3A2FF', 'line-width': 9, 'line-blur': 5, 'line-opacity': 0 },
+        paint: { 'line-color': '#7C5CFF', 'line-width': 12, 'line-blur': 7, 'line-opacity': 0 },
       },
       firstSymbol,
     )
@@ -287,15 +319,15 @@ export class CinemaScene {
         type: 'line',
         source: SRC.outline,
         layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-width': 2.4, 'line-opacity': 0, 'line-gradient': drawGradient(1, '#ffffff', '#ffffff') },
+        paint: { 'line-width': 2.2, 'line-opacity': 0, 'line-gradient': drawGradient(1, '#ffffff', '#ffffff') },
       },
       firstSymbol,
     )
 
-    // 3D buildings: a night and a day layer per featured osiedle, shown only through their opacity.
-    // They stay `visible` for good: toggling `visibility` reloads the whole basemap source and empties
-    // MapLibre's out-of-view tile cache (→ a grey map on the next visit). `minzoom` 13 keeps them out of
-    // the overview, the radial filter keeps the buckets small. Day ↔ night is an opacity crossfade.
+    // 3D buildings: one layer per featured osiedle, shown only through its opacity. It stays `visible`
+    // for good: toggling `visibility` reloads the whole basemap source and empties MapLibre's
+    // out-of-view tile cache (→ a grey map on the next visit). `minzoom` 13 keeps it out of the
+    // overview, the radial filter keeps the buckets small.
     for (const t of this.targets.values()) {
       const near: FilterSpecification = [
         'all',
@@ -309,7 +341,7 @@ export class CinemaScene {
       const zFull = Math.min(t.zoom - Z_RISE_TO, t.riseZoom ?? Infinity)
       const zFlat = zFull - Z_RISE_SPAN
       this.rise.set(t.slug, { zFlat, zFull, near })
-      // our own OSM buildings take over inside the coverage in daylight: the basemap's day layer skips it
+      // our own OSM buildings take over inside the coverage: the basemap layer skips it
       const cov = this.osm3d && areaHas3d(t.msiId) ? coverage(t.shape, t.center, BUILDING_RADIUS_M) : null
       if (cov) this.cover.set(t.slug, cov)
       const height = (prop: 'render_height' | 'render_min_height', fallback: number): ExpressionSpecification => [
@@ -321,28 +353,25 @@ export class CinemaScene {
         zFull,
         ['coalesce', ['get', prop], fallback],
       ]
-      for (const look of ['night', 'day'] as const) {
-        const ramp = buildingRamp(look === 'day' ? this.dayLook : 'night', t.owner)
-        const lit = (pair: readonly [string, string]) => pair[1]
-        map.addLayer(
-          {
-            id: CIN_LAYER.bld(t.slug, look),
-            type: 'fill-extrusion',
-            source: 'openmaptiles',
-            'source-layer': 'building',
-            minzoom: 13,
-            filter: look === 'day' && cov ? (['all', near, ['>', ['distance', cov.polygon], 0]] as FilterSpecification) : near,
-            paint: {
-              'fill-extrusion-color': ['interpolate', ['linear'], dist, rIn, lit(ramp.inside), rIn + LIT_FALLOFF_M, lit(ramp.outside)],
-              'fill-extrusion-height': height('render_height', 8),
-              'fill-extrusion-base': height('render_min_height', 0),
-              'fill-extrusion-opacity': 0,
-              'fill-extrusion-vertical-gradient': true,
-            },
+      const ramp = buildingRamp(this.dayLook, t.owner)
+      map.addLayer(
+        {
+          id: CIN_LAYER.bld(t.slug),
+          type: 'fill-extrusion',
+          source: 'openmaptiles',
+          'source-layer': 'building',
+          minzoom: 13,
+          filter: cov ? (['all', near, ['>', ['distance', cov.polygon], 0]] as FilterSpecification) : near,
+          paint: {
+            'fill-extrusion-color': ['interpolate', ['linear'], dist, rIn, ramp.inside[1], rIn + LIT_FALLOFF_M, ramp.outside[1]],
+            'fill-extrusion-height': height('render_height', 8),
+            'fill-extrusion-base': height('render_min_height', 0),
+            'fill-extrusion-opacity': 0,
+            'fill-extrusion-vertical-gradient': true,
           },
-          firstSymbol,
-        )
-      }
+        },
+        firstSymbol,
+      )
     }
 
     map.addLayer(
@@ -396,7 +425,7 @@ export class CinemaScene {
       // no files (or no layers) after all: give the basemap its buildings back inside the coverage
       const fallback = () => {
         this.cover.delete(slug)
-        if (this.map.getLayer(CIN_LAYER.bld(slug, 'day'))) this.map.setFilter(CIN_LAYER.bld(slug, 'day'), rise.near)
+        if (this.map.getLayer(CIN_LAYER.bld(slug))) this.map.setFilter(CIN_LAYER.bld(slug), rise.near)
         this.areaLoads.delete(slug)
         return null
       }
@@ -408,8 +437,8 @@ export class CinemaScene {
         return fallback()
       }
       this.areas.set(slug, a)
-      const on = this.current.slug === slug && this.current.look !== 'overview' && this.current.look !== 'night'
-      a.setVisible(on, on ? 700 : 0)
+      const on = this.current.slug === slug && this.current.look !== 'overview' && this.buildingsOn
+      a.setVisible(on, on ? 500 : 0)
       return a
     })
     this.areaLoads.set(slug, p)
@@ -472,7 +501,7 @@ export class CinemaScene {
    * `labels: 'only'` touches the labels alone.
    */
   private applyBasemap(look: Look, duration: number, opts: { labels?: 'hide' | 'only'; labelDuration?: number } = {}) {
-    const pal: BasemapPalette | null = look === 'night' ? NIGHT : look === 'golden' ? GOLDEN : null
+    const pal: BasemapPalette | null = look === 'golden' ? GOLDEN : null
     for (const e of this.basemap) {
       const isLabel = e.key === 'label' || e.key === 'halo'
       if (opts.labels === 'only' && !isLabel) continue
@@ -559,8 +588,8 @@ export class CinemaScene {
   // ---------------------------------------------------------------- looks
 
   /**
-   * Switch the whole map look. `overview` restores the app's day map; `night` is the dramatic
-   * transition look; `day` is the daylight 3D look under the panel; `golden` is for the recordings.
+   * Switch the map look. `overview` restores the app's map; `day` is the daylight map with the
+   * highlighted osiedle and its 3D buildings under the panel; `golden` is for the recordings.
    */
   setLook(look: Look, slug: string | null, duration: number, opts: LookOptions = {}) {
     const map = this.map
@@ -568,68 +597,65 @@ export class CinemaScene {
     const prevSlug = this.current.slug
     this.current = { slug: look === 'overview' ? null : (slug ?? prevSlug), look }
     window.clearTimeout(this.labelTimer)
+    window.clearTimeout(this.buildingsTimer)
 
     const owner = (this.current.slug && this.targets.get(this.current.slug)?.owner) || t?.owner || 'student'
     const a = ACCENTS[owner]
     if (t && slug !== prevSlug) {
-      ;(map.getSource(SRC.dim) as GeoJSONSource).setData(dimMask(t.shape))
+      ;(map.getSource(SRC.tint) as GeoJSONSource).setData(t.shape)
       ;(map.getSource(SRC.outline) as GeoJSONSource).setData(outlineLines(t.shape))
-      // the outline is invisible now: take the owner's colours at once, so the glow never starts in
-      // another osiedle's (or the default violet) colour
-      this.paint(CIN_LAYER.glowWide, 'line-color', a.accent, 0)
-      this.paint(CIN_LAYER.glow, 'line-color', look === 'night' ? a.mid : a.accent, 0)
+      // the highlight is invisible now: take the owner's colours at once, so it never fades in
+      // in another osiedle's (or the default violet) colour
+      this.paint(CIN_LAYER.tint, 'fill-color', a.accent, 0)
+      this.paint(CIN_LAYER.glow, 'line-color', a.accent, 0)
     }
 
+    const fade = look === 'overview' ? (opts.fadeOut ?? duration) : duration
     if (look === 'overview') {
       // way back: labels and overlays stay away while the camera climbs (no double-exposed glyphs
       // from the zoom crossfade), then return late
       const delay = opts.overlayDelay ?? Math.round(duration * 0.7)
-      const fade = opts.fadeOut ?? duration
       this.applyBasemap('overview', duration, { labels: 'hide', labelDuration: Math.min(250, fade) })
       this.labelTimer = window.setTimeout(() => this.applyBasemap('overview', 600, { labels: 'only' }), delay)
-      this.restoreOverlays(Math.max(500, duration - delay), delay)
-    } else {
-      this.applyBasemap(look, duration)
-      this.hideOverlays(Math.min(duration, 700))
-    }
-
-    // dim mask
-    const dim = look === 'overview' ? null : DIM[look]
-    const fade = look === 'overview' ? (opts.fadeOut ?? duration) : duration
-    if (dim) this.paint(CIN_LAYER.dim, 'fill-color', dim.color, duration)
-    this.paint(CIN_LAYER.dim, 'fill-opacity', dim ? dim.opacity : 0, fade)
-
-    // outline
-    if (look === 'overview') {
-      for (const id of [CIN_LAYER.glowWide, CIN_LAYER.glow, CIN_LAYER.line]) this.paint(id, 'line-opacity', 0, fade)
+      this.restoreOverlays(Math.max(400, duration - delay), delay)
+      this.paint(CIN_LAYER.tint, 'fill-opacity', 0, fade)
+      for (const id of [CIN_LAYER.glow, CIN_LAYER.line]) this.paint(id, 'line-opacity', 0, fade)
       this.stopGlint?.()
       this.stopGlint = null
     } else {
-      const night = look === 'night'
-      this.paint(CIN_LAYER.glowWide, 'line-color', a.accent, duration)
-      this.paint(CIN_LAYER.glowWide, 'line-opacity', night ? 0.55 : 0.32, duration)
-      this.paint(CIN_LAYER.glow, 'line-color', night ? a.mid : a.accent, duration)
-      this.paint(CIN_LAYER.glow, 'line-opacity', night ? 0.85 : 0.55, duration)
-      this.paint(CIN_LAYER.line, 'line-opacity', 1, Math.min(400, duration))
+      this.applyBasemap(look, duration)
+      this.hideOverlays(Math.min(duration, 700))
+      const h = HIGHLIGHT[look]
+      this.paint(CIN_LAYER.tint, 'fill-color', a.accent, duration)
+      this.paint(CIN_LAYER.tint, 'fill-opacity', h.tint, duration)
+      this.paint(CIN_LAYER.glow, 'line-color', a.accent, duration)
+      this.paint(CIN_LAYER.glow, 'line-opacity', h.glow, duration)
+      this.paint(CIN_LAYER.line, 'line-opacity', 1, duration)
     }
 
-    // buildings (opacity only — see install)
+    // buildings (opacity only — see install); heights follow the zoom, so they rise near the landing
     const shown = look === 'overview' ? null : this.current.slug
-    for (const tg of this.targets.values()) {
-      const on = tg.slug === shown
-      this.paint(CIN_LAYER.bld(tg.slug, 'night'), 'fill-extrusion-opacity', on && look === 'night' ? BLD_OPACITY : 0, fade)
-      this.paint(CIN_LAYER.bld(tg.slug, 'day'), 'fill-extrusion-opacity', on && look !== 'night' ? BLD_OPACITY : 0, fade)
+    const showBuildings = (ms: number) => {
+      this.buildingsOn = shown !== null
+      for (const tg of this.targets.values()) this.paint(CIN_LAYER.bld(tg.slug), 'fill-extrusion-opacity', tg.slug === shown ? BLD_OPACITY : 0, ms)
+      for (const [s, area] of this.areas) area.setVisible(s === shown, ms)
     }
-
-    // OSM 3D (daylight only; the night shot keeps the basemap silhouettes)
-    for (const [s, a] of this.areas) a.setVisible(s === shown && look !== 'night', look === 'night' ? Math.min(600, duration) : fade)
+    const bDelay = shown ? (opts.buildingsDelay ?? 0) : 0
+    const bMs = shown ? (opts.buildingsMs ?? duration) : fade
+    if (bDelay > 0) {
+      // the other osiedla's buildings go at once; this one's wait for the end of the flight
+      for (const tg of this.targets.values()) if (tg.slug !== shown) this.paint(CIN_LAYER.bld(tg.slug), 'fill-extrusion-opacity', 0, fade)
+      for (const [s, area] of this.areas) if (s !== shown) area.setVisible(false, fade)
+      this.buildingsOn = false
+      this.buildingsTimer = window.setTimeout(() => showBuildings(bMs), bDelay)
+    } else showBuildings(bMs)
 
     // sky + light
     this.tweenSky(look === 'overview' ? SKY.day : SKY[look], duration)
     this.tweenLight(look === 'overview' ? 'day' : look, duration)
   }
 
-  private tweenLight(look: 'day' | 'night' | 'golden', duration: number) {
+  private tweenLight(look: 'day' | 'golden', duration: number) {
     cancelAnimationFrame(this.lightRaf)
     const base = LIGHT[look]
     const to = { color: base.color, intensity: base.intensity }
@@ -651,45 +677,33 @@ export class CinemaScene {
   /** Line colour used by the outline core for the current look. */
   private lineColors(): { base: string; head: string } {
     const owner = (this.current.slug && this.targets.get(this.current.slug)?.owner) || 'student'
+    // read by the glint ~30× a second: re-mix only when the owner or the look changed
+    const key = `${owner}|${this.current.look}`
+    if (this.lineColorCache?.key === key) return this.lineColorCache.colors
     const a = ACCENTS[owner]
-    if (this.current.look === 'night') return { base: mix(a.mid, '#ffffff', 0.35), head: '#ffffff' }
-    if (this.current.look === 'golden') return { base: mix(a.accent, '#ffffff', 0.25), head: '#ffffff' }
-    return { base: a.deep, head: mix(a.accent, '#ffffff', 0.7) }
+    const colors =
+      this.current.look === 'golden' ? { base: mix(a.accent, '#ffffff', 0.25), head: '#ffffff' } : { base: a.deep, head: mix(a.accent, '#ffffff', 0.7) }
+    this.lineColorCache = { key, colors }
+    return colors
   }
 
-  /** Draw the outline around the osiedle (line-gradient sweep), then keep a slow glint running on it. */
-  traceOutline(duration: number, opts: { glint?: boolean } = {}) {
-    cancelAnimationFrame(this.traceRaf)
+  /** Show the crisp outline of the osiedle, then keep a slow glint running along it. */
+  startOutline(opts: { glint?: boolean } = {}) {
     this.stopGlint?.()
     this.stopGlint = null
-    const startGlint = () => {
-      if (opts.glint === false) return
-      let c = 0
-      let acc = 0
-      this.stopGlint = this.director.addTicker((_now, dt) => {
-        c = (c + dt * 0.055) % 1
-        acc += dt
-        if (acc < 1 / 30) return
-        acc = 0
-        const { base, head } = this.lineColors()
-        this.map.setPaintProperty(CIN_LAYER.line, 'line-gradient', glintGradient(c, base, head))
-      })
-    }
-    if (duration <= 0) {
-      const { base } = this.lineColors()
-      this.map.setPaintProperty(CIN_LAYER.line, 'line-gradient', drawGradient(1, base, base))
-      startGlint()
-      return
-    }
-    const start = performance.now()
-    const step = (now: number) => {
-      const t = Math.min(1, (now - start) / duration)
-      const { base, head } = this.lineColors()
-      this.map.setPaintProperty(CIN_LAYER.line, 'line-gradient', drawGradient(easeInOutCubic(t), base, head))
-      if (t < 1) this.traceRaf = requestAnimationFrame(step)
-      else startGlint()
-    }
-    this.traceRaf = requestAnimationFrame(step)
+    const { base } = this.lineColors()
+    this.map.setPaintProperty(CIN_LAYER.line, 'line-gradient', drawGradient(1, base, base))
+    if (opts.glint === false) return
+    let c = 0
+    let acc = 0
+    this.stopGlint = this.director.addTicker((_now, dt) => {
+      c = (c + dt * 0.055) % 1
+      acc += dt
+      if (acc < 1 / 30) return
+      acc = 0
+      const { base: b, head } = this.lineColors()
+      this.map.setPaintProperty(CIN_LAYER.line, 'line-gradient', glintGradient(c, b, head))
+    })
   }
 
   // ---------------------------------------------------------------- route
@@ -709,9 +723,10 @@ export class CinemaScene {
     this.paint(CIN_LAYER.routeCasing, 'line-opacity', 0.95, 200)
     const start = performance.now()
     const dur = 900
+    const head = rgba(color, 1)
     const step = (now: number) => {
       const t = Math.min(1, (now - start) / dur)
-      this.map.setPaintProperty(CIN_LAYER.route, 'line-gradient', drawGradient(easeOutCubic(t), color, rgba(color, 1)))
+      this.map.setPaintProperty(CIN_LAYER.route, 'line-gradient', drawGradient(easeOutCubic(t), color, head))
       if (t < 1) this.routeRaf = requestAnimationFrame(step)
     }
     this.map.setPaintProperty(CIN_LAYER.route, 'line-gradient', drawGradient(0, color, color))
@@ -746,9 +761,9 @@ export class CinemaScene {
 
   destroy() {
     window.clearTimeout(this.labelTimer)
+    window.clearTimeout(this.buildingsTimer)
     cancelAnimationFrame(this.skyRaf)
     cancelAnimationFrame(this.lightRaf)
-    cancelAnimationFrame(this.traceRaf)
     cancelAnimationFrame(this.routeRaf)
     this.director.destroy()
     this.destroyed = true

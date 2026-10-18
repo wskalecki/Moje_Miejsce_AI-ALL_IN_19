@@ -1,11 +1,10 @@
-import { ArrowLeft, Medal } from 'lucide-react'
+import { ArrowLeft, Crown } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { Badge } from '../components/ui/Badge'
-import { DEFAULT_PRIORITIES, PROFILES } from '../app/dictionary'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { DEFAULT_PRIORITIES } from '../app/dictionary'
 import type { CategoryId, Horizon, ProfileId } from '../app/types'
+import type { PlaceFit } from '../cinematic/panelLoader'
 import type { Highlight, LngLat, Osiedle, Route, TimelineEvent, TravelMode } from '../mock/osiedla'
-import { AiSummary } from './AiSummary'
 import { CategoryBars } from './CategoryBars'
 import { Commute } from './Commute'
 import { Credits } from './Credits'
@@ -14,19 +13,21 @@ import { Places } from './Places'
 import { Prices } from './Prices'
 import { Ring } from './Ring'
 import { Routes } from './Routes'
-import { EASE_EMPHASIZED, defaultMode, useSeenOnce } from './shared'
-import { Timeline, TimelineTeaser } from './Timeline'
-import { FIRST_YEAR, eventsUpTo, matchAtYear, statDeltasAtYear, statsAtYear, toTimelineYear, type TimelineYear } from './timelineMath'
+import { EASE_EMPHASIZED, defaultMode, useInView } from './shared'
+import { Timeline } from './Timeline'
+import { FIRST_YEAR, eventsUpTo, matchAtYear, statDeltasAtYear, statsAtYear, toStop, type TimelineYear } from './timelineMath'
 import { TrafficChart } from './TrafficChart'
 import './osiedle.css'
 
 export interface OsiedlePanelProps {
   osiedle: Osiedle
+  /** Rank and match for the current weights — the numbers of the osiedle's map pill. */
+  fit?: PlaceFit | null
   profile: ProfileId
   horizon: Horizon
-  /** Survey step 2 picks (max 4); defaults to the profile's default priorities. */
+  /** Categories that count in the score ("Liczy się dla mnie" of the map filters); defaults to the profile's. */
   priorities?: CategoryId[]
-  /** `overlay` = right-hand glass panel over the 3D map (spec §4.5); `page` = standalone full page. */
+  /** `overlay` = place card in the map's left column over the 3D map; `page` = standalone full page. */
   layout?: 'overlay' | 'page'
   onBack: () => void
   /** Highlight clicked → fly the map there. */
@@ -35,12 +36,10 @@ export interface OsiedlePanelProps {
   onHoverPlace?: (id: string | null) => void
   /** Destination or mode picked → draw the route; null when the panel closes. */
   onShowRoute?: (route: Route | null, mode?: TravelMode) => void
-  /** Controlled timeline year (store `timelineYear`); uncontrolled (starts at 2026) when omitted. */
+  /** Controlled timeline year (store `timelineYear`, snapped to its 5-year stop); uncontrolled (starts at today) when omitted. */
   timelineYear?: number
-  /** Timeline year changed (and once when the timeline opens) with the events of year ≤ Y, for map markers. */
+  /** Timeline stop changed (and once when the panel opens) with the dated events of year ≤ Y, for map markers. */
   onTimelineYear?: (year: TimelineYear, events: TimelineEvent[]) => void
-  /** "Pokaż prognozę" on the `chwila` teaser asks to switch the horizon to `stale`. */
-  onHorizonChange?: (horizon: Horizon) => void
   /** Highlight id currently emphasised from the map side (marker hover). */
   activePlaceId?: string | null
   /** Explicit hero video; default probes `/osiedla/<slug>/flyover.{webm,mp4}`; `false` = photos only. */
@@ -53,11 +52,24 @@ const MSI_NAMES: Record<string, string> = {
   'blonia-wilanowskie': 'Błonia Wilanowskie',
 }
 
+// Sections re-render only when their own props change — not on every pin hover / route / store
+// update that re-renders the panel (each is pure in its props and its own state).
+const HeroSection = memo(Hero)
+const CategoryBarsSection = memo(CategoryBars)
+const PlacesSection = memo(Places)
+const RoutesSection = memo(Routes)
+const CommuteSection = memo(Commute)
+const TrafficSection = memo(TrafficChart)
+const PricesSection = memo(Prices)
+const TimelineSection = memo(Timeline)
+const CreditsSection = memo(Credits)
+
 const DEMO_NOTE = 'Wersja demonstracyjna — liczby policzone z otwartych danych bez ręcznych korekt; szacunki są oznaczone.'
 
 /**
- * Osiedle detail panel (spec §4.5). Sections, in order: hero, name + match, AI summary,
- * category bars, places, routes, commute, traffic, prices, timeline 2026 → 2030, credits + back.
+ * Osiedle detail panel (spec §4.5) in the map's card language: a fixed head (back, name, rank,
+ * match ring) over a scrolling body — photos, key numbers, category bars, places, routes, commute,
+ * traffic, prices, timeline dziś → 2045 (5-year stops), credits.
  */
 export function OsiedlePanel(props: OsiedlePanelProps) {
   // Keyed by slug: switching osiedle starts from a clean state (gallery, route, scroll, reveal).
@@ -66,6 +78,7 @@ export function OsiedlePanel(props: OsiedlePanelProps) {
 
 function PanelBody({
   osiedle,
+  fit,
   profile,
   horizon,
   priorities,
@@ -78,65 +91,53 @@ function PanelBody({
   heroVideo,
   timelineYear,
   onTimelineYear,
-  onHorizonChange,
   className,
 }: OsiedlePanelProps) {
   const reduce = useReducedMotion()
   const scrollRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
-  const headRef = useRef<HTMLDivElement>(null)
-  const prios = (priorities?.length ? priorities : [...DEFAULT_PRIORITIES[profile]]).slice(0, 4)
-  // Real rank among the 143 osiedla (default weights of the profile); the crown only for a true #1.
-  const rank = osiedle.rank?.[profile]
+  // by content: the caller passes a fresh copy of the same list on every render
+  const prioKey = priorities?.length ? priorities.join(',') : ''
+  const prios = useMemo(
+    () => (prioKey ? (prioKey.split(',') as CategoryId[]) : [...DEFAULT_PRIORITIES[profile]]),
+    [prioKey, profile],
+  )
+  // The map's live ranking (same weights as the pills); the mock snapshot only without a map (dev harness).
+  const rank = fit?.rank ?? osiedle.rank?.[profile]
+  const total = fit?.total ?? 143
+  const todayMatch = fit?.match ?? osiedle.match[profile]
   const isBest = rank === 1
   const msiName = MSI_NAMES[osiedle.msiId]
 
-  // Timeline (spec §4.6): full for `stale`; for `chwila` a teaser whose "Pokaż prognozę" switches the
-  // horizon to `stale` (store) and opens the timeline in place right away, even before the prop flips.
-  const [expanded, setExpanded] = useState(false)
-  const timelineOn = horizon === 'stale' || expanded
-  const focusTimeline = useRef(false)
-  const expandTimeline = () => {
-    onHorizonChange?.('stale')
-    setExpanded(true)
-    focusTimeline.current = true
-  }
-  // The button disappears with the teaser: move focus to the timeline heading and bring it into view.
-  useEffect(() => {
-    if (!timelineOn || !focusTimeline.current) return
-    focusTimeline.current = false
-    const head = document.getElementById('op-tl-title')
-    head?.focus({ preventScroll: true })
-    head?.closest('section')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
-  }, [timelineOn, reduce])
-  const [ownYear, setOwnYear] = useState<TimelineYear>(toTimelineYear(timelineYear ?? FIRST_YEAR))
-  const year = timelineYear != null ? toTimelineYear(timelineYear) : ownYear
+  // Timeline (spec §4.6): the same full timeline for both horizons; the year snaps to its 5-year stop.
+  const [ownYear, setOwnYear] = useState<TimelineYear>(toStop(timelineYear ?? FIRST_YEAR))
+  const year = timelineYear != null ? toStop(timelineYear) : ownYear
   const onYearRef = useRef(onTimelineYear)
   const setYear = useCallback((y: TimelineYear) => {
     setOwnYear(y)
     onYearRef.current?.(y, eventsUpTo(osiedle, y))
   }, [osiedle])
-  // Tell the map once when the timeline opens (markers for year ≤ current).
+  // Tell the map once when the panel opens (markers for year ≤ current).
   useEffect(() => {
-    if (timelineOn) onYearRef.current?.(year, eventsUpTo(osiedle, year))
+    onYearRef.current?.(year, eventsUpTo(osiedle, year))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timelineOn])
-  const values = timelineOn ? statsAtYear(osiedle, year) : osiedle.stats
-  const deltas = timelineOn ? statDeltasAtYear(osiedle, year) : undefined
-  const match = timelineOn ? matchAtYear(osiedle, profile, year) : osiedle.match[profile]
+  }, [])
+  const values = useMemo(() => statsAtYear(osiedle, year), [osiedle, year])
+  const deltas = useMemo(() => statDeltasAtYear(osiedle, year), [osiedle, year])
+  const match = matchAtYear(osiedle, profile, year, todayMatch)
 
-  // Places
-  const [placeId, setPlaceId] = useState<string | null>(null)
-  const shownPlaceId = activePlaceId ?? placeId
-  const selectPlace = (p: Highlight) => {
-    setPlaceId(p.id)
-    onFocusPlace?.(p.coord, p)
-  }
-
-  // Routes — first destination selected by default, drawn once the section scrolls into view.
+  // Routes — first destination selected by default. The route is on the map only while the section is
+  // in view: scrolling away (or picking a place) clears it and the camera returns to the osiedle.
   const [routeId, setRouteId] = useState(osiedle.routes[0]?.id ?? '')
   const [mode, setMode] = useState<TravelMode>(() => (osiedle.routes[0] ? defaultMode(osiedle.routes[0]) : 'pieszo'))
-  const [routesRef, routesSeen] = useSeenOnce<HTMLDivElement>(0.4)
+  const [routesRef, routesInView] = useInView<HTMLDivElement>(scrollRef)
+  // a place picked while the routes are in view takes the map over until the user comes back to them
+  const [routeDismissed, setRouteDismissed] = useState(false)
+  const [wasInView, setWasInView] = useState(routesInView)
+  if (wasInView !== routesInView) {
+    setWasInView(routesInView)
+    if (!routesInView) setRouteDismissed(false)
+  }
   const showRoute = useRef(onShowRoute)
   const back = useRef(onBack)
   useEffect(() => {
@@ -145,14 +146,52 @@ function PanelBody({
     onYearRef.current = onTimelineYear
   })
   const route = osiedle.routes.find((r) => r.id === routeId) ?? osiedle.routes[0]
+  const routeOn = routesInView && !routeDismissed && !!route
+  const routeShown = useRef(false)
   useEffect(() => {
-    if (routesSeen && route) showRoute.current?.(route, mode)
-  }, [routesSeen, route, mode])
+    if (!routeOn) {
+      if (routeShown.current) {
+        routeShown.current = false
+        showRoute.current?.(null)
+      }
+      return
+    }
+    // a short wait on the way in, so scrolling past the section doesn't send the camera off and back
+    const t = window.setTimeout(
+      () => {
+        routeShown.current = true
+        showRoute.current?.(route, mode)
+      },
+      routeShown.current ? 0 : 250,
+    )
+    return () => window.clearTimeout(t)
+  }, [routeOn, route, mode])
   useEffect(() => () => showRoute.current?.(null), [])
-  const selectRoute = (r: Route) => {
+  const selectRoute = useCallback((r: Route) => {
+    setRouteDismissed(false)
     setRouteId(r.id)
     setMode((m) => (r.minutes[m] != null ? m : defaultMode(r)))
-  }
+  }, [])
+  const selectMode = useCallback((m: TravelMode) => {
+    setRouteDismissed(false)
+    setMode(m)
+  }, [])
+
+  // Places — a place picked while a route is shown clears the route first, then the camera flies there.
+  const [placeId, setPlaceId] = useState<string | null>(null)
+  const shownPlaceId = activePlaceId ?? placeId
+  const selectPlace = useCallback(
+    (p: Highlight) => {
+      setPlaceId(p.id)
+      setRouteDismissed(true)
+      if (routeShown.current) {
+        routeShown.current = false
+        showRoute.current?.(null)
+      }
+      onFocusPlace?.(p.coord, p)
+    },
+    [onFocusPlace],
+  )
 
   // Focus the heading on open (spec §10), Esc goes back.
   useEffect(() => {
@@ -166,119 +205,63 @@ function PanelBody({
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  // Sticky compact header: visible once the name block scrolls away; names the current section.
-  const [compact, setCompact] = useState(false)
-  const [section, setSection] = useState('')
-  useEffect(() => {
-    const root = scrollRef.current
-    const head = headRef.current
-    if (!root || !head) return
-    const headIo = new IntersectionObserver(([e]) => setCompact(!e.isIntersecting), { root, threshold: 0, rootMargin: '-56px 0px 0px 0px' })
-    headIo.observe(head)
-    // Current section = the last one whose top has passed under the sticky bar (rAF-throttled).
-    let raf = 0
-    const pick = () => {
-      raf = 0
-      const line = root.getBoundingClientRect().top + 80
-      let name = ''
-      root.querySelectorAll<HTMLElement>('[data-section]').forEach((el) => {
-        if (el.getBoundingClientRect().top <= line) name = el.dataset.section ?? ''
-      })
-      setSection(name)
-    }
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(pick)
-    }
-    root.addEventListener('scroll', onScroll, { passive: true })
-    return () => {
-      headIo.disconnect()
-      root.removeEventListener('scroll', onScroll)
-      cancelAnimationFrame(raf)
-    }
-  }, [osiedle.slug])
-
-  const scrollTop = useCallback(() => {
-    scrollRef.current?.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' })
-  }, [reduce])
-
-  const enterFrom = layout === 'overlay' ? { x: 48, opacity: 0 } : { y: 24, opacity: 0 }
+  const enterFrom = layout === 'overlay' ? { x: -32, opacity: 0 } : { y: 24, opacity: 0 }
 
   return (
     <motion.aside
-      className={['op', `op--${layout}`, `accent-${profile}`, className].filter(Boolean).join(' ')}
+      className={['op', `op--${layout}`, layout === 'overlay' ? 'chrome-card' : '', `accent-${profile}`, className].filter(Boolean).join(' ')}
       aria-labelledby="op-title"
       initial={reduce ? { opacity: 0 } : enterFrom}
       animate={{ x: 0, y: 0, opacity: 1 }}
-      exit={reduce ? { opacity: 0 } : { ...enterFrom, transition: { duration: 0.3, ease: EASE_EMPHASIZED } }}
-      transition={{ duration: reduce ? 0.2 : 0.5, ease: EASE_EMPHASIZED }}
+      exit={reduce ? { opacity: 0 } : { ...enterFrom, transition: { duration: 0.25, ease: EASE_EMPHASIZED } }}
+      transition={{ duration: reduce ? 0.2 : 0.32, ease: EASE_EMPHASIZED }}
     >
+      <header className="op-head">
+        <button type="button" className="op-head__back" onClick={onBack} aria-label="Wróć do mapy" title="Wróć do mapy">
+          <ArrowLeft size={17} strokeWidth={2.3} aria-hidden />
+        </button>
+        <div className="op-head__text">
+          <h1 id="op-title" ref={titleRef} tabIndex={-1} className="op-head__name chrome-title">
+            {osiedle.name}
+          </h1>
+          <p className="op-head__district">
+            {osiedle.district}
+            {msiName && msiName !== osiedle.name && <> · obszar {msiName}</>}
+          </p>
+          {isBest ? (
+            <p className="op-head__rank is-best">
+              <Crown size={12} strokeWidth={2.4} aria-hidden />
+              Najlepsze dopasowanie
+            </p>
+          ) : rank != null ? (
+            <p className="op-head__rank tabular">
+              {rank}. miejsce spośród {total} osiedli
+            </p>
+          ) : null}
+        </div>
+        <span className="op-head__match">
+          <Ring value={match} size={44} duration={700} />
+        </span>
+      </header>
+
       <div ref={scrollRef} className="op__scroll">
-        <div className="op-sticky" aria-hidden={!compact}>
-          <div className={`op-sticky__bar${compact ? ' is-on' : ''}`}>
-            <button type="button" className="op-sticky__back" onClick={onBack} tabIndex={compact ? 0 : -1} aria-label="Wróć do mapy">
-              <ArrowLeft size={17} strokeWidth={2.4} aria-hidden />
-            </button>
-            <button type="button" className="op-sticky__title" onClick={scrollTop} tabIndex={compact ? 0 : -1}>
-              <span className="op-sticky__name">{osiedle.name}</span>
-              {section && <span className="op-sticky__section">{section}</span>}
-            </button>
-            <span className="op-sticky__match">
-              <Ring value={match} size={34} duration={0} />
-            </span>
-          </div>
-        </div>
+        <HeroSection osiedle={osiedle} video={heroVideo} />
+        {osiedle.tagline && <p className="op-lead">{osiedle.tagline}</p>}
 
-        <Hero osiedle={osiedle} video={heroVideo} onBack={onBack} />
-
-        <div ref={headRef} className="op-head">
-          <div className="op-head__text">
-            <p className="op-head__district">
-              {osiedle.district}
-              {msiName && msiName !== osiedle.name && <> · obszar MSI {msiName}</>}
-            </p>
-            <h1 id="op-title" ref={titleRef} tabIndex={-1} className="op-head__name">
-              {osiedle.name}
-            </h1>
-            <p className="op-head__tagline">{osiedle.tagline}</p>
-            {isBest ? (
-              <Badge className="op-head__badge" />
-            ) : rank != null && rank <= 10 ? (
-              <Badge className="op-head__badge" icon={Medal}>
-                {rank}. miejsce na 143 osiedla
-              </Badge>
-            ) : null}
-          </div>
-          <div className="op-head__match">
-            <Ring value={match} size={88} duration={900} />
-            <p>
-              dopasowania dla profilu <strong>{PROFILES[profile].title}</strong>
-            </p>
-          </div>
-        </div>
-
-        <AiSummary key={osiedle.slug} slug={osiedle.slug} text={osiedle.aiSummary} />
-        <CategoryBars profile={profile} priorities={prios} values={values} deltas={deltas} />
-        <Places places={osiedle.highlights} activeId={shownPlaceId} onSelect={selectPlace} onHover={onHoverPlace} hasMap={!!onFocusPlace} />
+        <CategoryBarsSection profile={profile} priorities={prios} values={values} deltas={deltas} />
+        <PlacesSection places={osiedle.highlights} activeId={shownPlaceId} onSelect={selectPlace} onHover={onHoverPlace} hasMap={!!onFocusPlace} />
         {osiedle.routes.length > 0 && (
           <div ref={routesRef}>
-            <Routes routes={osiedle.routes} selectedId={route?.id ?? ''} mode={mode} onSelect={selectRoute} onMode={setMode} />
+            <RoutesSection routes={osiedle.routes} selectedId={route?.id ?? ''} mode={mode} onSelect={selectRoute} onMode={selectMode} />
           </div>
         )}
-        <Commute rows={osiedle.commute} />
-        <TrafficChart traffic={osiedle.traffic} road={osiedle.trafficRoad} />
-        <Prices osiedle={osiedle} horizon={horizon} />
-        {timelineOn ? (
-          <Timeline osiedle={osiedle} profile={profile} year={year} onYear={setYear} />
-        ) : (
-          <TimelineTeaser name={osiedle.name} onExpand={expandTimeline} />
-        )}
+        <CommuteSection rows={osiedle.commute} />
+        <TrafficSection traffic={osiedle.traffic} road={osiedle.trafficRoad} />
+        <PricesSection osiedle={osiedle} horizon={horizon} />
+        <TimelineSection osiedle={osiedle} profile={profile} year={year} onYear={setYear} baseMatch={todayMatch} />
 
         <footer className="op-foot">
-          <Credits slug={osiedle.slug} images={osiedle.heroImages} />
-          <button type="button" className="op-foot__back" onClick={onBack}>
-            <ArrowLeft size={17} strokeWidth={2.3} aria-hidden />
-            Wróć do mapy
-          </button>
+          <CreditsSection slug={osiedle.slug} images={osiedle.heroImages} />
           <p className="op-note">{DEMO_NOTE}</p>
         </footer>
       </div>

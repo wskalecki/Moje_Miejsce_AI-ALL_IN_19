@@ -1,8 +1,7 @@
 import { ChevronRight, Minus, Pin, Plus, RotateCcw } from 'lucide-react'
 import { useReducedMotion } from 'motion/react'
 import * as m from 'motion/react-m'
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
-import { PANEL_HINT_KEY } from '../app/config'
+import { memo, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
 import { HORIZON_ORDER, HORIZONS } from '../app/dictionary'
 import { CATEGORY_ICONS } from '../app/icons'
 import { PRIORITY_WEIGHT, uiToWeight, weightToUi } from '../app/weights'
@@ -40,7 +39,8 @@ const EASE = [0.16, 1, 0.3, 1] as const
 const ENTER_DELAY = 70
 const LEAVE_DELAY = 140
 
-export function FilterPanel({
+/** Memoised: the map re-renders on every hovered osiedle / POI, the panel only when its props change. */
+export const FilterPanel = memo(function FilterPanel({
   weights,
   horizon,
   onHorizonChange,
@@ -56,13 +56,6 @@ export function FilterPanel({
   onFilterSectionsChange,
 }: FilterPanelProps) {
   const reduce = useReducedMotion()
-  const [showHint, setShowHint] = useState(() => {
-    try {
-      return !sessionStorage.getItem(PANEL_HINT_KEY)
-    } catch {
-      return false
-    }
-  })
   const [hoverCat, setHoverCat] = useState<CategoryKey | null>(null)
   const [focusCat, setFocusCat] = useState<CategoryKey | null>(null)
   const [pinned, setPinned] = useState<CategoryKey | null>(null)
@@ -118,15 +111,6 @@ export function FilterPanel({
     onDetailCatChange?.(c)
   }
   const mixActive = isPanelMixActive(weights, filterSections.score)
-
-  const dismissHint = () => {
-    setShowHint(false)
-    try {
-      sessionStorage.setItem(PANEL_HINT_KEY, '1')
-    } catch {
-      /* ignore */
-    }
-  }
 
   const applySections = (next: FilterSections) => onFilterSectionsChange?.(next)
 
@@ -289,13 +273,6 @@ export function FilterPanel({
           )}
         </header>
 
-        {showHint && (
-          <div className="smap-flt__hint" role="status">
-            <p>Suwak 0–5 ustawia wagę. <strong>+</strong> i <strong>−</strong> przenoszą kategorię między sekcjami.</p>
-            <button type="button" onClick={dismissHint}>Rozumiem</button>
-          </div>
-        )}
-
         <h3 className="smap-flt__subhead">Liczy się dla mnie</h3>
         {renderList('score', filterSections.score)}
 
@@ -320,4 +297,4 @@ export function FilterPanel({
       </m.section>
     </div>
   )
-}
+})

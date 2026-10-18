@@ -27,32 +27,6 @@ export const COLORS = {
   ok: '#2E9E6A',
   warn: '#E3A33B',
   bad: '#D9534F',
-  nightBg: '#0B0E17',
-  nightInk: '#F3F1EC',
-} as const
-
-/** Basemap palettes for day / night (spec §5.4). */
-export const MAP_PALETTE = {
-  day: {
-    background: '#F4F0EA',
-    water: '#D6E2EA',
-    green: '#E4EADB',
-    roads: '#FFFFFF',
-    roadsMinor: '#FBF8F3',
-    buildingLow: '#EEE8E0',
-    buildingHigh: '#D8D0C4',
-    dim: { color: '#16161D', opacity: 0.18 },
-  },
-  night: {
-    background: '#0B0E17',
-    water: '#101A2A',
-    green: '#0F1A17',
-    roads: '#1C2233',
-    roadsMinor: '#1C2233',
-    buildingLow: '#262C3D',
-    buildingHigh: '#3A4258',
-    dim: { color: '#0B0E17', opacity: 0.62 },
-  },
 } as const
 
 export const DURATION = {

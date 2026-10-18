@@ -24,14 +24,14 @@ test('nothing chosen yet', () => {
 test('1 priority → singular verb', () => {
   assert.equal(
     s({ profile: 'senior', priorities: ['cisza'], horizon: 'chwila' }),
-    'Jestem na emeryturze, liczy się dla mnie cisza, szukam miejsca wynajem.',
+    'Jestem seniorem, liczy się dla mnie cisza, szukam miejsca wynajem.',
   )
 })
 
 test('"zakupy" as the only priority → plural verb', () => {
   assert.equal(
     s({ profile: 'senior', priorities: ['zakupy'], horizon: 'stale' }),
-    'Jestem na emeryturze, liczą się dla mnie zakupy, szukam miejsca kupno.',
+    'Jestem seniorem, liczą się dla mnie zakupy, szukam miejsca kupno.',
   )
 })
 

@@ -25,7 +25,6 @@ export interface FeaturedInfo {
   msiId: string
   name: string
   district: string
-  profile: Profile
   tagline: string
   center: LngLat
   thumb: string

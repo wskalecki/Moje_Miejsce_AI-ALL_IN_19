@@ -32,8 +32,8 @@ const RING: { d: string; opacity: number }[] = [
 ]
 
 /**
- * Wordmark: "your" cell (accent) and its neighbourhood — the eight cells
- * around it form the "O" of Okolica — plus the app name.
+ * Wordmark: "your" cell (accent) — "Moje Miejsce" — and its neighbourhood,
+ * the eight cells around it rounded into a ring — plus the app name.
  */
 export function Logo({ size = 'md', className }: { size?: 'md' | 'lg'; className?: string }) {
   return (

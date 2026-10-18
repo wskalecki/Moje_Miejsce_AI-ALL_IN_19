@@ -89,7 +89,7 @@ function byKindExpr(focusKinds?: readonly BuildingKind[] | null): ExpressionSpec
   ] as unknown as ExpressionSpecification
 }
 
-function baseExpr(focusKinds?: readonly BuildingKind[] | null): ExpressionSpecification {
+function baseExpr(focusKinds?: readonly BuildingKind[] | null): string | ExpressionSpecification {
   if (!focusKinds?.length) return BUILDING_BASE_COLOR
   return [
     'case',

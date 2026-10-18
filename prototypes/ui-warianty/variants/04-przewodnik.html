@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stare Bielany — Moje Miejsce, przewodnik po osiedlach Warszawy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Schibsted+Grotesk:wght@400..700&display=swap&subset=latin-ext" rel="stylesheet">
+<style>
+:root{
+  --paper:#ffffff;
+  --ink:#0e3a2c;
+  --ink-2:#4a625a;
+  --ink-3:#5d726a;
+  --rule:#dce3df;
+  --rule-2:#c7d2cc;
+  --tint:#f1f5f2;
+  --ochre:#c68b17;
+  --ochre-ink:#8a5a0b;
+  --ochre-tint:#f8efdc;
+  --water:#c7dbe3;
+
+  --serif:"Newsreader", "Iowan Old Style", Georgia, serif;
+  --sans:"Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --mast:64px;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:14px; line-height:1.45;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overflow:hidden;
+}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ochre);outline-offset:2px;border-radius:2px}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- Masthead ---------- */
+.mast{
+  height:var(--mast); display:flex; align-items:center; gap:var(--s6);
+  padding:0 var(--s6); border-bottom:1px solid var(--rule); position:relative; z-index:5; background:var(--paper);
+}
+.fact .v,.score .big,.cat-v,.entry .walk b,.commute .mn,.price .v,.tl-year,.rank .n,.rank .m,.legend span,.cnt{font-variant-numeric:lining-nums tabular-nums}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-mark{width:22px;height:22px;flex:none}
+.brand-name{font-family:var(--serif);font-size:23px;font-weight:600;letter-spacing:-.01em;line-height:1}
+.brand-sub{font-size:13px;color:var(--ink-2);padding-left:var(--s4);border-left:1px solid var(--rule);line-height:1.2}
+.profiles{margin-left:auto;display:flex;align-items:center;gap:var(--s5)}
+.profiles-label{font-size:13px;color:var(--ink-2)}
+.seg{display:flex;gap:var(--s5)}
+.seg button{
+  font-size:14.5px;font-weight:500;color:var(--ink-2);height:var(--mast);position:relative;
+  transition:color .2s var(--ease);
+}
+.seg button::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--ochre);
+  transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease);
+}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-checked="true"]{color:var(--ink);font-weight:600}
+.seg button[aria-checked="true"]::after{transform:scaleX(1)}
+.mast-link{font-size:13px;color:var(--ink-2);text-decoration:none;padding-left:var(--s5);border-left:1px solid var(--rule);height:24px;display:flex;align-items:center}
+.mast-link:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- Layout ---------- */
+.layout{
+  height:calc(100vh - var(--mast));
+  display:grid; grid-template-columns:368px minmax(460px,1fr) minmax(0,.92fr);
+}
+
+/* ---------- Locator ---------- */
+.locator{border-right:1px solid var(--rule);display:flex;flex-direction:column;min-height:0;overflow:auto;scrollbar-width:thin}
+.loc-head{padding:var(--s5) var(--s5) 0}
+.loc-title{font-family:var(--serif);font-size:20px;font-weight:500;margin:0;line-height:1.2;letter-spacing:-.005em}
+.loc-desc{margin:var(--s1) 0 0;color:var(--ink-2);font-size:13px}
+.map-wrap{position:relative;padding:var(--s3) var(--s4) 0}
+.citymap{display:block;width:100%;height:auto;overflow:visible}
+.citymap .os{stroke:#fff;stroke-width:.8;vector-effect:non-scaling-stroke;cursor:pointer;transition:fill .5s var(--ease)}
+.citymap .os:hover{stroke:var(--ink);stroke-width:1.4}
+.citymap .os.is-sel{fill:var(--ochre);stroke:var(--ink);stroke-width:1.6}
+.citymap .river{fill:none;stroke:var(--water);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;pointer-events:none}
+.citymap .sel-label{font-family:var(--serif);font-size:40px;font-weight:600;fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:9px;stroke-linejoin:round;pointer-events:none}
+.citymap .river-label{font-family:var(--serif);font-style:italic;font-size:24px;fill:#5b8494;pointer-events:none}
+.tip{
+  position:absolute;pointer-events:none;background:var(--ink);color:#fff;padding:7px 10px 8px;border-radius:3px;
+  font-size:12.5px;line-height:1.3;white-space:nowrap;transform:translate(-50%,calc(-100% - 12px));opacity:0;transition:opacity .12s;
+  z-index:3;
+}
+.tip strong{display:block;font-family:var(--serif);font-size:16px;font-weight:500}
+.tip span{color:#c9d8d1}
+.tip.on{opacity:1}
+.legend{padding:var(--s2) var(--s5) 0;display:grid;grid-template-columns:auto 1fr auto;gap:var(--s3);align-items:center;font-size:12px;color:var(--ink-2)}
+.legend-bar{height:8px;border-radius:1px}
+.legend-sel{grid-column:1/-1;display:flex;align-items:center;gap:var(--s2);margin-top:2px}
+.legend-sel i{width:12px;height:12px;background:var(--ochre);outline:1.5px solid var(--ink);outline-offset:-1.5px;display:block}
+.rank{padding:var(--s5) var(--s5) var(--s4);margin-top:var(--s4);border-top:1px solid var(--rule)}
+.rank h3{margin:0 0 var(--s2);font-size:13px;font-weight:600}
+.rank ol{list-style:none;margin:0;padding:0}
+.rank li+li{border-top:1px solid var(--rule)}
+.rank button{width:100%;display:grid;grid-template-columns:28px 1fr auto;align-items:baseline;gap:var(--s2);padding:7px 0;text-align:left}
+.rank .n{font-family:var(--serif);font-size:15px;color:var(--ink-3)}
+.rank .nm{font-size:13.5px;font-weight:500}
+.rank .nm small{display:block;font-weight:400;font-size:12px;color:var(--ink-3)}
+.rank .m{font-family:var(--serif);font-size:18px}
+.rank button:hover .nm{text-decoration:underline;text-underline-offset:3px}
+.rank button[aria-current="true"] .n,.rank button[aria-current="true"] .m{color:var(--ochre-ink)}
+.rank button[aria-current="true"] .nm{font-weight:600}
+.rank .gap{font-size:12px;color:var(--ink-3);padding:4px 0;text-align:center}
+.finder{padding:0 var(--s5) var(--s5)}
+.finder label{display:block;font-size:12.5px;color:var(--ink-2);margin-bottom:6px}
+.finder select{
+  width:100%;font:inherit;font-size:13.5px;color:var(--ink);padding:9px 34px 9px 12px;border:1px solid var(--rule-2);border-radius:3px;
+  background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%230e3a2c' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 12px center;
+  appearance:none;
+}
+.finder select:hover{border-color:var(--ink-2)}
+
+/* ---------- Page (text side of the spread) ---------- */
+.page{position:relative;overflow-y:auto;min-height:0;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--rule-2) transparent}
+.page-inner{max-width:600px;padding:var(--s7) var(--s7) var(--s8) var(--s7)}
+.kicker{display:flex;align-items:baseline;gap:var(--s4);font-size:13.5px;color:var(--ink-2);margin:0}
+.kicker b{font-weight:600;color:var(--ink)}
+.kicker .rk{color:var(--ochre-ink);font-weight:600}
+.title{
+  font-family:var(--serif);font-weight:400;font-size:92px;line-height:.9;letter-spacing:-.028em;margin:var(--s4) 0 0;
+  font-variation-settings:"opsz" 72; text-wrap:balance; hyphens:none;
+}
+.title.small{font-size:68px}
+.score{display:flex;gap:var(--s6);margin:var(--s5) 0 0;padding-top:var(--s4);border-top:1px solid var(--ink)}
+.score div{display:flex;align-items:baseline;gap:var(--s2)}
+.score .big{font-family:var(--serif);font-size:44px;line-height:1;font-weight:400;letter-spacing:-.01em}
+.score .big.o{color:var(--ochre-ink)}
+.score .lbl{font-size:13px;color:var(--ink-2);line-height:1.25}
+.lead{font-family:var(--serif);font-size:21px;line-height:1.45;margin:var(--s5) 0 0;font-weight:400;text-wrap:pretty}
+.lead .weak{color:var(--ink-2)}
+.lead .drop{float:left;font-size:21px}
+
+.sec{padding-top:var(--s7);scroll-margin-top:8px}
+.sec-h{font-family:var(--serif);font-weight:500;font-size:32px;line-height:1.1;letter-spacing:-.015em;margin:0}
+.sec-deck{margin:var(--s2) 0 0;font-family:var(--serif);font-size:17px;line-height:1.45;color:var(--ink-2)}
+.note{font-size:12.5px;color:var(--ink-3);margin:var(--s3) 0 0;line-height:1.45}
+
+/* running head */
+.runhead{
+  position:sticky;top:0;z-index:4;height:48px;margin-bottom:-48px;background:#fff;
+  border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:var(--s4);padding:0 var(--s6);
+  transform:translateY(-101%);transition:transform .35s var(--ease);
+}
+.runhead.on{transform:none}
+.runhead b{font-family:var(--serif);font-weight:600;font-size:16px;white-space:nowrap}
+.runhead nav{display:flex;justify-content:space-between;gap:var(--s3);overflow-x:auto;scrollbar-width:none;flex:1}
+.runhead a{font-size:12.5px;color:var(--ink-2);text-decoration:none;white-space:nowrap;padding:14px 0;position:relative}
+.runhead a:hover{color:var(--ink)}
+.runhead a.on{color:var(--ink);font-weight:600}
+.runhead a.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--ochre)}
+.sec,.facts,.datanote{scroll-margin-top:64px}
+
+/* facts box */
+.facts{
+  margin:var(--s6) 0 0;border:1.5px solid var(--ink);padding:var(--s5) var(--s5) var(--s4);position:relative;
+}
+.facts-legend{
+  position:absolute;top:0;left:var(--s4);transform:translateY(-55%);background:var(--paper);padding:0 var(--s2);
+  font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:-.005em;line-height:1;margin:0;
+}
+.facts dl{margin:0;display:grid;grid-template-columns:1fr 1fr;column-gap:var(--s6)}
+.fact{padding:var(--s3) 0 var(--s3);border-top:1px solid var(--rule)}
+.fact:nth-child(-n+2){border-top:0;padding-top:var(--s1)}
+.fact dd{margin:0;display:flex;align-items:baseline;gap:6px}
+.fact .v{font-family:var(--serif);font-size:36px;line-height:1.05;letter-spacing:-.015em;font-weight:400}
+.fact .u{font-size:13px;color:var(--ink-2);font-weight:500}
+.fact dt{font-size:12.5px;color:var(--ink-2);line-height:1.35;margin-top:2px}
+.facts-foot{margin:var(--s2) 0 0;font-size:12px;color:var(--ink-3)}
+
+/* categories */
+.cats{margin:var(--s5) 0 0}
+.cat-group+.cat-group{margin-top:var(--s5)}
+.cat-group h3{font-size:13px;font-weight:600;margin:0 0 var(--s2);display:flex;align-items:center;gap:var(--s2)}
+.cat-group h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--ochre)}
+.cat{display:grid;grid-template-columns:168px 1fr 34px;gap:var(--s4);align-items:center;padding:7px 0;border-top:1px solid var(--rule)}
+.cat-l{font-size:14px}
+.cat-b{height:4px;background:var(--tint);position:relative;overflow:hidden}
+.cat-b i{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--ink);transform-origin:left;transition:transform .7s var(--ease)}
+.cat.pri .cat-b i{background:var(--ochre)}
+.cat-v{font-family:var(--serif);font-size:19px;text-align:right}
+.cat.pri .cat-l{font-weight:600}
+
+/* guide entries */
+.entries{list-style:none;margin:var(--s5) 0 0;padding:0;counter-reset:e}
+.entry{display:grid;grid-template-columns:30px 1fr auto;gap:var(--s3);padding:var(--s4) 0;border-top:1px solid var(--rule);cursor:default;transition:background .2s}
+.entry:last-child{border-bottom:1px solid var(--rule)}
+.entry .no{
+  width:24px;height:24px;border-radius:50%;background:var(--ochre);color:#fff;font-size:12px;font-weight:700;
+  display:grid;place-items:center;margin-top:2px;transition:transform .2s var(--ease)
+}
+.entry h3{margin:0;font-family:var(--serif);font-size:20px;line-height:1.2;font-weight:500;letter-spacing:-.005em}
+.entry p{margin:3px 0 0;font-family:var(--serif);font-size:15.5px;line-height:1.45;color:var(--ink-2)}
+.entry .kind{display:block;margin-top:5px;font-size:12px;color:var(--ink-3)}
+.entry .walk{text-align:right;white-space:nowrap}
+.entry .walk b{display:block;font-family:var(--serif);font-weight:400;font-size:26px;line-height:1;letter-spacing:-.01em}
+.entry .walk span{font-size:12px;color:var(--ink-2)}
+.entry.hi .no,.entry:hover .no{transform:scale(1.18)}
+.entry.hi h3,.entry:hover h3{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+.entry:focus-visible{outline-offset:-2px}
+
+/* commute */
+.commute{width:100%;border-collapse:collapse;margin:var(--s5) 0 0}
+.commute th{font-weight:500;font-size:12.5px;color:var(--ink-2);text-align:right;padding:0 0 var(--s2) var(--s5);vertical-align:bottom;white-space:nowrap}
+.commute th:first-child{text-align:left;padding-left:0}
+.commute td{border-top:1px solid var(--rule);padding:var(--s3) 0;vertical-align:top}
+.commute td.num{text-align:right;padding-left:var(--s5)}
+.commute .dest{font-family:var(--serif);font-size:19px;line-height:1.2}
+.commute .modes{display:block;font-size:12.5px;color:var(--ink-3);margin-top:3px}
+.commute .mn{font-family:var(--serif);font-size:30px;line-height:1;letter-spacing:-.01em}
+.commute .mn small{font-family:var(--sans);font-size:12px;color:var(--ink-2);margin-left:3px;letter-spacing:0}
+.ico{width:16px;height:16px;vertical-align:-3px;margin-right:4px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* prices */
+.prices{display:grid;grid-template-columns:1fr 1fr;gap:var(--s6);margin:var(--s5) 0 0}
+.price .v{font-family:var(--serif);font-size:44px;line-height:1;letter-spacing:-.02em}
+.price .v small{font-family:var(--sans);font-size:13px;letter-spacing:0;color:var(--ink-2);margin-left:4px}
+.price p{margin:6px 0 0;font-size:13px;color:var(--ink-2)}
+.price.here .v{color:var(--ink)}
+.price.city .v{color:var(--ink-2)}
+.range{margin:var(--s5) 0 0;width:100%;height:auto;display:block}
+.range text{font-family:var(--sans);font-size:11.5px;fill:var(--ink-3)}
+.range .rl{font-size:12.5px;fill:var(--ink);font-weight:500}
+.portals{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);margin:var(--s4) 0 0;font-size:13.5px}
+.portals a{text-decoration:none;border-bottom:1px solid var(--rule-2);padding-bottom:1px}
+.portals a:hover{border-color:var(--ink)}
+.portals span{color:var(--ink-2)}
+
+/* traffic */
+.traffic{margin:var(--s5) 0 0;width:100%;height:auto;display:block}
+.traffic text{font-family:var(--sans);font-size:11px;fill:var(--ink-3)}
+
+/* timeline */
+.tl{list-style:none;margin:var(--s5) 0 0;padding:0}
+.tl-item{display:grid;grid-template-columns:96px 1fr;gap:var(--s5);padding:var(--s4) 0;border-top:1px solid var(--rule)}
+.tl-year{font-family:var(--serif);font-size:30px;line-height:1;letter-spacing:-.01em}
+.tl-year.soft{font-size:19px;line-height:1.2;color:var(--ink-2);padding-top:4px}
+.tl-year small{display:block;font-family:var(--sans);font-size:11.5px;color:var(--ink-3);letter-spacing:0;margin-top:6px;line-height:1.3}
+.tl h3{margin:0;font-family:var(--serif);font-size:19px;line-height:1.25;font-weight:500}
+.tl p{margin:4px 0 0;font-family:var(--serif);font-size:15.5px;line-height:1.45;color:var(--ink-2)}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;margin-top:var(--s2);color:var(--ink-2)}
+.status i{width:8px;height:8px;border-radius:50%;border:1.5px solid currentColor;display:block}
+.status.build{color:var(--ochre-ink)}
+.status.build i{background:var(--ochre);border-color:var(--ochre)}
+.tl .src{display:block;font-size:12px;color:var(--ink-3);margin-top:6px}
+
+/* data note */
+.datanote{margin:var(--s7) 0 0;padding:var(--s5) 0 0;border-top:1.5px solid var(--ink);font-size:12.5px;color:var(--ink-2);line-height:1.55}
+.datanote h2{font-family:var(--serif);font-size:20px;font-weight:500;color:var(--ink);margin:0 0 var(--s2)}
+.datanote p{margin:0 0 var(--s2)}
+
+/* compact (other osiedle) */
+.only-note{margin:var(--s6) 0 0;padding:var(--s4) var(--s5);background:var(--tint);font-size:13.5px;line-height:1.5;display:flex;gap:var(--s4);align-items:center;justify-content:space-between}
+.btn{display:inline-flex;align-items:center;gap:var(--s2);background:var(--ink);color:#fff;padding:10px 16px;border-radius:3px;font-size:13.5px;font-weight:600;white-space:nowrap;transition:background .2s}
+.btn:hover{background:#174f3d}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2);margin-bottom:var(--s5)}
+.back:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- Plate (image side of the spread) ---------- */
+.plate{position:relative;margin:0;min-height:0;overflow:hidden;background:var(--tint);display:flex;flex-direction:column}
+#plateLayers{position:relative;flex:1;min-height:0;overflow:hidden}
+.plate-layer{position:absolute;inset:0;opacity:0;transition:opacity .7s var(--ease);visibility:hidden}
+.plate-layer.on{opacity:1;visibility:visible}
+.plate-layer img{width:100%;height:100%;object-fit:cover;display:block}
+.plate-layer > svg{width:100%;height:100%;display:block}
+.plate-layer.plan,.plate-layer.zoom{background:#fff}
+.cap{
+  position:relative;z-index:2;background:#fff;
+  display:grid;grid-template-columns:1fr auto;gap:var(--s4);align-items:end;padding:var(--s3) var(--s5) var(--s4);
+  border-top:1px solid var(--rule);
+}
+.cap-txt{min-width:0}
+.cap-t{font-family:var(--serif);font-size:15.5px;line-height:1.35;margin:0}
+.cap-t b{font-family:var(--sans);font-size:12.5px;font-weight:600;margin-right:var(--s2)}
+.cap-c{font-size:11.5px;color:var(--ink-3);margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cap-nav{display:flex;align-items:center;gap:var(--s2)}
+.cap-nav .cnt{font-size:12.5px;color:var(--ink-2);min-width:44px;text-align:center}
+.cap-nav button{width:32px;height:32px;border:1px solid var(--rule-2);border-radius:50%;display:grid;place-items:center;transition:border-color .2s,background .2s}
+.cap-nav button:hover{border-color:var(--ink);background:var(--tint)}
+.cap-nav svg{width:14px;height:14px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.plan-key{
+  position:absolute;top:var(--s5);left:var(--s5);z-index:2;background:#fff;padding:var(--s3) var(--s4);
+  font-size:12px;color:var(--ink-2);display:grid;gap:6px;border:1px solid var(--rule);
+}
+.plan-key div{display:flex;align-items:center;gap:var(--s2)}
+.plan-key i{display:block;width:16px;height:10px}
+
+/* plan svg */
+.plan-svg .bg{fill:#f2f4f1}
+.plan-svg .bld{fill:#d8dfda}
+.plan-svg .bld.t{fill:#c5cfc9}
+.plan-svg .grn{fill:#cfe1c7}
+.plan-svg .wat{fill:var(--water)}
+.plan-svg .rd{fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round}
+.plan-svg .rdc{fill:none;stroke:#cbd3ce;stroke-linecap:round;stroke-linejoin:round}
+.plan-svg .outl{fill:none;stroke:var(--ink);stroke-width:2.4;stroke-dasharray:9 6;vector-effect:non-scaling-stroke}
+.plan-svg .pin circle{fill:var(--ochre);stroke:#fff;stroke-width:3;transition:r .2s var(--ease)}
+.plan-svg .pin text{font-family:var(--sans);font-size:15px;font-weight:700;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.plan-svg .pin{cursor:pointer}
+.plan-svg .pin.hi circle{fill:var(--ink)}
+.plan-svg .gname{font-family:var(--serif);font-style:italic;font-size:17px;fill:#3d6a46;paint-order:stroke;stroke:#f2f4f1;stroke-width:4px;text-anchor:middle;pointer-events:none}
+.plan-svg .oname{font-family:var(--serif);font-size:30px;font-weight:600;fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:6px;letter-spacing:-.01em}
+
+/* zoom svg */
+.zoom-svg .os{stroke:#fff;stroke-width:1.2;vector-effect:non-scaling-stroke}
+.zoom-svg .os.is-sel{stroke:var(--ink);stroke-width:2.4}
+.zoom-svg text{font-family:var(--sans);font-weight:500;fill:var(--ink);text-anchor:middle;paint-order:stroke;stroke:rgba(255,255,255,.8);stroke-linejoin:round;pointer-events:none}
+.zoom-svg text.sel{font-family:var(--serif);font-weight:600;font-size:20px}
+
+.plan-inline{display:none}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+
+/* ---------- Narrow screens ---------- */
+@media (max-width:1180px){
+  .layout{grid-template-columns:320px minmax(0,1fr) minmax(0,.8fr)}
+  .page-inner{padding:var(--s6) var(--s6) var(--s8)}
+  .title{font-size:76px}
+  .brand-sub{display:none}
+}
+@media (max-width:900px){
+  body{overflow:auto}
+  .mast{height:auto;flex-wrap:wrap;gap:0;padding:var(--s3) var(--s4) 0;position:sticky;top:0}
+  .brand-sub,.mast-link,.profiles-label{display:none}
+  .profiles{margin-left:0;width:100%;margin-top:var(--s2)}
+  .seg{width:100%;justify-content:space-between;gap:0}
+  .seg button{height:44px;flex:1}
+  .layout{display:flex;flex-direction:column;height:auto}
+  .locator{border-right:0;border-bottom:1px solid var(--rule);overflow:visible;order:1}
+  .map-wrap{max-width:340px;margin:0 auto;width:100%}
+  .runhead{display:none}
+  .rank{display:none}
+  .finder{padding-top:var(--s4)}
+  .plate{order:2;height:62vw;max-height:440px;min-height:240px}
+  .plate .plate-layer.plan{display:none}
+  .page{order:3;overflow:visible}
+  .page-inner{padding:var(--s6) var(--s4) var(--s7);max-width:none}
+  .title{font-size:58px}
+  .title.small{font-size:46px}
+  .lead{font-size:19px}
+  .score{gap:var(--s5)}
+  .score .big{font-size:36px}
+  .facts dl{grid-template-columns:1fr 1fr;column-gap:var(--s4)}
+  .fact .v{font-size:28px}
+  .cat{grid-template-columns:120px 1fr 30px;gap:var(--s3)}
+  .cat-l{font-size:13px}
+  .prices{gap:var(--s4)}
+  .price .v{font-size:32px}
+  .tl-item{grid-template-columns:64px 1fr;gap:var(--s3)}
+  .tl-year{font-size:24px}
+  .plan-inline{display:block;margin:var(--s5) 0 0;border:1px solid var(--rule);aspect-ratio:1/1;overflow:hidden}
+  .plan-inline svg{width:100%;height:100%;display:block}
+  .cap{padding:var(--s2) var(--s4) var(--s3)}
+  .cap-t{font-size:14px}
+  .only-note{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <a class="brand" href="#" aria-label="Moje Miejsce, strona główna">
+    <svg class="brand-mark" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.6" fill="none" stroke="#0e3a2c" stroke-width="1.6"></circle><circle cx="11" cy="11" r="3.6" fill="#c68b17"></circle></svg>
+    <span class="brand-name" id="brandName">Moje Miejsce</span>
+  </a>
+  <span class="brand-sub">Przewodnik po 143 osiedlach Warszawy</span>
+  <div class="profiles">
+    <span class="profiles-label" id="profLabel">Czytasz jako</span>
+    <div class="seg" role="radiogroup" aria-labelledby="profLabel" id="seg"></div>
+  </div>
+  <a class="mast-link" href="#s-data" id="dataLink">Skąd są dane</a>
+</header>
+
+<main class="layout">
+  <aside class="locator" aria-label="Mapa osiedli">
+    <div class="loc-head">
+      <h2 class="loc-title" id="locTitle">Mapa dopasowania</h2>
+      <p class="loc-desc" id="locDesc"></p>
+    </div>
+    <div class="map-wrap" id="mapWrap">
+      <svg class="citymap" id="citymap" role="img" aria-label="Mapa 143 osiedli Warszawy pokolorowana według dopasowania"></svg>
+      <div class="tip" id="tip" role="status" aria-live="polite"></div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <section class="rank" aria-labelledby="rankH">
+      <h3 id="rankH"></h3>
+      <ol id="rankList"></ol>
+    </section>
+    <div class="finder">
+      <label for="finder">Przejdź do osiedla</label>
+      <select id="finder"></select>
+    </div>
+  </aside>
+
+  <article class="page" id="page" tabindex="-1">
+    <div class="runhead" id="runhead" aria-hidden="true"></div>
+    <div class="page-inner" id="pageInner" aria-live="polite"></div>
+  </article>
+
+  <figure class="plate" id="plate" aria-label="Ilustracje">
+    <div id="plateLayers"></div>
+    <figcaption class="cap">
+      <div class="cap-txt">
+        <p class="cap-t" id="capT"></p>
+        <p class="cap-c" id="capC"></p>
+      </div>
+      <div class="cap-nav" id="capNav">
+        <button type="button" id="prevP" aria-label="Poprzednie zdjęcie"><svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"></path></svg></button>
+        <span class="cnt" id="cnt"></span>
+        <button type="button" id="nextP" aria-label="Następne zdjęcie"><svg viewBox="0 0 14 14"><path d="M5 2l5 5-5 5"></path></svg></button>
+      </div>
+    </figcaption>
+  </figure>
+</main>
+
+<script src="../shared/data.js"></script>
+<script>
+(function(){
+'use strict';
+const MM = window.MM, F = MM.featured, OS = MM.city.osiedla, NB = MM.neighborhood;
+const CAT = MM.categories, PRI = MM.seniorPriorities;
+const FEAT_ID = 'stare-bielany';
+let profile = MM.activeProfile || 'senior';
+let selected = FEAT_ID;
+let plateMode = {type:'photo', i:0};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nf = (n, d=0) => Number(n).toLocaleString('pl-PL', {minimumFractionDigits:d, maximumFractionDigits:d, useGrouping:true});
+const metric = k => F.metrics.find(m => m.key === k);
+const byId = id => OS.find(o => o.id === id);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const profGen = {student:'studenta', rodzina:'rodziny', senior:'seniora'};
+
+/* ---- Colour ramp: paper → sage → bottle ink ---- */
+const STOPS = [[0,[236,241,237]],[.35,[196,215,200]],[.7,[103,145,122]],[1,[14,58,44]]];
+function ramp(t){
+  t = Math.max(0, Math.min(1, t));
+  for (let i=1;i<STOPS.length;i++){
+    if (t <= STOPS[i][0]){
+      const [t0,a] = STOPS[i-1], [t1,b] = STOPS[i]; const k = (t-t0)/(t1-t0);
+      return 'rgb(' + a.map((v,j)=>Math.round(v+(b[j]-v)*k)).join(',') + ')';
+    }
+  }
+  return 'rgb(14,58,44)';
+}
+function domain(){ const v = OS.map(o=>o.match[profile]); return [Math.min(...v), Math.max(...v)]; }
+function colorFor(o){ const [a,b] = domain(); return ramp((o.match[profile]-a)/(b-a)); }
+
+/* ---- Icons ---- */
+const ICON = {
+  walk:'<svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><circle cx="9" cy="2.6" r="1.3"></circle><path d="M6.2 15l1.6-5.2 2.2 2V15M7.8 9.8l.6-3.6-2.4 1-.9 2.4M8.4 6.2l1.8 1.7 2 .6"></path></svg>',
+  tram:'<svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3.5" width="8" height="9" rx="1.6"></rect><path d="M4 9h8M6 1.5h4M8 1.5v2M5.5 12.5L4 15M10.5 12.5L12 15"></path></svg>',
+  bike:'<svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.6" cy="11" r="2.6"></circle><circle cx="12.4" cy="11" r="2.6"></circle><path d="M3.6 11l2.6-5.5h4.2M12.4 11L10 4h1.8M6.2 5.5L8.6 11h-5"></path></svg>',
+  back:'<svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5"></path></svg>'
+};
+
+/* ================= Masthead: profile switch ================= */
+function renderSeg(){
+  $('#seg').innerHTML = Object.entries(MM.profiles).map(([k,p]) =>
+    `<button type="button" role="radio" aria-checked="${k===profile}" data-p="${k}" title="${esc(p.description)}">${esc(p.title)}</button>`).join('');
+}
+$('#seg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setProfile(b.dataset.p); });
+$('#seg').addEventListener('keydown', e => {
+  if (!['ArrowLeft','ArrowRight'].includes(e.key)) return;
+  const keys = Object.keys(MM.profiles); let i = keys.indexOf(profile);
+  i = (i + (e.key==='ArrowRight'?1:keys.length-1)) % keys.length; setProfile(keys[i]);
+  $(`#seg [data-p="${keys[i]}"]`).focus(); e.preventDefault();
+});
+function setProfile(p){
+  if (p === profile) return; profile = p;
+  renderSeg(); paintMap(); renderLegend(); renderRank(); renderLocHead();
+  const top = $('#page').scrollTop; renderPage(); $('#page').scrollTop = top;
+}
+
+/* ================= City map ================= */
+const svgNS = 'http://www.w3.org/2000/svg';
+function buildMap(){
+  const c = MM.city, s = $('#citymap');
+  s.setAttribute('viewBox', `0 0 ${c.w} ${c.h}`);
+  let h = '<g id="osG">';
+  OS.forEach(o => { h += `<path class="os" data-id="${o.id}" d="${o.d}"></path>`; });
+  h += `</g><path class="river" d="${c.river}"></path><g id="labG"></g>`;
+  s.innerHTML = h;
+  s.addEventListener('pointermove', onHover);
+  s.addEventListener('pointerleave', () => $('#tip').classList.remove('on'));
+  s.addEventListener('click', e => { const p = e.target.closest('.os'); if (p) select(p.dataset.id); });
+}
+function paintMap(){
+  document.querySelectorAll('#osG .os').forEach(p => {
+    const o = byId(p.dataset.id); p.style.fill = o.id === selected ? '' : colorFor(o);
+    p.classList.toggle('is-sel', o.id === selected);
+  });
+  const sel = document.querySelector(`#osG .os[data-id="${selected}"]`);
+  if (sel) sel.parentNode.appendChild(sel);
+  const o = byId(selected), lg = $('#labG');
+  const left = o.cx > 640;
+  lg.innerHTML = `<text class="sel-label" x="${o.cx + (left?-26:26)}" y="${o.cy+10}" text-anchor="${left?'end':'start'}">${esc(o.name)}</text>`;
+}
+function onHover(e){
+  const p = e.target.closest('.os'), tip = $('#tip');
+  if (!p){ tip.classList.remove('on'); return; }
+  const o = byId(p.dataset.id), r = $('#mapWrap').getBoundingClientRect();
+  tip.innerHTML = `<strong>${esc(o.name)}</strong><span>${esc(o.district)}</span> &nbsp;${o.match[profile]}/100, ${o.rank[profile]}. miejsce`;
+  tip.style.left = (e.clientX - r.left) + 'px'; tip.style.top = (e.clientY - r.top) + 'px';
+  tip.classList.add('on');
+}
+function renderLegend(){
+  const [a,b] = domain();
+  const g = `linear-gradient(90deg, ${[0,.2,.4,.6,.8,1].map(t=>ramp(t)).join(',')})`;
+  $('#legend').innerHTML = `<span>${a}</span><div class="legend-bar" style="background:${g}" aria-hidden="true"></div><span>${b}</span>
+    <div class="legend-sel"><i aria-hidden="true"></i>Wybrane osiedle</div>`;
+}
+function renderLocHead(){
+  const p = MM.profiles[profile];
+  $('#locDesc').textContent = `${p.title}: ${p.description.charAt(0).toLowerCase() + p.description.slice(1)}`;
+}
+
+/* ================= Ranking + finder ================= */
+function renderRank(){
+  $('#rankH').textContent = `Najlepsze dla ${profGen[profile]}`;
+  const sorted = [...OS].sort((a,b) => a.rank[profile]-b.rank[profile]);
+  const top = sorted.slice(0,6);
+  const row = o => `<li><button type="button" data-id="${o.id}" aria-current="${o.id===selected}">
+      <span class="n">${o.rank[profile]}.</span><span class="nm">${esc(o.name)}<small>${esc(o.district)}</small></span><span class="m">${o.match[profile]}</span></button></li>`;
+  let h = top.map(row).join('');
+  const s = byId(selected);
+  if (!top.includes(s)) h += `<li class="gap" aria-hidden="true">…</li>` + row(s);
+  $('#rankList').innerHTML = h;
+}
+$('#rankList').addEventListener('click', e => { const b = e.target.closest('button'); if (b) select(b.dataset.id); });
+function buildFinder(){
+  const f = $('#finder');
+  f.innerHTML = [...OS].sort((a,b)=>a.name.localeCompare(b.name,'pl')).map(o =>
+    `<option value="${o.id}">${esc(o.name)} (${esc(o.district)})</option>`).join('');
+  f.value = selected;
+  f.addEventListener('change', () => select(f.value));
+}
+
+function select(id){
+  if (!byId(id)) return;
+  selected = id;
+  paintMap(); renderRank(); $('#finder').value = id;
+  renderPage(); $('#page').scrollTop = 0;
+  if (id === FEAT_ID) setPlate({type:'photo', i:0}); else setPlate({type:'zoom'});
+}
+
+/* ================= Page: full spread for Stare Bielany ================= */
+function leadHTML(text){
+  const i = text.indexOf('Słabiej:');
+  if (i < 0) return esc(text);
+  return `Najmocniej: ${esc(text.slice(0,i).trim())} <span class="weak">${esc(text.slice(i))}</span>`;
+}
+function scoreHTML(o){
+  return `<div class="score">
+    <div><span class="big o">${o.rank[profile]}.</span><span class="lbl">miejsce<br>ze ${OS.length} osiedli</span></div>
+    <div><span class="big">${o.match[profile]}</span><span class="lbl">na 100<br>dopasowania</span></div>
+  </div>`;
+}
+function catsHTML(stats){
+  const keys = Object.keys(CAT);
+  const pri = profile === 'senior' ? PRI : [];
+  const row = (k, isP) => `<div class="cat${isP?' pri':''}"><span class="cat-l">${esc(CAT[k])}</span>
+      <span class="cat-b" role="img" aria-label="${esc(CAT[k])}: ${stats[k]} na 100"><i style="transform:scaleX(${stats[k]/100})"></i></span>
+      <span class="cat-v">${stats[k]}</span></div>`;
+  let h = '<div class="cats">';
+  if (pri.length){
+    h += `<div class="cat-group"><h3><span class="dot" aria-hidden="true"></span>Najważniejsze dla seniora</h3>${pri.map(k=>row(k,true)).join('')}</div>`;
+    h += `<div class="cat-group"><h3>Pozostałe kategorie</h3>${keys.filter(k=>!pri.includes(k)).sort((a,b)=>stats[b]-stats[a]).map(k=>row(k,false)).join('')}</div>`;
+  } else {
+    h += `<div class="cat-group">${keys.sort((a,b)=>stats[b]-stats[a]).map(k=>row(k,false)).join('')}</div>`;
+  }
+  return h + '</div>';
+}
+function factsHTML(){
+  const m = k => metric(k);
+  const items = [
+    [nf(m('metro_dist_m').value), 'm', 'do stacji metra Stare Bielany (M1)'],
+    [nf(m('travel_centrum_wszystkie_min').value), 'min', 'do centrum komunikacją, rano'],
+    [nf(m('clinics_1km').value), '', 'przychodni i gabinetów lekarskich w 1 km'],
+    [nf(m('pharmacies_1km').value), '', 'aptek w 1 km'],
+    [nf(m('libraries_1km').value), '', 'bibliotek w 1 km'],
+    [nf(m('green_dist_m').value), 'm', 'do najbliższego parku lub lasu (≥\u00a01\u00a0ha)'],
+    [nf(m('noise_lden60_share').value,1), '%', 'powierzchni z hałasem drogowym Lden ≥\u00a060\u00a0dB'],
+    [nf(F.prices.buyPerM2), 'zł/m²', 'mediana ceny transakcyjnej mieszkania'],
+  ];
+  return `<section class="facts" id="s-facts" data-plate="photo:0" aria-labelledby="factsH">
+    <h2 class="facts-legend" id="factsH">Osiedle w liczbach</h2>
+    <dl>${items.map(([v,u,l]) => `<div class="fact"><dd><span class="v">${v}</span>${u?`<span class="u">${u}</span>`:''}</dd><dt>${esc(l)}</dt></div>`).join('')}</dl>
+  </section>`;
+}
+function entriesHTML(){
+  const list = placesSorted();
+  return `<ol class="entries" id="entries">${list.map((h,i) => `
+    <li class="entry" data-id="${h.id}" tabindex="0">
+      <span class="no" aria-hidden="true">${i+1}</span>
+      <div><h3>${esc(h.name)}</h3><p>${esc(h.description)}</p><span class="kind">${esc(CAT[h.category]||'')}${h.distanceTo==='skraj'?', odległość do skraju':''}</span></div>
+      <div class="walk"><b>${h.walkMin}</b><span>min pieszo</span><br><span>${nf(h.distanceM)} m</span></div>
+    </li>`).join('')}</ol>`;
+}
+function placesSorted(){ return [...F.highlights].sort((a,b)=>a.walkMin-b.walkMin); }
+function commuteHTML(){
+  const modeName = {metro:'metro', tramwaj:'tramwaj', autobus:'autobus'};
+  return `<table class="commute"><thead><tr><th scope="col">Cel</th><th scope="col">${ICON.tram}Komunikacją</th><th scope="col">${ICON.bike}Rowerem</th></tr></thead><tbody>
+    ${F.commute.map(c => `<tr><td><span class="dest">${esc(c.label)}</span>
+      <span class="modes">Jednym środkiem: ${Object.entries(c.transitByMode).map(([k,v])=>`${modeName[k]} ${nf(v)}`).join(', ')} min</span></td>
+      <td class="num"><span class="mn">${c.minutes.komunikacja}<small>min</small></span></td>
+      <td class="num"><span class="mn">${c.minutes.rower}<small>min</small></span></td></tr>`).join('')}
+  </tbody></table>`;
+}
+function rangeSVG(){
+  const r = F.prices.rcn, lo = 12500, hi = 19500, W = 504, x = v => 112 + (v-lo)/(hi-lo)*(W-120);
+  const rows = [[r.msi,'Stare Bielany',`n = ${nf(r.msi.n)}`, true],[r.city,'Warszawa',`n = ${nf(r.city.n)}`, false]];
+  let s = `<svg class="range" viewBox="0 0 ${W} 112" role="img" aria-label="Rozstęp cen: Stare Bielany od ${nf(r.msi.p25)} do ${nf(r.msi.p75)} zł/m², Warszawa od ${nf(r.city.p25)} do ${nf(r.city.p75)} zł/m²">`;
+  [13000,15000,17000,19000].forEach(v => { s += `<line x1="${x(v)}" x2="${x(v)}" y1="4" y2="84" stroke="#dce3df"></line><text x="${x(v)}" y="104" text-anchor="middle">${nf(v)}</text>`; });
+  rows.forEach(([d,l,n,here],i) => {
+    const y = 22 + i*40;
+    s += `<text class="rl" x="0" y="${y+4}">${l}</text><text x="0" y="${y+19}">${n}</text>`;
+    s += `<rect x="${x(d.p25)}" y="${y-7}" width="${x(d.p75)-x(d.p25)}" height="14" fill="${here?'#c68b17':'#c4d7c8'}" opacity="${here?.35:1}"></rect>`;
+    s += `<line x1="${x(d.med)}" x2="${x(d.med)}" y1="${y-11}" y2="${y+11}" stroke="#0e3a2c" stroke-width="2.5"></line>`;
+  });
+  return s + '</svg>';
+}
+function trafficSVG(){
+  const t = F.traffic, W = 504, H = 120, bw = (W-28)/24, y = v => 92 - v/100*84;
+  let s = `<svg class="traffic" viewBox="0 0 ${W} ${H}" role="img" aria-label="Wskaźnik korków w ciągu doby, najwyżej ${Math.max(...t)} na 100">`;
+  [0,50,100].forEach(v => { s += `<line x1="28" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="${v?'#eef2ef':'#c7d2cc'}"></line><text x="20" y="${y(v)+4}" text-anchor="end">${v}</text>`; });
+  t.forEach((v,h) => {
+    if (v > 0) s += `<rect x="${28 + h*bw + 2}" y="${y(v)}" width="${bw-4}" height="${92-y(v)}" fill="${v===Math.max(...t)?'#c68b17':'#0e3a2c'}"><title>${h}:00, ${v}/100</title></rect>`;
+    if (h % 3 === 0) s += `<text x="${28 + h*bw + bw/2}" y="${H-6}" text-anchor="middle">${h}:00</text>`;
+  });
+  return s + '</svg>';
+}
+function timelineHTML(){
+  const items = [...F.timeline].sort((a,b) => (a.year - b.year) || (!!a.yearUncertain - !!b.yearUncertain));
+  return `<ol class="tl">${items.map(t => {
+    const none = t.yearPlacement === 'bez terminu';
+    const yr = none ? `<div class="tl-year soft">bez terminu</div>`
+      : `<div class="tl-year">${t.year}${t.yearUncertain?'<small>termin niepewny</small>':''}</div>`;
+    const build = t.status === 'w budowie';
+    return `<li class="tl-item">${yr}<div><h3>${esc(t.title)}</h3><p>${esc(t.description)}</p>
+      <span class="status${build?' build':''}"><i aria-hidden="true"></i>${esc(t.status.charAt(0).toUpperCase()+t.status.slice(1))}</span>
+      <span class="src">Źródło: ${esc(t.sourceTitle)}</span></div></li>`; }).join('')}</ol>`;
+}
+
+function renderFull(){
+  const o = byId(FEAT_ID), p = F.prices;
+  const diff = Math.round((p.buyPerM2/p.cityBuyPerM2 - 1)*100);
+  const peak = Math.max(...F.traffic), peakH = F.traffic.map((v,h)=>v===peak?h:null).filter(h=>h!==null);
+  return `
+  <header class="sec" id="s-open" data-plate="photo:0" style="padding-top:0">
+    <p class="kicker"><b>${esc(F.district)}</b><span>${nf(o.areaKm2,2)} km²</span><span class="rk">${o.rank[profile]===1?'Najlepsze dopasowanie':''}</span></p>
+    <h1 class="title">${esc(F.name)}</h1>
+    ${scoreHTML(o)}
+    <p class="lead">${leadHTML(o.blurb[profile])}</p>
+  </header>
+  ${factsHTML()}
+
+  <section class="sec" id="s-cats" data-plate="photo:1" aria-labelledby="h-cats">
+    <h2 class="sec-h" id="h-cats">Dziesięć kategorii</h2>
+    <p class="sec-deck">Oceny od 0 do 100 policzone z otwartych danych miasta. Im wyżej, tym lepiej.</p>
+    ${catsHTML(F.stats)}
+  </section>
+
+  <section class="sec" id="s-near" data-plate="plan" aria-labelledby="h-near">
+    <h2 class="sec-h" id="h-near">W okolicy</h2>
+    <p class="sec-deck">Dziewięć miejsc, do których dojdziesz pieszo. Numery odpowiadają punktom na planie.</p>
+    <figure class="plan-inline" aria-hidden="true">${planSVG('pi')}</figure>
+    ${entriesHTML()}
+  </section>
+
+  <section class="sec" id="s-commute" data-plate="photo:4" aria-labelledby="h-com">
+    <h2 class="sec-h" id="h-com">Dojazdy rano</h2>
+    <p class="sec-deck">Mediana z ${F.commute[0].cells} komórek osiedla, przyjazd między 7:30 a 9:00, według rozkładu ZTM.</p>
+    ${commuteHTML()}
+  </section>
+
+  <section class="sec" id="s-prices" data-plate="photo:5" aria-labelledby="h-pr">
+    <h2 class="sec-h" id="h-pr">Ceny mieszkań</h2>
+    <p class="sec-deck">Mediana transakcji o ${diff}% wyższa niż w całej Warszawie, ale rozrzut cen jest tu wyraźnie węższy.</p>
+    <div class="prices">
+      <div class="price here"><div class="v">${nf(p.buyPerM2)}<small>zł/m²</small></div><p>Stare Bielany, mediana</p></div>
+      <div class="price city"><div class="v">${nf(p.cityBuyPerM2)}<small>zł/m²</small></div><p>Warszawa, mediana</p></div>
+    </div>
+    ${rangeSVG()}
+    <p class="note">Pasek: połowa transakcji (od 1. do 3. kwartyla), kreska: mediana. ${esc(p.basisLabel)}. ${esc(p.rentNote)}</p>
+    <div class="portals">${F.portals.map(x => `<span>${esc(x.name)}:</span><a href="${esc(x.buyUrl)}" target="_blank" rel="noopener">kupno</a><a href="${esc(x.rentUrl)}" target="_blank" rel="noopener">wynajem</a>`).join('')}</div>
+  </section>
+
+  <section class="sec" id="s-traffic" data-plate="photo:5" aria-labelledby="h-tr">
+    <h2 class="sec-h" id="h-tr">Ruch w ciągu doby</h2>
+    <p class="sec-deck">${esc(F.trafficRoad)}. Najwięcej o ${peakH.map(h=>h+':00').join(' i ')}: ${peak} na 100, czyli płynnie przez cały dzień.</p>
+    ${trafficSVG()}
+  </section>
+
+  <section class="sec" id="s-plans" data-plate="photo:2" aria-labelledby="h-pl">
+    <h2 class="sec-h" id="h-pl">Co się zmieni do 2040 roku</h2>
+    <p class="sec-deck">Inwestycje i projekty w okolicy, z aktualnym statusem. Terminy podajemy tak, jak podają je źródła.</p>
+    ${timelineHTML()}
+  </section>
+
+  <section class="datanote" id="s-data" data-plate="photo:3" aria-labelledby="h-data">
+    <h2 id="h-data">O danych</h2>
+    <p>${esc(MM.credits)}.</p>
+    <p>Ceny: ${esc(p.sourceNote)}</p>
+    <p>Dojazdy: ${esc(F.commute[0].source)}</p>
+  </section>`;
+}
+
+/* ================= Page: compact entry for other osiedla ================= */
+function renderCompact(o){
+  return `
+  <header class="sec" id="s-open" data-plate="zoom" style="padding-top:0">
+    <button type="button" class="back" data-go="${FEAT_ID}">${ICON.back}Wróć do Starych Bielan</button>
+    <p class="kicker"><b>${esc(o.district)}</b><span>${nf(o.areaKm2,2)} km²</span></p>
+    <h1 class="title small">${esc(o.name)}</h1>
+    ${scoreHTML(o)}
+    <p class="lead">${leadHTML(o.blurb[profile])}</p>
+  </header>
+  <section class="sec" id="s-cats" data-plate="zoom" aria-labelledby="h-cats">
+    <h2 class="sec-h" id="h-cats">Dziesięć kategorii</h2>
+    ${catsHTML(o.cats)}
+  </section>
+  <div class="only-note"><span>Pełny przewodnik ze zdjęciami, planem okolicy, dojazdami, cenami i planami zmian mamy na razie dla Starych Bielan.</span>
+  <button type="button" class="btn" data-go="${FEAT_ID}">Otwórz Stare Bielany</button></div>`;
+}
+
+function renderPage(){
+  const o = byId(selected);
+  $('#pageInner').innerHTML = selected === FEAT_ID ? renderFull() : renderCompact(o);
+  document.title = `${o.name} — Moje Miejsce`;
+  wirePage();
+}
+const TOC = [['s-facts','W liczbach'],['s-cats','Kategorie'],['s-near','W okolicy'],['s-commute','Dojazdy'],['s-prices','Ceny'],['s-traffic','Ruch'],['s-plans','Zmiany'],['s-data','Dane']];
+let rhIO, tocIO;
+function wireRunhead(){
+  const rh = $('#runhead'); if (rhIO) rhIO.disconnect(); if (tocIO) tocIO.disconnect();
+  const full = selected === FEAT_ID;
+  rh.innerHTML = (full ? '' : `<b>${esc(byId(selected).name)}</b>`) + (full ? `<nav aria-label="Spis treści">${TOC.map(([id,l]) => `<a href="#${id}" data-t="${id}" tabindex="-1">${l}</a>`).join('')}</nav>` : '');
+  rh.classList.remove('on');
+  if (matchMedia('(max-width: 900px)').matches) return;
+  const title = $('#pageInner .title');
+  rhIO = new IntersectionObserver(([e]) => { rh.classList.toggle('on', !e.isIntersecting); rh.setAttribute('aria-hidden', String(e.isIntersecting)); rh.querySelectorAll('a').forEach(a => a.tabIndex = e.isIntersecting ? -1 : 0); }, {root: $('#page'), rootMargin:'-48px 0px 0px 0px'});
+  rhIO.observe(title);
+  if (!full) return;
+  tocIO = new IntersectionObserver(es => {
+    es.filter(e => e.isIntersecting).forEach(e => rh.querySelectorAll('a').forEach(a => a.classList.toggle('on', a.dataset.t === e.target.id)));
+  }, {root: $('#page'), rootMargin:'-20% 0px -75% 0px'});
+  TOC.forEach(([id]) => { const el = document.getElementById(id); if (el) tocIO.observe(el); });
+}
+function wirePage(){
+  wireRunhead();
+  $('#pageInner').querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => select(b.dataset.go)));
+  const ents = document.querySelectorAll('.entry');
+  ents.forEach(el => {
+    const on = () => hiPlace(el.dataset.id, true), off = () => hiPlace(el.dataset.id, false);
+    el.addEventListener('mouseenter', on); el.addEventListener('mouseleave', off);
+    el.addEventListener('focus', () => { on(); if (plateMode.type!=='plan') setPlate({type:'plan'}); }); el.addEventListener('blur', off);
+  });
+  observeSections();
+}
+function hiPlace(id, on){
+  document.querySelectorAll(`.pin[data-id="${id}"]`).forEach(p => p.classList.toggle('hi', on));
+  document.querySelectorAll(`.entry[data-id="${id}"]`).forEach(p => p.classList.toggle('hi', on));
+}
+
+/* ================= Plate ================= */
+function planSVG(pfx){
+  const n = NB, rw = {motorway:14, motorway_link:6, primary:11, secondary:9, secondary_link:5, tertiary:6.5, tertiary_link:4, residential:3.6, unclassified:3.6, living_street:2.6};
+  const order = ['living_street','residential','unclassified','tertiary_link','tertiary','secondary_link','secondary','primary','motorway_link','motorway'];
+  const roads = [...n.roads].sort((a,b)=>order.indexOf(a.hw)-order.indexOf(b.hw));
+  let s = `<svg class="plan-svg" viewBox="${pfx==='pi'?'180 150 650 700':'160 28 684 994'}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Plan okolicy Starych Bielan z ponumerowanymi miejscami">`;
+  s += `<rect class="bg" x="-200" y="-200" width="${n.w+400}" height="${n.h+400}"></rect>`;
+  n.green.forEach(g => s += `<path class="grn" d="${g.d}"></path>`);
+  n.water.forEach(w => s += `<path class="wat" d="${w}"></path>`);
+  roads.forEach(r => s += `<path class="rdc" d="${r.d}" stroke-width="${(rw[r.hw]||3)+2}"></path>`);
+  roads.forEach(r => s += `<path class="rd" d="${r.d}" stroke-width="${rw[r.hw]||3}"></path>`);
+  n.buildings.forEach(b => s += `<path class="bld${b.h>20?' t':''}" d="${b.d}"></path>`);
+  s += `<path class="outl" d="${n.outline}"></path>`;
+  // named parks
+  const named = n.green.filter(g => g.name && g.kind === 'park');
+  named.forEach(g => {
+    const nums = g.d.match(/-?\d+(\.\d+)?/g).map(Number); let xs=0, ys=0, k=0;
+    for (let i=0;i<nums.length-1;i+=2){ xs+=nums[i]; ys+=nums[i+1]; k++; }
+    if (n.places.some(p => Math.abs(p.xy[0]-xs/k) < 120 && Math.abs(p.xy[1]-ys/k) < 26)) return;
+    s += `<text class="gname" x="${(xs/k).toFixed(1)}" y="${(ys/k).toFixed(1)}">${esc(g.name)}</text>`;
+  });
+  const order2 = placesSorted().map(h=>h.id);
+  n.places.forEach(p => {
+    const i = order2.indexOf(p.id) + 1;
+    s += `<g class="pin" data-id="${p.id}" transform="translate(${p.xy[0]} ${p.xy[1]})"><circle r="15"></circle><text>${i}</text></g>`;
+  });
+  return s + '</svg>';
+}
+function zoomSVG(){
+  const o = byId(selected);
+  const nums = o.d.match(/-?\d+(\.\d+)?/g).map(Number); let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  for (let i=0;i<nums.length-1;i+=2){ x0=Math.min(x0,nums[i]); x1=Math.max(x1,nums[i]); y0=Math.min(y0,nums[i+1]); y1=Math.max(y1,nums[i+1]); }
+  const cx=(x0+x1)/2, cy=(y0+y1)/2, span=Math.max((x1-x0)*3.2, (y1-y0)*2.2, 190);
+  const w = span, h = span*1.5;
+  const vb = [cx-w/2, cy-h/2, w, h];
+  let s = `<svg class="zoom-svg" viewBox="${vb.map(v=>v.toFixed(1)).join(' ')}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Położenie osiedla ${esc(o.name)} na tle sąsiednich">`;
+  s += `<rect x="${vb[0]-w}" y="${vb[1]-h}" width="${w*3}" height="${h*3}" fill="#fff"></rect>`;
+  s += '<g opacity=".72">'; OS.forEach(q => { if (q.id!==selected) s += `<path class="os" d="${q.d}" style="fill:${colorFor(q)}"></path>`; }); s += '</g>';
+  s += `<path d="${MM.city.river}" fill="none" stroke="#c7dbe3" stroke-width="6" vector-effect="non-scaling-stroke"></path>`;
+  s += `<path class="os is-sel" d="${o.d}" style="fill:#c68b17"></path>`;
+  const fs = w/38, ly = y0 - fs*1.2;
+  OS.forEach(q => {
+    if (q.id===selected) return;
+    if (Math.abs(q.cy-ly) < fs*2.6 && Math.abs(q.cx-o.cx) < fs*9) return;
+    if (q.cx>vb[0]+fs*4 && q.cx<vb[0]+w-fs*4 && q.cy>vb[1]+fs*2 && q.cy<vb[1]+h-fs*2)
+      s += `<text x="${q.cx}" y="${q.cy}" style="font-size:${fs}px;stroke-width:${fs/5}px">${esc(q.name)}</text>`;
+  });
+  s += `<text class="sel" x="${o.cx}" y="${ly}" style="font-size:${fs*1.8}px;stroke-width:${fs/3}px">${esc(o.name)}</text>`;
+  return s + '</svg>';
+}
+function buildPlate(){
+  let h = F.heroImages.map((im,i) => `<div class="plate-layer photo" data-k="photo:${i}"><img src="${im.src}" alt="${esc(im.alt)}" ${i?'loading="lazy"':''}></div>`).join('');
+  h += `<div class="plate-layer plan" data-k="plan">
+    <div class="plan-key" aria-hidden="true">
+      <div><svg width="18" height="12" aria-hidden="true"><rect x="1" y="1" width="16" height="10" fill="none" stroke="#0e3a2c" stroke-width="1.6" stroke-dasharray="3 2"></rect></svg>Granica osiedla</div>
+      <div><i style="background:#cfe1c7"></i>Parki i ogrody</div>
+      <div><i style="background:#c68b17;border-radius:50%;width:12px;height:12px;margin:0 2px"></i>Miejsca z przewodnika</div>
+    </div>${planSVG('pl')}</div>`;
+  h += `<div class="plate-layer zoom" data-k="zoom" id="zoomLayer"></div>`;
+  $('#plateLayers').innerHTML = h;
+  document.querySelectorAll('.plate-layer.plan .pin').forEach(p => {
+    p.addEventListener('mouseenter', () => hiPlace(p.dataset.id, true));
+    p.addEventListener('mouseleave', () => hiPlace(p.dataset.id, false));
+    p.addEventListener('click', () => {
+      const e = document.querySelector(`.entry[data-id="${p.dataset.id}"]`);
+      if (e) e.scrollIntoView({block:'center', behavior: reduce?'auto':'smooth'});
+    });
+  });
+  $('#prevP').addEventListener('click', () => stepPhoto(-1));
+  $('#nextP').addEventListener('click', () => stepPhoto(1));
+}
+function stepPhoto(d){
+  const n = F.heroImages.length;
+  const i = plateMode.type === 'photo' ? (plateMode.i + d + n) % n : 0;
+  manualUntil = Date.now() + 1200;
+  setPlate({type:'photo', i});
+}
+function setPlate(m){
+  plateMode = m;
+  const key = m.type === 'photo' ? `photo:${m.i}` : m.type;
+  if (m.type === 'zoom') $('#zoomLayer').innerHTML = zoomSVG();
+  document.querySelectorAll('.plate-layer').forEach(l => l.classList.toggle('on', l.dataset.k === key));
+  const nav = $('#capNav');
+  if (m.type === 'photo'){
+    const im = F.heroImages[m.i];
+    $('#capT').innerHTML = `<b>Ryc. ${m.i+1}</b>${esc(im.alt)}`;
+    $('#capC').textContent = im.credit; $('#capC').title = im.credit;
+    $('#cnt').textContent = `${m.i+1} z ${F.heroImages.length}`;
+    nav.style.visibility = 'visible';
+  } else if (m.type === 'plan'){
+    $('#capT').innerHTML = `<b>Plan</b>Stare Bielany i okolica, budynki, ulice i zieleń`;
+    $('#capC').textContent = '© współtwórcy OpenStreetMap'; $('#capC').title = '';
+    $('#cnt').textContent = 'Zdjęcia'; nav.style.visibility = 'visible';
+  } else {
+    const o = byId(selected);
+    $('#capT').innerHTML = `<b>Położenie</b>${esc(o.name)} na tle sąsiednich osiedli, kolor według dopasowania`;
+    $('#capC').textContent = 'Granice osiedli: MSI m.st. Warszawy'; $('#capC').title = '';
+    nav.style.visibility = 'hidden';
+  }
+}
+
+/* sections drive the plate */
+let io, manualUntil = 0;
+function observeSections(){
+  if (io) io.disconnect();
+  if (matchMedia('(max-width: 900px)').matches && selected === FEAT_ID){ /* mobile: plate shows the photo strip only */ }
+  io = new IntersectionObserver(entries => {
+    if (Date.now() < manualUntil) return;
+    const vis = entries.filter(e => e.isIntersecting);
+    if (!vis.length) return;
+    const k = vis[0].target.dataset.plate;
+    if (!k) return;
+    if (matchMedia('(max-width: 900px)').matches && k === 'plan') return;
+    const cur = plateMode.type === 'photo' ? `photo:${plateMode.i}` : plateMode.type;
+    if (k === cur) return;
+    if (k.startsWith('photo:')) setPlate({type:'photo', i:+k.split(':')[1]}); else setPlate({type:k});
+  }, {root: matchMedia('(max-width: 900px)').matches ? null : $('#page'), rootMargin:'-35% 0px -60% 0px', threshold:0});
+  document.querySelectorAll('#pageInner [data-plate]').forEach(s => io.observe(s));
+}
+
+/* ================= Init ================= */
+renderSeg(); buildMap(); paintMap(); renderLegend(); renderLocHead(); renderRank(); buildFinder();
+buildPlate();
+const h = decodeURIComponent(location.hash.slice(1));
+if (h.startsWith('p=')) { renderPage(); setPlate({type:'photo', i:0}); setProfile(h.slice(2)); }
+else if (h && byId(h)) select(h);
+else { renderPage(); setPlate({type:'photo', i:0}); }
+if (h && h.startsWith('s-')){ const t = document.getElementById(h); if (t){ $('#page').style.scrollBehavior='auto'; $('#page').scrollTop = t.offsetTop - 8; } }
+})();
+</script>
+</body>
+</html>

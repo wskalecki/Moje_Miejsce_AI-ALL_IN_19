@@ -1,9 +1,9 @@
 /** App-wide constants (spec §4.0, §4.3, §15). */
 
-export const APP_NAME = 'Okolica'
+export const APP_NAME = 'Moje Miejsce'
 
 export const APP_TAGLINE =
-  'Znajdź okolicę w Warszawie, która pasuje do Twojego życia — zanim zaczniesz szukać mieszkania.'
+  'Znajdź w Warszawie okolicę, która pasuje do Twojego życia — zanim zaczniesz szukać mieszkania.'
 
 export const MAP_STYLE_URL = 'https://tiles.openfreemap.org/styles/positron'
 export const MAP_STYLE_FALLBACK_URL =
@@ -43,10 +43,7 @@ export const TIMELINE_FIRST_YEAR = 2026
 export const TIMELINE_LAST_YEAR = 2040
 
 /** v2: adds `weights`, drops the 4-priority limit. */
-export const STORAGE_KEY = 'okolica.mock.v2'
-
-/** Panel tutorial dismissed (left filter hints). */
-export const PANEL_HINT_KEY = 'okolica.panelHint.v1'
+export const STORAGE_KEY = 'moje-miejsce.mock.v2'
 
 /** Left filter column width (px) — keep in sync with `--smap-panel-width` in map.css. */
 export const FILTER_PANEL_WIDTH = 416
@@ -54,5 +51,3 @@ export const FILTER_PANEL_WIDTH = 416
 /** Duration of the "Dopasowujemy" screen (spec §4.2). */
 export const MATCHING_DURATION_MS = 1800
 
-export const DEMO_NOTE =
-  'Wersja demonstracyjna — liczby policzone z otwartych danych bez ręcznych korekt; szacunki są oznaczone'

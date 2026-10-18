@@ -7,8 +7,18 @@ import type { ComponentType } from 'react'
 import type { Horizon, ProfileId, CategoryKey } from '../app/types'
 import type { LngLat, Osiedle, Route, TimelineEvent } from '../mock/osiedla'
 
+/** Rank and match of an osiedle for the current weights — the numbers on its map pill. */
+export interface PlaceFit {
+  rank: number
+  match: number
+  /** Number of ranked osiedla. */
+  total: number
+}
+
 export interface OsiedlePanelProps {
   osiedle: Osiedle
+  /** Same ranking as the map pills; without it the panel ranks with the store weights (`useMatch`). */
+  fit?: PlaceFit | null
   profile: ProfileId
   horizon: Horizon
   priorities?: CategoryKey[]
@@ -22,8 +32,6 @@ export interface OsiedlePanelProps {
   timelineYear?: number
   /** Timeline year (spec 4.6) with the events of year ≤ Y — investments with a coordinate get a pin on the map. */
   onTimelineYear?: (year: number, events: TimelineEvent[]) => void
-  /** "Pokaż prognozę" on the `chwila` teaser asks to switch the horizon to `stale`. */
-  onHorizonChange?: (horizon: Horizon) => void
 }
 
 type PanelModule = { default?: ComponentType<OsiedlePanelProps>; OsiedlePanel?: ComponentType<OsiedlePanelProps> }

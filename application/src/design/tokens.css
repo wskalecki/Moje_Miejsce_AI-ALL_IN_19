@@ -20,9 +20,6 @@
   --accent: var(--student); --accent-soft: var(--student-soft);
   --accent-mid: var(--student-mid); --accent-deep: var(--student-deep);
 
-  /* Night (cinematic) */
-  --night-bg: #0B0E17;  --night-surface: rgba(14, 18, 30, 0.62);  --night-ink: #F3F1EC;
-
   /* Glass */
   --glass: rgba(255, 255, 255, 0.72);
   --glass-strong: rgba(255, 255, 255, 0.86);
@@ -50,6 +47,20 @@
   --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-cinema: cubic-bezier(0.65, 0, 0.35, 1);
 
+  /* Map chrome — one grid and card language for /mapa and /mapa/:slug (src/design/chrome.css) */
+  --chrome-edge: 24px;            /* outer margin of every floating box */
+  --chrome-gap: 16px;             /* gap between floating boxes */
+  --chrome-col: 416px;            /* left column: header pill, filter card, place card */
+  --chrome-top: 96px;             /* top of the left-column card, under the header pill */
+  --chrome-card-pad: 16px 10px 10px;
+  --chrome-card-radius: var(--r-xl);
+  --chrome-box-radius: var(--r-lg);
+  --chrome-row-radius: var(--r-md);
+  --chrome-row-bg: rgba(255, 255, 255, 0.5);
+  --chrome-row-ring: inset 0 0 0 1px rgba(22, 22, 29, 0.07);
+  --chrome-card-shadow: inset 0 0 0 1px var(--glass-hairline), var(--shadow-lg);
+  --chrome-box-shadow: inset 0 0 0 1px var(--glass-hairline), var(--shadow-md);
+
   /* Layers */
   --z-map: 0; --z-chrome: 10; --z-panel: 20; --z-hover: 30; --z-toast: 40; --z-cinema: 50;
 
@@ -67,3 +78,11 @@
 .accent-student { --accent: var(--student); --accent-soft: var(--student-soft); --accent-mid: var(--student-mid); --accent-deep: var(--student-deep); }
 .accent-rodzina { --accent: var(--rodzina); --accent-soft: var(--rodzina-soft); --accent-mid: var(--rodzina-mid); --accent-deep: var(--rodzina-deep); }
 .accent-senior  { --accent: var(--senior);  --accent-soft: var(--senior-soft);  --accent-mid: var(--senior-mid);  --accent-deep: var(--senior-deep); }
+
+/* Phones and tablets: the chrome hugs the screen edge (map bottom sheet layout). */
+@media (max-width: 1023px) {
+  :root {
+    --chrome-edge: 12px;
+    --chrome-gap: 8px;
+  }
+}

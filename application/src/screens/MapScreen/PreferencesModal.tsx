@@ -33,10 +33,10 @@ export function PreferencesModal({ open, onClose, onComplete }: PreferencesModal
   const [step, setStep] = useState<Step>('intro')
   const headingRef = useRef<HTMLHeadingElement>(null)
 
+  // always from the intro: the profile step shows the preselected (default) profile and can change it
   useEffect(() => {
-    if (!open) return
-    setStep(state.profile ? 2 : 'intro')
-  }, [open, state.profile])
+    if (open) setStep('intro')
+  }, [open])
 
   useEffect(() => {
     if (open) headingRef.current?.focus({ preventScroll: true })
@@ -126,9 +126,8 @@ export function PreferencesModal({ open, onClose, onComplete }: PreferencesModal
 
         {step !== 1 && (
           <footer className="prefs-modal__foot">
-            <Button type="button" variant="primary" disabled={!canNext} onClick={goNext}>
+            <Button type="button" variant="primary" iconRight={ArrowRight} disabled={!canNext} onClick={goNext}>
               {step === 3 ? 'Pokaż mapę' : 'Dalej'}
-              <ArrowRight size={16} strokeWidth={2.4} aria-hidden />
             </Button>
           </footer>
         )}
@@ -142,17 +141,24 @@ function IntroStep({ headingRef }: { headingRef: RefObject<HTMLHeadingElement | 
     <>
       <div className="survey__question">
         <h1 className="t-h1" ref={headingRef} tabIndex={-1} id="prefs-modal-title">
-          Dopasuj okolicę do siebie
+          Wybierz to, co dla Ciebie ważne
         </h1>
         <p className="t-body t-secondary">
-          Za chwilę wybierzesz profil, to co jest dla Ciebie najważniejsze na co dzień (cisza, zieleń, kultura, gastronomia) oraz wynajem lub kupno.
-          Szkoły, parki, komunikacja czy sklepy doprecyzujesz w panelu po lewej stronie mapy.
+          Zaznacz swoje priorytety (np. ciszę, zieleń, kulturę czy restauracje) i określ, czy szukasz mieszkania na
+          wynajem, czy na sprzedaż.
         </p>
       </div>
       <ul className="prefs-modal__hints">
-        <li><strong>Suwaki 0–5</strong> — od „nie liczy się” do „bardzo ważne”; 0 chowa kategorię z porównania.</li>
-        <li><strong>Podgląd na mapie</strong> — opcjonalnie pokaż parki, przystanki, szkoły i inne miejsca.</li>
-        <li>Mapa pod spodem już działa — możesz ją zobaczyć po zamknięciu tego okna.</li>
+        <li>
+          <strong>Skala 0–5:</strong> Ustaw ważność kategorii. Wartość „0” wyłącza dany parametr z porównania.
+        </li>
+        <li>
+          <strong>Filtry szczegółowe:</strong> Szkoły, parki, sklepy czy komunikację doprecyzujesz w panelu po lewej
+          stronie.
+        </li>
+        <li>
+          <strong>Miejsca na mapie:</strong> Włącz podgląd wybranych punktów bezpośrednio na mapie.
+        </li>
       </ul>
     </>
   )
