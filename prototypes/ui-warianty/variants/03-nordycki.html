@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stare Bielany — Moje Miejsce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap&subset=latin-ext" rel="stylesheet">
+<style>
+:root{
+  --white:#FFFFFF;
+  --mist:#EEF2EE;
+  --mist-2:#E3E9E4;
+  --map-bg:#F3F5F2;
+  --line:#E2E7E3;
+  --ink:#17211C;
+  --ink-2:#56625C;
+  --ink-3:#7C8781;
+  --pine:#1F4D3A;
+  --pine-2:#2E6650;
+  --pine-soft:#CFDDD3;
+  --ochre:#B5873A;
+  --ochre-ink:#85601F;
+  --ochre-soft:#F3EADB;
+  --river:#8DB6CA;
+  --water:#D4E4EC;
+
+  --r-xs:2px; --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:20px;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --pad:48px;
+  --font:"Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  font-family:var(--font); color:var(--ink); background:var(--white);
+  font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  font-feature-settings:"tnum" 1, "lnum" 1;
+}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--pine);outline-offset:2px;border-radius:4px}
+.num{font-variant-numeric:tabular-nums lining-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- App shell ---------- */
+.app{display:grid;grid-template-rows:64px 1fr;height:100vh}
+.top{
+  display:flex;align-items:center;gap:var(--s6);
+  padding:0 var(--pad) 0 var(--pad);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;font-size:17px;letter-spacing:-.01em}
+.brand svg{flex:none}
+.profiles{display:flex;align-items:center;gap:var(--s3);margin-left:auto}
+.profiles__label{font-size:13px;color:var(--ink-2)}
+.seg{display:inline-flex;background:var(--mist);border-radius:var(--r-md);padding:3px}
+.seg button{
+  height:32px;padding:0 14px;border-radius:7px;font-size:14px;font-weight:500;color:var(--ink-2);
+  transition:background .2s var(--ease),color .2s var(--ease),box-shadow .2s var(--ease);
+}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--white);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(23,33,28,.08),0 0 0 1px rgba(23,33,28,.04)}
+.top__link{font-size:14px;color:var(--ink-2);text-decoration:none;padding:6px 0}
+.top__link:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+
+.split{display:grid;grid-template-columns:minmax(560px,50%) 1fr;min-height:0}
+
+/* ---------- Card pane ---------- */
+.card{overflow-y:auto;min-height:0;position:relative;scroll-behavior:smooth;scrollbar-gutter:stable}
+.card__inner{padding:20px var(--pad) var(--s8)}
+
+.stick{
+  position:sticky;top:0;z-index:5;height:56px;margin:0 calc(-1 * var(--pad));padding:0 var(--pad);
+  display:flex;align-items:center;gap:var(--s4);background:#fff;
+  border-bottom:1px solid transparent;transition:border-color .2s;
+}
+.stick.is-stuck{border-bottom-color:var(--line)}
+.stick__title{font-weight:600;font-size:16px;opacity:0;transform:translateY(4px);transition:opacity .2s,transform .2s;white-space:nowrap}
+.stick.is-stuck .stick__title{opacity:1;transform:none}
+.stick__title span{color:var(--pine);margin-left:8px}
+.crumb{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--ink-2);text-decoration:none;white-space:nowrap}
+.crumb:hover{color:var(--ink)}
+.stepper{margin-left:auto;display:flex;align-items:center;gap:var(--s2);font-size:13px;color:var(--ink-2);white-space:nowrap;flex:none}
+.icon-btn{
+  width:32px;height:32px;display:grid;place-items:center;border-radius:var(--r-sm);color:var(--ink);
+  transition:background .15s;
+}
+.icon-btn:hover{background:var(--mist)}
+.icon-btn:disabled{color:var(--ink-3);opacity:.45;cursor:default;background:none}
+
+/* photos */
+.mosaic{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;gap:6px;height:276px;margin-top:0}
+.mosaic button{position:relative;overflow:hidden;padding:0;border-radius:4px;background:var(--mist)}
+.mosaic button:first-child{grid-row:1 / span 2;border-radius:var(--r-lg) 4px 4px var(--r-lg)}
+.mosaic button:nth-child(2){border-top-right-radius:var(--r-lg)}
+.mosaic button:nth-child(3){border-bottom-right-radius:var(--r-lg)}
+.mosaic img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
+.mosaic button:hover img{transform:scale(1.025)}
+.mosaic__all{
+  position:absolute;right:10px;bottom:10px;display:inline-flex;align-items:center;gap:6px;
+  background:var(--white);color:var(--ink);font-size:13px;font-weight:600;padding:6px 10px;border-radius:var(--r-sm);
+}
+.credit{font-size:12px;color:var(--ink-3);margin:8px 0 0;line-height:1.4}
+
+/* heading */
+.head{margin-top:28px;display:flex;justify-content:space-between;gap:var(--s5);align-items:flex-end}
+.district{font-size:14px;color:var(--ink-2);margin:0 0 6px}
+h1{font-size:44px;line-height:1.02;letter-spacing:-.025em;font-weight:600;margin:0}
+.tagline{font-size:15px;color:var(--ink-2);margin:10px 0 0}
+
+.figures{display:grid;grid-template-columns:1.15fr .95fr 1.3fr 1fr;gap:var(--s5);margin-top:24px}
+.fig__v{height:56px;display:flex;align-items:flex-end}
+.fig__v{font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1;white-space:nowrap}
+.fig__v small{font-size:15px;font-weight:500;color:var(--ink-2);letter-spacing:0;margin-left:3px}
+.fig__l{font-size:13px;color:var(--ink-2);margin-top:8px;line-height:1.35}
+.fig--match .fig__v{font-size:60px;color:var(--pine);letter-spacing:-.045em;line-height:.86}
+.fig--match .fig__v small{font-size:17px;color:var(--ink-3);margin-left:4px;line-height:1}
+
+/* ranking barcode */
+.rank{margin-top:26px}
+.rank__top{display:flex;justify-content:space-between;gap:var(--s4);align-items:baseline;font-size:13px;color:var(--ink-2);margin-bottom:10px}
+.rank__top b{color:var(--ink);font-weight:600}
+.rank svg{display:block;width:100%;height:52px;overflow:visible}
+.rank rect{transition:opacity .15s}
+.rank svg:hover rect{opacity:.55}
+.rank svg:hover rect.is-hot,.rank rect.is-sel{opacity:1}
+.rank rect.is-sel{fill:var(--ochre)}
+.rank__plot{position:relative;padding-top:22px}
+.rank__mk{position:absolute;top:0;transform:translateX(-1px);display:flex;align-items:flex-start;gap:6px;font-size:12px;font-weight:600;color:var(--ochre-ink);white-space:nowrap;pointer-events:none}
+.rank__mk::before{content:"";width:2px;height:22px;background:var(--ochre);border-radius:1px}
+.rank__mk.is-right{flex-direction:row-reverse;transform:translateX(calc(-100% + 1px))}
+.rank__axis{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-3);margin-top:6px}
+
+.lead{font-size:18px;line-height:1.55;margin:36px 0 0;max-width:36em;color:var(--ink)}
+.lead em{font-style:normal;color:var(--ink-2)}
+
+/* sections */
+.sec{margin-top:var(--s8)}
+.sec__h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s4);margin-bottom:var(--s4)}
+h2{font-size:22px;letter-spacing:-.015em;font-weight:600;margin:0;line-height:1.2}
+.sec__note{font-size:13px;color:var(--ink-2)}
+.sub{font-size:14px;color:var(--ink-2);margin:-8px 0 var(--s4);max-width:40em}
+.group{font-size:13px;font-weight:600;color:var(--ink-2);margin:var(--s5) 0 2px;display:flex;align-items:center;gap:8px}
+.group:first-of-type{margin-top:var(--s2)}
+
+/* categories */
+.cats{list-style:none;margin:0;padding:0}
+.cat{display:grid;grid-template-columns:200px 1fr 40px;align-items:center;gap:var(--s4);height:42px;border-bottom:1px solid var(--line)}
+.cat__name{font-size:15px;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat--prio .cat__name{font-weight:600}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--ochre);flex:none}
+.bar{position:relative;height:4px;background:var(--mist-2);border-radius:var(--r-xs)}
+.bar__fill{position:absolute;left:0;top:0;bottom:0;background:var(--pine-2);border-radius:var(--r-xs);transition:width .6s var(--ease)}
+.cat--prio .bar__fill{background:var(--pine)}
+.bar__med{position:absolute;top:-5px;width:2px;height:14px;background:var(--ink);border-radius:1px;opacity:.55;transform:translateX(-1px)}
+.cat__v{text-align:right;font-weight:600;font-size:15px}
+.cats__key{display:flex;gap:var(--s5);margin-top:var(--s3);font-size:12px;color:var(--ink-3);align-items:center}
+.cats__key i{display:inline-block;vertical-align:middle;margin-right:6px}
+.cats__key .k-med{width:2px;height:12px;background:var(--ink);opacity:.55;border-radius:1px}
+
+/* places */
+.places{list-style:none;margin:0;padding:0}
+.place{display:grid;grid-template-columns:24px 1fr auto;gap:14px;align-items:start;padding:13px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.place:hover .place__n,.place.is-hot .place__n{background:var(--ochre)}
+.place__n{width:22px;height:22px;border-radius:50%;background:var(--pine);color:#fff;font-size:12px;font-weight:600;display:grid;place-items:center;margin-top:1px;transition:background .15s}
+.place__name{font-weight:600;font-size:15px;line-height:1.3}
+.place__desc{font-size:13px;color:var(--ink-2);margin-top:2px;line-height:1.4}
+.place__t{text-align:right;white-space:nowrap}
+.place__t b{display:block;font-size:15px;font-weight:600}
+.place__t span{font-size:12px;color:var(--ink-3)}
+.text-btn{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--pine);padding:6px 0;text-decoration:none}
+.text-btn:hover{text-decoration:underline;text-underline-offset:3px}
+
+/* commute */
+.commute{list-style:none;margin:0;padding:0}
+.cm{display:grid;grid-template-columns:1fr 280px;gap:var(--s5);padding:16px 0;border-bottom:1px solid var(--line);align-items:center}
+.cm__name{font-weight:600;font-size:15px}
+.cm__modes{font-size:13px;color:var(--ink-2);margin-top:2px}
+.cm__bars{display:grid;grid-template-columns:22px 1fr 54px;row-gap:8px;column-gap:10px;align-items:center;font-size:13px}
+.cm__bars svg{color:var(--ink-2)}
+.cm__track{height:6px;background:var(--mist);border-radius:var(--r-xs);position:relative}
+.cm__track i{position:absolute;left:0;top:0;bottom:0;border-radius:var(--r-xs);background:var(--pine)}
+.cm__track i.bike{background:#8FB09D}
+.cm__bars b{font-weight:600;text-align:right;font-size:14px}
+.cm__bars b small{font-weight:500;color:var(--ink-2);font-size:12px;margin-left:2px}
+
+.routes{margin-top:var(--s2)}
+.rt{display:grid;grid-template-columns:1fr 88px 88px;gap:var(--s4);align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.rt span:nth-child(n+2){text-align:right;color:var(--ink-2)}
+.rt--h{font-size:12px;color:var(--ink-3);border-bottom-color:var(--ink-3);padding:4px 0 6px;border-bottom-width:1px;border-bottom-color:#C9D1CB}
+.rt--h span:nth-child(n+2){color:var(--ink-3)}
+.rt--g{font-weight:600;font-size:13px;color:var(--ink-2);padding-top:18px;border-bottom:0;padding-bottom:2px}
+.routes-h{font-size:17px;font-weight:600;margin:var(--s7) 0 var(--s2);letter-spacing:-.01em}
+.routes h3{font-size:14px;font-weight:600;margin:0 0 6px}
+.routes ul{list-style:none;margin:0;padding:0}
+.routes li{display:flex;justify-content:space-between;gap:var(--s3);font-size:14px;padding:7px 0;border-bottom:1px solid var(--line)}
+.routes li span:first-child{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.routes li span:last-child{color:var(--ink-2);white-space:nowrap}
+
+/* prices */
+.price{display:flex;align-items:baseline;gap:var(--s4);flex-wrap:wrap}
+.price__v{font-size:40px;font-weight:600;letter-spacing:-.03em;line-height:1}
+.price__v small{font-size:16px;font-weight:500;color:var(--ink-2);margin-left:4px;letter-spacing:0}
+.price__d{font-size:14px;color:var(--ink-2)}
+.price__d b{color:var(--ochre-ink);font-weight:600}
+.range{margin-top:var(--s5)}
+.range__row{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:var(--s4);height:36px}
+.range__lab{font-size:14px}
+.range__lab.is-main{font-weight:600}
+.range__track{position:relative;height:36px}
+.range__track::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line)}
+.range__iqr{position:absolute;top:50%;height:10px;transform:translateY(-50%);border-radius:var(--r-xs);background:var(--pine-soft)}
+.range__row.is-main .range__iqr{background:#9BBBA8}
+.range__med{position:absolute;top:50%;width:3px;height:20px;transform:translate(-50%,-50%);background:var(--ink);border-radius:2px}
+.range__row.is-main .range__med{background:var(--pine)}
+.range__axis{position:relative;height:18px;margin-left:136px;font-size:12px;color:var(--ink-3)}
+.range__axis span{position:absolute;transform:translateX(-50%)}
+.small{font-size:13px;color:var(--ink-2);line-height:1.5;margin:var(--s4) 0 0;max-width:46em}
+.portals{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);margin-top:var(--s4);font-size:14px;align-items:center}
+.portals span{color:var(--ink-2)}
+.portals a{color:var(--pine);font-weight:600;text-decoration:none}
+.portals b{font-weight:600;margin-right:6px}
+.portals .pg{display:inline-flex;gap:10px;align-items:baseline}
+.portals a:hover{text-decoration:underline;text-underline-offset:3px}
+
+/* traffic */
+.traffic svg{display:block;width:100%;height:96px;overflow:visible}
+.traffic text{font-size:11px;fill:var(--ink-3);font-family:var(--font)}
+
+/* timeline */
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:96px 1fr;gap:var(--s5);padding:18px 0;border-bottom:1px solid var(--line)}
+.tl__y{font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1.2}
+.tl__y small{display:block;font-size:12px;font-weight:500;color:var(--ink-3);letter-spacing:0;margin-top:2px}
+.tl__t{font-weight:600;font-size:15px;line-height:1.35}
+.tl__d{font-size:14px;color:var(--ink-2);margin-top:4px;line-height:1.5}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;margin-top:8px;color:var(--ink-2)}
+.status i{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--ink-3)}
+.status.is-build{color:var(--ochre-ink)}
+.status.is-build i{background:var(--ochre);border-color:var(--ochre)}
+
+.data{margin-top:var(--s8);padding-top:var(--s5);border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);line-height:1.55}
+.data p{margin:0 0 8px;max-width:52em}
+
+.compact-note{margin-top:var(--s6);font-size:14px;color:var(--ink-2);display:flex;gap:var(--s4);align-items:center;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:var(--r-md);
+  background:var(--pine);color:#fff;font-weight:600;font-size:14px;transition:background .15s;
+}
+.btn:hover{background:#163a2b}
+
+/* ---------- Map pane ---------- */
+.mapwrap{padding:12px 12px 12px 0;min-height:0}
+.inset{position:relative;height:100%;border-radius:var(--r-xl);background:var(--map-bg);overflow:hidden}
+.inset > svg{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.inset > svg.is-drag{cursor:grabbing}
+.os{stroke:#fff;stroke-width:.8;vector-effect:non-scaling-stroke;cursor:pointer;transition:fill .5s var(--ease)}
+.os:hover,.os.is-hot{stroke:var(--ink);stroke-width:1.6}
+.os:focus{outline:none}
+.os:focus-visible{stroke:var(--ink);stroke-width:2.4}
+.os-sel{fill:none;stroke:var(--ochre);stroke-width:3;vector-effect:non-scaling-stroke;pointer-events:none;stroke-linejoin:round}
+.os-sel-halo{fill:none;stroke:#fff;stroke-width:6;vector-effect:non-scaling-stroke;pointer-events:none;stroke-linejoin:round}
+.river{fill:none;stroke:var(--river);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;pointer-events:none}
+.maplabel{font-family:var(--font);font-weight:600;fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round;pointer-events:none}
+.maplabel.river-l{fill:#5B8BA3;font-weight:500;font-style:italic}
+
+.mtools{position:absolute;top:16px;left:16px;right:16px;display:flex;align-items:flex-start;gap:var(--s3);pointer-events:none}
+.mtools > *{pointer-events:auto}
+.mtools .seg{background:rgba(255,255,255,.92);box-shadow:0 0 0 1px rgba(23,33,28,.06)}
+.mtools .seg button[aria-pressed="true"]{background:var(--pine);color:#fff;box-shadow:none}
+.zoom{margin-left:auto;display:flex;flex-direction:column;background:#fff;border-radius:var(--r-md);box-shadow:0 0 0 1px rgba(23,33,28,.07)}
+.zoom button{width:36px;height:36px;display:grid;place-items:center}
+.zoom button + button{border-top:1px solid var(--line)}
+.zoom button:hover{background:var(--mist)}
+.zoom button:first-child{border-radius:var(--r-md) var(--r-md) 0 0}
+.zoom button:last-child{border-radius:0 0 var(--r-md) var(--r-md)}
+
+.legend{position:absolute;left:16px;bottom:16px;background:rgba(255,255,255,.94);border-radius:var(--r-md);padding:12px 14px;box-shadow:0 0 0 1px rgba(23,33,28,.06)}
+.legend__t{font-size:12px;font-weight:600;margin-bottom:8px}
+.legend__sw{display:flex;gap:2px}
+.legend__sw i{width:30px;height:8px}
+.legend__sw i:first-child{border-radius:2px 0 0 2px}
+.legend__sw i:last-child{border-radius:0 2px 2px 0}
+.legend__n{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-2);margin-top:5px}
+.legend__keys{display:grid;gap:6px;font-size:12px;color:var(--ink-2)}
+.legend__keys div{display:flex;align-items:center;gap:8px}
+.legend__keys i{width:14px;height:10px;border-radius:2px;display:inline-block}
+.mcredit{position:absolute;right:16px;bottom:12px;font-size:11px;color:var(--ink-3);text-align:right;max-width:46%}
+
+.tip{
+  position:absolute;pointer-events:none;background:#fff;border-radius:var(--r-md);padding:10px 12px;min-width:170px;
+  box-shadow:0 6px 24px rgba(23,33,28,.12),0 0 0 1px rgba(23,33,28,.05);opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s;z-index:4
+}
+.tip.is-on{opacity:1;transform:none}
+.tip__n{font-weight:600;font-size:14px;line-height:1.3}
+.tip__d{font-size:12px;color:var(--ink-2)}
+.tip__m{display:flex;align-items:baseline;gap:8px;margin-top:6px;font-size:12px;color:var(--ink-2)}
+.tip__m b{font-size:18px;color:var(--ink);font-weight:600}
+
+/* neighbourhood plan */
+.nb-b{fill:#C9D1CB}
+.nb-b.tall{fill:#B4BFB7}
+.nb-g{fill:#C3DAC5}
+.nb-mask{fill:#FFFFFF;fill-opacity:.55;fill-rule:evenodd;pointer-events:none}
+.nb-w{fill:var(--water)}
+.nb-r{fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round}
+.nb-out{fill:rgba(31,77,58,.05);stroke:var(--pine);stroke-width:2.5;stroke-dasharray:7 5;vector-effect:non-scaling-stroke}
+.pin circle{fill:var(--pine);stroke:#fff;stroke-width:2.5;transition:fill .15s}
+.pin text{fill:#fff;font-family:var(--font);font-weight:700;font-size:15px;text-anchor:middle;pointer-events:none}
+.pin{cursor:pointer}
+.pin.is-hot circle{fill:var(--ochre)}
+.home circle{fill:#fff;stroke:var(--ochre);stroke-width:3}
+
+/* lightbox */
+dialog.lb{border:0;padding:0;max-width:min(1100px,92vw);width:100%;background:transparent;color:#fff}
+dialog.lb::backdrop{background:rgba(14,20,17,.86)}
+.lb__img{width:100%;max-height:78vh;object-fit:contain;border-radius:var(--r-md);background:#0b100d}
+.lb__bar{display:flex;align-items:center;gap:var(--s4);margin-top:var(--s3);font-size:13px;color:rgba(255,255,255,.8)}
+.lb__bar p{margin:0;flex:1}
+.lb__bar b{color:#fff;font-weight:600}
+.lb button{color:#fff;width:40px;height:40px;display:grid;place-items:center;border-radius:var(--r-sm)}
+.lb button:hover{background:rgba(255,255,255,.12)}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1180px){
+  :root{--pad:32px}
+  .split{grid-template-columns:minmax(480px,54%) 1fr}
+  .places{grid-template-columns:1fr}
+  .routes{grid-template-columns:1fr}
+  .figures{grid-template-columns:1fr 1fr;row-gap:28px}
+  .fig--match .fig__v{margin-top:0}
+}
+@media (max-width: 860px){
+  :root{--pad:20px}
+  .app{display:block;height:auto}
+  .top{height:auto;flex-wrap:wrap;gap:var(--s3);padding-top:12px;padding-bottom:12px}
+  .profiles{margin-left:0;width:100%;justify-content:space-between}
+  .top__link{display:none}
+  .split{display:flex;flex-direction:column-reverse}
+  .card{overflow:visible}
+  .mapwrap{padding:0 var(--pad) 0;height:62vh;position:relative}
+  .inset{border-radius:var(--r-lg)}
+  .stick{position:relative;height:52px;gap:var(--s3)}
+  .stick__title{display:none}
+  .rank__top span:last-child{display:none}
+  .cat{grid-template-columns:1fr 40px;grid-template-rows:auto auto;height:auto;padding:10px 0 12px;row-gap:8px}
+  .cat .bar{grid-column:1 / -1;grid-row:2}
+  .cat__v{grid-row:1;grid-column:2}
+  .legend{padding:10px 12px;left:12px;bottom:12px}
+  .legend__sw i{width:20px}
+  .mtools{top:12px;left:12px;right:12px}
+  .mtools .seg button{padding:0 10px;font-size:13px}
+  .figures{column-gap:16px}
+  .fig--match .fig__v{font-size:52px}
+  .price__v{font-size:34px}
+  .rt{grid-template-columns:1fr 64px 64px;gap:8px}
+  .mosaic{height:230px}
+  h1{font-size:36px}
+  .head{flex-direction:column;align-items:flex-start}
+  .cm{grid-template-columns:1fr}
+  .tl li{grid-template-columns:72px 1fr;gap:var(--s4)}
+  .range__row{grid-template-columns:96px 1fr}
+  .range__axis{margin-left:112px}
+  .mcredit{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <a class="brand" href="#" aria-label="Moje Miejsce — strona główna">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+        <rect width="28" height="28" rx="7" fill="#1F4D3A"></rect>
+        <path d="M8 21V12.5L14 7.5L20 12.5V21" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"></path>
+        <circle cx="14" cy="15.5" r="2.4" fill="#D9B270"></circle>
+      </svg>
+      <span>Moje Miejsce</span>
+    </a>
+    <div class="profiles">
+      <span class="profiles__label" id="profLabel">Szukam jako</span>
+      <div class="seg" role="group" aria-labelledby="profLabel" id="profSeg"></div>
+    </div>
+    <a class="top__link" href="#o-danych" id="aboutLink">Skąd są dane</a>
+  </header>
+
+  <main class="split">
+    <section class="card" id="card" aria-label="Karta osiedla">
+      <div class="card__inner" id="cardInner"></div>
+    </section>
+    <section class="mapwrap" aria-label="Mapa">
+      <div class="inset" id="inset">
+        <svg id="map" role="group" aria-label="Mapa osiedli Warszawy pokolorowana dopasowaniem"></svg>
+        <div class="mtools">
+          <div class="seg" role="group" aria-label="Widok mapy" id="modeSeg">
+            <button type="button" data-mode="city" aria-pressed="true">Warszawa</button>
+            <button type="button" data-mode="nb" aria-pressed="false">Okolica Starych Bielan</button>
+          </div>
+          <div class="zoom">
+            <button type="button" id="zin" aria-label="Przybliż"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg></button>
+            <button type="button" id="zout" aria-label="Oddal"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg></button>
+            <button type="button" id="zreset" aria-label="Pokaż całość"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 5V2h3M12 5V2H9M2 9v3h3M12 9v3H9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+          </div>
+        </div>
+        <div class="legend" id="legend"></div>
+        <div class="mcredit" id="mcredit"></div>
+        <div class="tip" id="tip" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<dialog class="lb" id="lb" aria-label="Zdjęcia okolicy">
+  <img class="lb__img" id="lbImg" alt="">
+  <div class="lb__bar">
+    <button type="button" id="lbPrev" aria-label="Poprzednie zdjęcie"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 3L5 9l6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <p id="lbCap"></p>
+    <button type="button" id="lbNext" aria-label="Następne zdjęcie"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M7 3l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <button type="button" id="lbClose" aria-label="Zamknij"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg></button>
+  </div>
+</dialog>
+
+<script src="../shared/data.js"></script>
+<script>
+(function(){
+'use strict';
+var MM = window.MM;
+var F = MM.featured;
+var CITY = MM.city;
+var NB = MM.neighborhood;
+var SVGNS = 'http://www.w3.org/2000/svg';
+
+var state = { profile: MM.activeProfile || 'senior', sel: F.slug, mode: 'city', hotPlace: null };
+
+var PROFILE_FOR = { student: 'dla studenta', rodzina: 'dla rodziny', senior: 'dla seniora' };
+var PRIORITIES = { senior: MM.seniorPriorities };
+var SCALE = ['#DCE5DC','#BCD1C2','#93B6A1','#66947C','#3D6F58','#1F4D3A'];
+
+var byId = {};
+CITY.osiedla.forEach(function(o){ byId[o.id] = o; });
+
+/* ---------- helpers ---------- */
+function $(s, r){ return (r || document).querySelector(s); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function fmt(n, d){ return Number(n).toLocaleString('pl-PL', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
+function median(a){ var s = a.slice().sort(function(x,y){return x-y;}); var m = s.length >> 1; return s.length % 2 ? s[m] : (s[m-1] + s[m]) / 2; }
+function clean(s){ return String(s).replace(/ · /g, ', '); }
+function el(tag, attrs){ var e = document.createElementNS(SVGNS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+
+var CAT_KEYS = Object.keys(MM.categories);
+var PLACE_NO = {};
+F.highlights.slice().sort(function(a,b){ return a.walkMin - b.walkMin; }).forEach(function(h, i){ PLACE_NO[h.id] = i + 1; });
+var CAT_MED = {};
+CAT_KEYS.forEach(function(k){ CAT_MED[k] = median(CITY.osiedla.map(function(o){ return o.cats[k]; })); });
+
+function domain(p){
+  var v = CITY.osiedla.map(function(o){ return o.match[p]; });
+  return [Math.min.apply(null, v), Math.max.apply(null, v)];
+}
+function colorFor(v, p){
+  var d = domain(p); var t = (v - d[0]) / (d[1] - d[0] || 1);
+  var i = Math.min(SCALE.length - 1, Math.floor(t * SCALE.length));
+  return SCALE[i];
+}
+function ranked(p){ return CITY.osiedla.slice().sort(function(a,b){ return a.rank[p] - b.rank[p]; }); }
+
+/* ---------- icons ---------- */
+var I = {
+  back: '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
+  prev: '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
+  next: '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
+  grid: '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5h4.5v4.5h-4.5zM8 1.5h4.5v4.5H8zM1.5 8h4.5v4.5h-4.5zM8 8h4.5v4.5H8z" fill="none" stroke="currentColor" stroke-width="1.3"></path></svg>',
+  tram: '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="4" y="3.5" width="10" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.4"></rect><path d="M4 9h10M6.5 16l1-2.5M11.5 16l-1-2.5M7 1.5h4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg>',
+  bike: '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="4.2" cy="12" r="2.8" fill="none" stroke="currentColor" stroke-width="1.4"></circle><circle cx="13.8" cy="12" r="2.8" fill="none" stroke="currentColor" stroke-width="1.4"></circle><path d="M4.2 12l3-6h5l1.6 6M7.2 6L9 12h4.8M6 4.5h2.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
+  map: '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5l4-1.5 5 2 4-1.5v10l-4 1.5-5-2-4 1.5zM5.5 2v10M10.5 4v10" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path></svg>'
+};
+
+/* ---------- header profile switch ---------- */
+function renderProfiles(){
+  var seg = $('#profSeg'); seg.innerHTML = '';
+  Object.keys(MM.profiles).forEach(function(k){
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = MM.profiles[k].title;
+    b.setAttribute('aria-pressed', String(k === state.profile));
+    b.title = MM.profiles[k].description;
+    b.addEventListener('click', function(){ setProfile(k); });
+    seg.appendChild(b);
+  });
+}
+function setProfile(p){
+  state.profile = p;
+  renderProfiles(); recolor(); renderLegend(); renderCard(true);
+}
+
+/* ---------- card ---------- */
+function rankStrip(o){
+  var p = state.profile; var list = ranked(p); var W = 4, H = 52;
+  var s = '<svg viewBox="0 0 ' + (list.length * W) + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Wszystkie 143 osiedla według dopasowania ' + PROFILE_FOR[p] + '; ' + esc(o.name) + ' na miejscu ' + o.rank[p] + '">';
+  list.forEach(function(x, i){
+    var h = Math.max(3, x.match[p] / 100 * H);
+    s += '<rect data-id="' + x.id + '" x="' + (i * W) + '" y="' + (H - h) + '" width="' + (W - 1.2) + '" height="' + h + '"' + (x.id === o.id ? ' class="is-sel"' : ' fill="' + colorFor(x.match[p], p) + '"') + '><title>' + esc(x.rank[p] + '. ' + x.name + ', ' + x.match[p]) + '</title></rect>';
+  });
+  return s + '</svg>';
+}
+
+function catList(stats){
+  var p = state.profile; var pr = PRIORITIES[p] || [];
+  function row(k){
+    var v = stats[k], prio = pr.indexOf(k) > -1;
+    return '<li class="cat' + (prio ? ' cat--prio' : '') + '"><span class="cat__name">' + (prio ? '<i class="dot" aria-hidden="true"></i>' : '') + esc(MM.categories[k]) + '</span>' +
+      '<span class="bar" role="img" aria-label="' + esc(MM.categories[k]) + ': ' + v + ' na 100, mediana Warszawy ' + Math.round(CAT_MED[k]) + '"><span class="bar__fill" style="width:' + v + '%"></span><span class="bar__med" style="left:' + CAT_MED[k] + '%"></span></span>' +
+      '<span class="cat__v num">' + v + '</span></li>';
+  }
+  var rest = CAT_KEYS.filter(function(k){ return pr.indexOf(k) < 0; });
+  var h = '';
+  if (pr.length){
+    h += '<div class="group"><i class="dot" aria-hidden="true"></i>Najważniejsze ' + PROFILE_FOR[p] + '</div><ul class="cats">' + pr.map(row).join('') + '</ul>';
+    h += '<div class="group">Pozostałe</div>';
+  } else {
+    rest.sort(function(a,b){ return stats[b] - stats[a]; });
+  }
+  h += '<ul class="cats">' + rest.map(row).join('') + '</ul>';
+  h += '<div class="cats__key"><span><i class="k-med"></i>mediana 143 osiedli Warszawy</span><span>Skala 0–100, wyżej znaczy lepiej</span></div>';
+  return h;
+}
+
+function figures(o, compact){
+  var p = state.profile;
+  var h = '<div class="figures">' +
+    '<div class="fig fig--match"><div class="fig__v num">' + o.match[p] + '<small>/100</small></div><div class="fig__l">dopasowanie ' + PROFILE_FOR[p] + '</div></div>' +
+    '<div class="fig"><div class="fig__v num">' + o.rank[p] + '.<small>ze ' + CITY.osiedla.length + '</small></div><div class="fig__l">miejsce w rankingu</div></div>';
+  if (!compact){
+    h += '<div class="fig"><div class="fig__v num">' + fmt(F.prices.buyPerM2) + '<small>zł/m²</small></div><div class="fig__l">mediana cen transakcji</div></div>' +
+      '<div class="fig"><div class="fig__v num">' + F.commute[0].minutes.komunikacja + '<small>min</small></div><div class="fig__l">do centrum komunikacją</div></div>';
+  } else {
+    h += '<div class="fig"><div class="fig__v num">' + fmt(o.areaKm2, 2) + '<small>km²</small></div><div class="fig__l">powierzchnia osiedla</div></div>';
+  }
+  return h + '</div>';
+}
+
+function rankBlock(o){
+  var p = state.profile; var list = ranked(p);
+  var idx = list.indexOf(o), pct = (idx + 0.35) / list.length * 100;
+  return '<div class="rank"><div class="rank__top"><span>Wszystkie ' + list.length + ' osiedla <b>' + PROFILE_FOR[p] + '</b>, od najlepiej dopasowanego</span><span>wysokość słupka to dopasowanie</span></div>' +
+    '<div class="rank__plot"><span class="rank__mk num' + (pct > 70 ? ' is-right' : '') + '" style="left:' + pct + '%">' + esc(o.name) + ', ' + o.rank[p] + '. miejsce</span>' + rankStrip(o) + '</div>' + '<div class="rank__axis num"><span>1. ' + esc(list[0].name) + '</span><span>' + list.length + '. ' + esc(list[list.length - 1].name) + '</span></div></div>';
+}
+
+function stickBar(o){
+  var p = state.profile; var list = ranked(p); var i = list.indexOf(o);
+  return '<div class="stick" id="stick">' +
+    (o.id === F.slug ? '<span class="crumb">Ranking ' + PROFILE_FOR[state.profile] + '</span>' : '<a class="crumb" href="#" data-go="' + F.slug + '">' + I.back + 'Stare Bielany</a>') +
+    '<span class="stick__title">' + esc(o.name) + '<span class="num">' + o.match[p] + '</span></span>' +
+    '<div class="stepper"><span class="num">' + (i + 1) + ' / ' + list.length + '</span>' +
+    '<button class="icon-btn" type="button" data-step="-1" aria-label="Poprzednie w rankingu"' + (i === 0 ? ' disabled' : '') + '>' + I.prev + '</button>' +
+    '<button class="icon-btn" type="button" data-step="1" aria-label="Następne w rankingu"' + (i === list.length - 1 ? ' disabled' : '') + '>' + I.next + '</button></div></div>';
+}
+
+function renderFeatured(){
+  var p = state.profile; var o = byId[F.slug]; var imgs = F.heroImages;
+  var h = stickBar(o);
+  h += '<div class="mosaic">' + [0, 2, 5].map(function(i, j){
+    return '<button type="button" data-img="' + i + '" aria-label="Otwórz zdjęcie: ' + esc(imgs[i].alt) + '"><img src="' + imgs[i].src + '" alt="' + esc(imgs[i].alt) + '"' + (j ? ' loading="lazy"' : '') + '>' + (j === 2 ? '<span class="mosaic__all">' + I.grid + 'Wszystkie zdjęcia (' + imgs.length + ')</span>' : '') + '</button>';
+  }).join('') + '</div>';
+  h += '<p class="credit" id="credit">' + esc(imgs[0].alt) + '. ' + esc(imgs[0].credit) + '</p>';
+
+  h += '<div class="head"><div><p class="district">' + esc(o.district) + ', ' + fmt(o.areaKm2, 2) + ' km²</p><h1 id="title">' + esc(F.name) + '</h1>' +
+    '<p class="tagline">' + esc(clean(F.tagline)) + '</p></div></div>';
+  h += figures(o, false);
+  h += rankBlock(o);
+  h += '<p class="lead">' + esc(o.blurb[p]).replace(/ Słabiej:/, ' <em>Słabiej:') + (o.blurb[p].indexOf('Słabiej:') > -1 ? '</em>' : '') + '</p>';
+
+  // categories
+  h += '<section class="sec" aria-labelledby="h-cat"><div class="sec__h"><h2 id="h-cat">Jak tu się żyje</h2><span class="sec__note">10 kategorii z otwartych danych</span></div>' + catList(o.cats) + '</section>';
+
+  // places
+  var places = F.highlights.slice().sort(function(a,b){ return a.walkMin - b.walkMin; });
+  h += '<section class="sec" aria-labelledby="h-pl"><div class="sec__h"><h2 id="h-pl">W okolicy</h2><button type="button" class="text-btn" data-show-nb>' + I.map + 'Pokaż na planie</button></div>' +
+    '<p class="sub">Czas pieszo od środka osiedla. Numery odpowiadają punktom na planie okolicy.</p><ul class="places">' +
+    places.map(function(pl){
+      var n = PLACE_NO[pl.id];
+      return '<li class="place" data-place="' + pl.id + '" tabindex="0"><span class="place__n num" aria-hidden="true">' + n + '</span><div><div class="place__name">' + esc(pl.name) + '</div><div class="place__desc">' + esc(pl.description) + '</div></div>' +
+        '<div class="place__t num"><b>' + pl.walkMin + ' min</b><span>' + fmt(pl.distanceM) + ' m' + (pl.distanceTo === 'skraj' ? ' do skraju' : '') + '</span></div></li>';
+    }).join('') + '</ul></section>';
+
+  // commute
+  var maxMin = 60;
+  h += '<section class="sec" aria-labelledby="h-cm"><div class="sec__h"><h2 id="h-cm">Dojazd w porannym szczycie</h2><span class="sec__note">przyjazd 7:30–9:00</span></div><ul class="commute">' +
+    F.commute.map(function(c){
+      var modes = Object.keys(c.transitByMode).map(function(m){ return m + ' ' + fmt(Math.round(c.transitByMode[m])) + ' min'; }).join(', ');
+      return '<li class="cm"><div><div class="cm__name">' + esc(c.label) + '</div><div class="cm__modes">Najszybciej z przesiadkami. Tylko jednym środkiem: ' + modes + '</div></div>' +
+        '<div class="cm__bars num">' +
+        '<span title="Komunikacja miejska">' + I.tram + '</span><span class="cm__track"><i style="width:' + (c.minutes.komunikacja / maxMin * 100) + '%"></i></span><b>' + c.minutes.komunikacja + '<small>min</small></b>' +
+        '<span title="Rower">' + I.bike + '</span><span class="cm__track"><i class="bike" style="width:' + (c.minutes.rower / maxMin * 100) + '%"></i></span><b>' + c.minutes.rower + '<small>min</small></b>' +
+        '</div></li>';
+    }).join('') + '</ul>';
+  var groups = {};
+  F.routes.forEach(function(r){ (groups[r.label] = groups[r.label] || []).push(r); });
+  h += '<h3 class="routes-h">Codzienne trasy</h3><div class="routes num" role="table" aria-label="Czas dojścia i dojazdu rowerem do codziennych miejsc"><div class="rt rt--h" role="row"><span role="columnheader">Cel</span><span role="columnheader">pieszo</span><span role="columnheader">rowerem</span></div>' +
+    Object.keys(groups).map(function(g){
+      return '<div class="rt rt--g" role="row"><span role="cell">' + esc(g) + '</span><span></span><span></span></div>' + groups[g].map(function(r){
+        return '<div class="rt" role="row"><span role="cell">' + esc(r.destinationName) + '</span><span role="cell">' + r.minutes.pieszo + ' min</span><span role="cell">' + r.minutes.rower + ' min</span></div>';
+      }).join('');
+    }).join('') + '</div></section>';
+
+  // prices
+  var pr = F.prices, rc = pr.rcn, lo = 12000, hi = 20000;
+  function px(v){ return ((v - lo) / (hi - lo) * 100).toFixed(2) + '%'; }
+  function rrow(lab, d, main){
+    return '<div class="range__row' + (main ? ' is-main' : '') + '"><span class="range__lab' + (main ? ' is-main' : '') + '">' + lab + '</span><span class="range__track" role="img" aria-label="' + lab + ': mediana ' + fmt(d.med) + ' zł/m², połowa transakcji między ' + fmt(d.p25) + ' a ' + fmt(d.p75) + ' zł/m²">' +
+      '<span class="range__iqr" style="left:' + px(d.p25) + ';width:calc(' + px(d.p75) + ' - ' + px(d.p25) + ')"></span><span class="range__med" style="left:' + px(d.med) + '"></span></span></div>';
+  }
+  var diff = pr.buyPerM2 - pr.cityBuyPerM2;
+  h += '<section class="sec" aria-labelledby="h-pr"><div class="sec__h"><h2 id="h-pr">Ceny mieszkań</h2><span class="sec__note num">' + fmt(rc.msi.n) + ' transakcji, 01.2024–08.2026</span></div>' +
+    '<div class="price"><span class="price__v num">' + fmt(pr.buyPerM2) + '<small>zł/m²</small></span><span class="price__d num"><b>' + (diff > 0 ? '+' : '') + fmt(diff) + ' zł/m²</b> wobec mediany Warszawy (' + fmt(pr.cityBuyPerM2) + ' zł/m²)</span></div>' +
+    '<div class="range">' + rrow('Stare Bielany', rc.msi, true) + rrow('Warszawa', rc.city, false) +
+    '<div class="range__axis num">' + [13000, 15000, 17000, 19000].map(function(v){ return '<span style="left:' + px(v) + '">' + fmt(v / 1000) + ' tys.</span>'; }).join('') + '</div></div>' +
+    '<p class="small">Pasek to środkowa połowa transakcji (od 25. do 75. percentyla), kreska to mediana. ' + esc(pr.basisLabel) + '. ' + esc(pr.rentNote) + '</p>' +
+    '<div class="portals"><span>Oferty na Starych Bielanach:</span>' + F.portals.map(function(x){ return '<span class="pg"><b>' + esc(x.name) + ':</b><a href="' + esc(x.buyUrl) + '" target="_blank" rel="noopener">kupno</a><a href="' + esc(x.rentUrl) + '" target="_blank" rel="noopener">najem</a></span>'; }).join('') + '</div></section>';
+
+  // traffic
+  h += '<section class="sec traffic" aria-labelledby="h-tr"><div class="sec__h"><h2 id="h-tr">Ruch w ciągu doby</h2><span class="sec__note">wskaźnik 0–100</span></div><p class="sub">' + esc(F.trafficRoad) + '. ' + trafficSummary(F.traffic) + '</p>' + trafficChart(F.traffic) + '</section>';
+
+  // timeline
+  var tl = F.timeline.slice().sort(function(a,b){
+    var A = a.yearPlacement === 'bez terminu' ? 9999 : a.year, B = b.yearPlacement === 'bez terminu' ? 9999 : b.year; return A - B || (a.yearUncertain ? 1 : 0) - (b.yearUncertain ? 1 : 0);
+  });
+  h += '<section class="sec" aria-labelledby="h-tl"><div class="sec__h"><h2 id="h-tl">Plany zmian w okolicy</h2><span class="sec__note">2026–2040</span></div><ul class="tl">' +
+    tl.map(function(t){
+      var noDate = t.yearPlacement === 'bez terminu';
+      var y = noDate ? 'Bez terminu' : t.year;
+      var ys = t.yearUncertain && !noDate ? '<small>termin niepewny</small>' : '';
+      var st = t.status === 'w budowie' ? '<span class="status is-build"><i></i>W budowie</span>' : '<span class="status"><i></i>' + (t.status === 'planowana' ? 'Planowana' : esc(t.status)) + '</span>';
+      return '<li><div class="tl__y num"' + (noDate ? ' style="font-size:15px"' : '') + '>' + y + ys + '</div><div><div class="tl__t">' + esc(t.title) + '</div><div class="tl__d">' + esc(t.description) + '</div>' + st + '</div></li>';
+    }).join('') + '</ul></section>';
+
+  h += '<footer class="data" id="o-danych"><p><b>Skąd są dane.</b> ' + esc(MM.credits.replace(/ · /g, ', ')) + '.</p><p>Dojazdy: ' + esc(F.commute[0].source) + '</p><p>Ceny: ' + esc(pr.sourceNote) + '</p></footer>';
+  return h;
+}
+
+function trafficSummary(t){
+  var mx = Math.max.apply(null, t), hrs = [];
+  t.forEach(function(v, i){ if (v === mx) hrs.push(i); });
+  return 'Przez całą dobę płynnie; najwięcej ' + hrs.map(function(x){ return x + ':00'; }).join(' i ') + ' (' + mx + ' na 100).';
+}
+function trafficChart(t){
+  var W = 600, H = 96, top = 6, bottom = 20, ch = H - top - bottom, bw = W / 24;
+  function y(v){ return top + ch - v / 100 * ch; }
+  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Wskaźnik ruchu dla każdej godziny doby, od 0 do 100">';
+  [35, 65].forEach(function(g){ s += '<line x1="0" x2="' + W + '" y1="' + y(g) + '" y2="' + y(g) + '" stroke="#E2E7E3" stroke-dasharray="3 4"></line>'; });
+  s += '<text x="' + W + '" y="' + (y(35) - 4) + '" text-anchor="end">umiarkowanie od 35</text><text x="' + W + '" y="' + (y(65) - 4) + '" text-anchor="end">duże korki od 65</text>';
+  t.forEach(function(v, i){
+    var hgt = Math.max(1.5, v / 100 * ch);
+    s += '<rect x="' + (i * bw + 2) + '" y="' + (top + ch - hgt) + '" width="' + (bw - 4) + '" height="' + hgt + '" rx="1" fill="' + (v ? '#3D6F58' : '#CFDDD3') + '"><title>' + i + ':00, ' + v + '</title></rect>';
+  });
+  s += '<line x1="0" x2="' + W + '" y1="' + (top + ch) + '" y2="' + (top + ch) + '" stroke="#C9D1CB"></line>';
+  [0, 6, 12, 18, 23].forEach(function(hh){ s += '<text x="' + (hh * bw + bw / 2) + '" y="' + (H - 4) + '" text-anchor="middle">' + hh + ':00</text>'; });
+  return s + '</svg>';
+}
+
+function renderCompact(o){
+  var p = state.profile;
+  var h = stickBar(o);
+  h += '<div class="head" style="margin-top:12px"><div><p class="district">' + esc(o.district) + '</p><h1 id="title">' + esc(o.name) + '</h1></div></div>';
+  h += figures(o, true);
+  h += rankBlock(o);
+  h += '<p class="lead">' + esc(o.blurb[p]).replace(/ Słabiej:/, ' <em>Słabiej:') + (o.blurb[p].indexOf('Słabiej:') > -1 ? '</em>' : '') + '</p>';
+  h += '<section class="sec" aria-labelledby="h-cat"><div class="sec__h"><h2 id="h-cat">Jak tu się żyje</h2><span class="sec__note">10 kategorii z otwartych danych</span></div>' + catList(o.cats) + '</section>';
+  h += '<div class="compact-note"><span>Zdjęcia, dojazdy, ceny i plany zmian mamy na razie dla Starych Bielan.</span><button class="btn" type="button" data-go="' + F.slug + '">Otwórz Stare Bielany</button></div>';
+  return h;
+}
+
+var titleObs;
+function renderCard(keepScroll){
+  var o = byId[state.sel]; var card = $('#card'); var top = card.scrollTop;
+  $('#cardInner').innerHTML = o.id === F.slug ? renderFeatured() : renderCompact(o);
+  document.title = o.name + ' — Moje Miejsce';
+  if (keepScroll) card.scrollTop = top; else card.scrollTop = 0;
+  bindCard();
+}
+
+function bindCard(){
+  var inner = $('#cardInner');
+  inner.querySelectorAll('[data-go]').forEach(function(b){ b.addEventListener('click', function(e){ e.preventDefault(); select(b.getAttribute('data-go')); }); });
+  inner.querySelectorAll('[data-step]').forEach(function(b){ b.addEventListener('click', function(){
+    var list = ranked(state.profile); var i = list.indexOf(byId[state.sel]) + Number(b.getAttribute('data-step'));
+    if (list[i]) select(list[i].id);
+  }); });
+  inner.querySelectorAll('.rank rect').forEach(function(r){
+    r.style.cursor = 'pointer';
+    r.addEventListener('click', function(){ select(r.getAttribute('data-id')); });
+    r.addEventListener('mouseenter', function(){ r.classList.add('is-hot'); hotOs(r.getAttribute('data-id'), true); });
+    r.addEventListener('mouseleave', function(){ r.classList.remove('is-hot'); hotOs(r.getAttribute('data-id'), false); });
+  });
+  inner.querySelectorAll('[data-img]').forEach(function(b){
+    b.addEventListener('click', function(){ openLb(Number(b.getAttribute('data-img'))); });
+    b.addEventListener('mouseenter', function(){ var im = F.heroImages[Number(b.getAttribute('data-img'))]; $('#credit').textContent = im.alt + '. ' + im.credit; });
+  });
+  inner.querySelectorAll('[data-show-nb]').forEach(function(b){ b.addEventListener('click', function(){ setMode('nb'); }); });
+  inner.querySelectorAll('.place').forEach(function(li){
+    var id = li.getAttribute('data-place');
+    li.addEventListener('mouseenter', function(){ hotPlace(id); });
+    li.addEventListener('mouseleave', function(){ hotPlace(null); });
+    li.addEventListener('focus', function(){ hotPlace(id); });
+    li.addEventListener('blur', function(){ hotPlace(null); });
+    function go(){ setMode('nb'); hotPlace(id); }
+    li.addEventListener('click', go);
+    li.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } });
+  });
+  var stick = $('#stick'), title = $('#title');
+  if (titleObs) titleObs.disconnect();
+  if (stick && title && 'IntersectionObserver' in window){
+    titleObs = new IntersectionObserver(function(en){ stick.classList.toggle('is-stuck', !en[0].isIntersecting); }, { root: window.innerWidth > 860 ? $('#card') : null, rootMargin: '-56px 0px 0px 0px' });
+    titleObs.observe(title);
+  }
+}
+
+function select(id){
+  if (!byId[id]) return;
+  state.sel = id;
+  if (state.mode === 'nb' && id !== F.slug) setMode('city');
+  renderCard(false); markSelected();
+}
+
+/* ---------- map ---------- */
+var riverEl = null, RIVER_AT = 0.3;
+var svg = $('#map'), view = { k: 1, x: 0, y: 0 }, gRoot, gCity, gNb, pathEls = {};
+var VB = { city: [CITY.w, CITY.h], nb: [NB.w, NB.h] };
+
+function buildMap(){
+  svg.innerHTML = '';
+  svg.setAttribute('viewBox', '0 0 ' + CITY.w + ' ' + CITY.h);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  gRoot = el('g', {}); svg.appendChild(gRoot);
+
+  gCity = el('g', {}); gRoot.appendChild(gCity);
+  var gp = el('g', {}); gCity.appendChild(gp);
+  CITY.osiedla.forEach(function(o){
+    var pth = el('path', { d: o.d, class: 'os', tabindex: '0', role: 'button', 'aria-label': o.name + ', ' + o.district });
+    pth.addEventListener('mouseenter', function(e){ showTip(o, e); pth.parentNode.appendChild(pth); markSelectedTop(); });
+    pth.addEventListener('mousemove', function(e){ moveTip(e); });
+    pth.addEventListener('mouseleave', hideTip);
+    pth.addEventListener('focus', function(){ showTip(o, null, pth); });
+    pth.addEventListener('blur', hideTip);
+    pth.addEventListener('click', function(){ if (!dragged) select(o.id); });
+    pth.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); select(o.id); } });
+    gp.appendChild(pth); pathEls[o.id] = pth;
+  });
+  gCity.appendChild(el('path', { d: CITY.river, class: 'river', 'stroke-width': '9', stroke: '#fff', style: 'stroke:#fff;opacity:.7' }));
+  riverEl = el('path', { d: CITY.river, class: 'river', 'stroke-width': '5' }); gCity.appendChild(riverEl);
+  var selG = el('g', { id: 'selG' }); gCity.appendChild(selG);
+  var lab = el('g', { id: 'labG' }); gCity.appendChild(lab);
+
+  gNb = el('g', { style: 'display:none' }); gRoot.appendChild(gNb);
+  buildNb();
+  recolor(); markSelected(); renderLegend();
+}
+
+function buildNb(){
+  var s = '<rect x="-2000" y="-2000" width="5000" height="5000" fill="#E9EDE8"></rect>';
+  NB.green.forEach(function(g){ s += '<path class="nb-g" d="' + g.d + '"></path>'; });
+  NB.water.forEach(function(d){ s += '<path class="nb-w" d="' + d + '"></path>'; });
+  var W = { motorway: 12, motorway_link: 6, secondary: 9, secondary_link: 5, tertiary: 7, tertiary_link: 4, residential: 3.6, living_street: 3, unclassified: 3.2 };
+  var order = ['unclassified','living_street','residential','tertiary_link','tertiary','secondary_link','secondary','motorway_link','motorway'];
+  NB.roads.slice().sort(function(a,b){ return order.indexOf(a.hw) - order.indexOf(b.hw); }).forEach(function(r){
+    s += '<path class="nb-r" stroke-width="' + (W[r.hw] || 2.5) + '" d="' + r.d + '"></path>';
+  });
+  NB.buildings.forEach(function(b){ s += '<path class="nb-b' + (b.h >= 18 ? ' tall' : '') + '" d="' + b.d + '"></path>'; });
+  s += '<path class="nb-mask" d="M-2000 -2000H3000V3000H-2000Z ' + NB.outline + '"></path>';
+  s += '<path class="nb-out" d="' + NB.outline + '"></path>';
+  var named = NB.green.filter(function(g){ return g.name && g.kind !== 'garden'; });
+  s += '<g class="home" transform="translate(' + NB.center[0] + ' ' + NB.center[1] + ')"><circle r="9"></circle></g>';
+  NB.places.forEach(function(p, i){
+    var h = F.highlights.find(function(x){ return x.id === p.id; });
+    s += '<g class="pin" data-pin="' + p.id + '" transform="translate(' + p.xy[0] + ' ' + p.xy[1] + ')"><title>' + esc(h ? h.name + ', ' + h.walkMin + ' min pieszo' : p.id) + '</title><circle r="15"></circle><text y="5">' + PLACE_NO[p.id] + '</text></g>';
+  });
+  gNb.innerHTML = s;
+  gNb.querySelectorAll('.pin').forEach(function(pn){
+    var id = pn.getAttribute('data-pin');
+    pn.addEventListener('mouseenter', function(){ hotPlace(id); });
+    pn.addEventListener('mouseleave', function(){ hotPlace(null); });
+    pn.addEventListener('click', function(){
+      var li = document.querySelector('.place[data-place="' + id + '"]');
+      if (li){ li.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
+    });
+  });
+}
+
+function recolor(){
+  var p = state.profile;
+  CITY.osiedla.forEach(function(o){ pathEls[o.id].setAttribute('fill', colorFor(o.match[p], p)); pathEls[o.id].setAttribute('aria-label', o.name + ', ' + o.district + ', dopasowanie ' + o.match[p] + ', miejsce ' + o.rank[p]); });
+  markSelected();
+}
+
+function markSelected(){
+  var o = byId[state.sel]; var selG = $('#selG'), lab = $('#labG');
+  if (!selG) return;
+  selG.innerHTML = '<path class="os-sel-halo" d="' + o.d + '"></path><path class="os-sel" d="' + o.d + '"></path>';
+  drawLabels();
+}
+function markSelectedTop(){ var s = $('#selG'); if (s) s.parentNode.appendChild(s); var l = $('#labG'); if (l) l.parentNode.appendChild(l); }
+
+function drawLabels(){
+  var lab = $('#labG'); if (!lab) return;
+  var o = byId[state.sel], k = view.k, fs = 17 / k;
+  var s = '';
+  // quiet context labels: a few district-ish anchors from the data (top-ranked shown only as selection)
+  s += '<text class="maplabel" x="' + (o.cx) + '" y="' + (o.cy - 18 / k) + '" text-anchor="middle" font-size="' + fs + '" stroke-width="' + (4 / k) + '">' + esc(o.name) + '</text>';
+  if (riverEl){
+    var L = riverEl.getTotalLength(), t = L * RIVER_AT, a1 = riverEl.getPointAtLength(t - 6), a2 = riverEl.getPointAtLength(t + 6), pt = riverEl.getPointAtLength(t);
+    var ang = Math.atan2(a2.y - a1.y, a2.x - a1.x) * 180 / Math.PI; if (ang > 90) ang -= 180; if (ang < -90) ang += 180;
+    s += '<text class="maplabel river-l" x="' + pt.x + '" y="' + pt.y + '" dy="' + (-9 / k) + '" text-anchor="middle" font-size="' + (16 / k) + '" stroke-width="' + (3 / k) + '" transform="rotate(' + ang.toFixed(1) + ' ' + pt.x + ' ' + pt.y + ')">Wisła</text>';
+  }
+  lab.innerHTML = s;
+}
+
+function hotOs(id, on){ var p = pathEls[id]; if (!p) return; p.classList.toggle('is-hot', on); if (on){ p.parentNode.appendChild(p); markSelectedTop(); } }
+
+function hotPlace(id){
+  state.hotPlace = id;
+  document.querySelectorAll('.pin').forEach(function(p){ p.classList.toggle('is-hot', p.getAttribute('data-pin') === id); if (p.getAttribute('data-pin') === id) p.parentNode.appendChild(p); });
+  document.querySelectorAll('.place').forEach(function(p){ p.classList.toggle('is-hot', p.getAttribute('data-place') === id); });
+}
+
+/* tooltip */
+var tip = $('#tip'), inset = $('#inset');
+function showTip(o, e, target){
+  var p = state.profile;
+  tip.innerHTML = '<div class="tip__n">' + esc(o.name) + '</div><div class="tip__d">' + esc(o.district) + '</div><div class="tip__m num"><b>' + o.match[p] + '</b><span>dopasowania, ' + o.rank[p] + '. ze ' + CITY.osiedla.length + '</span></div>';
+  tip.classList.add('is-on');
+  if (e) moveTip(e); else if (target){ var r = target.getBoundingClientRect(), R = inset.getBoundingClientRect(); place(r.left + r.width / 2 - R.left, r.top - R.top); }
+}
+function moveTip(e){ var R = inset.getBoundingClientRect(); place(e.clientX - R.left, e.clientY - R.top); }
+function place(x, y){
+  var w = tip.offsetWidth, h = tip.offsetHeight, R = inset.getBoundingClientRect();
+  var tx = Math.min(Math.max(8, x + 14), R.width - w - 8), ty = y - h - 14; if (ty < 64) ty = y + 18;
+  tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
+}
+function hideTip(){ tip.classList.remove('is-on'); }
+
+/* legend */
+function renderLegend(){
+  var lg = $('#legend');
+  if (state.mode === 'nb'){
+    lg.innerHTML = '<div class="legend__t">Plan okolicy</div><div class="legend__keys">' +
+      '<div><i style="background:rgba(31,77,58,.06);border:1.5px dashed #1F4D3A"></i>Granica osiedla</div>' +
+      '<div><i style="background:#D3E2D5"></i>Parki i zieleń</div>' +
+      '<div><i style="background:#D4E4EC"></i>Woda</div>' +
+      '<div><i style="background:#C8D0CA"></i>Budynki</div>' +
+      '<div><i style="background:#fff;border:2.5px solid #B5873A;border-radius:50%;width:12px;height:12px"></i>Środek osiedla</div></div>';
+    $('#mcredit').textContent = '© współtwórcy OpenStreetMap';
+    return;
+  }
+  var p = state.profile, d = domain(p), step = (d[1] - d[0]) / SCALE.length;
+  lg.innerHTML = '<div class="legend__t">Dopasowanie ' + PROFILE_FOR[p] + '</div><div class="legend__sw">' + SCALE.map(function(c){ return '<i style="background:' + c + '"></i>'; }).join('') + '</div>' +
+    '<div class="legend__n num"><span>' + d[0] + '</span><span>' + Math.round(d[0] + step * 3) + '</span><span>' + d[1] + '</span></div>';
+  $('#mcredit').textContent = MM.credits.replace(/ · /g, ', ');
+}
+
+/* mode */
+function setMode(m){
+  state.mode = m;
+  document.querySelectorAll('#modeSeg button').forEach(function(b){ b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === m)); });
+  gCity.style.display = m === 'city' ? '' : 'none';
+  gNb.style.display = m === 'nb' ? '' : 'none';
+  svg.setAttribute('viewBox', '0 0 ' + VB[m][0] + ' ' + VB[m][1]);
+  svg.setAttribute('aria-label', m === 'city' ? 'Mapa osiedli Warszawy pokolorowana dopasowaniem' : 'Plan okolicy Starych Bielan z budynkami, zielenią i miejscami');
+  if (m === 'nb' && state.sel !== F.slug){ state.sel = F.slug; renderCard(false); markSelected(); }
+  view = m === 'nb' ? { k: 1.15, x: -70, y: -60 } : { k: 1, x: 0, y: 0 };
+  applyView(); renderLegend(); hideTip();
+}
+document.querySelectorAll('#modeSeg button').forEach(function(b){ b.addEventListener('click', function(){ setMode(b.getAttribute('data-mode')); }); });
+
+/* zoom / pan */
+function applyView(){ gRoot.setAttribute('transform', 'translate(' + view.x + ' ' + view.y + ') scale(' + view.k + ')'); if (state.mode === 'city') drawLabels(); }
+function zoomAt(f, cx, cy){
+  var vb = VB[state.mode]; if (cx == null){ cx = vb[0] / 2; cy = vb[1] / 2; }
+  var k = Math.max(1, Math.min(8, view.k * f)); var r = k / view.k;
+  view.x = cx - (cx - view.x) * r; view.y = cy - (cy - view.y) * r; view.k = k; applyView();
+}
+function toSvg(e){ var pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+$('#zin').addEventListener('click', function(){ zoomAt(1.5); });
+$('#zout').addEventListener('click', function(){ zoomAt(1 / 1.5); });
+$('#zreset').addEventListener('click', function(){ view = state.mode === 'nb' ? { k: 1.15, x: -70, y: -60 } : { k: 1, x: 0, y: 0 }; applyView(); });
+svg.addEventListener('wheel', function(e){ e.preventDefault(); var p = toSvg(e); zoomAt(e.deltaY < 0 ? 1.2 : 1 / 1.2, p.x, p.y); }, { passive: false });
+var drag = null, dragged = false;
+svg.addEventListener('pointerdown', function(e){ if (e.button !== 0) return; drag = { p: toSvg(e), x: view.x, y: view.y }; dragged = false; });
+window.addEventListener('pointermove', function(e){
+  if (!drag) return; var p = toSvg(e); var dx = p.x - drag.p.x, dy = p.y - drag.p.y;
+  if (!dragged && Math.abs(dx) + Math.abs(dy) < 4) return;
+  dragged = true; svg.classList.add('is-drag'); hideTip();
+  view.x = drag.x + dx; view.y = drag.y + dy; applyView();
+  drag.p = { x: p.x - (view.x - drag.x), y: p.y - (view.y - drag.y) }; drag.x = view.x; drag.y = view.y;
+});
+window.addEventListener('pointerup', function(){ drag = null; svg.classList.remove('is-drag'); setTimeout(function(){ dragged = false; }, 0); });
+
+/* lightbox */
+var lb = $('#lb'), lbI = 0;
+function openLb(i){ lbI = i; showLb(); if (lb.showModal) lb.showModal(); }
+function showLb(){ var im = F.heroImages[lbI]; $('#lbImg').src = im.src; $('#lbImg').alt = im.alt; $('#lbCap').innerHTML = '<b>' + esc(im.alt) + '</b><br>' + esc(im.credit) + ' <span class="num">(' + (lbI + 1) + ' / ' + F.heroImages.length + ')</span>'; }
+$('#lbPrev').addEventListener('click', function(){ lbI = (lbI + F.heroImages.length - 1) % F.heroImages.length; showLb(); });
+$('#lbNext').addEventListener('click', function(){ lbI = (lbI + 1) % F.heroImages.length; showLb(); });
+$('#lbClose').addEventListener('click', function(){ lb.close(); });
+lb.addEventListener('keydown', function(e){ if (e.key === 'ArrowLeft') $('#lbPrev').click(); if (e.key === 'ArrowRight') $('#lbNext').click(); });
+lb.addEventListener('click', function(e){ if (e.target === lb) lb.close(); });
+
+/* init (hash allows deep links: #p=student&sel=id&mode=nb&y=1200) */
+var q = {}; location.hash.slice(1).split('&').forEach(function(kv){ var a = kv.split('='); if (a[0]) q[a[0]] = decodeURIComponent(a[1] || ''); });
+if (q.p && MM.profiles[q.p]) state.profile = q.p;
+if (q.sel && byId[q.sel]) state.sel = q.sel;
+renderProfiles();
+buildMap();
+renderCard(false);
+if (q.mode === 'nb') setMode('nb');
+if (q.y) { $('#card').style.scrollBehavior = 'auto'; $('#card').scrollTop = Number(q.y); window.scrollTo(0, Number(q.y)); }
+})();
+</script>
+</body>
+</html>
