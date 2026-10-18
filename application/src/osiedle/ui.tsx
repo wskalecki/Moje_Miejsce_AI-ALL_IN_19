@@ -1,7 +1,7 @@
 /** Small presentational primitives shared by the osiedle panel sections. */
 import { animate, useReducedMotion } from 'motion/react'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
-import type { LucideIcon } from 'lucide-react'
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
+import { ChevronDown, type LucideIcon } from 'lucide-react'
 import { EASE_EMPHASIZED } from './shared'
 
 /**
@@ -87,5 +87,72 @@ export function SectionHead({
       </h2>
       {aside}
     </header>
+  )
+}
+
+/**
+ * Panel section that folds to its header: the title is a button (aria-expanded) and the body
+ * rows open via `grid-template-rows` (CSS only, no per-frame React work). The body mounts on the
+ * first open and then stays mounted, so heavy content (charts, galleries) costs nothing until
+ * it's wanted and keeps its state across toggles. Controlled with `open` + `onOpenChange`,
+ * otherwise uncontrolled from `defaultOpen`.
+ */
+export function CollapsibleSection({
+  id,
+  icon: Icon,
+  title,
+  aside,
+  open: openProp,
+  defaultOpen = true,
+  onOpenChange,
+  className,
+  section,
+  sectionRef,
+  children,
+}: {
+  id: string
+  icon?: LucideIcon
+  title: ReactNode
+  /** Extra controls next to the title, shown only while the section is open. */
+  aside?: ReactNode
+  open?: boolean
+  defaultOpen?: boolean
+  onOpenChange?: (open: boolean) => void
+  className?: string
+  /** `data-section` name (outline / dev tools). */
+  section?: string
+  sectionRef?: RefObject<HTMLElement | null>
+  children: ReactNode
+}) {
+  const [ownOpen, setOwnOpen] = useState(defaultOpen)
+  const open = openProp ?? ownOpen
+  const [mounted, setMounted] = useState(open)
+  if (open && !mounted) setMounted(true)
+  const toggle = () => {
+    setOwnOpen(!open)
+    onOpenChange?.(!open)
+  }
+  const bodyId = `${id}-body`
+  return (
+    <section
+      ref={sectionRef}
+      className={['op-sec', 'op-col', open ? 'is-open' : '', className].filter(Boolean).join(' ')}
+      aria-labelledby={id}
+      data-section={section}
+    >
+      <header className="op-sec__head op-col__head">
+        <h2 id={id} className="op-sec__title">
+          <button type="button" className="op-col__toggle" aria-expanded={open} aria-controls={bodyId} onClick={toggle}>
+            {Icon && <Icon size={18} strokeWidth={2} aria-hidden className="op-sec__icon" />}
+            <span className="op-col__label">{title}</span>
+            <ChevronDown size={16} strokeWidth={2.2} aria-hidden className="op-col__chev" />
+          </button>
+        </h2>
+        {open && aside}
+      </header>
+      <div id={bodyId} className="op-col__body" inert={!open}>
+        <div className="op-col__inner">{mounted && children}</div>
+      </div>
+    </section>
   )
 }

@@ -1,4 +1,4 @@
-import { Pause, Play, TrendingUp } from 'lucide-react'
+import { ExternalLink, Pause, Play, TrendingUp } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { CATEGORIES } from '../app/dictionary'
@@ -324,7 +324,18 @@ function EventCard({ event: e, year, fresh, reduce, undated }: { event: Timeline
             <span className={`op-ev__status is-${done ? 'done' : e.status === 'w budowie' ? 'build' : 'plan'}`}>{e.status}</span>
           )}
         </div>
-        <h4 className="op-ev__title">{e.title}</h4>
+        <h4 className="op-ev__title">
+          {/* with a cited source the title is a link; its ::after stretches over the whole card */}
+          {e.sourceUrl ? (
+            <a className="op-ev__link" href={e.sourceUrl} target="_blank" rel="noopener noreferrer" title={e.sourceTitle}>
+              {e.title}
+              <ExternalLink size={13} strokeWidth={2.2} aria-hidden className="op-ev__ext" />
+              <span className="op-ev__hint">{`. Źródło${e.sourceTitle ? `: ${e.sourceTitle}` : ''} (nowa karta)`}</span>
+            </a>
+          ) : (
+            e.title
+          )}
+        </h4>
         <p className="op-ev__desc">{e.description}</p>
         <div className="op-ev__foot">
           <span className="op-ev__cat">

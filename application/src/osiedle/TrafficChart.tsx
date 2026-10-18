@@ -1,7 +1,7 @@
 import { Lightbulb } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useElementWidth, useSeenOnce } from './shared'
-import { SectionHead } from './ui'
+import { CollapsibleSection } from './ui'
 import { TRAFFIC_LEVEL_LABEL, formatClock, monotonePath, trafficAt, trafficHint, trafficLevel, trafficTooltip } from './traffic'
 
 interface TrafficChartProps {
@@ -30,14 +30,23 @@ function useNowHour(): number {
 }
 
 /**
- * "Korki w ciągu doby": one smooth area series (typical weekday, index 0–100). The line and its
+ * "Korki w ciągu doby" (folded by default): one smooth area series (typical weekday, index 0–100). The line and its
  * 10 % wash take the status colour of the band they're in (płynnie / umiarkowanie / duże korki),
  * with the thresholds drawn as hairlines and named in the legend, so colour is never the only cue.
  * Hover / focus + arrows give a per-hour readout; a visually hidden table carries every value.
  */
-export function TrafficChart({ traffic, road }: TrafficChartProps) {
+export function TrafficChart(props: TrafficChartProps) {
+  return (
+    // folded by default: the chart (ResizeObserver, SVG) mounts only once the section is opened
+    <CollapsibleSection id="op-traffic-title" title="Korki w ciągu doby" section="Korki w ciągu doby" defaultOpen={false}>
+      <TrafficBody {...props} />
+    </CollapsibleSection>
+  )
+}
+
+function TrafficBody({ traffic, road }: TrafficChartProps) {
   const [wrapRef, width] = useElementWidth<HTMLDivElement>()
-  const [seenRef, seen] = useSeenOnce<HTMLElement>(0.35)
+  const [seenRef, seen] = useSeenOnce<HTMLDivElement>(0.35)
   const [hover, setHover] = useState<number | null>(null)
   const now = useNowHour()
   const hint = useMemo(() => trafficHint(traffic), [traffic])
@@ -84,8 +93,7 @@ export function TrafficChart({ traffic, road }: TrafficChartProps) {
   const tipX = focusHour != null ? Math.max(70, Math.min(width - 70, x(focusHour))) : 0
 
   return (
-    <section ref={seenRef} className="op-sec" aria-labelledby="op-traffic-title" data-section="Korki w ciągu doby">
-      <SectionHead id="op-traffic-title" title="Korki w ciągu doby" />
+    <div ref={seenRef}>
       <p className="op-sec__lede">{road}, typowy dzień roboczy</p>
 
       <div
@@ -223,6 +231,6 @@ export function TrafficChart({ traffic, road }: TrafficChartProps) {
           ))}
         </tbody>
       </table>
-    </section>
+    </div>
   )
 }

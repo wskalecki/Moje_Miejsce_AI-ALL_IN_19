@@ -1,6 +1,7 @@
 /**
  * UI of the osiedle 3D view (over the map, left of the panel): advanced building colours and traffic.
  */
+import { Layers2 } from 'lucide-react'
 import { Popup, type MapLayerMouseEvent } from 'maplibre-gl'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BUILDING_KIND_LABEL, isPublicBuilding, type BuildingKind, type BuildingProps } from '../lib/osm3d/buildingStyle'
@@ -14,9 +15,11 @@ interface Osm3dOverlayProps {
   area: AreaLayers
   /** Kinds highlighted from outside (e.g. the category of the place hovered in the panel). */
   focusKinds?: readonly BuildingKind[] | null
+  /** In the osiedle view's right column (stacked under "Ważne miejsca", no own positioning). */
+  docked?: boolean
 }
 
-export function Osm3dOverlay({ area, focusKinds = null }: Osm3dOverlayProps) {
+export function Osm3dOverlay({ area, focusKinds = null, docked = false }: Osm3dOverlayProps) {
   const [legendKind, setLegendKind] = useState<BuildingKind | null>(null)
   const storeFocus = useBuildingFocus()
   const [colorByKind, setColorByKind] = useState(false)
@@ -100,9 +103,12 @@ export function Osm3dOverlay({ area, focusKinds = null }: Osm3dOverlayProps) {
   const doc = area.data.traffic
 
   return (
-    <div className="m3d">
+    <div className={docked ? 'm3d m3d--docked' : 'm3d'}>
       <details className="m3d-card chrome-box m3d-advanced">
-        <summary className="m3d-advanced__sum">Warstwy mapy</summary>
+        <summary className="m3d-advanced__sum">
+          <Layers2 className="m3d-advanced__icon" size={18} strokeWidth={2} aria-hidden />
+          Warstwy mapy
+        </summary>
         <div className="m3d-advanced__body">
           <label className="m3d-advanced__opt">
             <input type="checkbox" checked={colorByKind} onChange={(e) => setColorByKind(e.target.checked)} />

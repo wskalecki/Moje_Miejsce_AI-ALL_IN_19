@@ -66,7 +66,7 @@ test('no tip for a flat morning, and the light-traffic message', () => {
   assert.equal(bestDeparture(flat, 6, 10), null)
   assert.equal(trafficHint(flat).bestHour, null)
   const light = Array.from({ length: 24 }, () => 20)
-  assert.equal(trafficHint(light).morning, 'Tu rzadko stoi się w korkach — możesz wyjeżdżać, kiedy chcesz.')
+  assert.equal(trafficHint(light).morning, 'Tu rzadko stoi się w korkach.')
 })
 
 test('hint text on the featured osiedla never suggests leaving before 6:00', () => {

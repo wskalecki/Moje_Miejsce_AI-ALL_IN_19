@@ -13,6 +13,8 @@ interface HeroProps {
   osiedle: Osiedle
   /** Explicit video; `undefined` = try `/osiedla/<slug>/flyover.{webm,mp4}`; `false` = photos only. */
   video?: HeroVideo | false
+  /** False while the "Zdjęcia" section is folded: autoplay and the video pause. */
+  active?: boolean
 }
 
 const AUTOPLAY_MS = 5000
@@ -26,7 +28,7 @@ type VideoState = 'probing' | 'ok' | 'fail'
  * crossfade gallery (arrows, dots, autoplay every 5 s). The gallery is always mounted under
  * the video, so a missing or broken video never leaves a blank frame.
  */
-export function Hero({ osiedle, video }: HeroProps) {
+export function Hero({ osiedle, video, active = true }: HeroProps) {
   const reduce = useReducedMotion()
   const photos = osiedle.heroImages
   const [index, setIndex] = useState(0)
@@ -55,9 +57,9 @@ export function Hero({ osiedle, video }: HeroProps) {
   useEffect(() => {
     const v = videoRef.current
     if (!v || videoState !== 'ok') return
-    if (showVideo && !reduce) void v.play().catch(() => {})
+    if (showVideo && !reduce && active) void v.play().catch(() => {})
     else v.pause()
-  }, [showVideo, videoState, reduce])
+  }, [showVideo, videoState, reduce, active])
 
   const go = useCallback(
     (next: number) => {
@@ -69,10 +71,10 @@ export function Hero({ osiedle, video }: HeroProps) {
 
   // Autoplay through photos (not while the video is showing, hovered, focused or reduced motion).
   useEffect(() => {
-    if (reduce || paused || showVideo || photos.length < 2) return
+    if (reduce || paused || !active || showVideo || photos.length < 2) return
     const t = window.setTimeout(() => setIndex((i) => (i + 1) % photos.length), AUTOPLAY_MS)
     return () => window.clearTimeout(t)
-  }, [index, reduce, paused, showVideo, photos.length])
+  }, [index, reduce, paused, active, showVideo, photos.length])
 
   const credit = showVideo ? 'Przelot nagrany z mapy Siatki · © OpenStreetMap' : photos[index]?.credit
 
@@ -162,18 +164,18 @@ export function Hero({ osiedle, video }: HeroProps) {
             </button>
           )}
           {photos.map((p, i) => {
-            const active = !showVideo && i === index
+            const isOn = !showVideo && i === index
             return (
               <button
                 key={p.src}
                 type="button"
                 role="tab"
-                aria-selected={active}
+                aria-selected={isOn}
                 aria-label={`Zdjęcie ${i + 1} z ${photos.length}`}
-                className={`op-hero__dot${active ? ' is-active' : ''}`}
+                className={`op-hero__dot${isOn ? ' is-active' : ''}`}
                 onClick={() => go(i)}
               >
-                {active && !reduce && !paused && <span className="op-hero__dot-fill" style={{ animationDuration: `${AUTOPLAY_MS}ms` }} />}
+                {isOn && !reduce && !paused && <span className="op-hero__dot-fill" style={{ animationDuration: `${AUTOPLAY_MS}ms` }} />}
               </button>
             )
           })}

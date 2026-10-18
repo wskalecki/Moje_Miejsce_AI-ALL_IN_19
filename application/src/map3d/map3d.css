@@ -26,6 +26,22 @@
   pointer-events: auto;
 }
 
+/* In the osiedle view's right column (desktop): stacked under "Ważne miejsca", no own positioning. */
+@media (min-width: 1024px) {
+  .m3d--docked {
+    position: relative;
+    inset: auto;
+    flex: 0 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .m3d--docked .m3d-advanced {
+    position: relative;
+    width: 100%;
+  }
+}
+
 /* ---------- building legend ---------- */
 
 /* ---------- advanced (building colours + traffic) ---------- */
@@ -42,6 +58,7 @@
 .m3d-advanced__sum {
   display: flex;
   align-items: center;
+  gap: 8px;
   min-height: 44px;
   padding: 12px 16px;
   font-size: 13px;
@@ -59,18 +76,14 @@
 .m3d-advanced__sum::-webkit-details-marker {
   display: none;
 }
-.m3d-advanced__sum::after {
-  content: '';
-  width: 7px;
-  height: 7px;
-  margin-left: auto;
-  border-right: 2px solid var(--color-ink-3);
-  border-bottom: 2px solid var(--color-ink-3);
-  transform: rotate(45deg);
-  transition: transform var(--d-fast) var(--ease-standard);
+/* Google-Maps-like layers glyph (lucide Layers2) instead of a disclosure chevron; accent while open */
+.m3d-advanced__icon {
+  flex: none;
+  color: var(--color-ink-2);
+  transition: color var(--d-fast) var(--ease-standard);
 }
-.m3d-advanced[open] .m3d-advanced__sum::after {
-  transform: rotate(-135deg) translateY(2px);
+.m3d-advanced[open] .m3d-advanced__icon {
+  color: var(--accent);
 }
 .m3d-advanced__body {
   display: flex;
@@ -435,18 +448,6 @@
 }
 .m3d-traffic__ramp-labels > :last-child {
   text-align: right;
-}
-.m3d-traffic__nodata {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  align-self: flex-end;
-  white-space: nowrap;
-}
-.m3d-traffic__nodata i {
-  width: 14px;
-  height: 6px;
-  border-radius: 999px;
 }
 .m3d-traffic__stat {
   flex-basis: 100%;

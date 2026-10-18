@@ -29,7 +29,8 @@ import type { CategoryKey, Horizon, ProfileId } from '../app/types'
 import { ACCENTS } from '../design/tokens'
 import type { MapApi } from '../map/MapView'
 import { homeCamera, homePadding } from '../map/camera'
-import { OSIEDLA, OSIEDLA_BY_SLUG, type LngLat, type Osiedle, type OsiedleSlug, type Route, type TimelineEvent } from '../mock/osiedla'
+import { OSIEDLA, OSIEDLA_BY_SLUG, type Highlight, type LngLat, type Osiedle, type OsiedleSlug, type Route, type TimelineEvent } from '../mock/osiedla'
+import { PlacesPanel } from '../osiedle/PlacesPanel'
 import { allVisible, corePoints, frame, metersBetween, nearInView, LAND_PITCH, type Framing, type Pt } from './framing'
 import { loadPanel, type OsiedlePanelProps, type PlaceFit } from './panelLoader'
 import { PlacePins, type Pin } from './PlacePins'
@@ -535,6 +536,43 @@ function CinematicStage({
     [active, map, scene, profile],
   )
 
+  // own start point of "Droga do…": the next map click (crosshair cursor) resolves its point; Esc, a
+  // second call, leaving or another osiedle cancel (null). The orbit holds still meanwhile.
+  const cancelPick = useRef<(() => void) | null>(null)
+  const pickPoint = useCallback((): Promise<LngLat | null> => {
+    if (cancelPick.current) {
+      cancelPick.current()
+      return Promise.resolve(null)
+    }
+    return new Promise((resolve) => {
+      const box = map.getCanvasContainer()
+      const done = (p: LngLat | null) => {
+        map.off('click', onClick)
+        window.removeEventListener('keydown', onKey, true)
+        box.classList.remove('cin-picking')
+        cancelPick.current = null
+        if (!routeOn.current) scene.director.hold(false)
+        resolve(p)
+      }
+      const onClick = (e: { lngLat: { lng: number; lat: number } }) => done([e.lngLat.lng, e.lngLat.lat])
+      // capture + preventDefault: the panel's Esc (= back to the map) skips a handled key
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key !== 'Escape') return
+        e.preventDefault()
+        done(null)
+      }
+      map.on('click', onClick)
+      window.addEventListener('keydown', onKey, true)
+      box.classList.add('cin-picking')
+      scene.director.hold(true)
+      cancelPick.current = () => done(null)
+    })
+  }, [map, scene])
+  useEffect(() => {
+    if (stage !== 'panel') cancelPick.current?.()
+  }, [stage, active])
+  useEffect(() => () => cancelPick.current?.(), [])
+
   // timeline: the panel reports the year and the events up to it; the year lives in the store
   const onTimelineYear = useCallback((y: number, evs: TimelineEvent[]) => {
     storeRef.current.setYear(y)
@@ -544,7 +582,7 @@ function CinematicStage({
   const invPins = useMemo<Pin[]>(
     () =>
       events.flatMap((ev) =>
-        ev.coord ? [{ id: `inv-${ev.id}`, coord: ev.coord, label: `${ev.year} · ${ev.title}`, category: ev.category, kind: 'investment' as const, year: ev.year }] : [],
+        ev.coord ? [{ id: `inv-${ev.id}`, coord: ev.coord, label: `${ev.year} · ${ev.title}`, category: ev.category, kind: 'investment' as const, year: ev.year, href: ev.sourceUrl }] : [],
       ),
     [events],
   )
@@ -594,6 +632,16 @@ function CinematicStage({
     [focusPlace],
   )
 
+  // "Ważne miejsca" (right column): a place picked while a route is shown clears the route first, then
+  // the camera flies there (the panel's route stays picked and comes back with the routes section)
+  const pickPlace = useCallback(
+    (h: Highlight) => {
+      if (routeOn.current) showRoute(null)
+      focusPlace(h.coord)
+    },
+    [showRoute, focusPlace],
+  )
+
   // the category of the place hovered in the panel (or its pin) highlights those buildings in 3D
   const hoverKinds = useMemo(() => {
     const id = hoverPin ?? activePin
@@ -629,11 +677,27 @@ function CinematicStage({
         <PlacePins map={map} pins={pins} accent={owner.accent} deep={owner.deep} activeId={hoverPin ?? activePin} onPick={onPick} />
       )}
 
-      {areaLayers && (
-        <Suspense fallback={null}>
-          <Osm3dOverlay area={areaLayers} focusKinds={hoverKinds} />
-        </Suspense>
-      )}
+      {/* right column: the places next to their pins, the map layers under them */}
+      <div className="cin-side">
+        <AnimatePresence>
+          {showPanel && (
+            <PlacesPanel
+              key={active.slug}
+              profile={profile}
+              places={active.highlights}
+              activeId={activePin}
+              onSelect={pickPlace}
+              onHover={setHoverPin}
+              hasMap
+            />
+          )}
+        </AnimatePresence>
+        {areaLayers && (
+          <Suspense fallback={null}>
+            <Osm3dOverlay area={areaLayers} focusKinds={hoverKinds} docked />
+          </Suspense>
+        )}
+      </div>
 
       <AnimatePresence>
         {showPanel && (
@@ -646,10 +710,8 @@ function CinematicStage({
               priorities={[...priorities]}
               layout="overlay"
               onBack={goBack}
-              onFocusPlace={focusPlace}
-              onHoverPlace={setHoverPin}
               onShowRoute={showRoute}
-              activePlaceId={activePin}
+              onPickPoint={pickPoint}
               timelineYear={timelineYear}
               onTimelineYear={onTimelineYear}
             />

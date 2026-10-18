@@ -4,7 +4,7 @@ import type { Horizon } from '../app/types'
 import type { Osiedle } from '../mock/osiedla'
 import { formatNumber, formatPLN } from '../lib/format'
 import { cityDiffLabel, formatFlatPrice } from './priceFormat'
-import { SectionHead, TweenNumber } from './ui'
+import { CollapsibleSection, TweenNumber } from './ui'
 
 type PriceMode = 'najem' | 'kupno'
 
@@ -26,10 +26,10 @@ export function Prices({ osiedle, horizon }: { osiedle: Osiedle; horizon: Horizo
   const max = Math.max(value, city)
 
   return (
-    <section className="op-sec" aria-labelledby="op-prices-title" data-section="Ceny">
-      <SectionHead
-        id="op-prices-title"
-        title="Ceny"
+    <CollapsibleSection
+      id="op-prices-title"
+      title="Ceny"
+      section="Ceny"
         aside={
           hasRent && <div className="op-seg" role="radiogroup" aria-label="Rodzaj ceny">
             {(['najem', 'kupno'] as const).map((m) => (
@@ -40,7 +40,7 @@ export function Prices({ osiedle, horizon }: { osiedle: Osiedle; horizon: Horizo
             <span className="op-seg__thumb" style={{ transform: `translateX(${rent ? 0 : 100}%)` }} aria-hidden />
           </div>
         }
-      />
+      >
 
       <div className="op-price">
         <p className="op-price__value">
@@ -91,6 +91,6 @@ export function Prices({ osiedle, horizon }: { osiedle: Osiedle; horizon: Horizo
         <p>{p.sourceNote}</p>
         {!hasRent && p.rentNote && <p>{p.rentNote}</p>}
       </details>
-    </section>
+    </CollapsibleSection>
   )
 }

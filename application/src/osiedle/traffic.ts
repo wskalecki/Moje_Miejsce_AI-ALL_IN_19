@@ -131,7 +131,7 @@ export function trafficHint(t: number[]): TrafficHint {
   for (let h = MORNING[0]; h <= MORNING[1]; h++) if (t[h] > t[amPeak]) amPeak = h
   if (t[amPeak] < JAM) {
     return {
-      morning: 'Tu rzadko stoi się w korkach — możesz wyjeżdżać, kiedy chcesz.',
+      morning: 'Tu rzadko stoi się w korkach.',
       afternoon: null,
       bestHour: null,
       peakHour: null,

@@ -1,9 +1,10 @@
+import { ChevronDown } from 'lucide-react'
 import { useEffect, useState, type CSSProperties } from 'react'
 import { CATEGORY_ICONS } from '../app/icons'
-import { CATEGORIES, CATEGORY_COLORS } from '../app/dictionary'
+import { CATEGORIES, CATEGORY_COLORS, FILTER_PANEL_CATEGORIES } from '../app/dictionary'
 import type { CategoryId, ProfileId } from '../app/types'
 import { clamp, orderCategories, signed, useSeenOnce } from './shared'
-import { SectionHead, TweenNumber } from './ui'
+import { CollapsibleSection, TweenNumber } from './ui'
 
 interface CategoryBarsProps {
   profile: ProfileId
@@ -13,14 +14,20 @@ interface CategoryBarsProps {
   values: Record<CategoryId, number>
   /** Change vs the 2026 baseline; non-zero entries get a chip. */
   deltas?: Partial<Record<CategoryId, number>>
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
+
+/** Shown right away: the key indicators (the filter card's main four) plus whatever counts for the user. */
+const isKey = (c: CategoryId, priorities: CategoryId[]) => FILTER_PANEL_CATEGORIES.includes(c) || priorities.includes(c)
 
 /**
  * "Jak wypada dla Ciebie": ten rows 0–100 in the map's language — tinted category square, label,
- * a bar in the category colour (as in the map hover card) and the value. Grouped like the filter
- * card: what counts for the user first, then the rest. Bars grow via `scaleX` (compositor only).
+ * a bar in the category colour (as in the map hover card) and the value. The key indicators show
+ * at once (what counts for the user first); the rest fold under "Pozostałe wskaźniki".
+ * Bars grow via `scaleX` (compositor only).
  */
-export function CategoryBars({ profile, priorities, values, deltas }: CategoryBarsProps) {
+export function CategoryBars({ profile, priorities, values, deltas, open, onOpenChange }: CategoryBarsProps) {
   const [ref, seen] = useSeenOnce<HTMLDivElement>(0.2)
   // After the entry animation, switch the bars to the faster 400 ms timeline transition.
   const [live, setLive] = useState(false)
@@ -29,11 +36,10 @@ export function CategoryBars({ profile, priorities, values, deltas }: CategoryBa
     const t = window.setTimeout(() => setLive(true), 950)
     return () => window.clearTimeout(t)
   }, [seen])
+  const [moreOpen, setMoreOpen] = useState(false)
   const order = orderCategories(profile, priorities)
-  const groups: { label: string; cats: CategoryId[] }[] = [
-    { label: 'Liczy się dla mnie', cats: order.filter((c) => priorities.includes(c)) },
-    { label: 'Pozostałe', cats: order.filter((c) => !priorities.includes(c)) },
-  ].filter((g) => g.cats.length > 0)
+  const key = order.filter((c) => isKey(c, priorities))
+  const rest = order.filter((c) => !isKey(c, priorities))
 
   const row = (c: CategoryId) => {
     const Icon = CATEGORY_ICONS[c]
@@ -68,16 +74,26 @@ export function CategoryBars({ profile, priorities, values, deltas }: CategoryBa
   }
 
   return (
-    <section className="op-sec" aria-labelledby="op-cats-title" data-section="Jak wypada dla Ciebie">
-      <SectionHead id="op-cats-title" title="Jak wypada dla Ciebie" />
+    <CollapsibleSection id="op-cats-title" title="Jak wypada dla Ciebie" section="Jak wypada dla Ciebie" open={open} onOpenChange={onOpenChange}>
       <div ref={ref} className={`op-bars${live ? ' is-live' : ''}`}>
-        {groups.map((g) => (
-          <div key={g.label} className="op-bars__group">
-            <h3 className="op-bars__label chrome-label">{g.label}</h3>
-            <ul>{g.cats.map(row)}</ul>
+        <ul>{key.map(row)}</ul>
+        {rest.length > 0 && (
+          <div className={`op-bars__more${moreOpen ? ' is-open' : ''}`}>
+            <button
+              type="button"
+              className="op-bars__toggle"
+              aria-expanded={moreOpen}
+              aria-controls="op-cats-more"
+              onClick={() => setMoreOpen((o) => !o)}
+            >
+              {moreOpen ? 'Zwiń pozostałe wskaźniki' : `Pozostałe wskaźniki (${rest.length})`}
+              <ChevronDown size={15} strokeWidth={2.2} aria-hidden className="op-bars__chev" />
+            </button>
+            {/* light rows, but still only mounted when asked for */}
+            <div id="op-cats-more">{moreOpen && <ul>{rest.map(row)}</ul>}</div>
           </div>
-        ))}
+        )}
       </div>
-    </section>
+    </CollapsibleSection>
   )
 }
