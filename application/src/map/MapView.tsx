@@ -144,6 +144,8 @@ export function MapView({
   const interactiveRef = useRef(true)
   const chromeVisible = chrome && !selectedSlug
   const chromeRef = useRef(chromeVisible)
+  /** The start camera was framed without the filter panel (it was hidden) and the user has not moved the map yet. */
+  const fitWithoutPanelRef = useRef(false)
   /** MSI ids of the live top 3 (pills + outline), best first — read by the map click / hover handlers. */
   const topIdsRef = useRef<readonly string[]>([])
 
@@ -204,6 +206,16 @@ export function MapView({
   useEffect(() => {
     if (!chromeVisible) setDetailCat(null)
   }, [chromeVisible])
+
+  // The start camera was framed while the preferences modal hid the panel: once the panel shows,
+  // re-frame Warsaw beside it so no osiedle (or its top-3 pill) sits under the panel.
+  useEffect(() => {
+    const map = mapRef.current
+    const el = containerRef.current
+    if (!chromeVisible || !map || !el || !fitWithoutPanelRef.current) return
+    fitWithoutPanelRef.current = false
+    map.easeTo({ ...homeCamera(map, homePadding(true, el.clientWidth)), duration: reducedMotion() ? 0 : 900 })
+  }, [chromeVisible, data])
 
   // ---- map lifecycle (one instance per mount) ----
   useEffect(() => {
@@ -310,6 +322,10 @@ export function MapView({
       })
       map.getCanvasContainer().addEventListener('mouseleave', () => setPoiHover(null))
       map.easeTo({ ...homeCamera(map, padding()), duration: reducedMotion() ? 0 : 1600 })
+      fitWithoutPanelRef.current = !chromeRef.current
+      map.on('movestart', (e) => {
+        if (e.originalEvent) fitWithoutPanelRef.current = false
+      })
       const api: MapApi = {
         map,
         resetView: (opts) => map.flyTo({ ...homeCamera(map, padding()), duration: opts?.duration ?? 1400, essential: true }),
