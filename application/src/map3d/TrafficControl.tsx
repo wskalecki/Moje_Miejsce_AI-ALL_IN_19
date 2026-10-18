@@ -2,7 +2,7 @@ import { Pause, Play } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import type { TrafficDoc } from '../lib/osm3d/traffic'
 import { useTrafficHour } from './store'
-import { TRAFFIC_CAPTION, TRAFFIC_LEGEND } from './trafficStyle'
+import { TRAFFIC_LEGEND } from './trafficStyle'
 
 /** One hour of the day per this many ms while playing. */
 const HOUR_MS = 900
@@ -124,10 +124,6 @@ export function TrafficControl({ doc, onHour, enabled, nested = false }: Traffic
             <span>{TRAFFIC_LEGEND.labels[2]} (40% wolniej)</span>
           </span>
         </div>
-        <span className="m3d-traffic__nodata">
-          <i style={{ background: TRAFFIC_LEGEND.noData.color }} aria-hidden />
-          {TRAFFIC_LEGEND.noData.label}
-        </span>
         {speed != null && (
           <span className="m3d-traffic__stat">
             Autobusy i tramwaje: <strong>{fmtSpeed(speed)} km/h</strong>
@@ -136,9 +132,10 @@ export function TrafficControl({ doc, onHour, enabled, nested = false }: Traffic
         )}
       </div>
 
-      <p className="m3d-traffic__caption-short">Rozkład ZTM (GTFS), nie ruch na żywo · © OpenStreetMap</p>
+      {/* only the ODbL credit (attribution is required) — no explanatory caption under the legend */}
+      <p className="m3d-traffic__caption-short">© OpenStreetMap</p>
       <p className="m3d-traffic__caption">
-        {TRAFFIC_CAPTION}. <span>Drogi i budynki © OpenStreetMap (ODbL)</span>
+        <span>Drogi i budynki © OpenStreetMap (ODbL)</span>
       </p>
     </section>
   )

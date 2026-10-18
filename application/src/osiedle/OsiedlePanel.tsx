@@ -64,8 +64,6 @@ const PricesSection = memo(Prices)
 const TimelineSection = memo(Timeline)
 const CreditsSection = memo(Credits)
 
-const DEMO_NOTE = 'Wersja demonstracyjna — liczby policzone z otwartych danych bez ręcznych korekt; szacunki są oznaczone.'
-
 /**
  * Osiedle detail panel (spec §4.5) in the map's card language: a fixed head (back, name, rank,
  * match ring) over a scrolling body — photos, key numbers, category bars, places, routes, commute,
@@ -262,7 +260,6 @@ function PanelBody({
 
         <footer className="op-foot">
           <CreditsSection slug={osiedle.slug} images={osiedle.heroImages} />
-          <p className="op-note">{DEMO_NOTE}</p>
         </footer>
       </div>
     </motion.aside>

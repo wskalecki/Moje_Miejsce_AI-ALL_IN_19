@@ -436,18 +436,6 @@
 .m3d-traffic__ramp-labels > :last-child {
   text-align: right;
 }
-.m3d-traffic__nodata {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  align-self: flex-end;
-  white-space: nowrap;
-}
-.m3d-traffic__nodata i {
-  width: 14px;
-  height: 6px;
-  border-radius: 999px;
-}
 .m3d-traffic__stat {
   flex-basis: 100%;
   color: var(--color-ink-2);
