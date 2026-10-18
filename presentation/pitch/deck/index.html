@@ -97,10 +97,13 @@
   .pipe .node span { display: block; margin-top: 8px; font-size: 20px; line-height: 1.45; color: #A9A7B9; }
   .pipe .arrow { width: 56px; display: grid; place-items: center; color: #6F6D83; font-size: 30px; }
   .data .stat b { color: var(--ink); } .data .stat span { color: var(--ink-2); }
-  .sources { margin-top: auto; padding: 36px 44px 40px; }
-  .sources b { font-family: var(--display); font-size: 30px; letter-spacing: -0.01em; }
-  .sources ul { columns: 2; column-gap: 60px; margin-top: 18px; padding-left: 28px; }
-  .sources li { font-size: 25px; line-height: 1.5; color: var(--ink-2); break-inside: avoid; margin-top: 8px; }
+  .orgs { position: relative; margin-top: auto; height: 340px; }
+  .org { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 28px; border-radius: 26px; background: #fff;
+    box-shadow: inset 0 0 0 1px rgba(22,22,29,.06), 0 24px 60px -24px rgba(22,22,29,.25); transform: rotate(var(--r));
+    animation: float 6s ease-in-out infinite; animation-delay: var(--fd); }
+  .org img { height: 100%; min-height: 0; flex: 1; object-fit: contain; }
+  .org span { font-size: 18px; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+  @keyframes float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -14px; } }
   code { font-family: ui-monospace, Menlo, monospace; font-size: .92em; color: #B3A2FF; }
   .rules { display: flex; gap: 18px; margin-top: auto; }
   .rule { flex: 1; display: flex; gap: 16px; align-items: flex-start; font-size: 23px; line-height: 1.45; color: #DAD8E4; padding: 24px 26px; border-radius: 20px; background: rgba(124,92,255,.12); }
@@ -190,12 +193,12 @@
         <div class="card pcard rise" style="--d:300">
           <div class="ico" style="background:#EEEAFF"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#7C5CFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h6"/></svg></div>
           <h3>Dane istnieją, ale są rozproszone</h3>
-          <p>Szkoła, dojazd, hałas. Znasz prawdę o&nbsp;tym adresie?</p>
+          <p>Hałas w&nbsp;jednym serwisie, ceny w&nbsp;drugim, rozkłady w&nbsp;trzecim. Nikt nie składa ich w&nbsp;jeden obraz Twojej okolicy.</p>
         </div>
         <div class="card pcard rise" style="--d:400">
           <div class="ico" style="background:#DFF5F2"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#13A396" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></div>
           <h3>Portale milczą o&nbsp;okolicy</h3>
-          <p>Ogłoszenie powie Ci o&nbsp;metrażu i&nbsp;piętrze. Nie powie, czy nocą słychać ulicę, ile zieleni masz za oknem i&nbsp;czy rano utkniesz w&nbsp;korku.</p>
+          <p>Szkoła, dojazd, hałas. Znasz prawdę o&nbsp;tym adresie?</p>
         </div>
       </div>
     </div>
@@ -254,16 +257,12 @@
         <div class="stat rise" style="--d:320"><b>127</b><span><i class="dot" style="background:var(--senior)"></i>zdefiniowanych metryk</span></div>
         <div class="stat rise" style="--d:400"><b>143</b><span><i class="dot" style="background:#d99a00"></i>ocenianych osiedli</span></div>
       </div>
-      <div class="card sources rise" style="--d:500">
-        <b>Źródła</b>
-        <ul>
-          <li>Portal otwartych danych i&nbsp;usługi mapowe (WFS) m.st. Warszawy</li>
-          <li>Rejestr Cen Nieruchomości: ceny transakcyjne mieszkań</li>
-          <li>GIOŚ: mapy hałasu drogowego i&nbsp;kolejowego</li>
-          <li>ZTM: rozkłady jazdy komunikacji miejskiej (GTFS)</li>
-          <li>OpenStreetMap: szkoły, przychodnie, parki, gastronomia</li>
-          <li>OSRM: trasy piesze i&nbsp;rowerowe</li>
-        </ul>
+      <div class="orgs rise" style="--d:500">
+        <div class="org" style="left:0%;top:30px;--r:-4deg;--fd:0s;height:150px"><img src="img/logos/warszawa.svg" alt="m.st. Warszawa"/><span>m.st. Warszawa</span></div>
+        <div class="org" style="left:17%;top:150px;--r:3deg;--fd:-1.4s;height:120px"><img src="img/logos/ztm.svg" alt="ZTM Warszawa"/></div>
+        <div class="org" style="left:33%;top:10px;--r:-2deg;--fd:-2.8s;height:150px"><img src="img/logos/gugik.svg" alt="GUGiK"/></div>
+        <div class="org" style="left:58%;top:170px;--r:2.5deg;--fd:-0.7s;height:110px"><img src="img/logos/gios.png" alt="GIOŚ"/></div>
+        <div class="org" style="left:84%;top:20px;--r:-3deg;--fd:-2.1s;height:150px"><img src="img/logos/osm.svg" alt="OpenStreetMap"/><span>OpenStreetMap</span></div>
       </div>
     </div>
     <div class="foot"><span class="brand"><svg width="26" height="26" viewBox="0 0 20 20"><use href="#mark"/></svg>Moje Miejsce</span><span>5 / 8</span></div>
