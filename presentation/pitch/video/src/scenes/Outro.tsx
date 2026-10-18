@@ -28,9 +28,6 @@ export function Data({ pace = 1, t0 = 0.6 }: { pace?: number; t0?: number }) {
   return (
     <AbsoluteFill>
       <Paper dark />
-      <div style={{ position: 'absolute', left: 150, top: 96, fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 24, letterSpacing: 3, color: '#8E8CA3', textTransform: 'uppercase' }}>
-        Pod spodem · otwarte dane
-      </div>
       <div style={{ position: 'absolute', left: 150, right: 150, top: 160, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 30 }}>
         {STATS.map((s) => {
           const p = spring({ frame: f - sec(t0 + s.at * pace), fps, config: { damping: 200 } })
@@ -80,9 +77,6 @@ export function Data({ pace = 1, t0 = 0.6 }: { pace?: number; t0?: number }) {
         }}
       >
         <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 72, letterSpacing: -2.5, color: '#fff' }}>Każda liczba ma swoje źródło.</span>
-        <span style={{ fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 24, color: C.student, padding: '10px 16px', borderRadius: 10, background: 'rgba(124,92,255,.16)' }}>
-          data/catalog.json
-        </span>
       </div>
     </AbsoluteFill>
   )

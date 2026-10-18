@@ -56,7 +56,7 @@ export function Survey() {
   const steps = [
     { at: at(S, 'profile'), label: 'Etap życia' },
     { at: at(S, 'priorities'), label: 'Co jest ważne' },
-    { at: at(S, 'horizon'), label: 'Wynajem czy kupno' },
+    { at: at(S, 'horizon'), label: 'Kupujesz czy wynajmujesz' },
   ]
   const modal = at(S, 'modal')
   const match = at(S, 'matching')
@@ -74,7 +74,7 @@ export function Survey() {
         { t: end - 0.2, s: 1.3, x: 0.5, y: 0.45 },
       ]}
       callouts={[
-        { at: 0.6, dur: steps[0].at - 0.8, text: 'Bez logowania, bez rejestracji', sub: 'trzy krótkie kroki i od razu mapa', color: C.senior },
+        { at: 0.6, dur: steps[0].at - 0.8, text: 'Bez logowania, bez rejestracji', color: C.senior },
         { at: match + 0.2, dur: end - match - 0.4, text: 'Profil: Senior', sub: 'cisza, zieleń i kultura · kupno', color: C.senior },
       ]}
     >
@@ -88,7 +88,6 @@ export function MapScene() {
   const S = SEG.map
   const end = segsLen(S)
   const so = at(S, 'solo')
-  const pv = at(S, 'preview')
   return (
     <Shot
       segments={S}
@@ -96,18 +95,15 @@ export function MapScene() {
       cam={[
         { t: 0, s: 1.3, x: 0.5, y: 0.45 },
         { t: 1.2, ...full },
-        { t: so - 0.5, ...full },
-        { t: so + 0.4, s: 1.14, x: 0, y: 0.42 },
-        { t: pv - 0.3, s: 1.14, x: 0, y: 0.42 },
-        { t: pv + 0.5, s: 1.2, x: 1, y: 0.25 },
+        { t: so - 0.3, ...full },
+        { t: so + 0.5, s: 1.2, x: 1, y: 0.25 },
         { t: end - 0.6, s: 1.2, x: 1, y: 0.25 },
         { t: end, s: 1.1, x: 0.5, y: 0.5 },
       ]}
       callouts={chain(
         [
-          { at: 1.4, text: '143 osiedla ocenione pod Twój profil', sub: 'im ciemniejszy kolor, tym lepiej pasuje', color: C.senior },
-          { at: so + 0.3, text: 'Jedna kategoria naraz', sub: 'najedź na cisza, zieleń, kultura: mapa pokazuje tylko ją', color: C.cat.cisza },
-          { at: pv + 0.4, text: 'Podgląd miejsc na mapie', sub: 'przychodnie, apteki, biblioteki, uniwersytety III wieku', color: C.cat.zdrowie },
+          { at: 1.4, text: '143 osiedla dopasowane do Twoich potrzeb', color: C.senior },
+          { at: so + 0.4, text: 'Przychodnie, apteki, biblioteki', color: C.cat.zdrowie },
         ],
         end - 0.2,
       )}
@@ -179,7 +175,7 @@ function Top3({ states, until }: { states: { t: number; chip: string; rows: Row[
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 30, letterSpacing: -0.6, color: C.ink, whiteSpace: 'nowrap' }}>Top 3 dla Twoich wag</span>
+        <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 30, letterSpacing: -0.6, color: C.ink, whiteSpace: 'nowrap' }}>Top 3 miejsca dla Ciebie</span>
         <span
           style={{
             fontFamily: FONT_UI,
@@ -260,7 +256,7 @@ export function Panel() {
   const S = SEG.panel
   const end = segsLen(S)
   const b = (n: string) => at(S, n)
-  const [sc, pl, rt, cm, tr, pr] = ['scores', 'places', 'routes', 'commute', 'traffic', 'prices'].map(b)
+  const [sc, pl, cm, pr] = ['scores', 'places', 'commute', 'prices'].map(b)
   const panelTop = { s: 1.6, x: 0.02, y: 0.3 }
   const panelMid = { s: 1.6, x: 0.02, y: 0.55 }
   const withMap = { s: 1.12, x: 0, y: 0.5 }
@@ -286,10 +282,8 @@ export function Panel() {
         [
           { at: 1.2, text: 'Zdjęcia i krótko o okolicy', sub: 'hałas i zieleń w promieniu 1 km', color: C.senior },
           { at: sc + 0.3, text: 'Jak wypada dla Ciebie', sub: 'każda kategoria w skali 0–100', color: C.cat.cisza },
-          { at: pl + 0.3, text: 'Ważne miejsca w okolicy', sub: 'odległość i czas dojścia, pinezki na mapie 3D', color: C.cat.zielen },
-          { at: rt + 0.3, text: 'Droga do przychodni, kultury, parku', sub: 'pieszo i rowerem · OSRM na danych OpenStreetMap', color: C.cat.zdrowie },
-          { at: cm + 0.3, text: 'Dojazd w godzinach szczytu', sub: 'do centrum i biurowców · rozkłady ZTM (GTFS)', color: C.cat.komunikacja },
-          { at: tr + 0.3, text: 'Korki w ciągu doby', sub: 'planowe spowolnienie autobusów i tramwajów', color: C.cat.gastronomia },
+          { at: pl + 0.3, text: 'Ważne miejsca w okolicy', sub: 'Ile zajmie Ci transport?', color: C.cat.zielen },
+          { at: cm + 0.3, text: 'Dojazd w godzinach szczytu i korki w ciągu doby', sub: 'do centrum i biurowców · rozkłady ZTM (GTFS)', color: C.cat.komunikacja },
           { at: pr + 0.3, text: 'Ceny transakcyjne', sub: 'Rejestr Cen Nieruchomości · na tle Warszawy', color: C.cat.zakupy },
         ],
         end - 0.1,
@@ -316,8 +310,7 @@ export function Timeline() {
       ]}
       callouts={chain(
         [
-          { at: 0.6, text: 'Oś czasu: dziś → 2045', sub: 'dopasowanie co 5 lat, na podstawie planów miasta', color: C.student },
-          { at: inv + 0.3, text: 'Inwestycje miasta na mapie', sub: 'tunel pod torami 2027 · kanalizacja · trasa rowerowa · S17', color: C.cat.komunikacja },
+          { at: 0.6, text: 'Działania planowane dla Twojej okolicy', sub: 'Bez stresu na przyszłość', color: C.student },
         ],
         end - 0.1,
       )}
@@ -330,7 +323,6 @@ export function Layers() {
   const S = SEG.layers
   const end = segsLen(S)
   // takes without per-toggle markers: moments read off the frames of the 2026-10-18 take
-  const buildings = atOr(S, 'layerBuildings', 1, 'layers', 11.6)
   const traffic = atOr(S, 'layerTraffic', 1, 'layers', 17)
   return (
     <Shot
@@ -344,8 +336,7 @@ export function Layers() {
       ]}
       callouts={chain(
         [
-          { at: buildings + 0.2, text: 'Budynki według funkcji', sub: 'mieszkalne, usługi, szkoły · OpenStreetMap', color: C.cat.sport },
-          { at: traffic + 0.3, text: 'Korki na drogach w ciągu doby', sub: 'odtwarzanie doby · rozkłady ZTM', color: C.cat.gastronomia },
+          { at: traffic + 0.3, text: 'Korki na drogach w ciągu doby', color: C.cat.gastronomia },
         ],
         end - 0.3,
       )}
