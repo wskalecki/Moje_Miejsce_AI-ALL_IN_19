@@ -7,6 +7,12 @@
   z-index: var(--z-chrome);
 }
 
+/* "Droga do…" own start point: the next map click picks it (beats the building hover cursor) */
+.cin-picking,
+.cin-picking canvas {
+  cursor: crosshair !important;
+}
+
 .cin-veil {
   position: absolute;
   inset: 0;
