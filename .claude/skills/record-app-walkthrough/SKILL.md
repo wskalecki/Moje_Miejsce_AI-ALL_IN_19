@@ -5,7 +5,7 @@ description: Nagrywa płynny, powtarzalny przejazd po funkcjach aplikacji webowe
 
 # Nagranie przejazdu po aplikacji (Playwright + CDP screencast)
 
-Wynik: **jedno ciągłe nagranie** `NAME.mp4` (1920×1080, 30 kl./s, H.264) + `NAME-markers.json` z czasem każdego kroku („beatu”). Montaż (skill `edit-walkthrough-video`) tnie nagranie po nazwach znaczników, więc po zmianie w aplikacji wystarczy nagrać jeszcze raz — cięcia dopasują się same.
+Wynik: **jedno ciągłe nagranie** `NAME.mp4` (domyślnie 3200×1800 = viewport 1600×900 × DPR 2, żeby zoomy w montażu były ostre; `DPR=1.2` daje 1920×1080; 30 kl./s, H.264) + `NAME-markers.json` z czasem każdego kroku („beatu”). Montaż (skill `edit-walkthrough-video`) tnie nagranie po nazwach znaczników, więc po zmianie w aplikacji wystarczy nagrać jeszcze raz — cięcia dopasują się same.
 
 Dlaczego tak, a nie nagrywanie ekranu ręcznie: skrypt jest powtarzalny (nowa wersja aplikacji = nowe nagranie w 4 min), ruch kursora jest płynny i ludzki, nie ma literówek ani zawahań, a znaczniki dają montażowi dokładne czasy. Nic nie kosztuje — żadnych płatnych modeli.
 
@@ -62,7 +62,7 @@ Zasady, które robią różnicę:
 BASE=http://localhost:5176 NAME=system OUT_DIR=presentation/pitch/assets/clips \
   PLAYWRIGHT=$PLAYWRIGHT node path/to/record-<nazwa>.mjs
 ```
-Trwa tyle, ile scenariusz + ~15 s rozgrzewki + kodowanie (~1 min). Na końcu wypisuje liczbę klatek i średni fps (dobrze: 25–50). `--keep-frames` zostawia klatki JPEG do debugowania.
+Trwa tyle, ile scenariusz + ~15 s rozgrzewki + kodowanie (w 3200×1800 ok. 5–10 min; plik ~350 MB — nie do gita). Na końcu wypisuje liczbę klatek i średni fps (dobrze: 25–50). `--keep-frames` zostawia klatki JPEG do debugowania.
 
 ### 5. Sprawdź nagranie (obowiązkowo)
 ```bash

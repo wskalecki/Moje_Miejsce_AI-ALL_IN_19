@@ -2,7 +2,7 @@
 /**
  * Generic web-app walkthrough recorder (template for the record-app-walkthrough skill).
  *
- * One continuous browser session captured with the CDP screencast at 1920×1080 (1600×900 CSS × 1.2),
+ * One continuous browser session captured with the CDP screencast at 3200×1800 (1600×900 CSS × DPR 2; DPR=1.2 gives 1920×1080),
  * with a drawn cursor and click ripples, plus a JSON of named beats ("markers") so the video edit can
  * cut by name. Copy this file next to your project, edit only the SCRIPT section, then run:
  *
@@ -23,6 +23,10 @@ const NAME = process.env.NAME ?? 'walkthrough'
 const OUT = path.resolve(process.env.OUT_DIR ?? path.join(here, 'clips'))
 const FRAMES = path.join(OUT, `.frames-${NAME}`)
 const FPS = 30
+/** Device pixel ratio: 2 records 3200×1800 so the edit can zoom ~2× and stay sharp (1.2 = plain 1920×1080). */
+const DPR = Number(process.env.DPR ?? 2)
+const W = Math.round(1600 * DPR)
+const H = Math.round(900 * DPR)
 
 const pwPath = process.env.PLAYWRIGHT ?? 'playwright'
 const { chromium } = await import(path.isAbsolute(pwPath) ? pathToFileURL(pwPath).href : pwPath)
@@ -52,7 +56,7 @@ rmSync(FRAMES, { recursive: true, force: true })
 mkdirSync(FRAMES, { recursive: true })
 
 const browser = await chromium.launch({ args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist', '--enable-webgl'] })
-const ctx = await browser.newContext({ viewport: { width: 1600, height: 900 }, deviceScaleFactor: 1.2 })
+const ctx = await browser.newContext({ viewport: { width: 1600, height: 900 }, deviceScaleFactor: DPR })
 await ctx.addInitScript(CURSOR_SCRIPT)
 const page = await ctx.newPage()
 page.setDefaultTimeout(8000)
@@ -148,7 +152,7 @@ await page.mouse.move(mouse.x, mouse.y)
 await wait(1500)
 
 // 2. Start capturing. Everything after this is in the video.
-await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 92, maxWidth: 1920, maxHeight: 1080, everyNthFrame: 1 })
+await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 95, maxWidth: W, maxHeight: H, everyNthFrame: 1 })
 t0 = Date.now() / 1000
 
 // 3. Beats: mark() BEFORE each action; give the viewer 1.5–3 s to read after each change.
@@ -179,7 +183,7 @@ const offset = frames[0].t - t0
 for (const k of Object.keys(markers)) markers[k] = +(markers[k] - offset).toFixed(2)
 writeFileSync(path.join(OUT, `${NAME}-markers.json`), JSON.stringify({ fps: FPS, frames: frames.length, duration: +(frames.at(-1).t - frames[0].t).toFixed(2), markers }, null, 2))
 execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', listFile,
-  '-vf', `scale=1920:1080:flags=lanczos,fps=${FPS}`, '-c:v', 'libx264', '-preset', 'slow', '-crf', '14', '-pix_fmt', 'yuv420p',
+  '-vf', `scale=${W}:${H}:flags=lanczos,fps=${FPS}`, '-c:v', 'libx264', '-preset', 'medium', '-crf', '15', '-pix_fmt', 'yuv420p',
   '-movflags', '+faststart', path.join(OUT, `${NAME}.mp4`)], { stdio: 'inherit' })
 if (!process.argv.includes('--keep-frames')) rmSync(FRAMES, { recursive: true, force: true })
 console.log(`frames ${frames.length}, avg fps ${(frames.length / (frames.at(-1).t - frames[0].t)).toFixed(1)}`)

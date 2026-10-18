@@ -1,12 +1,12 @@
 ---
 name: edit-walkthrough-video
-description: Montuje profesjonalny, dynamiczny film z nagrania aplikacji (Remotion, wideo jako kod React) — zoomy kamery w stylu Screen Studio, okno przeglądarki, rozdziały, podpisy funkcji, nakładki z danymi, ujęcie otwierające i plansza końcowa; renderuje MP4 1080p i sprawdza klatki. Użyj po skillu record-app-walkthrough, gdy ktoś chce zmontować demo / product video / prezentację systemu / showcase, „zrób z nagrania film”, „zmontuj wideo”. Domyślnie bez kosztów (bez lektora i muzyki).
+description: Montuje profesjonalny, dynamiczny film z nagrania aplikacji (Remotion, wideo jako kod React) — zoomy kamery w stylu Screen Studio, okno przeglądarki, rozdziały, podpisy funkcji, nakładki z danymi, ujęcie otwierające i plansza końcowa; renderuje ostre MP4 (4K → 1440p) i sprawdza klatki. Użyj po skillu record-app-walkthrough, gdy ktoś chce zmontować demo / product video / prezentację systemu / showcase, „zrób z nagrania film”, „zmontuj wideo”. Domyślnie bez kosztów (bez lektora i muzyki).
 ---
 
 # Montaż filmu z nagrania (Remotion)
 
 Wejście: nagranie `assets/clips/NAME.mp4` + `NAME-markers.json` (skill `record-app-walkthrough`).
-Wyjście: `video/out/<nazwa>.mp4` (1920×1080, 30 kl./s) + kopia skompresowana do prezentacji.
+Wyjście: `video/out/<nazwa>.mp4` (render 4K, 30 kl./s) + kopia 2560×1440 do prezentacji.
 
 **Koszt: 0 zł.** Remotion, ffmpeg i nagranie są darmowe. Płatne są tylko opcjonalne dodatki generowane przez AI (patrz „Opcjonalnie: dźwięk i b-roll”). Licencja Remotion: darmowa dla osób prywatnych i firm do 3 osób, większe firmy potrzebują licencji.
 
@@ -70,14 +70,22 @@ npx remotion still src/index.ts System /tmp/s_45.jpg --frame=1350 --image-format
 ```
 Wyrenderuj 15–25 klatek (po 2–3 na scenę: wejście, środek, zmiana), złóż w arkusz (`record-app-walkthrough/scripts/contact-sheet.py` działa też na gotowym MP4) i obejrzyj Read-em. Szukaj: przyciętych paneli (popraw `x` kamery), zawijających się nagłówków, podpisów zasłaniających akcję, ujęć bez treści.
 
-### 5. Render i plik do prezentacji
+### 5. Render i plik do prezentacji — ostrość
+Rozmyty tekst ma trzy źródła i trzeba usunąć wszystkie:
+1. **Nagranie za małe pod zoom** — kamera 1.6× w oknie 1536 px rozciąga nagranie 1920 px. Nagrywaj z `DPR=2` (3200×1800, domyślnie w `record.mjs`).
+2. **Render 1080p** — podpisy, karty i tekst dorysowane w Remotion też wychodzą miękko na ekranach retina/4K. Renderuj z `--scale 2` (3840×2160); układ zostaje w pikselach 1920×1080.
+3. **Za mocna kompresja** — CRF 23–24 w 1080p rozmywa drobny tekst. Do prezentacji zmniejsz render 4K do 1440p (supersampling) i koduj CRF ~20.
 ```bash
-npx remotion render src/index.ts System out/nazwa.mp4 --codec h264 --crf 16 --muted   # bez dźwięku
-ffmpeg -i out/nazwa.mp4 -c:v libx264 -preset slow -crf 24 -pix_fmt yuv420p -movflags +faststart -an ../deck/media/nazwa.mp4
+npx remotion render src/index.ts System out/nazwa.mp4 --codec h264 --crf 16 --scale 2 --audio-bitrate 320k   # dodaj --muted, jeśli bez dźwięku
+ffmpeg -i out/nazwa.mp4 -vf scale=2560:1440:flags=lanczos -c:v libx264 -preset slow -crf 20 -pix_fmt yuv420p \
+  -af loudnorm=I=-16:TP=-1.5:LRA=11 -c:a aac -b:a 192k -movflags +faststart ../deck/media/nazwa.mp4
 ```
-Render 2–3 min filmu trwa ~10–20 min (zależnie od maszyny). Plik do repo/prezentacji ma mieć **< 50 MB** (GitHub ostrzega od 50 MB, odrzuca od 100 MB). Raz na koniec obejrzyj gotowy MP4 przez `contact-sheet.py --every 4`.
+Render 4K filmu 2–3 min trwa ~30 min (w 1080p ~10–15 min — do szybkich podglądów). Plik do repo/prezentacji ma mieć **< 100 MB** (GitHub odrzuca od 100 MB, ostrzega od 50 MB); gdy wychodzi więcej, podnieś CRF o 1–2. Raz na koniec obejrzyj gotowy MP4 przez `contact-sheet.py --every 4`.
 
 Czekając na render w tle, nie odpytuj w pętli `pgrep -f "remotion render"` — wzorzec łapie sam siebie i pętla nigdy się nie kończy. Używaj powiadomienia o zakończeniu zadania.
+
+## Muzyka z istniejącego utworu (darmowa)
+Jeśli w `assets/music/` jest już utwór, użyj go ponownie. Gdy jest krótszy od filmu, zagraj go dwa razy z 3-sekundowym przenikaniem na cięciu sceny, a drugie przejście przesuń tak, by naturalne zakończenie utworu wypadło na ostatniej klatce — gotowy wzór w `System.tsx` (`firstPass` / `secondPass`). Głośność 0.8, wejście 1.5 s, wyciszenie 1.4 s; w kodowaniu do prezentacji `loudnorm=I=-16`.
 
 ## Opcjonalnie: dźwięk i b-roll (płatne, OpenRouter)
 Tylko gdy użytkownik wprost chce lektora/muzykę/ujęcia AI — zapytaj o zgodę na koszt (~5 USD za całość). Działające skrypty: `presentation/pitch/tools/tts.py` (ElevenLabs v4 przez `/api/v1/audio/speech`), `music_or.py` (Lyria 3 Pro, wymaga `stream: true`), `video_gen.py` (Veo 3.1, `/api/v1/videos`), `transcribe.py` (Gemini — kontrola, czy lektor mówi dokładnie tekst ze skryptu). Kompozycja `Showcase` pokazuje ściszanie muzyki pod lektorem. Gemini TTS potrafi dopisywać własne zdania — zawsze transkrybuj i porównuj. Klucze tylko w `.env`, nigdy w repo.
