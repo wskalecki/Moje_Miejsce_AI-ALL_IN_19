@@ -540,7 +540,6 @@ function CinematicStage({
     storeRef.current.setYear(y)
     setEvents(evs)
   }, [])
-  const onHorizonChange = useCallback((h: Horizon) => storeRef.current.setHorizon(h), [])
 
   const invPins = useMemo<Pin[]>(
     () =>
@@ -653,7 +652,6 @@ function CinematicStage({
               activePlaceId={activePin}
               timelineYear={timelineYear}
               onTimelineYear={onTimelineYear}
-              onHorizonChange={onHorizonChange}
             />
           </Suspense>
         )}

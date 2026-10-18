@@ -32,8 +32,6 @@ export interface OsiedlePanelProps {
   timelineYear?: number
   /** Timeline year (spec 4.6) with the events of year ≤ Y — investments with a coordinate get a pin on the map. */
   onTimelineYear?: (year: number, events: TimelineEvent[]) => void
-  /** "Pokaż prognozę" on the `chwila` teaser asks to switch the horizon to `stale`. */
-  onHorizonChange?: (horizon: Horizon) => void
 }
 
 type PanelModule = { default?: ComponentType<OsiedlePanelProps>; OsiedlePanel?: ComponentType<OsiedlePanelProps> }
