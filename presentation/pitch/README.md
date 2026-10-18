@@ -17,13 +17,13 @@ Skille dla agentów (Claude Code), żeby powtórzyć to samo dla nowej wersji ap
 | Montaż | Remotion, `video/src/System.tsx`, `video/src/system/` (cięcia od znaczników, zoomy, podpisy, karta „Top 3” na żywo) |
 | Ujęcie otwierające | b-roll `assets/broll/aerial2.mp4` (Veo 3.1, wygenerowany wcześniej) + hasło `TAGLINE` w `System.tsx` |
 | Muzyka | `assets/music/bed.mp3` (Lyria 3 Pro, wygenerowana wcześniej do `Showcase`), dwa przejścia z przenikaniem |
-| Jakość | nagranie 3200×1800 (DPR 2), render `--scale 2` (4K), do prezentacji zmniejszone do 2560×1440 |
+| Jakość | nagranie 3200×1800 (DPR 2), render `--scale 1.5` (2880×1620), do prezentacji zmniejszone do 2560×1440 |
 | Koszt | 0 zł — żadnych nowych generacji |
 
 ```bash
 cd application && npx vite --port 5176 --strictPort        # 1. aplikacja
 PLAYWRIGHT=/tmp/rec/node_modules/playwright/index.mjs node presentation/pitch/tools/record-system.mjs   # 2. nagranie (~4 min)
-cd presentation/pitch/video && npm i && npm run render:system   # 3. render 4K (~30 min) → out/moje-miejsce-system.mp4
+cd presentation/pitch/video && npm i && npm run render:system   # 3. render 2880×1620 (~40 min) → out/moje-miejsce-system.mp4
 ffmpeg -i out/moje-miejsce-system.mp4 -vf scale=2560:1440:flags=lanczos -c:v libx264 -preset slow -crf 20 -pix_fmt yuv420p \
   -af loudnorm=I=-16:TP=-1.5:LRA=11 -c:a aac -b:a 192k -movflags +faststart ../deck/media/moje-miejsce-system.mp4
 ```

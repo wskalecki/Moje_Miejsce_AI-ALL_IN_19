@@ -6,7 +6,7 @@
     "studio": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts Showcase out/moje-miejsce-showcase.mp4 --codec h264 --crf 16 --audio-bitrate 320k",
     "still": "remotion still src/index.ts Showcase out/still.png",
-    "render:system": "remotion render src/index.ts System out/moje-miejsce-system.mp4 --codec h264 --crf 16 --scale 2 --audio-bitrate 320k",
+    "render:system": "remotion render src/index.ts System out/moje-miejsce-system.mp4 --codec h264 --crf 16 --scale 1.5 --audio-bitrate 320k --concurrency 4 --timeout 120000",
     "still:system": "remotion still src/index.ts System out/still-system.png"
   },
   "dependencies": {

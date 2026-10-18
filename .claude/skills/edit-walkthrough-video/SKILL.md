@@ -1,12 +1,12 @@
 ---
 name: edit-walkthrough-video
-description: Montuje profesjonalny, dynamiczny film z nagrania aplikacji (Remotion, wideo jako kod React) — zoomy kamery w stylu Screen Studio, okno przeglądarki, rozdziały, podpisy funkcji, nakładki z danymi, ujęcie otwierające i plansza końcowa; renderuje ostre MP4 (4K → 1440p) i sprawdza klatki. Użyj po skillu record-app-walkthrough, gdy ktoś chce zmontować demo / product video / prezentację systemu / showcase, „zrób z nagrania film”, „zmontuj wideo”. Domyślnie bez kosztów (bez lektora i muzyki).
+description: Montuje profesjonalny, dynamiczny film z nagrania aplikacji (Remotion, wideo jako kod React) — zoomy kamery w stylu Screen Studio, okno przeglądarki, rozdziały, podpisy funkcji, nakładki z danymi, ujęcie otwierające i plansza końcowa; renderuje ostre MP4 (2880×1620 → 1440p) i sprawdza klatki. Użyj po skillu record-app-walkthrough, gdy ktoś chce zmontować demo / product video / prezentację systemu / showcase, „zrób z nagrania film”, „zmontuj wideo”. Domyślnie bez kosztów (bez lektora i muzyki).
 ---
 
 # Montaż filmu z nagrania (Remotion)
 
 Wejście: nagranie `assets/clips/NAME.mp4` + `NAME-markers.json` (skill `record-app-walkthrough`).
-Wyjście: `video/out/<nazwa>.mp4` (render 4K, 30 kl./s) + kopia 2560×1440 do prezentacji.
+Wyjście: `video/out/<nazwa>.mp4` (render 2880×1620, 30 kl./s) + kopia 2560×1440 do prezentacji.
 
 **Koszt: 0 zł.** Remotion, ffmpeg i nagranie są darmowe. Płatne są tylko opcjonalne dodatki generowane przez AI (patrz „Opcjonalnie: dźwięk i b-roll”). Licencja Remotion: darmowa dla osób prywatnych i firm do 3 osób, większe firmy potrzebują licencji.
 
@@ -73,14 +73,14 @@ Wyrenderuj 15–25 klatek (po 2–3 na scenę: wejście, środek, zmiana), złó
 ### 5. Render i plik do prezentacji — ostrość
 Rozmyty tekst ma trzy źródła i trzeba usunąć wszystkie:
 1. **Nagranie za małe pod zoom** — kamera 1.6× w oknie 1536 px rozciąga nagranie 1920 px. Nagrywaj z `DPR=2` (3200×1800, domyślnie w `record.mjs`).
-2. **Render 1080p** — podpisy, karty i tekst dorysowane w Remotion też wychodzą miękko na ekranach retina/4K. Renderuj z `--scale 2` (3840×2160); układ zostaje w pikselach 1920×1080.
-3. **Za mocna kompresja** — CRF 23–24 w 1080p rozmywa drobny tekst. Do prezentacji zmniejsz render 4K do 1440p (supersampling) i koduj CRF ~20.
+2. **Render 1080p** — podpisy, karty i tekst dorysowane w Remotion też wychodzą miękko na ekranach retina/4K. Renderuj z `--scale 1.5` (2880×1620); układ zostaje w pikselach 1920×1080. Skala musi dawać całkowite piksele (`1.3333` dla 1440p wywala `stitchFramesToVideo`), a `--scale 2` (4K) przy filmie 2,5 min potrafi paść po ponad godzinie z braku pamięci — nie warto.
+3. **Za mocna kompresja** — CRF 23–24 w 1080p rozmywa drobny tekst. Do prezentacji zmniejsz render do 1440p (supersampling) i koduj CRF ~20.
 ```bash
-npx remotion render src/index.ts System out/nazwa.mp4 --codec h264 --crf 16 --scale 2 --audio-bitrate 320k   # dodaj --muted, jeśli bez dźwięku
+npx remotion render src/index.ts System out/nazwa.mp4 --codec h264 --crf 16 --scale 1.5 --audio-bitrate 320k --concurrency 4 --timeout 120000 > render.log 2>&1   # dodaj --muted, jeśli bez dźwięku
 ffmpeg -i out/nazwa.mp4 -vf scale=2560:1440:flags=lanczos -c:v libx264 -preset slow -crf 20 -pix_fmt yuv420p \
   -af loudnorm=I=-16:TP=-1.5:LRA=11 -c:a aac -b:a 192k -movflags +faststart ../deck/media/nazwa.mp4
 ```
-Render 4K filmu 2–3 min trwa ~30 min (w 1080p ~10–15 min — do szybkich podglądów). Plik do repo/prezentacji ma mieć **< 100 MB** (GitHub odrzuca od 100 MB, ostrzega od 50 MB); gdy wychodzi więcej, podnieś CRF o 1–2. Raz na koniec obejrzyj gotowy MP4 przez `contact-sheet.py --every 4`.
+Render filmu 2–3 min w skali 1.5 trwa ~40 min; pełny log zapisuj do pliku, bo po `| tail` błąd ginie, a status wyjścia jest z `tail` (w 1080p ~10–15 min — do szybkich podglądów). Plik do repo/prezentacji ma mieć **< 100 MB** (GitHub odrzuca od 100 MB, ostrzega od 50 MB); gdy wychodzi więcej, podnieś CRF o 1–2. Raz na koniec obejrzyj gotowy MP4 przez `contact-sheet.py --every 4`.
 
 Czekając na render w tle, nie odpytuj w pętli `pgrep -f "remotion render"` — wzorzec łapie sam siebie i pętla nigdy się nie kończy. Używaj powiadomienia o zakończeniu zadania.
 
