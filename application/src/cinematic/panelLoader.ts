@@ -24,10 +24,9 @@ export interface OsiedlePanelProps {
   priorities?: CategoryKey[]
   layout?: 'overlay' | 'page'
   onBack: () => void
-  onFocusPlace?: (lngLat: LngLat) => void
-  onHoverPlace?: (id: string | null) => void
   onShowRoute?: (route: Route | null) => void
-  activePlaceId?: string | null
+  /** One map click → its point (null = cancelled); "Droga do…" uses it for an own start point. */
+  onPickPoint?: () => Promise<LngLat | null>
   /** Controlled timeline year (store `timelineYear`). */
   timelineYear?: number
   /** Timeline year (spec 4.6) with the events of year ≤ Y — investments with a coordinate get a pin on the map. */

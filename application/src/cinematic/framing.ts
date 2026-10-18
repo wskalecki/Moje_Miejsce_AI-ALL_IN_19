@@ -58,21 +58,25 @@ export const SHEET_MAX_W = 1023
 
 /**
  * Chrome grid (src/design/tokens.css): the place card sits in the map's left column, under the
- * header pill — 24 px edge, 416 px column, 16 px gap; on phones and tablets it is a bottom sheet.
+ * header pill — 24 px edge, 416 px column, 16 px gap; "Ważne miejsca" take a 296 px column at the
+ * right edge; on phones and tablets the card is a bottom sheet and the places a strip under the pill.
  */
 const EDGE = 24
 const COL = 416
+const SIDE = 296
 const GAP = 16
-/** Bottom sheet top (`.op--overlay`, 35vh) and the header pill above the map strip. */
+/** Bottom sheet top (`.op--overlay`, 35vh) and the header pill + places strip above the map strip. */
 const SHEET_TOP = 0.35
 const PILL_BOTTOM = 64
+/** The places strip (`.op--side` < 1024 px) starts at the pill's bottom and is 52 px tall. */
+const STRIP_BOTTOM = PILL_BOTTOM + 52
 
 /** Camera padding that keeps the subject in the map area right of (or above, on phones) the place card. */
 export function panelPadding(): Pad {
   const w = window.innerWidth
   const h = window.innerHeight
-  if (w <= SHEET_MAX_W) return { top: PILL_BOTTOM, bottom: Math.round(h * (1 - SHEET_TOP)), left: 0, right: 0 }
-  return { top: 40, bottom: 40, left: EDGE + COL + GAP, right: 40 }
+  if (w <= SHEET_MAX_W) return { top: STRIP_BOTTOM, bottom: Math.round(h * (1 - SHEET_TOP)), left: 0, right: 0 }
+  return { top: 40, bottom: 40, left: EDGE + COL + GAP, right: SIDE + EDGE + GAP }
 }
 
 /** Extra margin inside the padded area: pins stand ~60 px above their point and need room for labels. */

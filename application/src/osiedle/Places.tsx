@@ -6,7 +6,7 @@ import type { Highlight } from '../mock/osiedla'
 import { formatMin } from '../lib/format'
 import { SectionHead } from './ui'
 
-interface PlacesProps {
+export interface PlacesProps {
   places: Highlight[]
   activeId: string | null
   onSelect: (place: Highlight) => void

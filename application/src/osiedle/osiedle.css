@@ -181,7 +181,7 @@
 
 .op-hero {
   position: relative;
-  height: 172px;
+  height: 136px;
   border-radius: 18px;
   overflow: hidden;
   background: #1d1d26;
@@ -440,7 +440,8 @@
 }
 
 .op-lead + .op-sec,
-.op-hero + .op-sec {
+.op-hero + .op-sec,
+.op-sec--photos:not(.is-open) + .op-sec {
   margin-top: 10px;
 }
 
@@ -480,6 +481,95 @@
   font-size: 12px;
   line-height: 16px;
   color: var(--op-ink-3);
+}
+
+/* ---------- Collapsible sections (ui.tsx CollapsibleSection) ---------- */
+
+.op-col {
+  padding-bottom: 10px;
+  transition: padding-bottom var(--d-slow, 320ms) var(--op-ease);
+}
+.op-col.is-open {
+  padding-bottom: 16px;
+}
+.op-col__head {
+  margin-bottom: 0;
+  transition: margin-bottom var(--d-slow, 320ms) var(--op-ease);
+}
+.op-col.is-open .op-col__head {
+  margin-bottom: 10px;
+}
+.op-col .op-sec__title {
+  flex: 1;
+  min-width: 0;
+}
+/* the whole title row is the hit area (36 px), drawn over the section padding */
+.op-col__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% + 16px);
+  min-height: 36px;
+  margin: -6px -8px;
+  padding: 6px 8px;
+  border-radius: var(--r-md, 12px);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--d-fast, 120ms) var(--op-ease-std);
+}
+.op-col__toggle:hover {
+  background: rgba(22, 22, 29, 0.04);
+}
+.op-col__toggle:active {
+  background: rgba(22, 22, 29, 0.07);
+}
+.op-col__toggle:focus-visible {
+  outline: 2px solid var(--op-accent);
+  outline-offset: -2px;
+}
+.op-col__label {
+  flex: 1;
+  min-width: 0;
+}
+.op-col__chev {
+  flex: none;
+  color: var(--op-ink-3);
+  transform: rotate(-90deg);
+  transition: transform var(--d-base, 200ms) var(--op-ease);
+}
+.op-col.is-open > .op-col__head .op-col__chev {
+  transform: none;
+}
+/* height via grid rows 0fr → 1fr: no measuring, no per-frame JS */
+.op-col__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows var(--d-slow, 320ms) var(--op-ease),
+    opacity var(--d-base, 200ms) var(--op-ease-std);
+}
+.op-col.is-open > .op-col__body {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+/* clipped while folding; the 4 px bleed keeps focus rings and chips whole */
+.op-col__inner {
+  min-height: 0;
+  overflow: hidden;
+  margin: -4px;
+  padding: 4px;
+}
+
+/* photos: first block of the card, no rule above it */
+.op-sec--photos {
+  padding-top: 4px;
+  border-top: 0;
+}
+.op-sec--photos + .op-lead {
+  padding-top: 2px;
 }
 
 .op-note {
@@ -645,6 +735,42 @@
   transition: transform 900ms var(--op-ease);
 }
 
+.op-bars__more {
+  display: grid;
+  gap: 2px;
+}
+.op-bars__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 10px;
+  margin-top: 2px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--op-ink-2);
+  transition:
+    background-color var(--d-fast, 120ms) var(--op-ease-std),
+    color var(--d-fast, 120ms) var(--op-ease-std);
+}
+.op-bars__toggle:hover {
+  background: rgba(22, 22, 29, 0.05);
+  color: var(--op-ink);
+}
+.op-bars__toggle:focus-visible {
+  outline: 2px solid var(--op-accent);
+  outline-offset: -2px;
+}
+.op-bars__chev {
+  color: var(--op-ink-3);
+  transition: transform var(--d-base, 200ms) var(--op-ease);
+}
+.op-bars__more.is-open .op-bars__chev {
+  transform: rotate(180deg);
+}
+
 .op-bars.is-live .op-bar__fill {
   transition-duration: 400ms;
 }
@@ -721,6 +847,73 @@
   color: var(--cat, var(--op-accent));
 }
 
+/* ---------- Places card in the map's right column (PlacesPanel, cinematic `.cin-side`) ---------- */
+
+.op--side {
+  flex: 0 1 auto;
+  min-height: 0;
+  padding: var(--chrome-card-pad, 16px 10px 10px);
+  pointer-events: auto;
+}
+
+.op--side .op-sec {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
+  border-top: 0;
+}
+
+.op--side .op-sec__head {
+  padding: 0 6px;
+}
+
+/* the list scrolls inside the card; 4 px of room keeps the focus ring unclipped */
+.op--side .op-places {
+  min-height: 0;
+  margin: -4px;
+  padding: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+/* < 1024 px: one row of place chips across the top of the map strip, under the header pill */
+@media (max-width: 1023px) {
+  .op--side {
+    position: absolute;
+    top: calc(var(--chrome-edge, 12px) + 52px);
+    left: var(--chrome-edge, 12px);
+    right: var(--chrome-edge, 12px);
+    padding: 6px;
+    border-radius: 18px;
+  }
+  .op--side .op-sec__head {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .op--side .op-places {
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    overflow: auto hidden;
+    scroll-snap-type: x proximity;
+  }
+  .op--side .op-place {
+    grid-template-columns: 28px auto;
+    max-width: 220px;
+    scroll-snap-align: start;
+  }
+  .op--side .op-place__meta,
+  .op--side .op-place__go {
+    display: none;
+  }
+}
+
 /* ---------- Routes ---------- */
 
 .op-pills {
@@ -766,6 +959,93 @@
   padding: 0 10px;
   font-size: 12px;
   font-weight: 500;
+}
+
+.op-start {
+  margin-bottom: 8px;
+}
+.op-start__row {
+  display: flex;
+  gap: 6px;
+}
+.op-start__pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 12px 0 10px;
+  border-radius: 10px;
+  background: rgba(22, 22, 29, 0.06);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--op-ink-2);
+  text-align: left;
+  transition:
+    background-color 160ms,
+    color 160ms,
+    box-shadow 160ms;
+}
+.op-start__pick span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.op-start__pick:hover {
+  color: var(--op-ink);
+}
+.op-start__pick:focus-visible,
+.op-start__clear:focus-visible {
+  outline: 2px solid var(--op-accent);
+  outline-offset: 1px;
+}
+.op-start.is-picking .op-start__pick,
+.op-start.is-ok .op-start__pick,
+.op-start.is-loading .op-start__pick {
+  background: #fff;
+  color: var(--op-accent-deep);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--op-accent) 35%, transparent);
+}
+.op-start.is-picking .op-start__pick svg {
+  animation: op-start-bob 900ms var(--op-ease-std) infinite alternate;
+}
+@keyframes op-start-bob {
+  to {
+    transform: translateY(-2px);
+  }
+}
+.op-start.is-error .op-start__note {
+  color: var(--color-bad, #d9534f);
+}
+.op-start__clear {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(22, 22, 29, 0.06);
+  color: var(--op-ink-2);
+  transition: background-color 160ms, color 160ms;
+}
+.op-start__clear:hover {
+  background: rgba(22, 22, 29, 0.1);
+  color: var(--op-ink);
+}
+.op-start__note:empty {
+  display: none;
+}
+.op-start__note {
+  margin: 6px 2px 0;
+  font-size: 11.5px;
+  line-height: 16px;
+  color: var(--op-ink-3);
+}
+.op-route.is-busy .op-modes,
+.op-route.is-busy .op-route__summary {
+  opacity: 0.45;
+  transition: opacity var(--d-base, 200ms) var(--op-ease-std);
 }
 
 .op-route {
@@ -1241,7 +1521,7 @@
 /* ---------- Footer ---------- */
 
 .op-foot {
-  padding: 14px 8px 8px;
+  padding: 12px 8px 8px;
   border-top: 1px solid var(--op-line);
 }
 
@@ -1250,6 +1530,36 @@
   line-height: 16px;
   font-weight: 650;
   color: var(--op-ink-2);
+}
+.op-credits__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  margin: -6px -6px;
+  padding: 0 6px;
+  border-radius: 8px;
+  font: inherit;
+  color: inherit;
+  transition: background-color var(--d-fast, 120ms) var(--op-ease-std);
+}
+.op-credits__toggle:hover {
+  background: rgba(22, 22, 29, 0.05);
+}
+.op-credits__toggle:focus-visible {
+  outline: 2px solid var(--op-accent);
+  outline-offset: -2px;
+}
+.op-credits__chev {
+  color: var(--op-ink-3);
+  transition: transform var(--d-base, 200ms) var(--op-ease);
+}
+.op-credits.is-open .op-credits__chev {
+  transform: rotate(180deg);
+}
+
+.op-credits ol[hidden] {
+  display: none;
 }
 
 .op-credits ol {
@@ -1326,6 +1636,17 @@
   .op-hero__slide.is-active img {
     animation: none;
   }
+  .op-col,
+  .op-col__head,
+  .op-col__body,
+  .op-col__chev,
+  .op-bars__chev,
+  .op-credits__chev {
+    transition: none;
+  }
+  .op-start.is-picking .op-start__pick svg {
+    animation: none;
+  }
   .op-traffic__plot {
     clip-path: none;
     transition: none;
@@ -1341,7 +1662,7 @@
 
 @media (max-width: 1023px) {
   .op-hero {
-    height: 160px;
+    height: 128px;
   }
 }
 
@@ -1898,6 +2219,76 @@
   font-size: 12px;
   line-height: 16px;
   color: var(--op-ink-3);
+}
+
+/* event with a cited source: the title link covers the card (opens in a new tab) */
+.op-ev__card {
+  position: relative;
+}
+
+.op-ev__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.op-ev__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.op-ev__ext {
+  display: inline-block;
+  margin-left: 5px;
+  vertical-align: -1px;
+  color: var(--op-ink-3);
+  transition:
+    transform 200ms var(--op-ease),
+    color 160ms;
+}
+
+.op-ev__hint {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.op-ev__card:has(.op-ev__link) {
+  transition:
+    box-shadow 400ms,
+    background-color 160ms,
+    transform 120ms;
+}
+
+.op-ev__card:has(.op-ev__link:hover) {
+  background: #fff;
+}
+
+.op-ev__link:hover {
+  color: var(--op-accent-deep);
+}
+
+.op-ev__link:hover .op-ev__ext {
+  color: var(--op-accent-deep);
+  transform: translate(1px, -1px);
+}
+
+/* the ring goes round the whole card, not just the title */
+.op .op-ev__link:focus-visible {
+  outline: none;
+}
+
+.op-ev__link:focus-visible::after {
+  outline: 2px solid var(--op-accent);
+  outline-offset: 2px;
+}
+
+.op-ev__card:has(.op-ev__link:active) {
+  transform: scale(0.99);
 }
 
 @media (max-width: 767px) {

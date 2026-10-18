@@ -66,6 +66,13 @@ test('the last stop covers every dated event in the data', () => {
   assert.ok(dated.every((y) => y <= LAST_YEAR))
 })
 
+test('every event in the data links to its cited source (card and map pin open it)', () => {
+  for (const e of OSIEDLA.flatMap((o) => o.timeline)) {
+    assert.match(e.sourceUrl ?? '', /^https:\/\/\S+$/, e.id)
+    assert.ok(e.sourceTitle, e.id)
+  }
+})
+
 test('any year snaps to the stop it belongs to (first stop ≥ year, clamped)', () => {
   assert.equal(toStop(2020), 2026)
   assert.equal(toStop(2026), 2026)

@@ -1,13 +1,13 @@
 import type { Commute as CommuteRow, TravelMode } from '../mock/osiedla'
 import { MODE_META, MODE_ORDER } from './shared'
-import { SectionHead } from './ui'
+import { CollapsibleSection } from './ui'
 
-/** "Dojazd" (spec §4.5 pkt 6): destinations × modes, fastest mode per row in bold. */
+/** "Dojazd" (spec §4.5 pkt 6): destinations × modes, fastest mode per row in bold. Folded by default. */
 export function Commute({ rows }: { rows: CommuteRow[] }) {
   const modes: TravelMode[] = MODE_ORDER.filter((m) => rows.some((r) => r.minutes[m] != null))
   return (
-    <section className="op-sec" aria-labelledby="op-commute-title" data-section="Dojazd">
-      <SectionHead id="op-commute-title" title="Dojazd" aside={<span className="op-sec__aside">w szczycie, w minutach</span>} />
+    <CollapsibleSection id="op-commute-title" title="Dojazd" section="Dojazd" defaultOpen={false}>
+      <p className="op-sec__lede">W szczycie, w minutach</p>
       <table className="op-commute">
         <thead>
           <tr>
@@ -54,6 +54,6 @@ export function Commute({ rows }: { rows: CommuteRow[] }) {
           })}
         </tbody>
       </table>
-    </section>
+    </CollapsibleSection>
   )
 }
