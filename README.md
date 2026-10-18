@@ -6,7 +6,7 @@ Zespół nr **19 AI ALL IN** · **Warsaw Open Data Hackathon 2026** (17–18.10.
 
 | | |
 |---|---|
-| Prezentacja (8 slajdów, z filmem) | PDF do zgłoszenia: [`3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce.pdf`](3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce.pdf) · [`3_AI-ALL-IN_mojeMiejsce/pitch/deck/index.html`](3_AI-ALL-IN_mojeMiejsce/pitch/deck/index.html) · PDF: [`3_AI-ALL-IN_mojeMiejsce/pitch/deck/export/moje-miejsce-pitch.pdf`](3_AI-ALL-IN_mojeMiejsce/pitch/deck/export/moje-miejsce-pitch.pdf) |
+| Prezentacja (8 slajdów, z filmem) | PDF (zapasowy): [`3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce (plik zapasowy).pdf`](3_AI-ALL-IN_mojeMiejsce/3_AI-ALL-IN_mojeMiejsce%20(plik%20zapasowy).pdf) · [`3_AI-ALL-IN_mojeMiejsce/pitch/deck/index.html`](3_AI-ALL-IN_mojeMiejsce/pitch/deck/index.html) · PDF: [`3_AI-ALL-IN_mojeMiejsce/pitch/deck/export/moje-miejsce-pitch.pdf`](3_AI-ALL-IN_mojeMiejsce/pitch/deck/export/moje-miejsce-pitch.pdf) |
 | Film prezentujący system (2:25) | [`3_AI-ALL-IN_mojeMiejsce/pitch/deck/media/moje-miejsce-system.mp4`](3_AI-ALL-IN_mojeMiejsce/pitch/deck/media/moje-miejsce-system.mp4) |
 | Skrypt wystąpienia | [`3_AI-ALL-IN_mojeMiejsce/pitch/skrypt-wystapienia.md`](3_AI-ALL-IN_mojeMiejsce/pitch/skrypt-wystapienia.md) |
 
