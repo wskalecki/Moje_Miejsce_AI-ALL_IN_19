@@ -1,5 +1,5 @@
 import { Marker, type Map as MlMap } from 'maplibre-gl'
-import { Navigation } from 'lucide-react'
+import { ExternalLink, Navigation } from 'lucide-react'
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { CATEGORY_COLORS } from '../app/dictionary'
@@ -16,6 +16,8 @@ export interface Pin {
   kind?: 'place' | 'start' | 'end' | 'investment'
   /** Investment pins: the year shown on the pin. */
   year?: number
+  /** Investment pins: the cited source; the pin becomes a link to it (new tab). */
+  href?: string
 }
 
 interface PlacePinsProps {
@@ -161,29 +163,40 @@ export function PlacePins({ map, pins, accent, deep, activeId, stagger = 80, onP
         // places take their category colour (same as the map filters, POI and 3D buildings)
         const pin = p.category && kind !== 'start' ? CATEGORY_COLORS[p.category] : accent
         const pinDeep = p.category && kind !== 'start' ? mix(pin, '#16161d', 0.38) : deep
+        const cls = `cin-pin is-${kind}${activeId === p.id ? ' is-active' : ''}${dx || dy ? ' is-nudged' : ''}`
+        const style = { '--pin': pin, '--pin-deep': pinDeep, '--d': `${delays.current.get(p.id) ?? 0}ms` } as CSSProperties
+        const body = (
+          <>
+            {kind === 'investment' ? (
+              <>
+                <span className="cin-pin__year tabular">{p.year}</span>
+                <span className="cin-pin__diamond">
+                  <span className="cin-pin__diamond-glyph">{glyph}</span>
+                </span>
+              </>
+            ) : (
+              <span className="cin-pin__head">{glyph}</span>
+            )}
+            <span className="cin-pin__stem" aria-hidden />
+            <span className="cin-pin__foot" aria-hidden />
+            <span className="cin-pin__label">
+              {p.label}
+              {p.href && <ExternalLink size={12} strokeWidth={2.4} aria-hidden className="cin-pin__ext" />}
+            </span>
+          </>
+        )
         return createPortal(
           <div className="cin-pin-shift" style={{ transform: `translate(${dx}px, ${dy}px)` }}>
-            <button
-              type="button"
-              className={`cin-pin is-${kind}${activeId === p.id ? ' is-active' : ''}${dx || dy ? ' is-nudged' : ''}`}
-              style={{ '--pin': pin, '--pin-deep': pinDeep, '--d': `${delays.current.get(p.id) ?? 0}ms` } as CSSProperties}
-              onClick={() => onPick?.(p)}
-              aria-label={p.label}
-            >
-              {kind === 'investment' ? (
-                <>
-                  <span className="cin-pin__year tabular">{p.year}</span>
-                  <span className="cin-pin__diamond">
-                    <span className="cin-pin__diamond-glyph">{glyph}</span>
-                  </span>
-                </>
-              ) : (
-                <span className="cin-pin__head">{glyph}</span>
-              )}
-              <span className="cin-pin__stem" aria-hidden />
-              <span className="cin-pin__foot" aria-hidden />
-              <span className="cin-pin__label">{p.label}</span>
-            </button>
+            {/* an investment with a source opens it (its pin had no click action of its own) */}
+            {p.href ? (
+              <a className={cls} style={style} href={p.href} target="_blank" rel="noopener noreferrer" aria-label={`${p.label} (źródło, nowa karta)`}>
+                {body}
+              </a>
+            ) : (
+              <button type="button" className={cls} style={style} onClick={() => onPick?.(p)} aria-label={p.label}>
+                {body}
+              </button>
+            )}
           </div>,
           host,
           p.id,
