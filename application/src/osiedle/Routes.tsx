@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { CATEGORY_ICONS } from '../app/icons'
 import type { Route, TravelMode } from '../mock/osiedla'
 import { formatKm, formatMin } from '../lib/format'
-import { MODE_META, availableModes, defaultMode, useElementWidth } from './shared'
+import { MODE_META, availableModes, defaultMode } from './shared'
 import { SectionHead } from './ui'
 
 interface RoutesProps {
@@ -11,62 +11,6 @@ interface RoutesProps {
   mode: TravelMode
   onSelect: (route: Route) => void
   onMode: (mode: TravelMode) => void
-}
-
-const SKETCH_H = 132
-const PAD = 22
-
-/** Route drawn without a map: equirectangular projection fitted to the box, start "Ty" → destination. */
-function RouteSketch({ route }: { route: Route }) {
-  const [ref, width] = useElementWidth<HTMLDivElement>()
-  const Icon = CATEGORY_ICONS[route.category]
-  const geo = useMemo(() => {
-    const coords = route.geometry.coordinates as [number, number][]
-    if (!width || coords.length < 2) return null
-    const lat0 = (coords[0][1] * Math.PI) / 180
-    const k = Math.cos(lat0)
-    const xs = coords.map(([lng]) => lng * k)
-    const ys = coords.map(([, lat]) => -lat)
-    const minX = Math.min(...xs)
-    const maxX = Math.max(...xs)
-    const minY = Math.min(...ys)
-    const maxY = Math.max(...ys)
-    const spanX = maxX - minX || 1e-6
-    const spanY = maxY - minY || 1e-6
-    const s = Math.min((width - PAD * 2 - 60) / spanX, (SKETCH_H - PAD * 2) / spanY)
-    const offX = (width - spanX * s) / 2
-    const offY = (SKETCH_H - spanY * s) / 2
-    const pts = xs.map((x, i) => [offX + (x - minX) * s, offY + (ys[i] - minY) * s] as [number, number])
-    const d = pts.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`).join('')
-    return { d, start: pts[0], end: pts[pts.length - 1] }
-  }, [route.geometry, width])
-
-  return (
-    <div ref={ref} className="op-sketch" aria-hidden>
-      {geo && (
-        <svg width={width} height={SKETCH_H} viewBox={`0 0 ${width} ${SKETCH_H}`}>
-          <defs>
-            <pattern id="op-sketch-dots" width="12" height="12" patternUnits="userSpaceOnUse">
-              <circle cx="1" cy="1" r="1" fill="rgba(22,22,29,0.09)" />
-            </pattern>
-          </defs>
-          <rect width={width} height={SKETCH_H} fill="url(#op-sketch-dots)" />
-          <path d={geo.d} className="op-sketch__casing" />
-          <path key={route.id} d={geo.d} pathLength={1} className="op-sketch__line" />
-          <g transform={`translate(${geo.start[0]} ${geo.start[1]})`}>
-            <circle r="9" className="op-sketch__start" />
-            <text className="op-sketch__you" textAnchor="middle" dy="3.5">
-              Ty
-            </text>
-          </g>
-          <g key={`${route.id}-end`} className="op-sketch__end" transform={`translate(${geo.end[0]} ${geo.end[1]})`}>
-            <circle r="13" />
-            <Icon x={-7} y={-7} width={14} height={14} strokeWidth={2.2} color="#fff" />
-          </g>
-        </svg>
-      )}
-    </div>
-  )
 }
 
 const groupKey = (r: Route) => r.group ?? r.id
@@ -115,7 +59,6 @@ export function Routes({ routes, selectedId, mode, onSelect, onMode }: RoutesPro
       )}
 
       <div className="op-route">
-        <RouteSketch route={route} />
         <div className="op-modes" role="tablist" aria-label="Sposób dojazdu">
           {modes.map((m) => {
             const { icon: Icon, label } = MODE_META[m]

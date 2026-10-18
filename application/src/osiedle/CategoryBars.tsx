@@ -22,7 +22,6 @@ interface CategoryBarsProps {
  */
 export function CategoryBars({ profile, priorities, values, deltas }: CategoryBarsProps) {
   const [ref, seen] = useSeenOnce<HTMLDivElement>(0.2)
-  const [compare, setCompare] = useState(false)
   // After the entry animation, switch the bars to the faster 400 ms timeline transition.
   const [live, setLive] = useState(false)
   useEffect(() => {
@@ -55,7 +54,6 @@ export function CategoryBars({ profile, priorities, values, deltas }: CategoryBa
           aria-label={CATEGORIES[c].label}
         >
           <span className="op-bar__fill" style={{ transform: `scaleX(${seen ? Math.max(0.02, v / 100) : 0})` }} />
-          <span className="op-bar__avg" aria-hidden />
         </span>
         <span className="op-bar__end">
           {d !== 0 && (
@@ -71,25 +69,8 @@ export function CategoryBars({ profile, priorities, values, deltas }: CategoryBa
 
   return (
     <section className="op-sec" aria-labelledby="op-cats-title" data-section="Jak wypada dla Ciebie">
-      <SectionHead
-        id="op-cats-title"
-        title="Jak wypada dla Ciebie"
-        aside={
-          <button
-            type="button"
-            role="switch"
-            aria-checked={compare}
-            className={`op-switch${compare ? ' is-on' : ''}`}
-            onClick={() => setCompare((v) => !v)}
-          >
-            <span className="op-switch__track" aria-hidden>
-              <span className="op-switch__thumb" />
-            </span>
-            Średnia Warszawy
-          </button>
-        }
-      />
-      <div ref={ref} className={`op-bars${compare ? ' is-compare' : ''}${live ? ' is-live' : ''}`}>
+      <SectionHead id="op-cats-title" title="Jak wypada dla Ciebie" />
+      <div ref={ref} className={`op-bars${live ? ' is-live' : ''}`}>
         {groups.map((g) => (
           <div key={g.label} className="op-bars__group">
             <h3 className="op-bars__label chrome-label">{g.label}</h3>
@@ -97,11 +78,6 @@ export function CategoryBars({ profile, priorities, values, deltas }: CategoryBa
           </div>
         ))}
       </div>
-      {compare && (
-        <p className="op-note" aria-live="polite">
-          Kreska na pasku to średnia Warszawy (50). Wyniki 0–100 względem całego miasta.
-        </p>
-      )}
     </section>
   )
 }
