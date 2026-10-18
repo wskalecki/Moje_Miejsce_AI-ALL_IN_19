@@ -40,7 +40,9 @@ test('missing categories fall back to 50; zycie_nocne alias is read', () => {
 test('real data: the featured osiedla hold their documented places (docs/core/mock-iteracja-2.md)', () => {
   const scores = JSON.parse(readFileSync(new URL('../../public/data/osiedla-scores.json', import.meta.url), 'utf8')) as ScoresFile
   const rankFor = (p: 'student' | 'rodzina' | 'senior', id: string) => rankOsiedla(scores, deriveWeights(p, DEFAULT_PRIORITIES[p])).rank.get(id)
-  assert.equal(rankFor('student', 'muranow'), 10)
-  assert.equal(rankFor('senior', 'stare-bielany'), 5)
-  assert.equal(rankFor('rodzina', 'natolin'), 22)
+  // pinned to the data: a data fix that moves them should update these numbers on purpose
+  // (18.10.2026: OSM multipolygon forests counted, greener osiedla rose)
+  assert.equal(rankFor('student', 'muranow'), 15)
+  assert.equal(rankFor('senior', 'stare-bielany'), 11)
+  assert.equal(rankFor('rodzina', 'natolin'), 24)
 })

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-10-17",
+  "updated": "2026-10-18",
   "policy": {
     "allowedSourceKinds": [
       "city",
@@ -393,9 +393,9 @@
       "id": "osm_parks",
       "source": "osm",
       "title": "Parki i lasy",
-      "access": "Overpass: leisure=park, landuse=forest, natural=wood; poligony ≥ 1 ha, obszar Warszawy",
+      "access": "Overpass `out geom;`: leisure=park, landuse=forest, natural=wood; zamknięte drogi i relacje (multipolygon) złożone z obrysów z odjęciem otworów; poligony ≥ 1 ha, obszar Warszawy",
       "script": "data/scripts/siatka (uv run siatka run)",
-      "period": "pobrano 2026-10-17"
+      "period": "stan OSM 2026-10-17/18 (pobrano 2026-10-18)"
     },
     {
       "id": "osm_gastronomy",
@@ -570,7 +570,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+      "caveats": "Kontrola z GUS BDL 2024 (przedszkola, dzielnice): OSM 1141 vs GUS 872, korelacja 0,98; OSM liczy też punkty przedszkolne i oddziały przedszkolne, których GUS nie wlicza do przedszkoli."
     },
     {
       "id": "osiedle.kindergartens_1km",
@@ -584,7 +584,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+      "caveats": "Kontrola z GUS BDL 2024 (przedszkola, dzielnice): OSM 1141 vs GUS 872, korelacja 0,98; OSM liczy też punkty przedszkolne i oddziały przedszkolne, których GUS nie wlicza do przedszkoli."
     },
     {
       "id": "osiedle.schools_in",
@@ -597,7 +597,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+      "caveats": "Kontrola z GUS BDL 2024 (szkoły podstawowe bez specjalnych, dzielnice): OSM 424 vs GUS 373, korelacja 0,97; OSM zawiera też szkoły specjalne i podwójnie oznaczone zespoły szkół. Szkoły nie sprawdzone w RSPO."
     },
     {
       "id": "osiedle.schools_1km",
@@ -611,7 +611,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+      "caveats": "Kontrola z GUS BDL 2024 (szkoły podstawowe bez specjalnych, dzielnice): OSM 424 vs GUS 373, korelacja 0,97; OSM zawiera też szkoły specjalne i podwójnie oznaczone zespoły szkół. Szkoły nie sprawdzone w RSPO."
     },
     {
       "id": "osiedle.high_schools_in",
@@ -705,7 +705,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+      "caveats": "Kontrola z GUS BDL 2023 (apteki, dzielnice): OSM 583 vs GUS 595, korelacja 1,00, każda dzielnica w granicach ±11%."
     },
     {
       "id": "osiedle.pharmacies_1km",
@@ -719,7 +719,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+      "caveats": "Kontrola z GUS BDL 2023 (apteki, dzielnice): OSM 583 vs GUS 595, korelacja 1,00, każda dzielnica w granicach ±11%."
     },
     {
       "id": "osiedle.supermarkets_in",
@@ -1257,7 +1257,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+      "caveats": "Tylko parki oraz lasy i zadrzewienia ≥ 1 ha z OSM: ogrody, skwery poniżej 1 ha i drzewa przy ulicach nie są liczone, więc osiedla willowe (np. Saska Kępa) wypadają nisko. Kontrola: udział lasów w dzielnicach zgodny z lesistością GUS BDL 2024 (korelacja 0,99; OSM o kilka pp wyżej, bo liczy też zadrzewienia poza gruntami leśnymi)."
     },
     {
       "id": "osiedle.green_share_1km",
@@ -1271,7 +1271,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+      "caveats": "Tylko parki oraz lasy i zadrzewienia ≥ 1 ha z OSM: ogrody, skwery poniżej 1 ha i drzewa przy ulicach nie są liczone, więc osiedla willowe (np. Saska Kępa) wypadają nisko. Kontrola: udział lasów w dzielnicach zgodny z lesistością GUS BDL 2024 (korelacja 0,99; OSM o kilka pp wyżej, bo liczy też zadrzewienia poza gruntami leśnymi)."
     },
     {
       "id": "osiedle.green_dist_m",
@@ -1285,7 +1285,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "OSM może być niekompletny; szkoły nie sprawdzone w RSPO."
+      "caveats": "Tylko parki oraz lasy i zadrzewienia ≥ 1 ha z OSM: ogrody, skwery poniżej 1 ha i drzewa przy ulicach nie są liczone, więc osiedla willowe (np. Saska Kępa) wypadają nisko. Kontrola: udział lasów w dzielnicach zgodny z lesistością GUS BDL 2024 (korelacja 0,99; OSM o kilka pp wyżej, bo liczy też zadrzewienia poza gruntami leśnymi)."
     },
     {
       "id": "osiedle.pm25_ugm3",
@@ -1299,7 +1299,7 @@
         "wfs_msi"
       ],
       "status": "DERIVED",
-      "caveats": "Jeden pomiar godzinowy, bez uśrednienia."
+      "caveats": "Jeden pomiar godzinowy, bez uśrednienia. Odczyt PM2.5 = 0 µg/m³ traktujemy jako brak pomiaru (uszkodzony czujnik, np. Warszawa-12860: PM1 0, PM2.5 0, PM10 0,27); osiedle dostaje najbliższy działający czujnik."
     },
     {
       "id": "osiedle.pm25_sensor_dist_m",
@@ -2288,7 +2288,7 @@
     {
       "id": "kwartal.near.*",
       "label": "Najbliższy obiekt danego typu",
-      "definition": "[nazwa albo null, odległość w linii prostej w m zaokrąglona do 10] od punktu kwartału do najbliższego obiektu typu: kindergarten = przedszkole (OSM); school = szkoła podstawowa (OSM); high_school = szkoła średnia (OSM); university = uczelnia (OSM); clinic = przychodnia (OSM); pharmacy = apteka (OSM); supermarket = supermarket (OSM); park = park >= 1 ha, odległość do krawędzi (OSM, e39479af49a915ad.json); forest = las >= 1 ha, odległość do krawędzi (OSM); stop = słupek ZTM (dane.um.warszawa.pl); tram = słupek z tramwajem (ZTM GTFS); metro = stacja metra (ZTM GTFS); skm = stacja SKM (ZTM GTFS). Powyżej 3 km sama odległość.",
+      "definition": "[nazwa albo null, odległość w linii prostej w m zaokrąglona do 10] od punktu kwartału do najbliższego obiektu typu: kindergarten = przedszkole (OSM); school = szkoła podstawowa (OSM); high_school = szkoła średnia (OSM); university = uczelnia (OSM); clinic = przychodnia (OSM); pharmacy = apteka (OSM); supermarket = supermarket (OSM); park = park >= 1 ha, odległość do krawędzi (OSM, a73a4733e23d1ea2.json); forest = las >= 1 ha, odległość do krawędzi (OSM); stop = słupek ZTM (dane.um.warszawa.pl); tram = słupek z tramwajem (ZTM GTFS); metro = stacja metra (ZTM GTFS); skm = stacja SKM (ZTM GTFS). Powyżej 3 km sama odległość.",
       "unit": "m",
       "method": "kwartal_field",
       "datasets": [
@@ -2962,6 +2962,16 @@
       "date": "2026-10-18",
       "change": "Przeliczono cell_id / cell_ids w data/poi_mikolaj/*.geojson i data/lines/*.geojson na siatkę 250 m (funkcjami ETL: assign_cell, cells_crossed) i dodano gridVersion; walidator wymaga gridVersion w każdym pliku z ID komórek.",
       "why": "12 725 punktów i 70 linii miało ID ze starej siatki, a pliki nie deklarowały wersji, więc walidator tego nie widział. Pozostałe pola bez zmian."
+    },
+    {
+      "date": "2026-10-18",
+      "change": "Parki i lasy OSM liczone z multipoligonami: zapytanie siatka `out geom;` zamiast `out geom tags;`, relacje składane z obrysów z odjęciem otworów (data/scripts/osm_geometry.py), relacja bez członków przerywa przebieg. Przeliczono green_share, green_share_1km, green_dist_m, kategorię „Zieleń”, heatmapy, kwartały i treści 3 osiedli.",
+      "why": "`out geom tags;` pomijał członków relacji, więc wszystkie 171 relacji (m.in. Las Kabacki, Las Bielański, Las Bemowo, Las Bródnowski, Park Żeromskiego) znikały po cichu: rezerwat Las Kabacki miał 0,2% zieleni zamiast 99%, 44 osiedla zmieniły się o ponad 5 pp. Po poprawce udział lasów w dzielnicach koreluje z lesistością GUS BDL na 0,99 (wcześniej 0,84)."
+    },
+    {
+      "date": "2026-10-18",
+      "change": "PM2.5: odczyt 0 µg/m³ pomijany jako brak pomiaru; metryki szkół, przedszkoli i aptek dostały wynik kontroli z GUS BDL (liczby obiektów w dzielnicach).",
+      "why": "Czujnik Warszawa-12860 podawał PM2.5 0 i PM10 0,27 µg/m³ (sąsiednie 3,5–14), więc Ujazdów miał „0” zamiast pomiaru. Kontrola GUS: apteki zgodne (korelacja 1,00), szkoły i przedszkola zawyżone o 14% i 31% przez szerszą definicję w OSM."
     }
   ]
 }

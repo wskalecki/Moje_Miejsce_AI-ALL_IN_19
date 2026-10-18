@@ -41,7 +41,7 @@ def parks():
 
 def _green_rings(ctx):
     ctx.pois("osm_parks")  # registers the dataset (source + freshness) for this run
-    return [rings[0] for _, rings in _green_polygons()]
+    return [ring for _, rings in _green_polygons() for ring in rings]
 
 
 @dataset("osm_gastronomy", osm.OSM_SOURCE)
