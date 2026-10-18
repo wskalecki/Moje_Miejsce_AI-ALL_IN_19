@@ -226,15 +226,15 @@ async function load(): Promise<MapData> {
       district: entry.district,
       ...catProps,
       featured: fi ? 1 : 0,
-      ...(fi ? { featured_slug: fi.slug, owner: fi.profile } : {}),
+      ...(fi ? { featured_slug: fi.slug } : {}),
     }
     if (fi) featuredShapes.push({ type: 'Feature', geometry: f.geometry, properties: { ...f.properties } })
-    else
-      labels.push({
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: lp },
-        properties: { id: p.id, name: entry.name },
-      })
+    // every osiedle is labelled; the live top 3 hide theirs under their pills (applyLabelFilter)
+    labels.push({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: lp },
+      properties: { id: p.id, name: entry.name },
+    })
   }
 
   // ---- per-category heat: the data team's file, else a temporary density of the POI files ----

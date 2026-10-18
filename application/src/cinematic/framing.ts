@@ -53,23 +53,31 @@ export const LAND_PITCH = 57
 /** Outline vertices farther than this from the centre are left out of the framing (some MSI areas cover several km²). */
 const CORE_RADIUS_M = 1200
 
-/** Width of the osiedle panel (mirrors `.op--overlay` in osiedle.css). */
-export function panelWidth(w = window.innerWidth) {
-  return w >= 1600 ? 560 : w >= 1280 ? 520 : 440
-}
+/** Breakpoint of the bottom-sheet layout (same as the map's filter sheet, src/map/map.css). */
+export const SHEET_MAX_W = 1023
 
-/** Camera padding that keeps the subject in the map area left of (or above, on phones) the panel. */
+/**
+ * Chrome grid (src/design/tokens.css): the place card sits in the map's left column, under the
+ * header pill — 24 px edge, 416 px column, 16 px gap; on phones and tablets it is a bottom sheet.
+ */
+const EDGE = 24
+const COL = 416
+const GAP = 16
+/** Bottom sheet top (`.op--overlay`, 35vh) and the header pill above the map strip. */
+const SHEET_TOP = 0.35
+const PILL_BOTTOM = 64
+
+/** Camera padding that keeps the subject in the map area right of (or above, on phones) the place card. */
 export function panelPadding(): Pad {
   const w = window.innerWidth
   const h = window.innerHeight
-  // < 768 px the panel is a bottom sheet from 35vh: the map keeps the top 35 %
-  if (w < 768) return { top: 12, bottom: Math.round(h * 0.65), left: 0, right: 0 }
-  return { top: 40, bottom: 40, left: 40, right: panelWidth(w) + 16 + 24 }
+  if (w <= SHEET_MAX_W) return { top: PILL_BOTTOM, bottom: Math.round(h * (1 - SHEET_TOP)), left: 0, right: 0 }
+  return { top: 40, bottom: 40, left: EDGE + COL + GAP, right: 40 }
 }
 
 /** Extra margin inside the padded area: pins stand ~60 px above their point and need room for labels. */
 function pinInset(): Pad {
-  return window.innerWidth < 768 ? { top: 64, bottom: 22, left: 30, right: 30 } : { top: 80, bottom: 40, left: 44, right: 44 }
+  return window.innerWidth <= SHEET_MAX_W ? { top: 56, bottom: 64, left: 30, right: 30 } : { top: 80, bottom: 40, left: 44, right: 44 }
 }
 
 export const metersBetween = (a: Pt, b: Pt) => {
@@ -162,4 +170,15 @@ export function allVisible(map: MlMap, points: Pt[], padding = panelPadding()): 
     const s = map.project(p)
     return s.x >= padding.left + inset.left * 0.6 && s.x <= W - padding.right - inset.right * 0.6 && s.y >= padding.top + inset.top * 0.6 && s.y <= H - padding.bottom - inset.bottom * 0.6
   })
+}
+
+/**
+ * True when `b` is within the inner half of a top-down `w × h` view centred on `a` at `zoom`: the camera
+ * can then zoom straight between them (no pull-back arc) without the subject leaving the frame.
+ */
+export function nearInView(a: Pt, b: Pt, zoom: number, w: number, h: number): boolean {
+  const ws = 512 * 2 ** zoom
+  const dx = Math.abs(mercX(a[0]) - mercX(b[0])) * ws
+  const dy = Math.abs(mercY(a[1]) - mercY(b[1])) * ws
+  return dx <= w * 0.5 && dy <= h * 0.5
 }

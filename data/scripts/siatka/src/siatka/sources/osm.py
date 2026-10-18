@@ -13,7 +13,6 @@ from siatka.sources.cache import fetch
 ENDPOINTS = (
     "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
-    "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
 )
 
 OSM_SOURCE = Source(
@@ -35,8 +34,7 @@ def query(selectors: list[str], geometry: bool = False) -> list[dict]:
     """
     s, w, n, e = WARSAW_QUERY_BBOX
     bbox = f"({s},{w},{n},{e})"
-    # `out geom;` (body verbosity): `out geom tags;` drops relation members, i.e. every multipolygon
-    out = "out geom;" if geometry else "out center tags;"
+    out = "out geom tags;" if geometry else "out center tags;"
     body = "[out:json][timeout:180];(" + "".join(f"nwr{sel}{bbox};" for sel in selectors) + ");" + out
     last_error: Exception | None = None
     for url in ENDPOINTS:
@@ -82,44 +80,8 @@ def pois(
     return out
 
 
-def element_rings(el: dict) -> list[list[tuple[float, float]]]:
-    """Outer rings (lon, lat) of a closed way or a multipolygon relation, holes cut out first.
-
-    Relation outlines are often split over several open ways, so they are stitched; a relation
-    without members (an `out geom tags;` response) is an error, not an empty area. Same logic as
-    data/scripts/osm_geometry.py, which the build scripts use.
-    """
-    import shapely
-    from shapely.geometry import LineString, Polygon
-    from shapely.ops import linemerge, polygonize
-
-    def coords(geometry):
-        return [(g["lon"], g["lat"]) for g in geometry]
-
-    def area(role):
-        lines = [LineString(coords(m["geometry"])) for m in el["members"]
-                 if m.get("role") == role and len(m.get("geometry") or []) >= 2]
-        return shapely.union_all(list(polygonize(linemerge(lines)))) if lines else None
-
-    if el["type"] == "way":
-        pts = coords(el.get("geometry") or [])
-        if len(pts) < 4 or pts[0] != pts[-1]:
-            return []
-        geom = shapely.make_valid(Polygon(pts))
-    elif el["type"] == "relation":
-        if "members" not in el:
-            raise ValueError(f"relation r{el['id']} has no members: query with `out geom;`, not `out geom tags;`")
-        outer, inner = area("outer"), area("inner")
-        if outer is None or outer.is_empty:
-            return []
-        geom = shapely.make_valid(outer if inner is None else outer.difference(inner))
-    else:
-        return []
-    return [list(p.exterior.coords) for p in getattr(geom, "geoms", [geom]) if isinstance(p, Polygon) and not p.is_empty]
-
-
 def polygons(selectors: list[str], min_area_m2: float = 0) -> list[tuple[dict, list[list[tuple[float, float]]]]]:
-    """Outer rings (lon, lat) of ways and multipolygon relations, with element tags."""
+    """Closed outer rings (lon, lat) of ways and multipolygon relations, with element tags."""
     from shapely.geometry import Polygon
 
     from siatka.geo import to_xy
@@ -127,10 +89,19 @@ def polygons(selectors: list[str], min_area_m2: float = 0) -> list[tuple[dict, l
     out = []
     for el in query(selectors, geometry=True):
         rings = []
-        for pts in element_rings(el):
-            if min_area_m2 and Polygon(to_xy([p[0] for p in pts], [p[1] for p in pts])).area < min_area_m2:
-                continue
-            rings.append(pts)
-        if rings:
-            out.append((el, rings))
+        if el["type"] == "way" and el.get("geometry"):
+            rings = [el["geometry"]]
+        elif el["type"] == "relation":
+            rings = [m["geometry"] for m in el.get("members", []) if m.get("role") == "outer" and m.get("geometry")]
+        closed = []
+        for ring in rings:
+            pts = [(g["lon"], g["lat"]) for g in ring]
+            if len(pts) >= 4 and pts[0] == pts[-1]:
+                if min_area_m2:
+                    xy = to_xy([p[0] for p in pts], [p[1] for p in pts])
+                    if Polygon(xy).area < min_area_m2:
+                        continue
+                closed.append(pts)
+        if closed:
+            out.append((el, closed))
     return out

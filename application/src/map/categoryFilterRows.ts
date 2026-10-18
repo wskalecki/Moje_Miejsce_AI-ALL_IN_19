@@ -195,7 +195,7 @@ export function moveCategoryToSection(
 export function applyFilterDrop(
   sections: FilterSections,
   cat: CategoryKey,
-  from: FilterSectionId,
+  _from: FilterSectionId,
   target: DropTarget,
 ): FilterSections {
   if (!(CONFIGURABLE_FILTER_CATEGORIES as readonly string[]).includes(cat)) return sections
@@ -217,7 +217,7 @@ export function sectionMembershipChanges(prev: FilterSections, next: FilterSecti
 /** Badge count when sub-filters are active (null = hide badge). */
 export function categoryFilterBadgeCount(
   c: CategoryKey,
-  sections: FilterSections,
+  _sections: FilterSections,
   opts: { gastronomyCuisines: readonly string[]; poiInterests: readonly string[] },
 ): number | null {
   if (categoryHasGastronomyFilters(c)) {

@@ -63,7 +63,6 @@ sys.path.insert(0, str(ROOT / "data/scripts/noise"))
 sys.path.insert(0, str(ROOT / "data/scripts"))
 import generate_grid  # noqa: E402
 import gios_noise  # noqa: E402
-from osm_geometry import element_polygons, find_green_cache  # noqa: E402
 
 OSIEDLA = ROOT / "data/boundaries/warszawa_osiedla.geojson"
 MIK = ROOT / "data/poi_mikolaj"
@@ -290,8 +289,7 @@ def load():
     sp = MIK / "sport.geojson"
     L["pitch"] = Layer(points(sp, {"pitch"}), objects=lambda f: f["properties"]["meta"].get("liczba_obiektow") or 1)
     L["sports_class"] = Layer(points(sp, {"sports_class"}))
-    # a PM2.5 of exactly 0 µg/m³ is a failed reading (e.g. Warszawa-12860: PM1 0, PM2.5 0, PM10 0.27), not clean air
-    L["air"] = Layer(points(MIK / "environment.geojson", {"air_sensor"}, lambda f: (f["properties"]["meta"].get("pm25") or 0) > 0),
+    L["air"] = Layer(points(MIK / "environment.geojson", {"air_sensor"}, lambda f: f["properties"]["meta"].get("pm25") is not None),
                      pm25=lambda f: f["properties"]["meta"]["pm25"])
     air_time = max(f["properties"]["meta"].get("czas_pomiaru") or "" for f in L["air"].feats)
     L["bo"] = Layer(points(MIK / "future.geojson", {"bo_project", "bo_done"}),
@@ -302,14 +300,23 @@ def load():
     addr = np.array([f["geometry"]["coordinates"][:2] for f in read_features(addr_path) if f.get("geometry")], float)
     ax, ay = to_xy(addr[:, 0], addr[:, 1])
 
-    # green polygons (>= 1 ha): ways and multipolygon relations with their holes, as in siatka
-    green_raw = find_green_cache(RAW / "osm")
+    # green polygons (outer rings, >= 1 ha), as in siatka
+    green_raw = find_osm_cache(lambda e: share_of(e, "natural", {"wood"}, 0.5) or share_of(e, "leisure", {"park"}, 0.5)
+                               or sum(1 for x in e if x.get("tags", {}).get("landuse") == "forest") > 500)
     green = []
     for el in json.loads(green_raw.read_text())["elements"]:
-        for pg in element_polygons(el):
-            pg = shapely.make_valid(shapely.transform(pg, lambda c: np.column_stack(to_xy(c[:, 0], c[:, 1]))))
-            if pg.area >= MIN_GREEN_M2:
-                green.append(pg)
+        rings = []
+        if el["type"] == "way" and el.get("geometry"):
+            rings = [el["geometry"]]
+        elif el["type"] == "relation":
+            rings = [m["geometry"] for m in el.get("members", []) if m.get("role") == "outer" and m.get("geometry")]
+        for ring in rings:
+            pts = [(g["lon"], g["lat"]) for g in ring]
+            if len(pts) >= 4 and pts[0] == pts[-1]:
+                x, y = to_xy([p[0] for p in pts], [p[1] for p in pts])
+                pg = shapely.make_valid(Polygon(np.column_stack([x, y])))
+                if pg.area >= MIN_GREEN_M2:
+                    green.append(pg)
     green_union = shapely.make_valid(shapely.union_all(green))
     shapely.prepare(green_union)
     green_tree = shapely.STRtree(green)

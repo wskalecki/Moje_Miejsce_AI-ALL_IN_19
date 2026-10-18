@@ -70,10 +70,6 @@ export function Harness() {
           onHoverPlace={(id) => id && push(`onHoverPlace(${id})`)}
           onShowRoute={(r, m) => push(`onShowRoute(${r ? `${r.id}, ${m}` : 'null'})`)}
           onTimelineYear={(y, ev) => push(`onTimelineYear(${y}) ${ev.length} wydarzeń`)}
-          onHorizonChange={(h) => {
-            push(`onHorizonChange(${h})`)
-            setHorizon(h)
-          }}
         />
       )}
     </div>

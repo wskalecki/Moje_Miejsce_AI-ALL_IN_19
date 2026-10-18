@@ -1,0 +1,392 @@
+{
+  "slug": "wilanow-krolewski",
+  "msiId": "wilanow-krolewski",
+  "profile": "senior",
+  "camera": {
+    "bearing": 120,
+    "zoom": 15.5
+  },
+  "highlights": [
+    {
+      "id": "park-wilanowski",
+      "name": "Park Wilanowski",
+      "category": "zielen",
+      "osm": "way/8106730",
+      "green": "way/8106730",
+      "description": "Ogród przy Muzeum Pałacu Króla Jana III, ul. St. Kostki Potockiego 10/16."
+    },
+    {
+      "id": "rezerwat-morysin",
+      "name": "Rezerwat Morysin",
+      "category": "zielen",
+      "coord": [
+        21.09141,
+        52.17016
+      ],
+      "osm": "way/158703175",
+      "description": "Rezerwat przyrody (od 1996 r.) po drugiej stronie Jeziora Wilanowskiego niż pałac."
+    },
+    {
+      "id": "palac-wilanow",
+      "name": "Muzeum Pałacu Króla Jana III w Wilanowie",
+      "category": "kultura",
+      "coord": [
+        21.09047,
+        52.1651
+      ],
+      "osm": "way/8106732",
+      "description": "Muzeum w barokowej rezydencji króla Jana III Sobieskiego, ul. St. Kostki Potockiego 10/16."
+    },
+    {
+      "id": "ckw-utw",
+      "name": "Centrum Kultury Wilanów i Wilanowski UTW",
+      "category": "kultura",
+      "coord": [
+        21.08668,
+        52.16733
+      ],
+      "osm": "node/8821086280",
+      "description": "Dom kultury z Wilanowskim Uniwersytetem Trzeciego Wieku, ul. Kolegiacka 3."
+    },
+    {
+      "id": "kosciol-sw-anny",
+      "name": "Kościół św. Anny",
+      "category": "kultura",
+      "coord": [
+        21.08755,
+        52.16614
+      ],
+      "osm": "way/63060518",
+      "description": "Kościół parafialny, ul. St. Kostki Potockiego 18."
+    },
+    {
+      "id": "przychodnia-wiertnicza",
+      "name": "Przychodnia Wiertnicza 81",
+      "category": "zdrowie",
+      "coord": [
+        21.07977,
+        52.17263
+      ],
+      "osm": "way/317864272",
+      "description": "Miejska przychodnia (SZPZLO Warszawa-Mokotów), nowy budynek otwarty w 2024 r., ul. Wiertnicza 81."
+    },
+    {
+      "id": "medicover-klimczaka",
+      "name": "Medicover (ul. Klimczaka)",
+      "category": "zdrowie",
+      "coord": [
+        21.08283,
+        52.16391
+      ],
+      "osm": "node/4622582564",
+      "description": "Prywatne centrum medyczne, ul. F. Klimczaka 1."
+    },
+    {
+      "id": "petla-wilanow",
+      "name": "Wilanów (pętla autobusowa)",
+      "category": "komunikacja",
+      "coord": [
+        21.08301,
+        52.16651
+      ],
+      "osm": "ztm:304402",
+      "description": "Przystanek przy pętli: linie 116, 164, 251, 317, 519 i E-2; z sąsiednich słupków także 131, 180, 263."
+    },
+    {
+      "id": "frac-wiertnicza",
+      "name": "FRAC",
+      "category": "zakupy",
+      "coord": [
+        21.07964,
+        52.17395
+      ],
+      "osm": "way/569734268",
+      "description": "Supermarket, ul. Wiertnicza 88."
+    }
+  ],
+  "routeGroups": [
+    {
+      "group": "przychodnia",
+      "label": "Przychodnia",
+      "category": "zdrowie",
+      "destinations": [
+        {
+          "id": "przychodnia-wiertnicza",
+          "name": "Przychodnia Wiertnicza 81",
+          "coord": [
+            21.07977,
+            52.17263
+          ],
+          "osm": "way/317864272"
+        },
+        {
+          "id": "medicover-klimczaka",
+          "name": "Medicover (ul. Klimczaka)",
+          "coord": [
+            21.08283,
+            52.16391
+          ],
+          "osm": "node/4622582564"
+        },
+        {
+          "id": "szpital-medicover",
+          "name": "Szpital Medicover",
+          "coord": [
+            21.0783,
+            52.155
+          ],
+          "osm": "relation/971561"
+        }
+      ]
+    },
+    {
+      "group": "kultura",
+      "label": "Kultura",
+      "category": "kultura",
+      "destinations": [
+        {
+          "id": "palac-wilanow",
+          "name": "Muzeum Pałacu Króla Jana III",
+          "coord": [
+            21.09047,
+            52.1651
+          ],
+          "osm": "way/8106732"
+        },
+        {
+          "id": "muzeum-plakatu",
+          "name": "Muzeum Plakatu",
+          "coord": [
+            21.08814,
+            52.16423
+          ],
+          "osm": "node/778874257"
+        },
+        {
+          "id": "biblioteka-52",
+          "name": "Wypożyczalnia nr 52",
+          "coord": [
+            21.08661,
+            52.16745
+          ],
+          "osm": "node/12040349339"
+        }
+      ]
+    },
+    {
+      "group": "park",
+      "label": "Park i rezerwat",
+      "category": "zielen",
+      "destinations": [
+        {
+          "id": "park-wilanowski",
+          "name": "Park Wilanowski",
+          "green": "way/8106730",
+          "osm": "way/8106730"
+        },
+        {
+          "id": "rezerwat-morysin",
+          "name": "Rezerwat Morysin",
+          "coord": [
+            21.09141,
+            52.17016
+          ],
+          "osm": "way/158703175"
+        },
+        {
+          "id": "skwer-staw-zawadowski",
+          "name": "Skwer nad Stawem Zawadowskim",
+          "green": "way/835884972",
+          "osm": "way/835884972"
+        }
+      ]
+    }
+  ],
+  "portals": [
+    {
+      "name": "Otodom",
+      "rentUrl": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/wilanow/wilanow-krolewski",
+      "buyUrl": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/wilanow/wilanow-krolewski"
+    },
+    {
+      "name": "Morizon",
+      "rentUrl": "https://www.morizon.pl/do-wynajecia/mieszkania/warszawa/wilanow-krolewski/",
+      "buyUrl": "https://www.morizon.pl/mieszkania/warszawa/wilanow-krolewski/"
+    }
+  ],
+  "timeline": [
+    {
+      "id": "dworzec-kolei-wilanowskiej",
+      "title": "Odnowiony dworzec Kolei Wilanowskiej (Kostki Potockiego 31)",
+      "description": "Zabytkowy budynek z lat 20. XX w. po remoncie za ok. 7 mln zł (dzielnica), dostosowany dla osób z niepełnosprawnościami. Mają tu działać Centrum Kultury Wilanów, punkt informacyjny i kawiarnia.",
+      "category": "kultura",
+      "status": "zrealizowana",
+      "year": 2026,
+      "yearUncertain": false,
+      "yearNote": "Remont zakończony wiosną 2026 r., uroczyste otwarcie 12.09.2026 (Dni Wilanowa).",
+      "coord": [
+        21.08501,
+        52.16718
+      ],
+      "sourceUrl": "https://architektura.muratorplus.pl/projekty/wilanow-mial-kiedys-kolej-jej-dawny-dworzec-odzyskal-piekno-i-bedzie-sluzyl-kulturze-aa-NZXA-WzVF-d3WL.html",
+      "sourceTitle": "Wilanów miał kiedyś kolej. Jej dawny dworzec odzyskał piękno i posłuży kulturze (Architektura-Murator)",
+      "sourceDate": "2026-10-14",
+      "statusEvidence": "„Uroczystego otwarcia obiektu dokonano 12 września”; wykonawca A-Projekt, remont od IX 2024. Też: https://zyciewarszawy.pl/aktualnosci/art45127091-zabytkowy-dworzec-w-wilanowie-wraca-do-zycia-w-sobote-wielkie-otwarcie (koszt ok. 7 mln zł).",
+      "checkedAt": "2026-10-18",
+      "effect": null,
+      "effectNote": "Przestrzeń wystawowa i spotkań CKW, nie biblioteka ani UTW → wskaźniki kultury (biblioteki, UTW, wydarzenia z kalendarza miasta) bez zmian. Budynek: OSM way/34505182."
+    },
+    {
+      "id": "lawki-bo-2026",
+      "title": "Nowe ławki przy Kolegiackiej i Kostki Potockiego (BO 2026)",
+      "description": "Projekt BO za 33 tys. zł: 6 ławek w Wilanowie, w tym przy skrzyżowaniu Wiertniczej z Kolegiacką i przy Kostki Potockiego 19, by ułatwić odpoczynek i spotkania młodszych i starszych.",
+      "category": "zdrowie",
+      "status": "w budowie",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Edycja BO na rok 2026; umowa na dostawę i montaż podpisana (VIII 2026), daty montażu brak.",
+      "coord": [
+        21.08574,
+        52.1675
+      ],
+      "sourceUrl": "https://bo.um.warszawa.pl/processes/na-rok-2026/f/13/projects/32795",
+      "sourceTitle": "Ławki dla Wilanowa (budżet obywatelski 2026)",
+      "sourceDate": "2026-08-04",
+      "statusEvidence": "Status „W trakcie realizacji”, aktualizacja 04.08.2026: „Wybrano wykonawcę i podpisano umowę na dostawę i montaż ławek.”",
+      "checkedAt": "2026-10-18",
+      "effect": null,
+      "effectNote": "Mała architektura (kategoria BO „zdrowie i pomoc społeczna”) → brak wpływu na wskaźniki.",
+      "yearHorizon": 2026,
+      "yearPlacement": "edycja BO na rok 2026"
+    },
+    {
+      "id": "poidelka-bo-2026",
+      "title": "Poidełka z wodą pitną przy Wiertniczej 26 (BO 2026)",
+      "description": "Projekt BO za 240 tys. zł: poidełka dla ludzi i zwierząt przy Zespole Szkół nr 79 (ul. Wiertnicza 26) i przy SP 300. Dzielnica załatwia przyłącza do sieci wodociągowej.",
+      "category": "zdrowie",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Edycja BO na rok 2026; strona BO (04.08.2026): trwają wnioski o warunki techniczne przyłączenia — brak terminu montażu.",
+      "coord": [
+        21.0854,
+        52.16906
+      ],
+      "sourceUrl": "https://bo.um.warszawa.pl/processes/na-rok-2026/f/13/projects/31272",
+      "sourceTitle": "Poidełka z wodą pitną dla ludzi i zwierząt w przestrzeni publicznej (budżet obywatelski 2026)",
+      "sourceDate": "2026-08-04",
+      "statusEvidence": "Aktualizacja 04.08.2026: „Trwały prace związane z przygotowaniem wniosków o warunki techniczne przyłączenia do sieci wodociągowej i kanalizacyjnej do MPWiK.”",
+      "checkedAt": "2026-10-18",
+      "effect": null,
+      "effectNote": "Infrastruktura drobna → brak wpływu na wskaźniki. Drugi punkt (SP 300, ul. Gubinowska) leży poza obszarem.",
+      "yearHorizon": 2026,
+      "yearPlacement": "edycja BO na rok 2026"
+    },
+    {
+      "id": "palac-konserwacja-2030",
+      "title": "Prace konserwatorskie w Pałacu w Wilanowie",
+      "description": "MKiDN dokłada muzeum 3 mln zł rocznie do 2030 r. na konserwację: tapety „Eldorado”, sale północnego skrzydła, sztukaterie Kaplicy Królewskiej; 700 tys. zł na okna Galerii Północnej.",
+      "category": "kultura",
+      "status": "w budowie",
+      "year": 2030,
+      "yearUncertain": false,
+      "yearNote": "Finansowanie ogłoszone przez MKiDN (VII 2026) na lata do 2030; prace przy plafonach i sztukateriach kaplicy ruszają w 2026 r.",
+      "coord": [
+        21.09015,
+        52.16511
+      ],
+      "sourceUrl": "https://dzieje.pl/wiadomosci/muzeum-palacu-krola-jana-iii-w-wilanowie-6-bm-pap-albert-zawada",
+      "sourceTitle": "3 mln zł rocznie do 2030 r. na prace konserwatorskie Muzeum Pałacu w Wilanowie (dzieje.pl / PAP)",
+      "sourceDate": "2026-07-08",
+      "statusEvidence": "Wiceminister M. Wróbel: „dodatkowych 3 mln zł rocznie do roku 2030 na prace konserwatorskie”; w tym roku plafony w północnym skrzydle i sztukaterie w kaplicy, ściany w kolejnych latach.",
+      "checkedAt": "2026-10-18",
+      "effect": null,
+      "effectNote": "Konserwacja wnętrz istniejącego muzeum → brak wpływu na wskaźniki."
+    },
+    {
+      "id": "morysin-zabezpieczenie",
+      "title": "Zabezpieczenie i remont zabytków Morysina",
+      "description": "Po badaniach archeologicznych ruin Pałacu Myśliwskiego i Domu Stróża (2025–2026) konserwator zabytków ogłosił start prac przygotowawczych do zabezpieczenia i remontu. Teren należy do Muzeum Pałacu.",
+      "category": "kultura",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "MWKZ (VIII 2026) nie podał terminów ani kosztów remontu.",
+      "coord": [
+        21.09805,
+        52.17533
+      ],
+      "sourceUrl": "https://tvn24.pl/tvnwarszawa/wilanow/morysin-budzi-sie-do-zycia-przygotowuja-sie-do-remontu-st9197290",
+      "sourceTitle": "Morysin budzi się do życia. Przygotowują się do remontu (TVN Warszawa)",
+      "sourceDate": "2026-08-19",
+      "statusEvidence": "MWKZ: „Teraz ruszają prace przygotowawcze do wstępnego zabezpieczenia i remontu obiektów” (19.08.2026). Zakres badań (Pałac Myśliwski, Dom Stróża): https://wilanow-palac.pl/wydarzenie/rok-2026-w-morysinie",
+      "checkedAt": "2026-10-18",
+      "effect": null,
+      "effectNote": "Remont ruin w istniejącym rezerwacie → brak wpływu na wskaźniki zieleni i kultury. Znacznik: ruiny pałacyku (OSM way/626379102).",
+      "yearHorizon": 2040,
+      "yearPlacement": "bez terminu"
+    },
+    {
+      "id": "metro-m4-wilanow",
+      "title": "Metro M4 ze stacją końcową Wilanów",
+      "description": "Linia Tarchomin–Wilanów (26 km, 23 stacje). Stacja Wilanów ma powstać pod skwerem między skrzyżowaniem al. Wilanowskiej z Przyczółkową a urzędem dzielnicy. W 2026 r. trwają badania gruntu.",
+      "category": "komunikacja",
+      "status": "planowana",
+      "year": null,
+      "yearUncertain": true,
+      "yearNote": "Miasto: linia do 2044 r.; Murator (IV 2026): koncepcja do XI 2027, budowa od Białołęki w latach 30., Wilanów „realnie za ok. 20 lat”.",
+      "coord": [
+        21.0835,
+        52.1644
+      ],
+      "sourceUrl": "https://architektura.muratorplus.pl/projekty/bedzie-metro-do-wilanowa-dowiezie-do-centrum-w-18-minut-kiedy-budowa-aa-S9B9-gqtY-rikr.html",
+      "sourceTitle": "Zbudują metro do Wilanowa. Rozpoczęto już badania gruntu. Co o nim wiemy? (Architektura-Murator)",
+      "sourceDate": "2026-04-24",
+      "statusEvidence": "Wiercenia geologiczne od 19.02.2026 (także przy pałacu); prace przedprojektowe Metroprojektu do XI 2027; „Dokładne lokalizacje obu z nich są dopiero ustalane”. Przebieg i stacje: https://tvn24.pl/tvnwarszawa/komunikacja/warszawa-bez-maszynisty-z-bialoleki-do-wilanowa-ktoredy-pojedzie-m4-st8773714",
+      "checkedAt": "2026-10-18",
+      "effect": {
+        "type": "metro_station",
+        "coord": [
+          21.0835,
+          52.1644
+        ],
+        "name": "Wilanów (M4, lokalizacja wstępna)"
+      },
+      "effectNote": "Punkt orientacyjny: skwer J.F. Kulczyckiego (OSM way/1516455317) między skrzyżowaniem al. Wilanowskiej z Przyczółkową a urzędem dzielnicy (ul. Klimczaka); lokalizacja niezatwierdzona. Skróci metro_dist_m z 3530 m do ok. 510 m — tylko jeśli stacja powstanie w tym miejscu.",
+      "yearHorizon": 2044,
+      "yearPlacement": "urzędnicy: do 2044 r."
+    }
+  ],
+  "heroImages": [
+    {
+      "src": "/osiedla/wilanow-krolewski/01.jpg",
+      "alt": "Pałac w Wilanowie z dziedzińcem i ogrodami z lotu ptaka",
+      "credit": "fot. Fallaner, CC BY-SA 4.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/wilanow-krolewski/02.jpg",
+      "alt": "Ogród przy Pałacu w Wilanowie latem",
+      "credit": "fot. Maksym Kozlenko, CC BY-SA 4.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/wilanow-krolewski/03.jpg",
+      "alt": "Kościół św. Anny przy ul. Stanisława Kostki Potockiego",
+      "credit": "fot. A.Osytek, CC BY-SA 3.0 pl, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/wilanow-krolewski/04.jpg",
+      "alt": "Ceglany Most Rzymski w parku wilanowskim jesienią",
+      "credit": "fot. Dariusz Kowalczyk, CC BY-SA 4.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/wilanow-krolewski/05.jpg",
+      "alt": "Kanał Sobieskiego w rezerwacie Morysin jesienią",
+      "credit": "fot. Dariusz Kowalczyk, CC BY-SA 4.0, Wikimedia Commons"
+    },
+    {
+      "src": "/osiedla/wilanow-krolewski/06.jpg",
+      "alt": "Skwer Prymasowski z ławkami przed kościołem św. Anny",
+      "credit": "fot. Jolanta Dyr, CC BY-SA 3.0 pl, Wikimedia Commons"
+    }
+  ]
+}

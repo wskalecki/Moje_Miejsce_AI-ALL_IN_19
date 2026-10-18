@@ -33,10 +33,10 @@ export function PreferencesModal({ open, onClose, onComplete }: PreferencesModal
   const [step, setStep] = useState<Step>('intro')
   const headingRef = useRef<HTMLHeadingElement>(null)
 
+  // always from the intro: the profile step shows the preselected (default) profile and can change it
   useEffect(() => {
-    if (!open) return
-    setStep(state.profile ? 2 : 'intro')
-  }, [open, state.profile])
+    if (open) setStep('intro')
+  }, [open])
 
   useEffect(() => {
     if (open) headingRef.current?.focus({ preventScroll: true })
@@ -126,9 +126,8 @@ export function PreferencesModal({ open, onClose, onComplete }: PreferencesModal
 
         {step !== 1 && (
           <footer className="prefs-modal__foot">
-            <Button type="button" variant="primary" disabled={!canNext} onClick={goNext}>
+            <Button type="button" variant="primary" iconRight={ArrowRight} disabled={!canNext} onClick={goNext}>
               {step === 3 ? 'Pokaż mapę' : 'Dalej'}
-              <ArrowRight size={16} strokeWidth={2.4} aria-hidden />
             </Button>
           </footer>
         )}

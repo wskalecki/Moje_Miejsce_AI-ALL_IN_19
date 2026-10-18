@@ -37,7 +37,7 @@ const notSymbolPoi: FilterSpecification = [
 ]
 
 function andFilter(a: FilterSpecification, b: FilterSpecification): FilterSpecification {
-  return ['all', a, b]
+  return ['all', a, b] as FilterSpecification
 }
 
 /** Each point in its category colour (CATEGORY_COLORS). */
@@ -70,7 +70,7 @@ const interestColor = [
   catColor,
 ] as unknown as ExpressionSpecification
 
-function symbolInterestLayout(iconImage: readonly string[]): {
+function symbolInterestLayout(iconImage: readonly unknown[]): {
   visibility: 'none'
   'icon-image': ExpressionSpecification
   'icon-size': ExpressionSpecification
@@ -218,7 +218,6 @@ export function applyPoi(
   const soloFilter = andFilter(soloPoiFilter(opts.solo, opts.visibleSubtypes), notSymbolPoi)
   map.setFilter(POI_LAYER.solo, soloFilter)
   map.setFilter(POI_LAYER.pri, none)
-  const vis = opts.visible ? 'visible' : 'none'
   const soloOn = opts.visible && soloFilter !== none && opts.solo != null
   map.setLayoutProperty(POI_LAYER.solo, 'visibility', soloOn ? 'visible' : 'none')
   map.setLayoutProperty(POI_LAYER.pri, 'visibility', 'none')

@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moje Miejsce · Stare Bielany</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap" rel="stylesheet">
+<style>
+/* ------------------------------------------------------------------
+   Riso — dwie farby + zakreślacz, nakładane multiply na niepowlekany papier.
+   Niebieski = dane (gęstość rastra = dopasowanie). Różowy = to, co wybrałeś.
+   Żółty = priorytety profilu. Nadruk różowy×niebieski (#321871) = tekst.
+   ------------------------------------------------------------------ */
+:root{
+  --paper:#FDFDFB;
+  --blue:#3255A4;        /* Riso Medium Blue */
+  --pink:#FF48B0;        /* Riso Fluorescent Pink */
+  --yellow:#FFE800;      /* Riso Yellow */
+  --ink:#321871;         /* nadruk pink × blue */
+  --ink-2:#4E4A6E;       /* tekst drugorzędny, 8:1 na papierze */
+  --ink-3:#6E6A88;       /* podpisy, 5.1:1 */
+  --rule:#C9D0E4;        /* 25% Medium Blue */
+  --blue-tint:#E3E8F3;
+  --pink-tint:#FFE0F0;
+
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --head:64px;
+  --card:548px;
+
+  --f:"Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .2  0 0 0 0 .2  0 0 0 0 .35  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  font-family:var(--f);
+  font-optical-sizing:auto;
+  font-size:15px; line-height:1.45;
+  color:var(--ink);
+  background:var(--paper);
+  -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums;
+  overflow:hidden;
+}
+/* ziarno papieru — pod treścią, nigdy na tekście */
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:var(--grain); background-size:220px; opacity:.07;
+}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--pink);outline-offset:3px;border-radius:1px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- typografia ---------- */
+.disp{font-weight:780;font-stretch:75%;letter-spacing:-.01em;line-height:.92}
+.cond{font-stretch:82%}
+.lbl{font-size:12.5px;font-weight:600;font-stretch:88%;color:var(--ink-3);letter-spacing:.005em}
+.num{font-variant-numeric:tabular-nums lining-nums}
+
+/* ---------- układ ---------- */
+.app{position:relative;z-index:1;display:grid;grid-template-rows:var(--head) 1fr;height:100vh}
+.top{
+  display:flex;align-items:center;gap:var(--s6);
+  padding:0 var(--s5) 0 var(--s5);
+  border-bottom:1.5px solid var(--blue);
+  position:relative;
+}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex:none}
+.brand svg{display:block}
+.brand b{font-size:25px;font-weight:800;font-stretch:75%;letter-spacing:-.012em;color:var(--ink);line-height:1}
+.brand small{display:block;font-size:12px;color:var(--ink-3);font-weight:500;font-stretch:90%;margin-top:3px;line-height:1}
+
+.who{display:flex;align-items:center;gap:var(--s4);margin-left:var(--s4)}
+.who .lbl{font-size:13px}
+.seg{display:flex;gap:2px}
+.seg button{
+  position:relative;isolation:isolate;
+  font-size:19px;font-weight:700;font-stretch:78%;line-height:1;
+  padding:9px 14px 10px;color:var(--ink-2);
+}
+.seg button::before,.seg button::after{content:"";position:absolute;inset:0;z-index:-1;opacity:0;transition:opacity .15s}
+.seg button::before{background:var(--pink);mix-blend-mode:multiply}
+.seg button::after{border:1.5px solid var(--blue);transform:translate(2px,2px);mix-blend-mode:multiply}
+.seg button:hover{color:var(--ink)}
+.seg button:hover::after{opacity:.6}
+.seg button[aria-pressed="true"]{color:var(--ink)}
+.seg button[aria-pressed="true"]::before,.seg button[aria-pressed="true"]::after{opacity:1}
+.top .meta{margin-left:auto;text-align:right;font-size:12.5px;color:var(--ink-3);line-height:1.35;font-stretch:90%}
+.top .meta b{color:var(--ink);font-weight:650}
+
+main{display:grid;grid-template-columns:1fr var(--card);min-height:0}
+
+/* ---------- mapa ---------- */
+.mapside{position:relative;min-height:0;overflow:hidden}
+.mapwrap{position:absolute;inset:0}
+#map{position:absolute;top:8px;bottom:8px;left:226px;right:0;width:calc(100% - 234px);height:calc(100% - 16px)}
+#map .o{cursor:pointer;stroke:var(--paper);stroke-width:1.8;stroke-linejoin:round;transition:opacity .2s}
+#map .o:focus{outline:none}
+#map .o:focus-visible{stroke:var(--pink);stroke-width:2.4}
+.plate{mix-blend-mode:multiply}
+.river{fill:none;stroke:var(--blue);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;opacity:.38}
+.maplabel{font-family:var(--f);font-weight:760;font-stretch:78%;font-size:26px;fill:var(--ink);paint-order:stroke;stroke:var(--paper);stroke-width:6px;stroke-linejoin:round}
+.maplabel.small{font-size:13px;font-weight:650}
+
+.mapintro{position:absolute;left:var(--s5);top:var(--s5);width:206px;z-index:3;pointer-events:none}
+.mapintro > *{pointer-events:auto}
+.mapintro h1{margin:0;font-size:40px;color:var(--blue)}
+.mapintro h1 span{color:var(--ink)}
+.mapintro p{margin:var(--s3) 0 0;font-size:15px;color:var(--ink-2);max-width:220px}
+
+.rank{margin-top:var(--s5);width:206px;background:var(--paper);position:relative}
+.rank h2{margin:0 0 6px;font-size:13px;font-weight:650;font-stretch:88%;color:var(--ink-3)}
+.rank ol{list-style:none;margin:0;padding:0;border-top:1.5px solid var(--blue)}
+.rank li button{
+  display:grid;grid-template-columns:24px 1fr auto;align-items:baseline;gap:6px;width:100%;
+  text-align:left;padding:5px 2px 5px 0;border-bottom:1px solid var(--rule);font-size:14px;line-height:1.25
+}
+.rank li .r{font-weight:700;font-stretch:78%;color:var(--blue);text-align:right;padding-right:4px}
+.rank li .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank li .m{font-weight:650;font-stretch:85%}
+.rank li button:hover .n,.rank li button.on .n{text-decoration:underline;text-decoration-color:var(--pink);text-decoration-thickness:3px;text-underline-offset:3px}
+.rank li button.on{background:linear-gradient(var(--pink-tint),var(--pink-tint))}
+
+.legend{position:absolute;left:var(--s5);bottom:var(--s5);z-index:3;width:206px;background:var(--paper)}
+.legend .lbl{display:block;margin-bottom:6px;color:var(--ink-2)}
+.legend .bins{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
+.legend .bins div{text-align:center;font-size:11.5px;color:var(--ink-3);font-weight:550;font-stretch:88%}
+.legend .bins svg{display:block;width:100%;height:26px;margin-bottom:3px}
+.legend .sel{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12.5px;color:var(--ink-2)}
+.legend .sel i{width:22px;height:14px;background:var(--pink);mix-blend-mode:multiply;display:block;box-shadow:2px -1px 0 0 rgba(50,85,164,.55) inset}
+
+.credits{position:absolute;right:var(--s4);bottom:10px;font-size:11.5px;color:var(--ink-3);z-index:3;font-stretch:90%}
+.north{position:absolute;right:var(--s5);top:var(--s5);z-index:3;color:var(--blue);font-size:12px;font-weight:700;text-align:center;line-height:1}
+
+.tip{
+  position:absolute;z-index:6;pointer-events:none;
+  background:var(--paper);border:1.5px solid var(--ink);padding:7px 10px 8px;
+  box-shadow:3px 3px 0 var(--pink);
+  font-size:13px;line-height:1.3;white-space:nowrap;opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s
+}
+.tip.on{opacity:1;transform:none}
+.tip b{display:block;font-size:16px;font-weight:760;font-stretch:80%}
+.tip span{color:var(--ink-2)}
+
+/* ---------- karta-zin ---------- */
+.card{
+  position:relative;min-height:0;overflow-y:auto;overflow-x:hidden;
+  border-left:1.5px solid var(--blue);
+  background:var(--paper);
+  scrollbar-width:thin;scrollbar-color:var(--rule) transparent;
+}
+.card::before{content:"";position:fixed;pointer-events:none}
+.pg{padding:var(--s5) var(--s6) var(--s6);position:relative}
+.pg + .pg{border-top:1.5px solid var(--blue)}
+.folio{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--ink-3);font-stretch:90%;font-weight:550;margin-bottom:var(--s4)}
+.folio b{color:var(--blue);font-weight:700}
+
+.hgroup{display:grid;grid-template-columns:1fr auto;gap:var(--s4);align-items:end}
+.hgroup h2{margin:0;font-size:68px;color:var(--ink)}
+.hgroup .dist{font-size:15px;color:var(--ink-2);margin-top:8px}
+.hgroup .dist b{font-weight:650;color:var(--ink)}
+
+.score{display:grid;grid-template-columns:auto 1fr;column-gap:var(--s5);align-items:end;margin-top:var(--s5)}
+.score .meter{grid-column:1/-1}
+.big1{position:relative;font-size:150px;line-height:.74;font-weight:800;font-stretch:75%;letter-spacing:-.04em;padding-top:8px}
+.big1 .fg{position:relative;color:var(--pink);mix-blend-mode:multiply}
+.big1 .bg{position:absolute;left:0;top:8px;color:var(--blue);transform:translate(4px,3px);mix-blend-mode:multiply;opacity:.9}
+.big1 .bg, .big1 .fg{display:block}
+.score .of{font-size:15px;color:var(--ink-2);line-height:1.3}
+.score .of strong{display:block;font-size:22px;font-weight:720;font-stretch:80%;color:var(--ink);line-height:1.1;margin-bottom:4px}
+.meter{margin-top:var(--s4)}
+.mt{display:flex;justify-content:space-between;align-items:baseline;margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--rule)}
+.mt b{font-size:44px;font-weight:780;font-stretch:75%;line-height:.9;color:var(--blue)}
+.mt b small{font-size:15px;color:var(--ink-3);font-weight:600;margin-left:3px}
+.meter svg{display:block;width:100%;height:auto;margin-top:8px;overflow:visible}
+
+.duo{position:relative;margin:var(--s5) 0 0;}
+.duo .frame{position:relative;aspect-ratio:16/9;overflow:hidden;isolation:isolate;background:var(--paper)}
+.duo .pl{position:absolute;inset:0;isolation:isolate}
+.duo .pl img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.duo .pl i{position:absolute;inset:0;mix-blend-mode:screen;display:block}
+.duo .pl.p img{filter:grayscale(1) contrast(1.15) brightness(1.06)}
+.duo .pl.p i{background:var(--pink)}
+.duo .pl.b{mix-blend-mode:multiply;transform:translate(2px,1.5px) scale(1.004)}
+.duo .pl.b img{filter:grayscale(1) contrast(1.9) brightness(1.32)}
+.duo .pl.b i{background:var(--blue)}
+.duo .gr{position:absolute;inset:0;background-image:var(--grain);background-size:180px;opacity:.22;mix-blend-mode:multiply;pointer-events:none}
+.duo figcaption{margin-top:8px;font-size:12.5px;line-height:1.35;color:var(--ink-3)}
+.duo figcaption span{display:block}
+.duo figcaption span:first-child{color:var(--ink-2);font-size:13.5px}
+.thumbs{display:flex;gap:6px;margin-top:10px}
+.thumbs button{position:relative;width:58px;height:40px;overflow:hidden;isolation:isolate;outline-offset:2px}
+.thumbs button img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.1);display:block}
+.thumbs button::after{content:"";position:absolute;inset:0;background:var(--blue);mix-blend-mode:screen;transition:background .15s}
+.thumbs button[aria-current="true"]::after,.thumbs button:hover::after{background:var(--pink)}
+.thumbs button[aria-current="true"]{box-shadow:0 0 0 1.5px var(--paper),0 0 0 3px var(--ink)}
+
+.lede{margin:var(--s5) 0 0;font-size:21px;line-height:1.3;font-weight:520;font-stretch:92%;color:var(--ink);text-wrap:pretty}
+.lede mark{background:linear-gradient(transparent 52%,var(--yellow) 52%,var(--yellow) 92%,transparent 92%);color:inherit;mix-blend-mode:multiply}
+.blurb{margin:var(--s3) 0 0;font-size:15px;color:var(--ink-2);text-wrap:pretty}
+
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 var(--s4)}
+.sec-h h3{margin:0;font-size:34px;color:var(--blue)}
+.sec-h .pn{font-size:12.5px;color:var(--ink-3);font-stretch:90%}
+.sec-sub{margin:-6px 0 var(--s4);font-size:14px;color:var(--ink-2);max-width:470px}
+
+/* kategorie */
+.cats{display:grid;gap:0}
+.cats .grp{font-size:13px;font-weight:650;font-stretch:88%;color:var(--ink-2);margin:var(--s4) 0 6px}
+.cats .grp:first-child{margin-top:0}
+.cat{display:grid;grid-template-columns:168px 1fr 34px;align-items:center;gap:var(--s3);padding:5px 0;border-bottom:1px solid var(--rule)}
+.cat .nm{font-size:14.5px;line-height:1.2}
+.cat .v{text-align:right;font-weight:700;font-stretch:82%;font-size:16px}
+.cat .bar{position:relative;height:12px;background-image:radial-gradient(circle,var(--rule) .9px,transparent 1.2px);background-size:5px 5px;background-position:0 center}
+.cat .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--blue)}
+.cat.pri .nm{font-weight:650}
+.cat.pri .nm span{background:linear-gradient(transparent 55%,var(--yellow) 55%,var(--yellow) 95%,transparent 95%);mix-blend-mode:multiply}
+.cat.pri .bar i{background:var(--pink)}
+
+/* plan okolicy */
+.plan{position:relative;margin:0 calc(var(--s6) * -1);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.plan svg{display:block;width:100%;height:auto}
+.plan .bld{fill:var(--blue);opacity:.42}
+.plan .grn-y{fill:var(--yellow)}
+.plan .road{fill:none;stroke:var(--paper);stroke-linecap:round;stroke-linejoin:round}
+.plan .road-ink{fill:none;stroke:#C3CCE3;stroke-linecap:round;stroke-linejoin:round}
+.plan .outl{fill:none;stroke:var(--pink);stroke-width:5;stroke-dasharray:2 9;stroke-linecap:round}
+.plan .pin circle{fill:var(--ink)}
+.plan .pin text{font-family:var(--f);font-weight:760;font-size:22px;fill:var(--paper);text-anchor:middle;dominant-baseline:central}
+.plan .pin.on circle{fill:var(--pink)}
+.plan .pin.on text{fill:var(--ink)}
+.plan .key{position:absolute;left:var(--s6);bottom:var(--s3);display:flex;gap:var(--s4);font-size:12px;color:var(--ink-2);background:var(--paper);padding:6px 10px;border:1px solid var(--rule)}
+.plan .key span{display:flex;align-items:center;gap:6px}
+.plan .key i{display:block;width:14px;height:10px}
+.places{list-style:none;margin:var(--s4) 0 0;padding:0;border-top:1.5px solid var(--blue)}
+.places li{border-bottom:1px solid var(--rule)}
+.places button{display:grid;grid-template-columns:24px 1fr auto;gap:12px;align-items:center;width:100%;text-align:left;padding:7px 0}
+.places .no{width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--paper);font-size:12px;font-weight:760;display:grid;place-items:center;margin-top:1px}
+.places button:hover .no,.places button.on .no{background:var(--pink);color:var(--ink)}
+.places .t{font-size:14px;line-height:1.25;font-weight:600}
+.places .d{font-size:13px;color:var(--ink-3);font-weight:450;margin-left:6px}
+.places .w{font-size:22px;font-weight:760;font-stretch:78%;line-height:1;color:var(--blue);text-align:right;white-space:nowrap}
+.places .w small{font-size:12.5px;font-weight:550;color:var(--ink-3);margin-left:3px}
+
+/* dojazdy */
+.commute{display:grid;gap:var(--s4)}
+.cm .h{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;font-weight:600;margin-bottom:6px}
+.cm .h span{font-size:12.5px;font-weight:450;color:var(--ink-3)}
+.cm .ln{display:grid;grid-template-columns:96px 1fr 58px;gap:var(--s3);align-items:center;height:22px;font-size:13px;color:var(--ink-2)}
+.cm .ln .b{height:12px;position:relative}
+.cm .ln .b i{position:absolute;left:0;top:0;bottom:0;mix-blend-mode:multiply}
+.cm .ln.t .b i{background:var(--blue)}
+.cm .ln.r .b i{background:var(--pink)}
+.cm .ln .m{text-align:right;font-weight:720;font-stretch:80%;font-size:17px;color:var(--ink)}
+.cm .ln .m small{font-size:12px;color:var(--ink-3);font-weight:550;margin-left:2px}
+.axis{display:grid;grid-template-columns:96px 1fr 58px;gap:var(--s3);font-size:11.5px;color:var(--ink-3)}
+.axis div{display:flex;justify-content:space-between}
+
+/* ceny */
+.price-top{display:grid;grid-template-columns:1fr 1fr;gap:var(--s5);align-items:end}
+.price-top .v{font-size:52px;font-weight:780;font-stretch:75%;line-height:.95;color:var(--ink)}
+.price-top .v small{font-size:18px;font-weight:650;color:var(--ink-2);margin-left:4px}
+.price-top .c{font-size:14px;color:var(--ink-2);line-height:1.35}
+.price-top .c b{color:var(--ink);font-weight:700}
+.diff{display:inline-block;font-weight:720;color:var(--ink);background:var(--pink-tint);padding:0 4px}
+.range{margin-top:var(--s5)}
+.range svg{display:block;width:100%;height:auto;overflow:visible}
+.range text{font-family:var(--f);font-size:12px;fill:var(--ink-3)}
+.range .rl{font-size:13.5px;fill:var(--ink);font-weight:600}
+.range .rv{font-size:13px;fill:var(--ink);font-weight:720}
+.note{font-size:12.5px;color:var(--ink-3);margin:var(--s3) 0 0;line-height:1.4}
+.portals{display:grid;grid-template-columns:auto 1fr 1fr;gap:0;margin-top:var(--s5);border-top:1.5px solid var(--blue)}
+.portals > *{padding:9px 0;border-bottom:1px solid var(--rule);font-size:14px}
+.portals .pn2{font-weight:650;padding-right:var(--s6)}
+.portals a{font-weight:600;text-decoration:underline;text-decoration-color:var(--rule);text-decoration-thickness:2px;text-underline-offset:4px}
+.portals a:hover{text-decoration-color:var(--pink);text-decoration-thickness:3px}
+
+/* ruch */
+.traffic svg{display:block;width:100%;height:auto}
+.traffic text{font-family:var(--f);font-size:12px;fill:var(--ink-3)}
+
+/* plany */
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:92px 1fr;gap:var(--s4);padding:var(--s4) 0;border-top:1px solid var(--rule)}
+.tl li:first-child{border-top:1.5px solid var(--blue)}
+.tl .yr{font-size:34px;font-weight:780;font-stretch:75%;line-height:.9;color:var(--blue)}
+.tl .yr.u{font-size:20px;line-height:1.05;color:var(--ink-2)}
+.tl .yr small{display:block;font-size:12px;font-weight:550;color:var(--ink-3);font-stretch:90%;margin-top:6px;line-height:1.25}
+.tl h4{margin:0;font-size:17px;font-weight:680;font-stretch:90%;line-height:1.25}
+.tl p{margin:5px 0 0;font-size:14px;color:var(--ink-2);text-wrap:pretty}
+.stamp{display:inline-block;font-size:12.5px;font-weight:700;font-stretch:85%;padding:1px 7px 2px;margin-bottom:6px;border:1.5px solid currentColor;transform:rotate(-1.5deg)}
+.stamp.build{color:var(--ink);background:var(--pink);border-color:var(--pink);box-shadow:2px 1px 0 -0.5px var(--blue)}
+.stamp.plan{color:var(--blue)}
+.tl details{margin-top:6px;font-size:12.5px;color:var(--ink-3)}
+.tl summary{cursor:pointer;color:var(--ink-2);font-weight:600;width:max-content}
+.tl summary:hover{text-decoration:underline}
+.tl details p{font-size:12.5px;color:var(--ink-3)}
+
+/* kolofon */
+.colo{font-size:13px;color:var(--ink-2);line-height:1.5}
+.colo p{margin:0 0 var(--s2)}
+.colo dl{display:grid;grid-template-columns:110px 1fr;gap:6px var(--s4);margin:var(--s4) 0 0}
+.colo dt{font-weight:650;color:var(--ink)}
+.colo dd{margin:0}
+.colo .inks{display:flex;gap:var(--s4);margin-top:var(--s5);font-size:12px;color:var(--ink-3);align-items:center}
+.colo .inks i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px;mix-blend-mode:multiply}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:var(--s5)}
+
+/* krótka karta */
+.short .back{margin-top:var(--s5);display:inline-flex;align-items:center;gap:8px;font-weight:650;font-size:15px;border:1.5px solid var(--ink);padding:8px 14px 9px;transition:box-shadow .15s,transform .15s}
+.short .back:hover{box-shadow:3px 3px 0 var(--pink);transform:translate(-1px,-1px)}
+.short .back svg{flex:none}
+.short .lede{font-size:18px}
+.short .soon{margin-top:var(--s5);padding:var(--s4);background:var(--blue-tint);font-size:14px;color:var(--ink-2)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* ---------- mobile ---------- */
+@media (max-width:1100px){
+  :root{--card:480px}
+  .hgroup h2{font-size:54px}
+  .big1{font-size:120px}
+  .mapintro h1{font-size:32px}
+  #map{left:0;width:100%}
+  .rank{display:none}
+}
+@media (max-width:760px){
+  body{overflow:auto}
+  .app{height:auto;display:block}
+  .top{flex-wrap:wrap;gap:var(--s2) var(--s4);padding:var(--s3) var(--s4);height:auto}
+  .top .meta{display:none}
+  .who{margin-left:0;width:100%;gap:var(--s2)}
+  .who .lbl{display:none}
+  .seg{width:100%;justify-content:space-between}
+  .seg button{font-size:18px;padding:8px 14px 9px;flex:1}
+  main{display:block}
+  .mapside{height:560px;border-bottom:1.5px solid var(--blue)}
+  .mapintro{left:var(--s4);top:var(--s4);width:auto;right:var(--s4)}
+  .mapintro h1{font-size:28px}
+  .mapintro p{font-size:14px}
+  #map{top:110px;height:calc(100% - 200px)}
+  .legend{left:var(--s4);bottom:var(--s4);width:220px}
+  .legend .sel{display:none}
+  .north{display:none}
+  .credits{display:none}
+  .card{overflow:visible;border-left:0}
+  .pg{padding:var(--s5) var(--s4) var(--s6)}
+  .hgroup h2{font-size:48px}
+  .big1{font-size:104px}
+  .plan{margin:0 calc(var(--s4) * -1)}
+  .plan .key{left:var(--s4)}
+  .two{grid-template-columns:1fr}
+  .cat{grid-template-columns:128px 1fr 30px}
+  .price-top{grid-template-columns:1fr}
+  .tl li{grid-template-columns:72px 1fr}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="rough" x="-2%" y="-2%" width="104%" height="104%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="4" result="t"></feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="1.1"></feDisplacementMap>
+    </filter>
+  </defs>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <a class="brand" href="#" aria-label="Moje Miejsce, strona główna">
+      <svg width="38" height="38" viewBox="0 0 38 38" aria-hidden="true">
+        <circle cx="16" cy="17" r="12" fill="#FF48B0" style="mix-blend-mode:multiply"></circle>
+        <path d="M22 9.5a12 12 0 1 1 0 24 12 12 0 0 1 0-24Z" fill="none" stroke="#3255A4" stroke-width="2.6" transform="translate(-1.4 -2.2)" style="mix-blend-mode:multiply"></path>
+        <circle cx="16" cy="17" r="3.4" fill="#321871"></circle>
+      </svg>
+      <span><b>Moje Miejsce</b><small>okolice Warszawy z otwartych danych</small></span>
+    </a>
+    <div class="who" role="group" aria-labelledby="who-l">
+      <span class="lbl" id="who-l">Szukam okolicy dla profilu</span>
+      <div class="seg" id="seg"></div>
+    </div>
+    <div class="meta"><b>143 osiedla</b> oceniane w 10 kategoriach<br>m.st. Warszawa, GUGiK, GIOŚ, ZTM, OSM</div>
+  </header>
+
+  <main>
+    <section class="mapside" aria-label="Mapa dopasowania osiedli">
+      <div class="mapwrap" id="mapwrap">
+        <svg id="map" role="group" aria-label="Mapa Warszawy podzielona na 143 osiedla"></svg>
+        <div class="mapintro">
+          <h1 class="disp" id="mh"></h1>
+          <p id="mp"></p>
+          <nav class="rank" aria-labelledby="rank-h">
+            <h2 id="rank-h">Pierwsza dziesiątka</h2>
+            <ol id="rank"></ol>
+          </nav>
+        </div>
+        <div class="legend" aria-hidden="false">
+          <span class="lbl">Dopasowanie do profilu: im gęstszy raster, tym lepiej</span>
+          <div class="bins" id="bins"></div>
+          <div class="sel"><i></i><span>Otwarte osiedle</span></div>
+        </div>
+        <div class="north" aria-hidden="true">
+          <svg width="18" height="22" viewBox="0 0 18 22"><path d="M9 1 16 20 9 15 2 20Z" fill="#3255A4"></path></svg><br>N
+        </div>
+        <div class="credits">Granice osiedli: MSI m.st. Warszawy</div>
+        <div class="tip" id="tip" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <aside class="card" id="card" aria-live="polite" tabindex="-1"></aside>
+  </main>
+</div>
+
+<script src="../shared/data.js"></script>
+<script>
+(function(){
+'use strict';
+const MM = window.MM;
+const F = MM.featured;
+const OS = MM.city.osiedla;
+const CAT = MM.categories;
+let profile = MM.activeProfile || 'senior';
+let selected = 'stare-bielany';
+let photo = 0;
+let activePlace = null;
+
+const $ = (s, el=document) => el.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = n => n.toLocaleString('pl-PL').replace(/ /g, ' ');
+const fmtDec = (n, d=1) => n.toLocaleString('pl-PL',{minimumFractionDigits:d,maximumFractionDigits:d});
+const PROF_GEN = {student:'studenta', rodzina:'rodziny', senior:'seniora'};
+const PROF_DAT = {student:'studentowi', rodzina:'rodzinie', senior:'seniorowi'};
+const BIN_EDGES = [40,50,60,70,80];
+const BIN_LABELS = ['<40','40+','50+','60+','70+','80+'];
+const binOf = m => { let i=0; while(i<BIN_EDGES.length && m>=BIN_EDGES[i]) i++; return i; };
+const RAD = [0.95,1.4,1.9,2.4,2.95,3.6]; // promień kropki w komórce 7.5
+const CELL = 7.5;
+const PRI = { senior: MM.seniorPriorities };
+
+/* ---------------- profil ---------------- */
+function renderSeg(){
+  const seg = $('#seg');
+  seg.innerHTML = Object.keys(MM.profiles).map(k =>
+    `<button type="button" data-p="${k}" aria-pressed="${k===profile}" title="${esc(MM.profiles[k].description)}">${esc(MM.profiles[k].title)}</button>`).join('');
+  seg.onclick = e => { const b = e.target.closest('button'); if(!b) return; setProfile(b.dataset.p); };
+}
+function setProfile(p){
+  profile = p;
+  document.querySelectorAll('#seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.p===p));
+  paintMap(); renderIntro(); renderRank(); renderCard(false);
+}
+
+/* ---------------- mapa ---------------- */
+const NS = 'http://www.w3.org/2000/svg';
+function patternDefs(prefix, cell, rad, color, angle){
+  return rad.map((r,i) => `<pattern id="${prefix}${i}" width="${cell}" height="${cell}" patternUnits="userSpaceOnUse" patternTransform="rotate(${angle})"><rect width="${cell}" height="${cell}" fill="#FDFDFB"></rect><circle cx="${cell/2}" cy="${cell/2}" r="${r}" fill="${color}"></circle>${r>cell/2?`<circle cx="0" cy="0" r="${(r-cell/2)*1.15}" fill="${color}"></circle><circle cx="${cell}" cy="0" r="${(r-cell/2)*1.15}" fill="${color}"></circle><circle cx="0" cy="${cell}" r="${(r-cell/2)*1.15}" fill="${color}"></circle><circle cx="${cell}" cy="${cell}" r="${(r-cell/2)*1.15}" fill="${color}"></circle>`:''}</pattern>`).join('');
+}
+function buildMap(){
+  const svg = $('#map');
+  svg.setAttribute('viewBox', `0 0 ${MM.city.w} ${MM.city.h}`);
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  const pinkHover = `<pattern id="hp" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(75)"><circle cx="3" cy="3" r="1.7" fill="#FF48B0"></circle></pattern>`;
+  svg.innerHTML = `
+    <defs>${patternDefs('b', CELL, RAD, '#3255A4', 15)}${pinkHover}
+      <filter id="grainf" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="7"></feTurbulence><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -1.6 1.05"></feColorMatrix></filter>
+    </defs>
+    <g id="blueplate">${OS.map(o => `<path class="o" id="o-${o.id}" data-id="${o.id}" d="${o.d}" tabindex="0" role="button"></path>`).join('')}</g>
+    <path class="river plate" d="${MM.city.river}"></path>
+    <g id="pinkplate" class="plate" pointer-events="none" transform="translate(1.6 -1.2)"></g>
+    <g id="labels" pointer-events="none"></g>
+    <rect width="${MM.city.w}" height="${MM.city.h}" filter="url(#grainf)" opacity=".5" style="mix-blend-mode:screen" pointer-events="none"></rect>`;
+
+  const tip = $('#tip'), wrap = $('#mapwrap');
+  const showTip = (id, x, y) => {
+    const o = OS.find(q => q.id===id);
+    tip.innerHTML = `<b>${esc(o.name)}</b><span>dopasowanie <strong>${o.match[profile]}</strong>, ${o.rank[profile]}. miejsce ze 143</span>`;
+    const r = wrap.getBoundingClientRect();
+    let tx = x - r.left + 16, ty = y - r.top + 16;
+    tip.classList.add('on');
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    if(tx + tw > r.width - 8) tx = x - r.left - tw - 16;
+    if(ty + th > r.height - 8) ty = y - r.top - th - 12;
+    tip.style.left = tx+'px'; tip.style.top = ty+'px';
+  };
+  svg.addEventListener('mousemove', e => {
+    const p = e.target.closest('.o'); if(!p){ hideHover(); return; }
+    setHover(p.dataset.id); showTip(p.dataset.id, e.clientX, e.clientY);
+  });
+  svg.addEventListener('mouseleave', hideHover);
+  svg.addEventListener('click', e => { const p = e.target.closest('.o'); if(p) select(p.dataset.id); });
+  svg.addEventListener('keydown', e => {
+    const p = e.target.closest('.o'); if(!p) return;
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); select(p.dataset.id); }
+  });
+  svg.addEventListener('focusin', e => {
+    const p = e.target.closest('.o'); if(!p) return;
+    const b = p.getBoundingClientRect(); setHover(p.dataset.id); showTip(p.dataset.id, b.left + b.width/2, b.top + b.height/2);
+  });
+  svg.addEventListener('focusout', hideHover);
+  function hideHover(){ tip.classList.remove('on'); setHover(null); }
+}
+let hoverId = null;
+function setHover(id){
+  if(id===hoverId) return; hoverId = id; drawPink();
+}
+function drawPink(){
+  const g = $('#pinkplate');
+  let h = '';
+  const s = OS.find(o => o.id===selected);
+  if(hoverId && hoverId!==selected){
+    const o = OS.find(q => q.id===hoverId);
+    h += `<path d="${o.d}" fill="url(#hp)"></path><path d="${o.d}" fill="none" stroke="#FF48B0" stroke-width="2.2" stroke-linejoin="round"></path>`;
+  }
+  if(s){
+    h += `<path d="${s.d}" fill="#FF48B0"></path>`;
+  }
+  g.innerHTML = h;
+  const lab = $('#labels');
+  if(s){
+    const right = s.cx < 500;
+    const lx = right ? s.cx - 40 : s.cx + 40;
+    const ly = s.cy - 62;
+    lab.innerHTML = `<path d="M${s.cx} ${s.cy}L${s.cx} ${ly+8}" stroke="#321871" stroke-width="1.4" fill="none"></path><circle cx="${s.cx}" cy="${s.cy}" r="3.4" fill="#321871"></circle>
+      <text class="maplabel" x="${s.cx}" y="${ly}" text-anchor="middle">${esc(s.name)}</text>`;
+  }
+}
+function paintMap(){
+  OS.forEach(o => {
+    const el = document.getElementById('o-'+o.id);
+    el.setAttribute('fill', `url(#b${binOf(o.match[profile])})`);
+    el.setAttribute('aria-label', `${o.name}, ${o.district}: dopasowanie ${o.match[profile]}, ${o.rank[profile]}. miejsce`);
+    el.setAttribute('aria-pressed', o.id===selected);
+  });
+  drawPink();
+}
+function renderBins(){
+  // ten sam raster co na mapie, w skali ekranu
+  const svg = $('#map');
+  const scale = Math.min(svg.clientWidth / MM.city.w, svg.clientHeight / MM.city.h) || .75;
+  const c = CELL*scale;
+  $('#bins').innerHTML = RAD.map((r,i) => `<div><svg viewBox="0 0 40 26" preserveAspectRatio="none" aria-hidden="true"><defs>${patternDefs('lg'+i+'_', c, [r*scale], '#3255A4', 15)}</defs><rect width="40" height="26" fill="url(#lg${i}_0)"></rect></svg>${BIN_LABELS[i]}</div>`).join('');
+}
+
+/* ---------------- intro + ranking ---------------- */
+function renderIntro(){
+  $('#mh').innerHTML = `Gdzie ${PROF_DAT[profile]} <span>będzie dobrze?</span>`;
+  $('#mp').textContent = MM.profiles[profile].description;
+}
+function renderRank(){
+  const top = [...OS].sort((a,b) => a.rank[profile]-b.rank[profile]).slice(0,10);
+  $('#rank-h').textContent = `Pierwsza dziesiątka dla ${PROF_GEN[profile]}`;
+  $('#rank').innerHTML = top.map(o => `<li><button type="button" data-id="${o.id}" class="${o.id===selected?'on':''}" aria-label="${esc(o.name)}, ${o.rank[profile]}. miejsce, dopasowanie ${o.match[profile]}"><span class="r">${o.rank[profile]}</span><span class="n">${esc(o.name)}</span><span class="m">${o.match[profile]}</span></button></li>`).join('');
+  $('#rank').onclick = e => { const b = e.target.closest('button'); if(b) select(b.dataset.id); };
+  $('#rank').onmouseover = e => { const b = e.target.closest('button'); setHover(b ? b.dataset.id : null); };
+  $('#rank').onmouseleave = () => setHover(null);
+}
+function select(id){
+  selected = id; activePlace = null;
+  paintMap(); renderRank(); renderCard(true);
+}
+
+/* ---------------- elementy karty ---------------- */
+function meterSVG(val, w=484){
+  // rampa rastra 0–100 (ta sama logika co mapa), znacznik = wynik
+  const n = 60, step = w/n, h = 30;
+  let dots = '';
+  for(let i=0;i<n;i++){
+    const v = (i+.5)/n*100;
+    const r = 0.7 + (v/100)*3.4;
+    const on = v <= val;
+    dots += `<circle cx="${(i+.5)*step}" cy="13" r="${Math.min(r, step/2-.3).toFixed(2)}" fill="${on?'#3255A4':'#C9D0E4'}"></circle>`;
+  }
+  const x = val/100*w;
+  return `<svg viewBox="0 -4 ${w} ${h+10}" role="img" aria-label="Dopasowanie ${val} na 100">
+    ${dots}
+    <rect x="${x-1.5}" y="-3" width="3" height="${h}" fill="#FF48B0" style="mix-blend-mode:multiply"></rect>
+    <text x="0" y="${h+2}" font-size="11" fill="#6E6A88" font-family="Bricolage Grotesque">0</text>
+    <text x="${w}" y="${h+2}" font-size="11" fill="#6E6A88" text-anchor="end" font-family="Bricolage Grotesque">100</text>
+  </svg>`;
+}
+function catsHTML(stats, pri){
+  const keys = Object.keys(CAT);
+  const row = (k, isPri) => `<div class="cat${isPri?' pri':''}"><span class="nm"><span>${esc(CAT[k])}</span></span><span class="bar" role="img" aria-label="${esc(CAT[k])}: ${stats[k]} na 100"><i style="width:${stats[k]}%"></i></span><span class="v num">${stats[k]}</span></div>`;
+  if(pri && pri.length){
+    const rest = keys.filter(k => !pri.includes(k)).sort((a,b) => stats[b]-stats[a]);
+    return `<div class="cats"><div class="grp">Najważniejsze dla ${PROF_GEN[profile]}</div>${pri.map(k=>row(k,true)).join('')}<div class="grp">Pozostałe, od najmocniejszych</div>${rest.map(k=>row(k,false)).join('')}</div>`;
+  }
+  return `<div class="cats">${keys.slice().sort((a,b)=>stats[b]-stats[a]).map(k=>row(k,false)).join('')}</div>`;
+}
+function duoHTML(){
+  const im = F.heroImages[photo];
+  const plate = cls => `<div class="pl ${cls}"><img src="${im.src}" alt="" decoding="async"><i></i></div>`;
+  return `<figure class="duo">
+    <div class="frame" role="img" aria-label="${esc(im.alt)}">${plate('p')}${plate('b')}<div class="gr"></div></div>
+    <figcaption><span>${esc(im.alt)}</span><span>${esc(im.credit)}</span></figcaption>
+    <div class="thumbs" role="group" aria-label="Zdjęcia osiedla">${F.heroImages.map((h,i)=>`<button type="button" data-i="${i}" aria-current="${i===photo}" aria-label="Zdjęcie ${i+1}: ${esc(h.alt)}"><img src="${h.src}" alt=""></button>`).join('')}</div>
+  </figure>`;
+}
+function planHTML(){
+  const N = MM.neighborhood;
+  const byId = Object.fromEntries(F.highlights.map(h => [h.id,h]));
+  const order = [...F.highlights].sort((a,b)=>a.walkMin-b.walkMin);
+  const numOf = Object.fromEntries(order.map((h,i)=>[h.id,i+1]));
+  const roadW = {motorway:14,motorway_link:7,secondary:10,secondary_link:6,tertiary:8,tertiary_link:5,residential:5,living_street:3.5,unclassified:4};
+  const roads = N.roads.slice().sort((a,b)=>(roadW[a.hw]||4)-(roadW[b.hw]||4));
+  const VB = [175, 150, 650, 740];
+  const svg = `<svg viewBox="${VB.join(' ')}" role="img" aria-label="Plan okolicy Starych Bielan: zabudowa, zieleń, drogi i ${order.length} miejsc">
+    <defs>
+      <pattern id="gdot" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(15)"><circle cx="4.5" cy="4.5" r="2.4" fill="#3255A4"></circle></pattern>
+      <pattern id="wdot" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(15)"><circle cx="3.5" cy="3.5" r="2.6" fill="#3255A4"></circle></pattern>
+    </defs>
+    <rect x="${VB[0]}" y="${VB[1]}" width="${VB[2]}" height="${VB[3]}" fill="#FDFDFB"></rect>
+    <g class="plate">${N.green.map(g=>`<path d="${g.d}" fill="#FFE800"></path>`).join('')}</g>
+    <g class="plate" opacity=".55">${N.green.map(g=>`<path d="${g.d}" fill="url(#gdot)"></path>`).join('')}</g>
+    <g class="plate">${N.water.map(d=>`<path d="${d}" fill="url(#wdot)"></path>`).join('')}</g>
+    <g class="plate">${N.buildings.map(b=>`<path class="bld" d="${b.d}" style="opacity:${(0.26 + Math.min(b.h,40)/40*0.5).toFixed(2)}"></path>`).join('')}</g>
+    <g>${roads.map(r=>`<path class="road" d="${r.d}" stroke-width="${roadW[r.hw]||4}"></path>`).join('')}</g>
+    <g class="plate">${roads.filter(r=>/motorway|secondary/.test(r.hw)).map(r=>`<path class="road-ink" d="${r.d}" stroke-width="${(roadW[r.hw]||4)+4}"></path>`).join('')}</g>
+    <g>${roads.filter(r=>/motorway|secondary/.test(r.hw)).map(r=>`<path class="road" d="${r.d}" stroke-width="${(roadW[r.hw]||4)-3}"></path>`).join('')}</g>
+    <g class="plate" transform="translate(2.5 -2)"><path class="outl" d="${N.outline}"></path></g>
+    <g id="pins">${N.places.map(p=>{const h=byId[p.id]; if(!h) return ''; return `<g class="pin${activePlace===p.id?' on':''}" data-id="${p.id}" transform="translate(${p.xy[0]} ${p.xy[1]})"><circle r="19"></circle><text y="1">${numOf[p.id]}</text></g>`;}).join('')}</g>
+  </svg>`;
+  const list = order.map(h => `<li><button type="button" data-id="${h.id}" class="${activePlace===h.id?'on':''}"><span class="no">${numOf[h.id]}</span><span class="t">${esc(h.name)}<span class="d">${esc(CAT[h.category]||'')}, ${fmt(h.distanceM)} m${h.distanceTo==='skraj'?' do skraju':''}</span></span><span class="w">${h.walkMin}<small>min</small></span></button></li>`).join('');
+  return {svg, list};
+}
+function commuteHTML(){
+  const max = 60;
+  const rows = F.commute.map(c => `<div class="cm">
+      <div class="h">${esc(c.label)}</div>
+      <div class="ln t"><span>komunikacją</span><span class="b"><i style="width:${c.minutes.komunikacja/max*100}%"></i></span><span class="m num">${c.minutes.komunikacja}<small>min</small></span></div>
+      <div class="ln r"><span>rowerem</span><span class="b"><i style="width:${c.minutes.rower/max*100}%"></i></span><span class="m num">${c.minutes.rower}<small>min</small></span></div>
+    </div>`).join('');
+  return `<div class="commute">${rows}<div class="axis" aria-hidden="true"><span></span><div><span>0</span><span>15</span><span>30</span><span>45</span><span>60 min</span></div><span></span></div></div>`;
+}
+function priceHTML(){
+  const P = F.prices, R = P.rcn;
+  const diff = (P.buyPerM2 / P.cityBuyPerM2 - 1) * 100;
+  const lo = 12000, hi = 20000, W = 484, x = v => (v-lo)/(hi-lo)*W;
+  const row = (y, label, d, color, n) => `
+    <text class="rl" x="0" y="${y-14}">${label}</text>
+    <text x="${W}" y="${y-14}" text-anchor="end">${fmt(n)} transakcji</text>
+    <line x1="0" x2="${W}" y1="${y}" y2="${y}" stroke="#C9D0E4" stroke-width="1"></line>
+    <rect x="${x(d.p25)}" y="${y-8}" width="${x(d.p75)-x(d.p25)}" height="16" fill="${color}" style="mix-blend-mode:multiply"></rect>
+    <rect x="${x(d.med)-2}" y="${y-13}" width="4" height="26" fill="#321871"></rect>
+    <text class="rv" x="${x(d.med)}" y="${y+28}" text-anchor="middle">${fmt(d.med)}</text>`;
+  const ticks = [12000,14000,16000,18000,20000].map(t=>`<line x1="${x(t)}" x2="${x(t)}" y1="10" y2="150" stroke="#C9D0E4" stroke-dasharray="1 3"></line><text x="${x(t)}" y="170" text-anchor="${t===lo?'start':t===hi?'end':'middle'}">${fmt(t)}</text>`).join('');
+  return `<div class="price-top">
+      <div><div class="lbl" style="margin-bottom:6px">Mediana ceny transakcyjnej</div><div class="v num">${fmt(P.buyPerM2)}<small>zł/m²</small></div></div>
+      <div class="c">Warszawa: <b class="num">${fmt(P.cityBuyPerM2)} zł/m²</b>.<br>Tu drożej o <span class="diff num">${fmtDec(diff)}%</span>, czyli ${fmt(P.buyPerM2-P.cityBuyPerM2)} zł na każdym metrze.</div>
+    </div>
+    <div class="range"><svg viewBox="0 0 ${W} 178" role="img" aria-label="Rozstęp cen: Stare Bielany od ${fmt(R.msi.p25)} do ${fmt(R.msi.p75)} zł/m², Warszawa od ${fmt(R.city.p25)} do ${fmt(R.city.p75)} zł/m²">
+      ${ticks}
+      ${row(48,'Stare Bielany',R.msi,'#FF48B0',R.msi.n)}
+      ${row(118,'Warszawa',R.city,'#3255A4',R.city.n)}
+    </svg></div>
+    <p class="note">Pasek to połowa transakcji ze środka (25.–75. centyl), kreska to mediana. ${esc(P.basisLabel)}. ${esc(P.rentNote)}</p>
+    <div class="lbl" style="margin-top:var(--s5)">Ogłoszenia z tego osiedla</div><div class="portals" style="margin-top:6px">${F.portals.map(p=>`<span class="pn2">${esc(p.name)}</span><a href="${p.buyUrl}" target="_blank" rel="noopener">mieszkania na sprzedaż<span class="sr"> (nowe okno)</span></a><a href="${p.rentUrl}" target="_blank" rel="noopener">na wynajem<span class="sr"> (nowe okno)</span></a>`).join('')}</div>`;
+}
+function trafficHTML(){
+  const T = F.traffic, W = 484, H = 140, top = 20, base = 112, mx = 20;
+  const bw = W/24;
+  const peak = Math.max(...T), ph = T.indexOf(peak);
+  const bars = T.map((v,h)=>`<rect x="${h*bw+1.5}" y="${base - v/mx*(base-top)}" width="${bw-3}" height="${v/mx*(base-top)}" fill="${h===ph||T[h]===peak?'#FF48B0':'#3255A4'}" style="mix-blend-mode:multiply"><title>${h}:00 — ${v}%</title></rect>`).join('');
+  const grid = [0,10,20].map(g=>`<line x1="0" x2="${W}" y1="${base-g/mx*(base-top)}" y2="${base-g/mx*(base-top)}" stroke="#C9D0E4" ${g?'stroke-dasharray="1 3"':''}></line><text x="${W}" y="${base-g/mx*(base-top)-4}" text-anchor="end">${g}%</text>`).join('');
+  const hrs = [0,6,12,18].map(h=>`<text x="${h*bw+1.5}" y="${base+18}">${h}:00</text>`).join('') + `<text x="${W}" y="${base+18}" text-anchor="end">24:00</text>`;
+  return `<div class="traffic"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Planowe spowolnienie w ciągu doby, najwyżej ${peak}% o ${ph}:00">${grid}${bars}${hrs}</svg></div>
+  <p class="note">Najwolniej o ${ph}:00 i ${T.lastIndexOf(peak)}:00: +${peak}% czasu przejazdu względem najszybszej godziny. To rozkład ZTM, nie ruch na żywo.</p>`;
+}
+function timelineHTML(){
+  const key = t => (t.yearPlacement==='bez terminu' ? 9999 : t.year) + (t.yearUncertain ? .5 : 0);
+  return `<ol class="tl">${F.timeline.slice().sort((a,b)=>key(a)-key(b)).map(t=>{
+    const noTerm = t.yearPlacement==='bez terminu';
+    const yr = noTerm ? `<div class="yr u">bez terminu</div>` : `<div class="yr num">${t.year}${t.yearUncertain?`<small>termin niepewny</small>`:''}</div>`;
+    const st = t.status==='w budowie' ? `<span class="stamp build">w budowie</span>` : `<span class="stamp plan">${esc(t.status)}</span>`;
+    return `<li>${yr}<div>${st}<h4>${esc(t.title)}</h4><p>${esc(t.description)}</p>${t.yearNote?`<details><summary>Skąd ten termin</summary><p>${esc(t.yearNote)}${t.sourceTitle?` Źródło: ${esc(t.sourceTitle)}.`:''}</p></details>`:''}</div></li>`;
+  }).join('')}</ol>`;
+}
+
+/* ---------------- karta ---------------- */
+function renderCard(scrollTop){
+  const card = $('#card');
+  if(selected === F.slug) card.innerHTML = fullCard();
+  else card.innerHTML = shortCard(OS.find(o=>o.id===selected));
+  if(scrollTop) card.scrollTop = 0;
+  bindCard();
+}
+function headBlock(name, district, rank, match, pageLabel){
+  return `<div class="folio"><span><b>Karta osiedla</b> dla profilu ${esc(MM.profiles[profile].title)}</span><span>${pageLabel}</span></div>
+    <div class="hgroup"><div><h2 class="disp">${esc(name)}</h2><div class="dist">Dzielnica <b>${esc(district)}</b></div></div></div>
+    <div class="score">
+      <div class="big1 num" aria-hidden="true"><span class="bg">${rank}</span><span class="fg">${rank}</span></div>
+      <div>
+        <div class="of"><strong>${rank}. miejsce ze 143</strong>w rankingu dla ${PROF_GEN[profile]}</div>
+        <div class="mt"><span class="lbl">Dopasowanie</span><b class="num">${match}<small>/100</small></b></div>
+      </div>
+      <div class="meter">${meterSVG(match)}</div>
+    </div>
+    <p class="sr">${rank}. miejsce ze 143, dopasowanie ${match} na 100.</p>`;
+}
+function fullCard(){
+  const plan = planHTML();
+  const pri = PRI[profile];
+  const sb = OS.find(o=>o.id===F.slug);
+  return `
+  <article aria-label="Karta osiedla ${esc(F.name)}">
+    <section class="pg">
+      ${headBlock(F.name, F.district, F.rank[profile], F.match[profile], 's. 1')}
+      <p class="lede">${profile==='senior' ? F.summary.replace('14 przychodni i 8 aptek w 1 km','<mark>14 przychodni i 8 aptek w 1 km</mark>') : esc(sb.blurb[profile])}</p>
+      ${duoHTML()}
+      ${profile==='senior' ? `<p class="blurb">${esc(sb.blurb.senior)}</p>` : ''}
+    </section>
+
+    <section class="pg" aria-labelledby="h-cat">
+      <div class="sec-h"><h3 class="disp" id="h-cat">Dziesięć kategorii</h3><span class="pn">s. 2</span></div>
+      <p class="sec-sub">Każda w skali 0–100 względem pozostałych 142 osiedli.${pri?' Żółtym zaznaczyliśmy to, co dla seniora waży najwięcej.':''}</p>
+      ${catsHTML(F.stats, pri)}
+    </section>
+
+    <section class="pg" aria-labelledby="h-pl">
+      <div class="sec-h"><h3 class="disp" id="h-pl">Blisko, pieszo</h3><span class="pn">s. 3</span></div>
+      <p class="sec-sub">Prawdziwy plan okolicy: budynki, zieleń i drogi. Różowa kropkowana linia to granica osiedla, liczby to miejsca z listy, obok czas dojścia pieszo.</p>
+      <div class="plan">${plan.svg}
+        <div class="key" aria-hidden="true"><span><i style="background:#FFE800;box-shadow:inset 0 0 0 20px rgba(50,85,164,.18)"></i>zieleń</span><span><i style="background:#3255A4;opacity:.55"></i>zabudowa</span><span><i style="border-top:3px dotted #FF48B0;height:0"></i>granica osiedla</span></div>
+      </div>
+      <ul class="places" id="places">${plan.list}</ul>
+    </section>
+
+    <section class="pg" aria-labelledby="h-cm">
+      <div class="sec-h"><h3 class="disp" id="h-cm">Dojazd rano</h3><span class="pn">s. 4</span></div>
+      <p class="sec-sub">Przyjazd między 7:30 a 9:00 w dzień roboczy. Komunikacja według rozkładu ZTM, rower bez postojów.</p>
+      ${commuteHTML()}
+    </section>
+
+    <section class="pg" aria-labelledby="h-pr">
+      <div class="sec-h"><h3 class="disp" id="h-pr">Ile kosztuje metr</h3><span class="pn">s. 5</span></div>
+      ${priceHTML()}
+    </section>
+
+    <section class="pg" aria-labelledby="h-tr">
+      <div class="sec-h"><h3 class="disp" id="h-tr">Rytm dnia</h3><span class="pn">s. 6</span></div>
+      <p class="sec-sub">${esc(F.trafficRoad)}: o ile wolniej jadą autobusy i tramwaje w danej godzinie.</p>
+      ${trafficHTML()}
+    </section>
+
+    <section class="pg" aria-labelledby="h-tl">
+      <div class="sec-h"><h3 class="disp" id="h-tl">Co się tu zmieni</h3><span class="pn">s. 7</span></div>
+      <p class="sec-sub">Inwestycje i projekty w okolicy na lata 2026–2040, z ich obecnym statusem.</p>
+      ${timelineHTML()}
+    </section>
+
+    <section class="pg colo" aria-labelledby="h-co">
+      <div class="sec-h"><h3 class="disp" id="h-co">O danych</h3><span class="pn">s. 8</span></div>
+      <p>Wszystkie liczby pochodzą z otwartych danych. Ocena kategorii porównuje osiedle z pozostałymi 142, a dopasowanie waży kategorie według wybranego profilu.</p>
+      <dl>
+        <dt>Źródła</dt><dd>${esc(MM.credits)}</dd>
+        <dt>Ceny</dt><dd>${esc(F.prices.basisLabel)}, stan na ${esc(F.prices.asOf)}.</dd>
+        <dt>Dojazdy</dt><dd>${esc(F.commute[0].source)}</dd>
+        <dt>Zdjęcia</dt><dd>Wikimedia Commons, autorzy podani pod zdjęciem.</dd>
+      </dl>
+      <div class="inks" aria-hidden="true"><span><i style="background:#3255A4"></i>Medium Blue</span><span><i style="background:#FF48B0"></i>Fluorescent Pink</span><span><i style="background:#FFE800"></i>Yellow</span></div>
+    </section>
+  </article>`;
+}
+function shortCard(o){
+  return `<article class="short" aria-label="Skrót osiedla ${esc(o.name)}">
+    <section class="pg">
+      ${headBlock(o.name, o.district, o.rank[profile], o.match[profile], 'skrót')}
+      <p class="lede">${esc(o.blurb[profile])}</p>
+    </section>
+    <section class="pg" aria-labelledby="h-cat">
+      <div class="sec-h"><h3 class="disp" id="h-cat">Dziesięć kategorii</h3></div>
+      ${catsHTML(o.cats, PRI[profile])}
+      <div class="soon">Pełną kartę ze zdjęciami, planem okolicy, cenami i planami zmian mamy na razie tylko dla Starych Bielan.</div>
+      <button type="button" class="back" data-go="${F.slug}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2"></path></svg>Wróć do Starych Bielan</button>
+    </section>
+  </article>`;
+}
+function bindCard(){
+  const card = $('#card');
+  card.onclick = e => {
+    const t = e.target.closest('.thumbs button');
+    if(t){ photo = +t.dataset.i; const fig = $('.duo', card); fig.outerHTML = duoHTML(); return; }
+    const pl = e.target.closest('#places button');
+    if(pl){ activePlace = activePlace===pl.dataset.id ? null : pl.dataset.id; markPlace(); return; }
+    const pin = e.target.closest('.pin');
+    if(pin){ activePlace = pin.dataset.id; markPlace(); return; }
+    const g = e.target.closest('[data-go]');
+    if(g){ select(g.dataset.go); }
+  };
+  card.onmouseover = e => { const pl = e.target.closest('#places button'); if(pl){ hoverPin(pl.dataset.id); } };
+  card.onmouseout = e => { if(e.target.closest('#places button')) hoverPin(null); };
+}
+function hoverPin(id){
+  document.querySelectorAll('#pins .pin').forEach(p => p.classList.toggle('on', p.dataset.id===id || p.dataset.id===activePlace));
+}
+function markPlace(){
+  document.querySelectorAll('#pins .pin').forEach(p => p.classList.toggle('on', p.dataset.id===activePlace));
+  document.querySelectorAll('#places button').forEach(b => b.classList.toggle('on', b.dataset.id===activePlace));
+}
+
+/* ---------------- start ---------------- */
+// link do stanu: #profil=student&osiedle=mokotow-stegny
+(function readHash(){
+  const q = new URLSearchParams(location.hash.slice(1));
+  if(q.get('profil') && MM.profiles[q.get('profil')]) profile = q.get('profil');
+  if(q.get('osiedle') && OS.some(o=>o.id===q.get('osiedle'))) selected = q.get('osiedle');
+})();
+renderSeg(); buildMap(); paintMap(); renderIntro(); renderRank(); renderCard(false);
+requestAnimationFrame(renderBins);
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(renderBins, 120); });
+})();
+</script>
+</body>
+</html>

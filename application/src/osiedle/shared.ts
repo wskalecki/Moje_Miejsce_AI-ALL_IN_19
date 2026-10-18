@@ -69,6 +69,34 @@ export function useSeenOnce<T extends Element>(amount = 0.25): [RefObject<T | nu
   return [ref, seen]
 }
 
+const IN_VIEW_STEPS = Array.from({ length: 21 }, (_, i) => i / 20)
+
+/**
+ * True while the element is in view inside the scroll container `root`: on once `enter` of it shows,
+ * off again below `leave` (the gap keeps it from flickering at the edge). A section taller than the
+ * container counts by the share of the container it fills.
+ */
+export function useInView<T extends Element>(root: RefObject<HTMLElement | null>, enter = 0.5, leave = 0.15): [RefObject<T | null>, boolean] {
+  const ref = useRef<T>(null)
+  const [on, setOn] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(
+      (entries) => {
+        const e = entries[entries.length - 1]
+        const box = e.rootBounds?.height || 1
+        const share = Math.max(e.intersectionRatio, e.intersectionRect.height / box)
+        setOn((was) => (was ? share >= leave : share >= enter))
+      },
+      { root: root.current, threshold: IN_VIEW_STEPS },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [root, enter, leave])
+  return [ref, on]
+}
+
 /** Priorities first (in pick order), then the rest by profile weight (spec §4.5 pkt 3). */
 export function orderCategories(profile: ProfileId, priorities: CategoryId[]): CategoryId[] {
   const rest = categoriesByWeight(profile).filter((c) => !priorities.includes(c))

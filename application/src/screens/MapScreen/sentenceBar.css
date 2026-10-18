@@ -2,8 +2,8 @@
 
 .sbar {
   position: absolute;
-  left: 24px;
-  top: 24px;
+  left: var(--chrome-edge, 24px);
+  top: var(--chrome-edge, 24px);
   z-index: 15;
   max-width: calc(100% - 48px - 56px);
   transition:

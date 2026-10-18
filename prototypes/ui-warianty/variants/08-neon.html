@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moje Miejsce — Stare Bielany</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Tilt+Neon&display=swap&subset=latin-ext" rel="stylesheet">
+<style>
+:root {
+  /* night */
+  --night: #15122e;
+  --night-deep: #100d25;
+  --panel: #1b1736;
+  --raise: #252046;
+  --line: #322b58;
+  --line-soft: #2a2450;
+  /* type */
+  --text: #f4f0fa;
+  --muted: #b2abd0;
+  --faint: #8f88b5;
+  /* neon tubes + bulb */
+  --pink: #ff5fa2;
+  --pink-glow: rgba(255, 95, 162, .55);
+  --cyan: #5ce1e6;
+  --bulb: #ffe7bf;
+  --sodium: #f2a65a;
+
+  --ui: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --neon: "Tilt Neon", "Figtree", sans-serif;
+
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 24px; --s8: 32px; --s10: 40px;
+  --r: 6px;
+  --bar-h: 64px;
+  --rail-w: 264px;
+  --card-w: 488px;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--text);
+  font: 400 15px/1.5 var(--ui);
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; border-radius: 3px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums lining-nums; }
+
+/* ---------- layout ---------- */
+.app {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: var(--rail-w) 1fr var(--card-w);
+  grid-template-rows: var(--bar-h) 1fr;
+  grid-template-areas: "bar bar bar" "rail map card";
+}
+.bar { grid-area: bar; }
+.rail { grid-area: rail; }
+.map { grid-area: map; }
+.card { grid-area: card; }
+
+/* ---------- top bar ---------- */
+.bar {
+  display: flex; align-items: center; gap: var(--s8);
+  padding: 0 var(--s6) 0 var(--s5);
+  border-bottom: 1px solid var(--line);
+  background: var(--night-deep);
+  position: relative; z-index: 3;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; flex: none;
+  width: calc(var(--rail-w) - var(--s5) - var(--s8));
+}
+.logo svg { flex: none; overflow: visible; }
+.logo-word {
+  font-family: var(--neon);
+  font-size: 27px; line-height: 1; letter-spacing: .01em;
+  color: #ffd1e6;
+  text-shadow: 0 0 2px #fff0f7, 0 0 6px var(--pink), 0 0 14px var(--pink-glow), 0 0 28px rgba(255,95,162,.3);
+  white-space: nowrap;
+}
+.logo-tube { stroke: #c9fbfc; filter: drop-shadow(0 0 2px var(--cyan)) drop-shadow(0 0 6px rgba(92,225,230,.6)); }
+
+.profiles { display: flex; align-items: center; gap: var(--s2); }
+.profiles-label { color: var(--muted); font-size: 14px; margin-right: var(--s2); }
+.seg { display: flex; gap: 2px; }
+.seg button {
+  position: relative;
+  border: 0; background: none;
+  padding: 8px 14px 10px;
+  font-size: 15px; font-weight: 500; color: var(--muted);
+  border-radius: var(--r);
+  transition: color .15s, background-color .15s;
+}
+.seg button:hover { color: var(--text); background: var(--raise); }
+.seg button[aria-pressed="true"] { color: var(--bulb); font-weight: 600; }
+.seg button[aria-pressed="true"]::after {
+  content: ""; position: absolute; left: 14px; right: 14px; bottom: 2px; height: 2px; border-radius: 2px;
+  background: #ffc2dc;
+  box-shadow: 0 0 4px var(--pink), 0 0 10px var(--pink-glow);
+}
+.profile-desc { color: var(--muted); font-size: 14px; margin-left: var(--s3); }
+.bar-end { margin-left: auto; display: flex; align-items: center; gap: var(--s5); color: var(--muted); font-size: 14px; }
+.bar-end a { text-decoration: none; }
+.bar-end a:hover { color: var(--text); }
+
+/* ---------- rail ---------- */
+.rail {
+  border-right: 1px solid var(--line);
+  background: var(--night-deep);
+  display: flex; flex-direction: column; min-height: 0;
+}
+.rail-head { padding: var(--s5) var(--s5) var(--s3); }
+.rail h2 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: 0; }
+.rail-sub { margin: 2px 0 var(--s3); color: var(--muted); font-size: 13px; }
+.search { position: relative; }
+.search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--faint); pointer-events: none; }
+.search input {
+  width: 100%; height: 36px; padding: 0 10px 0 32px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r);
+  font-size: 14px;
+}
+.search input::placeholder { color: var(--faint); }
+.search input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 0; border-color: transparent; }
+.rank-list { list-style: none; margin: 0; padding: 0 var(--s2) var(--s4); overflow-y: auto; flex: 1; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.rank-list li { margin: 0; }
+.rank-item {
+  width: 100%; display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: var(--s2);
+  padding: 7px var(--s3); border: 0; background: none; text-align: left; border-radius: var(--r);
+}
+.rank-item:hover { background: var(--panel); }
+.rank-no { color: var(--faint); font-size: 13px; text-align: right; padding-right: 2px; }
+.rank-name { font-size: 14px; font-weight: 500; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-dist { display: block; color: var(--faint); font-size: 12px; font-weight: 400; }
+.rank-val { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+.rank-val i { width: 8px; height: 8px; border-radius: 50%; display: block; }
+.rank-item[aria-current="true"] { background: var(--raise); }
+.rank-item[aria-current="true"] .rank-name { color: #ffd1e6; }
+.rank-item[aria-current="true"] .rank-no { color: var(--pink); }
+.rank-empty { padding: var(--s3) var(--s4); color: var(--muted); font-size: 14px; }
+
+/* ---------- map ---------- */
+.map { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--night); }
+.map svg.view { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.map-tools { position: absolute; top: var(--s4); left: var(--s4); z-index: 2; display: flex; gap: var(--s3); align-items: center; }
+.toggle { display: flex; background: var(--night-deep); border: 1px solid var(--line); border-radius: var(--r); padding: 3px; }
+.toggle button { border: 0; background: none; padding: 6px 12px; border-radius: 4px; font-size: 14px; font-weight: 500; color: var(--muted); }
+.toggle button:hover { color: var(--text); }
+.toggle button[aria-pressed="true"] { background: var(--raise); color: var(--text); }
+.map-title { position: absolute; top: var(--s4); right: var(--s4); text-align: right; z-index: 2; pointer-events: none; }
+.map-title b { display: block; font-size: 14px; font-weight: 600; }
+.map-title span { color: var(--muted); font-size: 13px; }
+
+.legend { position: absolute; left: var(--s4); bottom: var(--s4); z-index: 2; width: 232px; }
+.legend-title { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.legend-ramp { height: 8px; border-radius: 4px; }
+.legend-scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--faint); margin-top: 4px; }
+.legend-plan { display: none; gap: var(--s4); flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.legend-plan span { display: inline-flex; align-items: center; gap: 6px; }
+.legend-plan i { display: inline-block; width: 14px; height: 10px; border-radius: 2px; }
+.map[data-view="plan"] .legend-city { display: none; }
+.map[data-view="plan"] .legend-plan { display: flex; }
+.map[data-view="plan"] .legend-plan { max-width: 238px; gap: 4px 16px; }
+.map[data-view="plan"] .legend { width: auto; right: auto; background: rgba(16,13,37,.92); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 12px; }
+.map[data-view="plan"] .credit { background: rgba(16,13,37,.92); border: 1px solid var(--line); border-radius: var(--r); padding: 6px 10px; max-width: 300px; }
+.credit { position: absolute; right: var(--s4); bottom: var(--s4); max-width: 250px; text-align: right; font-size: 12px; line-height: 1.4; color: var(--faint); z-index: 2; }
+
+
+/* city layers */
+.os { stroke: var(--night); stroke-width: .9; stroke-linejoin: round; cursor: pointer; }
+.ready .os { transition: fill .45s ease; }
+.os:hover { stroke: var(--cyan); stroke-width: 1.6; }
+.bloom { mix-blend-mode: screen; pointer-events: none; }
+.ready .bloom path { transition: fill .45s ease, opacity .45s ease; }
+.river-bed { fill: none; stroke: #0b0a1f; stroke-width: 13; stroke-linecap: round; stroke-linejoin: round; }
+.river-shine { fill: none; stroke: #8fa6ea; stroke-width: 1.4; stroke-opacity: .5; stroke-linecap: round; filter: url(#shine-blur); }
+.river-edge { fill: none; stroke: #2c3566; stroke-width: 15; stroke-linecap: round; stroke-linejoin: round; opacity: .55; }
+.sel-glow { fill: none; stroke: var(--pink); stroke-width: 7; opacity: .55; filter: url(#tube-blur); pointer-events: none; }
+.sel-tube { fill: none; stroke: #ffd6e8; stroke-width: 1.8; stroke-linejoin: round; pointer-events: none; }
+.hov-tube { fill: none; stroke: var(--cyan); stroke-width: 1.8; pointer-events: none; }
+.sel-label { position: absolute; z-index: 2; pointer-events: none; padding: 7px 12px 8px; background: var(--night-deep); border: 1px solid #ff8fbe; border-radius: var(--r); box-shadow: 0 0 0 1px rgba(255,95,162,.15), 0 0 14px rgba(255,95,162,.28); white-space: nowrap; }
+.sel-label b { display: block; font-size: 15px; font-weight: 600; line-height: 1.25; }
+.sel-label span { display: block; font-size: 13px; color: var(--muted); }
+.city-label text { font-family: var(--ui); paint-order: stroke; stroke: var(--night); stroke-width: 4px; stroke-linejoin: round; }
+.city-label .l1 { font-size: 15px; font-weight: 600; fill: var(--text); }
+.city-label .l2 { font-size: 12.5px; fill: var(--muted); }
+.city-label line { stroke: #ff8fbe; stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.place-label { font-size: 12px; fill: var(--faint); paint-order: stroke; stroke: var(--night); stroke-width: 3px; pointer-events: none; }
+
+/* plan layers */
+.pl-bg { fill: #120f28; }
+.pl-green { fill: #15302e; }
+.pl-water { fill: #0a0920; stroke: #3d4f8c; stroke-width: .8; stroke-opacity: .6; }
+.pl-road { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.pl-outline-glow { fill: none; stroke: var(--pink); stroke-width: 9; opacity: .45; filter: url(#tube-blur); }
+.pl-outline { fill: none; stroke: #ffd6e8; stroke-width: 2; stroke-linejoin: round; }
+.pin { cursor: pointer; }
+.pin circle.halo { fill: rgba(255, 231, 191, .18); transition: r .2s; }
+.pin circle.dot { fill: var(--bulb); stroke: var(--night); stroke-width: 2; }
+.pin text { font-size: 15px; font-weight: 700; fill: #241a10; text-anchor: middle; pointer-events: none; }
+.pin.is-on circle.halo, .pin:hover circle.halo { fill: rgba(92, 225, 230, .28); }
+.pin.is-on circle.dot, .pin:hover circle.dot { fill: var(--cyan); }
+.pl-center circle { fill: none; stroke: var(--pink); stroke-width: 2; }
+
+.tip {
+  position: absolute; z-index: 5; pointer-events: none;
+  background: var(--night-deep); border: 1px solid var(--line); border-radius: var(--r);
+  padding: 8px 12px; min-width: 160px; max-width: 260px;
+  box-shadow: 0 8px 24px rgba(5, 3, 18, .5);
+  opacity: 0; transform: translateY(4px); transition: opacity .12s, transform .12s;
+}
+.tip.on { opacity: 1; transform: none; }
+.tip b { display: block; font-size: 14px; font-weight: 600; }
+.tip span { display: block; font-size: 13px; color: var(--muted); }
+.tip .tip-val { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; color: var(--text); }
+.tip .tip-val strong { font-size: 18px; font-weight: 700; color: var(--bulb); }
+
+/* ---------- card ---------- */
+.card {
+  position: relative;
+  border-left: 1px solid var(--line);
+  background: var(--panel);
+  overflow-y: auto; min-height: 0;
+  scrollbar-width: thin; scrollbar-color: var(--line) transparent;
+}
+.gallery { position: relative; height: 196px; background: var(--night-deep); overflow: hidden; }
+.gallery img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(.92) brightness(.92); }
+.g-cap { display: flex; align-items: center; gap: var(--s3); padding: 10px var(--s6) 0; }
+.g-credit { flex: 1; min-width: 0; font-size: 12px; color: var(--faint); line-height: 1.4; }
+.g-credit em { font-style: normal; color: var(--muted); font-size: 13px; }
+.g-nav { display: flex; align-items: center; gap: 4px; flex: none; }
+.g-nav button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: none; display: grid; place-items: center; color: var(--muted); }
+.g-nav button:hover { border-color: var(--muted); color: var(--text); }
+.g-count { font-size: 12px; color: var(--muted); min-width: 30px; text-align: center; }
+
+.head { padding: var(--s4) var(--s6) var(--s4); display: grid; grid-template-columns: 1fr auto; gap: var(--s4); align-items: start; }
+.head-district { color: var(--muted); font-size: 14px; margin: 0; }
+.head h1 { margin: 2px 0 6px; font-size: 32px; line-height: 1.1; font-weight: 700; letter-spacing: -.01em; }
+.head-rank { margin: 0; font-size: 14px; color: var(--text); }
+.head-rank b { font-weight: 600; color: var(--bulb); }
+.score { text-align: right; padding-top: 4px; }
+.score-num {
+  font-family: var(--neon); font-size: 64px; line-height: .9; color: #ffd6e8;
+  text-shadow: 0 0 2px #fff4f9, 0 0 8px var(--pink), 0 0 20px var(--pink-glow), 0 0 40px rgba(255,95,162,.28);
+}
+.score-cap { display: block; margin-top: 6px; font-size: 13px; color: var(--muted); }
+.lede { margin: 0 var(--s6) var(--s5); font-size: 16px; line-height: 1.5; color: var(--text); }
+.lede-note { display: block; margin-top: 6px; color: var(--muted); font-size: 14px; }
+
+.subnav {
+  position: sticky; top: 0; z-index: 2; background: var(--panel);
+  display: flex; gap: var(--s1); padding: 0 var(--s5); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  overflow-x: auto; scrollbar-width: none;
+}
+.subnav a { position: relative; padding: 11px 8px; font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap; }
+.subnav a:hover { color: var(--text); }
+.subnav a.on { color: var(--text); }
+.subnav a.on::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 2px; background: var(--cyan); border-radius: 1px; }
+
+.sec { padding: var(--s6) var(--s6) var(--s6); border-bottom: 1px solid var(--line-soft); scroll-margin-top: 44px; }
+.sec h2 { margin: 0 0 4px; font-size: 18px; font-weight: 600; letter-spacing: -.005em; }
+.sec-sub { margin: 0 0 var(--s4); color: var(--muted); font-size: 14px; }
+.sec-foot { margin: var(--s4) 0 0; color: var(--faint); font-size: 13px; line-height: 1.45; }
+
+/* categories */
+.cats { display: grid; gap: 10px; }
+.cat { display: grid; grid-template-columns: 1fr 34px; gap: 4px 12px; align-items: center; }
+.cat-name { font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.cat-val { grid-row: span 2; text-align: right; font-weight: 600; font-size: 15px; }
+.track { height: 4px; background: var(--line-soft); border-radius: 2px; overflow: hidden; }
+.track i { display: block; height: 100%; border-radius: 2px; }
+.cats-prio { padding-bottom: var(--s4); margin-bottom: var(--s4); border-bottom: 1px dashed var(--line); }
+.cats-prio .cat-name { font-weight: 600; font-size: 15px; }
+.cats-prio .track { height: 6px; border-radius: 3px; }
+.prio-mark { font-size: 12px; font-weight: 500; color: #ffc2dc; margin-left: auto; padding-right: 2px; }
+.cats-title { font-size: 14px; color: var(--muted); margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+.cats-title .tube { width: 14px; height: 2px; border-radius: 2px; background: #ffc2dc; box-shadow: 0 0 4px var(--pink), 0 0 8px var(--pink-glow); }
+.cats-rest { grid-template-columns: 1fr 1fr; column-gap: var(--s6); }
+
+/* places */
+.places { list-style: none; margin: 0; padding: 0; }
+.places li + li { border-top: 1px solid var(--line-soft); }
+.place { width: 100%; display: grid; grid-template-columns: 24px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border: 0; background: none; text-align: left; }
+.place-no { width: 22px; height: 22px; border-radius: 50%; background: var(--bulb); color: #241a10; font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+.place b { display: block; font-size: 14px; font-weight: 600; line-height: 1.3; }
+.place span.d { display: block; font-size: 13px; color: var(--muted); line-height: 1.35; }
+.place-min { text-align: right; font-size: 15px; font-weight: 600; white-space: nowrap; }
+.place-min small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }
+.place:hover b, .place.is-on b { color: var(--cyan); }
+.place:hover .place-no, .place.is-on .place-no { background: var(--cyan); }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px;
+  border: 1px solid var(--line); background: var(--raise); border-radius: var(--r);
+  font-size: 14px; font-weight: 600; color: var(--text); text-decoration: none; white-space: nowrap; flex: none;
+}
+.btn:hover { border-color: var(--muted); }
+.sec-actions { display: flex; gap: var(--s2); flex-wrap: wrap; margin-top: var(--s4); }
+
+/* commute */
+.commute { display: grid; gap: var(--s4); }
+.cm-row b { font-size: 14px; font-weight: 600; display: block; margin-bottom: 6px; }
+.cm-lines { display: grid; gap: 5px; }
+.cm-line { display: grid; grid-template-columns: 92px 1fr 52px; gap: 10px; align-items: center; font-size: 13px; color: var(--muted); }
+.cm-line .track { height: 6px; border-radius: 3px; }
+.cm-line span.v { text-align: right; color: var(--text); font-weight: 600; font-size: 14px; }
+.cm-scale { display: grid; grid-template-columns: 92px 1fr 52px; gap: 10px; font-size: 12px; color: var(--faint); }
+.cm-scale div { display: flex; justify-content: space-between; }
+
+/* prices */
+.price-top { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); margin-bottom: var(--s5); }
+.price-top .k { font-size: 13px; color: var(--muted); }
+.price-top .v { font-size: 26px; font-weight: 700; line-height: 1.15; letter-spacing: -.01em; }
+.price-top .v small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+.price-top .d { font-size: 13px; color: var(--bulb); margin-top: 2px; }
+.price-top .city .v { color: var(--muted); }
+.range-chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.range-chart text { font-family: var(--ui); font-size: 12px; fill: var(--muted); }
+.range-chart .lab { font-size: 13px; fill: var(--text); font-weight: 600; }
+
+/* traffic */
+.traffic svg { display: block; width: 100%; height: auto; }
+.traffic text { font-family: var(--ui); font-size: 12px; fill: var(--faint); }
+
+/* timeline */
+.tl { list-style: none; margin: 0; padding: 0; position: relative; }
+.tl::before { content: ""; position: absolute; left: 63px; top: 8px; bottom: 8px; width: 1px; background: var(--line); }
+.tl li { display: grid; grid-template-columns: 56px 1fr; gap: 0 var(--s5); padding: 0 0 var(--s5); position: relative; }
+.tl li:last-child { padding-bottom: 0; }
+.tl-year { font-size: 15px; font-weight: 700; text-align: right; line-height: 1.35; padding-top: 1px; }
+.tl-year small { display: block; font-size: 12px; font-weight: 400; color: var(--faint); line-height: 1.3; }
+.tl-dot { position: absolute; left: 60px; top: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--panel); border: 1.5px solid var(--faint); }
+.tl li.live .tl-dot { background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+.tl h3 { margin: 0 0 3px; font-size: 15px; font-weight: 600; line-height: 1.35; }
+.tl p { margin: 0; font-size: 14px; color: var(--muted); line-height: 1.45; }
+.tl .st { display: inline-block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+.tl li.live .st { color: var(--cyan); }
+.tl .note { margin-top: 6px; font-size: 13px; color: var(--faint); }
+
+.datanote { padding: var(--s5) var(--s6) var(--s8); font-size: 13px; color: var(--faint); line-height: 1.5; }
+.datanote p { margin: 0 0 8px; }
+.datanote b { color: var(--muted); font-weight: 600; }
+
+/* compact card */
+.compact .head { padding-top: var(--s6); }
+.compact-note { margin: 0 var(--s6) var(--s5); padding: var(--s3) var(--s4); border: 1px solid var(--line); border-radius: var(--r); font-size: 14px; color: var(--muted); display: flex; gap: var(--s3); align-items: center; justify-content: space-between; }
+
+/* ---------- ignition (one orchestrated sequence) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .ignite .logo-word, .ignite .logo-tube { animation: tube-on 1.1s steps(1, end) both; }
+  .ignite .logo-tube { animation-delay: .15s; }
+  .ignite .os, .ignite .bloom path { animation: lamp-on .7s ease-out both; animation-delay: calc(.35s + var(--d, 0s)); }
+  .ignite .sel-glow, .ignite .sel-tube, .ignite .city-label, .ignite .sel-label, .ignite .score-num { animation: tube-on 1s steps(1, end) both; animation-delay: 1.35s; }
+  .ignite .score-num { animation-delay: 1.45s; }
+}
+@keyframes tube-on {
+  0% { opacity: .08; } 12% { opacity: .9; } 18% { opacity: .15; } 30% { opacity: 1; } 36% { opacity: .3; } 44% { opacity: 1; } 100% { opacity: 1; }
+}
+@keyframes lamp-on { from { opacity: .06; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1240px) {
+  :root { --rail-w: 220px; --card-w: 440px; }
+  .profile-desc { display: none; }
+}
+@media (max-width: 1000px) {
+  .app { grid-template-columns: 1fr var(--card-w); grid-template-areas: "bar bar" "map card"; }
+  .rail { display: none; }
+  .logo { width: auto; }
+}
+@media (max-width: 760px) {
+  body { overflow: auto; }
+  .app { height: auto; display: flex; flex-direction: column; }
+  .bar { order: 0; } .map { order: 1; } .card { order: 2; } .rail { order: 3; }
+  .bar { flex-wrap: wrap; gap: var(--s2) var(--s4); padding: var(--s3) var(--s4); }
+  .profiles-label, .bar-end { display: none; }
+  .profiles { width: 100%; }
+  .seg { width: 100%; }
+  .seg button { flex: 1; }
+  .map { height: calc(100vw * 1.04 + 96px); max-height: 80vh; min-height: 400px; border-bottom: 1px solid var(--line); }
+  .map-tools { top: var(--s3); left: var(--s3); }
+  .legend { left: var(--s3); bottom: var(--s3); }
+  .map-title { display: none; }
+  .legend { width: 200px; }
+  .credit { display: none; }
+  .card { border-left: 0; overflow: visible; }
+  .rail { display: flex; border-right: 0; border-top: 1px solid var(--line); }
+  .rank-list { max-height: 60vh; }
+  .head { padding: var(--s5) var(--s4) var(--s4); }
+  .head h1 { font-size: 28px; }
+  .score-num { font-size: 52px; }
+  .lede { margin: 0 var(--s4) var(--s5); }
+  .sec { padding: var(--s5) var(--s4); }
+  .cats-rest { grid-template-columns: 1fr; }
+  .datanote { padding: var(--s5) var(--s4) var(--s8); }
+  .compact-note { margin: 0 var(--s4) var(--s5); flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="app ignite" id="app">
+  <header class="bar">
+    <a class="logo" href="#" aria-label="Moje Miejsce — strona główna">
+      <svg width="26" height="30" viewBox="0 0 26 30" aria-hidden="true">
+        <path class="logo-tube" d="M13 28 C 13 28 3 18.5 3 11.5 A 10 10 0 0 1 23 11.5 C 23 18.5 13 28 13 28 Z M8.5 14 V 9.5 L13 6.5 L17.5 9.5 V 14" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <span class="logo-word">Moje Miejsce</span>
+    </a>
+    <div class="profiles">
+      <span class="profiles-label" id="prof-lbl">Szukam jako</span>
+      <div class="seg" role="group" aria-labelledby="prof-lbl" id="seg"></div>
+      <span class="profile-desc" id="prof-desc"></span>
+    </div>
+    <div class="bar-end">
+      <a href="#dane">Skąd są dane</a>
+    </div>
+  </header>
+
+  <aside class="rail" aria-label="Ranking osiedli">
+    <div class="rail-head">
+      <h2 id="rail-title">Ranking</h2>
+      <p class="rail-sub" id="rail-sub">143 osiedla, najlepsze na górze</p>
+      <label class="search">
+        <span class="sr">Szukaj osiedla</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M9.5 9.5 L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+        <input id="q" type="search" placeholder="Szukaj osiedla" autocomplete="off">
+      </label>
+    </div>
+    <ol class="rank-list" id="rank"></ol>
+  </aside>
+
+  <main class="map" id="map" data-view="city">
+    <div class="map-tools">
+      <div class="toggle" role="group" aria-label="Widok mapy">
+        <button type="button" data-view="city" aria-pressed="true">Warszawa</button>
+        <button type="button" data-view="plan" aria-pressed="false">Plan okolicy</button>
+      </div>
+    </div>
+    <div class="map-title" id="map-title"></div>
+    <svg class="view" id="svg" role="img" aria-labelledby="svg-desc"><title id="svg-desc">Mapa osiedli Warszawy</title></svg>
+    <div class="legend">
+      <div class="legend-city">
+        <div class="legend-title" id="legend-title">Dopasowanie do profilu</div>
+        <div class="legend-ramp" id="ramp"></div>
+        <div class="legend-scale"><span>0 słabo</span><span>50</span><span>świetnie 100</span></div>
+      </div>
+      <div class="legend-plan">
+        <span><i style="background:#3d3470"></i>Budynki</span>
+        <span><i style="background:#15302e;border:1px solid #2a4b47"></i>Parki i lasy</span>
+        <span><i style="background:var(--sodium);height:2px"></i>Ulice</span>
+        <span><i style="background:none;border:2px solid #ffd6e8;box-shadow:0 0 6px var(--pink)"></i>Granica osiedla</span>
+      </div>
+    </div>
+    <div class="credit" id="credit"></div>
+    <div class="sel-label" id="sel-label" aria-hidden="true"></div>
+    <div class="tip" id="tip" role="status" aria-live="polite"></div>
+  </main>
+
+  <section class="card" id="card" aria-live="polite"></section>
+</div>
+
+<script src="../shared/data.js"></script>
+<script>
+(function () {
+  "use strict";
+  var MM = window.MM, F = MM.featured, C = MM.city, N = MM.neighborhood;
+  var NS = "http://www.w3.org/2000/svg";
+  var state = { profile: MM.activeProfile || "senior", selected: "stare-bielany", view: "city", q: "", photo: 0 };
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var PROFILE_GEN = { student: "studenta", rodzina: "rodziny", senior: "seniora" };
+  var fmt = function (n, d) { return n == null ? "brak danych" : Number(n).toLocaleString("pl-PL", { maximumFractionDigits: d == null ? 0 : d }); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---- light ramp: dark violet → ember → sodium lamp → bulb ---- */
+  var STOPS = [[0, "#211c40"], [.3, "#302a58"], [.45, "#4a3a66"], [.58, "#8a5a62"], [.7, "#d08a58"], [.82, "#f5b35f"], [1, "#fff0d2"]];
+  function hex(h) { return [1, 3, 5].map(function (i) { return parseInt(h.substr(i, 2), 16); }); }
+  var STOPS_RGB = STOPS.map(function (s) { return [s[0], hex(s[1])]; });
+  function ramp(v) {
+    var t = Math.max(0, Math.min(1, (v || 0) / 100));
+    for (var i = 1; i < STOPS_RGB.length; i++) {
+      if (t <= STOPS_RGB[i][0]) {
+        var a = STOPS_RGB[i - 1], b = STOPS_RGB[i], k = (t - a[0]) / (b[0] - a[0]);
+        return "rgb(" + a[1].map(function (c, j) { return Math.round(c + (b[1][j] - c) * k); }).join(",") + ")";
+      }
+    }
+    return STOPS[STOPS.length - 1][1];
+  }
+  $("ramp").style.background = "linear-gradient(90deg," + STOPS.map(function (s) { return s[1] + " " + s[0] * 100 + "%"; }).join(",") + ")";
+  $("credit").textContent = MM.credits;
+
+  var byId = {};
+  C.osiedla.forEach(function (o) { byId[o.id] = o; });
+  var sb = byId["stare-bielany"];
+
+  /* ---------------- profile switch ---------------- */
+  var seg = $("seg");
+  Object.keys(MM.profiles).forEach(function (k) {
+    var b = document.createElement("button");
+    b.type = "button"; b.dataset.p = k; b.textContent = MM.profiles[k].title;
+    b.addEventListener("click", function () { setProfile(k); });
+    seg.appendChild(b);
+  });
+  function setProfile(k) {
+    state.profile = k;
+    seg.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.p === k)); });
+    $("prof-desc").textContent = MM.profiles[k].description;
+    $("rail-title").textContent = "Ranking dla " + PROFILE_GEN[k];
+    $("legend-title").textContent = "Dopasowanie do profilu " + MM.profiles[k].title;
+    paintCity(); renderRank(); renderCard(false);
+  }
+
+  /* ---------------- SVG helpers ---------------- */
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  var svg = $("svg");
+  var defs = el("defs", {}, svg);
+  defs.innerHTML =
+    '<filter id="tube-blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"></feGaussianBlur></filter>' +
+    '<filter id="bloom-f" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="11"></feGaussianBlur></filter>' +
+    '<filter id="shine-blur" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation=".8"></feGaussianBlur></filter>' +
+    '<filter id="road-glow" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="2.2"></feGaussianBlur></filter>' +
+    '<radialGradient id="sky" cx="50%" cy="45%" r="65%"><stop offset="0" stop-color="#1c1840"></stop><stop offset="1" stop-color="#14112d"></stop></radialGradient>';
+
+  /* ---------------- city map ---------------- */
+  var gCity = el("g", { id: "city" }, svg);
+  var gOs = el("g", {}, gCity);
+  var gBloom = el("g", { "class": "bloom", filter: "url(#bloom-f)", opacity: ".42", "aria-hidden": "true" }, gCity);
+  var river = el("g", { "aria-hidden": "true" }, gCity);
+  el("path", { d: C.river, "class": "river-edge" }, river);
+  el("path", { d: C.river, "class": "river-bed" }, river);
+  el("path", { d: C.river, "class": "river-shine" }, river);
+  var hov = el("path", { "class": "hov-tube", d: "" }, gCity);
+  var selGlow = el("path", { "class": "sel-glow", d: "" }, gCity);
+  var selTube = el("path", { "class": "sel-tube", d: "" }, gCity);
+  var label = el("g", { "class": "city-label", "aria-hidden": "true" }, gCity);
+
+  var paths = {}, blooms = {};
+  C.osiedla.forEach(function (o) {
+    var dist = Math.hypot(o.cx - sb.cx, o.cy - sb.cy);
+    var d = (dist / 900).toFixed(3) + "s";
+    var b = el("path", { d: o.d, fill: ramp(o.match[state.profile]), opacity: 0 }, gBloom); b.style.setProperty("--d", d); blooms[o.id] = b;
+    var p = el("path", { d: o.d, "class": "os", fill: ramp(o.match[state.profile]) }, gOs);
+    p.style.setProperty("--d", d);
+    p.addEventListener("mouseenter", function (e) { hover(o, e); });
+    p.addEventListener("mousemove", function (e) { moveTip(e); });
+    p.addEventListener("mouseleave", function () { hover(null); });
+    p.addEventListener("click", function () { select(o.id); });
+    paths[o.id] = p;
+  });
+
+  function paintCity() {
+    C.osiedla.forEach(function (o) {
+      var v = o.match[state.profile];
+      paths[o.id].setAttribute("fill", ramp(v));
+      blooms[o.id].setAttribute("fill", ramp(v));
+      blooms[o.id].setAttribute("opacity", v >= 58 ? Math.min(1, (v - 55) / 20) : 0);
+    });
+    placeLabel();
+  }
+
+  var selLab = $("sel-label");
+  function placeLabel() {
+    var o = byId[state.selected];
+    selGlow.setAttribute("d", o.d); selTube.setAttribute("d", o.d);
+    label.innerHTML = "";
+    if (state.view !== "city" || !svg.getScreenCTM()) { selLab.hidden = true; return; }
+    selLab.hidden = false;
+    selLab.innerHTML = "<b>" + esc(o.name) + '</b><span class="num">' + o.rank[state.profile] + ". miejsce, dopasowanie " + o.match[state.profile] + "</span>";
+    var ctm = svg.getScreenCTM(), r = mapEl.getBoundingClientRect(), pt = svg.createSVGPoint();
+    pt.x = o.cx; pt.y = o.cy; var s0 = pt.matrixTransform(ctm);
+    var sx = s0.x - r.left, sy = s0.y - r.top, w = selLab.offsetWidth, h = selLab.offsetHeight;
+    var west = sx < r.width / 2;
+    var lx = west ? sx - 36 - w : sx + 36, ly = sy - 64 - h / 2;
+    lx = Math.max(12, Math.min(r.width - w - 12, lx));
+    if (ly < 64) ly = sy + 48;
+    selLab.style.left = lx + "px"; selLab.style.top = ly + "px";
+    var ax = (lx + w / 2 < sx) ? lx + w : lx, ay = ly + h / 2;
+    if (Math.abs(ax - sx) < 30) { ax = lx + w / 2; ay = ly + h; }
+    pt.x = ax + r.left; pt.y = ay + r.top; var q = pt.matrixTransform(ctm.inverse());
+    el("line", { x1: o.cx, y1: o.cy, x2: q.x, y2: q.y }, label);
+    el("circle", { cx: o.cx, cy: o.cy, r: 3, fill: "#ffd6e8" }, label);
+  }
+  window.addEventListener("resize", function () { placeLabel(); });
+
+  /* ---------------- neighbourhood plan ---------------- */
+  var gPlan = el("g", { id: "plan", style: "display:none" }, svg);
+  var placeIndex = {};
+  F.highlights.forEach(function (h, i) { placeIndex[h.id] = h; });
+  var placesSorted = F.highlights.slice().sort(function (a, b) { return a.walkMin - b.walkMin; });
+  var placeNo = {}; placesSorted.forEach(function (h, i) { placeNo[h.id] = i + 1; });
+  var pins = {};
+  function buildPlan() {
+    el("rect", { x: -400, y: -400, width: N.w + 800, height: N.h + 800, "class": "pl-bg" }, gPlan);
+    var green = N.green.map(function (g) { return '<path d="' + g.d + '"></path>'; }).join("");
+    var water = N.water.map(function (d) { return '<path d="' + d + '"></path>'; }).join("");
+    var g1 = el("g", { "class": "pl-green" }, gPlan); g1.innerHTML = green;
+    var g2 = el("g", { "class": "pl-water" }, gPlan); g2.innerHTML = water;
+    var W = { motorway: 7, motorway_link: 3, primary: 6, secondary: 4.6, secondary_link: 2.4, tertiary: 3.4, tertiary_link: 2, unclassified: 2, residential: 1.6, living_street: 1.2 };
+    var OP = { motorway: .9, primary: .9, secondary: .85, tertiary: .7, residential: .42, living_street: .35, unclassified: .45 };
+    var glowRoads = N.roads.filter(function (r) { return /motorway|primary|secondary/.test(r.hw); });
+    var gg = el("g", { "class": "pl-road", stroke: "#f2a65a", opacity: ".5", filter: "url(#road-glow)", "aria-hidden": "true" }, gPlan);
+    gg.innerHTML = glowRoads.map(function (r) { return '<path d="' + r.d + '" stroke-width="' + (W[r.hw] || 2) * 2.2 + '"></path>'; }).join("");
+    var gr = el("g", { "class": "pl-road" }, gPlan);
+    gr.innerHTML = N.roads.map(function (r) {
+      var col = /motorway|primary|secondary/.test(r.hw) ? "#ffcf8f" : "#d9925a";
+      return '<path d="' + r.d + '" stroke="' + col + '" stroke-opacity="' + (OP[r.hw] || .45) + '" stroke-width="' + (W[r.hw] || 1.6) * .55 + '"></path>';
+    }).join("");
+    var gb = el("g", { "aria-hidden": "true" }, gPlan);
+    gb.innerHTML = N.buildings.map(function (b) {
+      var k = Math.min(1, (b.h || 6) / 36);
+      var l = Math.round(48 + k * 46);
+      return '<path d="' + b.d + '" fill="rgb(' + Math.round(l * .78) + "," + Math.round(l * .68) + "," + Math.round(l * 1.42) + ')"></path>';
+    }).join("");
+    el("path", { d: N.outline, "class": "pl-outline-glow" }, gPlan);
+    el("path", { d: N.outline, "class": "pl-outline" }, gPlan);
+    var c = el("g", { "class": "pl-center", "aria-hidden": "true" }, gPlan);
+    el("circle", { cx: N.center[0], cy: N.center[1], r: 9 }, c);
+    el("circle", { cx: N.center[0], cy: N.center[1], r: 3, fill: "#ffd6e8", stroke: "none" }, c);
+    N.places.forEach(function (p) {
+      var h = placeIndex[p.id]; if (!h) return;
+      var g = el("g", { "class": "pin", transform: "translate(" + p.xy[0] + " " + p.xy[1] + ")" }, gPlan);
+      el("circle", { r: 22, "class": "halo" }, g);
+      el("circle", { r: 12, "class": "dot" }, g);
+      var t = el("text", { y: 5 }, g); t.textContent = placeNo[p.id];
+      g.addEventListener("mouseenter", function (e) { pinTip(h, e); markPlace(h.id); });
+      g.addEventListener("mousemove", moveTip);
+      g.addEventListener("mouseleave", function () { hideTip(); markPlace(null); });
+      pins[p.id] = g;
+    });
+  }
+  buildPlan();
+
+  function setView(v) {
+    state.view = v;
+    $("map").dataset.view = v;
+    document.querySelectorAll(".toggle button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.view === v)); });
+    gCity.style.display = v === "city" ? "" : "none";
+    gPlan.style.display = v === "plan" ? "" : "none";
+    if (v === "city") svg.setAttribute("viewBox", "-30 -20 1060 1103");
+    else svg.setAttribute("viewBox", "60 60 880 960");
+    svg.setAttribute("preserveAspectRatio", v === "city" ? "xMidYMid meet" : "xMidYMid slice");
+    $("svg-desc").textContent = v === "city" ? "Mapa 143 osiedli Warszawy pokolorowana dopasowaniem do profilu" : "Plan okolicy Starych Bielan: budynki, ulice, zieleń i miejsca w pobliżu";
+    $("map-title").innerHTML = v === "city"
+      ? "<b>Warszawa nocą</b><span>Im jaśniej, tym lepiej pasuje</span>"
+      : "<b>Plan okolicy: Stare Bielany</b><span>Numery jak na liście w karcie</span>";
+    hideTip(); placeLabel();
+  }
+  document.querySelectorAll(".toggle button").forEach(function (b) { b.addEventListener("click", function () { setView(b.dataset.view); }); });
+
+  /* ---------------- tooltip ---------------- */
+  var tip = $("tip"), mapEl = $("map");
+  function moveTip(e) {
+    var r = mapEl.getBoundingClientRect();
+    var x = e.clientX - r.left + 16, y = e.clientY - r.top + 16;
+    if (x + 260 > r.width) x = e.clientX - r.left - tip.offsetWidth - 16;
+    if (y + 90 > r.height) y = e.clientY - r.top - tip.offsetHeight - 16;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+  function hideTip() { tip.classList.remove("on"); hov.setAttribute("d", ""); }
+  function hover(o, e) {
+    if (!o) return hideTip();
+    hov.setAttribute("d", o.id === state.selected ? "" : o.d);
+    tip.innerHTML = "<b>" + esc(o.name) + "</b><span>" + esc(o.district) + "</span>" +
+      '<div class="tip-val"><strong class="num">' + o.match[state.profile] + '</strong><span>dopasowania, ' + o.rank[state.profile] + ". miejsce ze 143</span></div>";
+    tip.classList.add("on"); moveTip(e);
+  }
+  function pinTip(h, e) {
+    tip.innerHTML = "<b>" + esc(h.name) + "</b><span>" + esc(h.description) + "</span>" +
+      '<div class="tip-val"><strong class="num">' + h.walkMin + ' min</strong><span>pieszo, ' + fmt(h.distanceM) + " m</span></div>";
+    tip.classList.add("on"); moveTip(e);
+  }
+  function markPlace(id) {
+    Object.keys(pins).forEach(function (k) { pins[k].classList.toggle("is-on", k === id); });
+    document.querySelectorAll(".place").forEach(function (b) { b.classList.toggle("is-on", b.dataset.id === id); });
+  }
+
+  /* ---------------- ranking rail ---------------- */
+  var norm = function (s) { return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ł/g, "l"); };
+  function renderRank() {
+    var p = state.profile, q = norm(state.q.trim());
+    var list = C.osiedla.slice().sort(function (a, b) { return a.rank[p] - b.rank[p]; })
+      .filter(function (o) { return !q || norm(o.name).indexOf(q) > -1 || norm(o.district).indexOf(q) > -1; });
+    $("rank").innerHTML = list.length ? list.map(function (o) {
+      return '<li><button type="button" class="rank-item" data-id="' + o.id + '"' + (o.id === state.selected ? ' aria-current="true"' : "") + ">" +
+        '<span class="rank-no num">' + o.rank[p] + "</span>" +
+        '<span class="rank-name">' + esc(o.name) + '<span class="rank-dist">' + esc(o.district) + "</span></span>" +
+        '<span class="rank-val num">' + o.match[p] + '<i style="background:' + ramp(o.match[p]) + '"></i></span></button></li>';
+    }).join("") : '<li class="rank-empty">Nie ma takiego osiedla. Spróbuj nazwy dzielnicy.</li>';
+  }
+  $("rank").addEventListener("click", function (e) { var b = e.target.closest(".rank-item"); if (b) select(b.dataset.id); });
+  $("rank").addEventListener("mouseover", function (e) { var b = e.target.closest(".rank-item"); hov.setAttribute("d", b && b.dataset.id !== state.selected ? byId[b.dataset.id].d : ""); });
+  $("rank").addEventListener("mouseleave", function () { hov.setAttribute("d", ""); });
+  $("q").addEventListener("input", function (e) { state.q = e.target.value; renderRank(); });
+
+  function select(id) {
+    if (state.selected === id) { $("card").scrollTop = 0; return; }
+    state.selected = id; state.photo = 0;
+    if (id !== "stare-bielany" && state.view === "plan") setView("city");
+    placeLabel(); renderRank(); renderCard(true); hideTip();
+    var cur = document.querySelector('.rank-item[aria-current="true"]');
+    if (cur) cur.scrollIntoView({ block: "nearest" });
+  }
+
+  /* ---------------- card ---------------- */
+  var ICON = {
+    zdrowie: '<path d="M6 2h4v4h4v4h-4v4H6v-4H2V6h4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"></path>',
+    kultura: '<path d="M2 3.5c2-.8 4-.8 6 .6 2-1.4 4-1.4 6-.6V13c-2-.8-4-.8-6 .6-2-1.4-4-1.4-6-.6z M8 4.1V13.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"></path>',
+    zielen: '<path d="M8 15V9 M8 9c-3.5 0-5-2.2-5-4.5C3 2.5 5.2 1 8 1s5 1.5 5 3.5C13 6.8 11.5 9 8 9z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>',
+    komunikacja: '<path d="M3 13V3h1.5L8 8.5 11.5 3H13v10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path>',
+    zakupy: '<path d="M3 5h10l-1 9H4z M5.5 5V4a2.5 2.5 0 0 1 5 0v1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"></path>',
+    edukacja: '<path d="M1 6l7-3.5L15 6 8 9.5z M4 7.5V11c2.5 1.8 5.5 1.8 8 0V7.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"></path>'
+  };
+  function icon(k) { return '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">' + (ICON[k] || "") + "</svg>"; }
+
+  function catRows(stats, keys, prio) {
+    return keys.map(function (k) {
+      var v = stats[k];
+      return '<div class="cat"><span class="cat-name">' + esc(MM.categories[k]) + "</span>" +
+        '<span class="cat-val num">' + (v == null ? "–" : v) + "</span>" +
+        '<div class="track" role="img" aria-label="' + esc(MM.categories[k]) + ": " + v + ' na 100"><i style="width:' + (v || 0) + "%;background:" + ramp(v) + '"></i></div></div>';
+    }).join("");
+  }
+  function catsBlock(stats) {
+    var keys = Object.keys(MM.categories);
+    var prio = state.profile === "senior" ? MM.seniorPriorities : [];
+    var rest = keys.filter(function (k) { return prio.indexOf(k) < 0; }).sort(function (a, b) { return (stats[b] || 0) - (stats[a] || 0); });
+    var html = "";
+    if (prio.length) html += '<div class="cats-prio"><p class="cats-title"><span class="tube" aria-hidden="true"></span>Najważniejsze dla seniora</p><div class="cats">' + catRows(stats, prio) + "</div></div>";
+    html += (prio.length ? '<p class="cats-title">Pozostałe kategorie</p>' : "") + '<div class="cats cats-rest">' + catRows(stats, rest) + "</div>";
+    return html;
+  }
+
+  function headBlock(o, isFeatured) {
+    var p = state.profile;
+    return '<div class="head"><div><p class="head-district">Dzielnica ' + esc(o.district) + "</p><h1>" + esc(o.name) + "</h1>" +
+      '<p class="head-rank"><b class="num">' + o.rank[p] + '. miejsce</b> ze 143 dla profilu ' + esc(MM.profiles[p].title) + "</p></div>" +
+      '<div class="score"><div class="score-num num" aria-hidden="true">' + o.match[p] + "</div>" +
+      '<span class="score-cap">dopasowanie na 100</span><span class="sr">Dopasowanie ' + o.match[p] + " na 100</span></div></div>";
+  }
+
+  function rangeChart() {
+    var r = F.prices.rcn, lo = 13000, hi = 19000, W = 432, x0 = 100, x1 = W - 8;
+    var X = function (v) { return x0 + (v - lo) / (hi - lo) * (x1 - x0); };
+    var row = function (y, d, name, col, medCol) {
+      return '<text class="lab" x="0" y="' + (y + 4) + '">' + name + "</text>" +
+        '<line x1="' + X(lo) + '" x2="' + X(hi) + '" y1="' + y + '" y2="' + y + '" stroke="#2a2450" stroke-width="2"></line>' +
+        '<rect x="' + X(d.p25) + '" y="' + (y - 7) + '" width="' + (X(d.p75) - X(d.p25)) + '" height="14" rx="3" fill="' + col + '"></rect>' +
+        '<rect x="' + (X(d.med) - 1.5) + '" y="' + (y - 11) + '" width="3" height="22" rx="1.5" fill="' + medCol + '"></rect>';
+    };
+    var ticks = [13000, 15000, 17000, 19000].map(function (t) {
+      return '<text x="' + X(t) + '" y="96" text-anchor="middle">' + fmt(t / 1000) + " tys.</text>" +
+        '<line x1="' + X(t) + '" x2="' + X(t) + '" y1="12" y2="80" stroke="#2a2450" stroke-dasharray="2 3"></line>';
+    }).join("");
+    return '<svg viewBox="0 0 ' + W + ' 100" role="img" aria-label="Rozstęp cen: Stare Bielany od ' + fmt(r.msi.p25) + " do " + fmt(r.msi.p75) + " zł/m², Warszawa od " + fmt(r.city.p25) + " do " + fmt(r.city.p75) + ' zł/m²">' +
+      ticks + row(30, r.msi, "Stare Bielany", "rgba(242,166,90,.45)", "#ffe7bf") + row(64, r.city, "Warszawa", "rgba(178,171,208,.28)", "#b2abd0") + "</svg>";
+  }
+
+  function trafficChart() {
+    var t = F.traffic, W = 432, H = 96, top = 8, base = 72, x0 = 28, bw = (W - x0) / 24;
+    var Y = function (v) { return base - v / 100 * (base - top); };
+    var bars = t.map(function (v, h) {
+      var hgt = Math.max(1.5, base - Y(v));
+      return '<rect x="' + (x0 + h * bw + 2).toFixed(1) + '" y="' + (base - hgt).toFixed(1) + '" width="' + (bw - 4).toFixed(1) + '" height="' + hgt.toFixed(1) + '" rx="1.5" fill="' + (v ? "#f2a65a" : "#3b3466") + '"><title>' + h + ":00 — " + v + " na 100</title></rect>";
+    }).join("");
+    var grid = [0, 50, 100].map(function (v) { return '<line x1="' + x0 + '" x2="' + W + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="#2a2450"' + (v ? ' stroke-dasharray="2 3"' : "") + '></line><text x="' + (x0 - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + v + "</text>"; }).join("");
+    var hours = [0, 6, 12, 18, 23].map(function (h) { return '<text x="' + (h === 23 ? W : x0 + h * bw + bw / 2) + '" y="' + (H - 4) + '" text-anchor="' + (h === 23 ? "end" : "middle") + '">' + h + ":00</text>"; }).join("");
+    return '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Spowolnienie komunikacji w ciągu doby, maksymalnie ' + Math.max.apply(null, t) + ' na 100">' + grid + bars + hours + "</svg>";
+  }
+
+  function timelineHtml() {
+    var items = F.timeline.slice().sort(function (a, b) { return (a.year - b.year) || ((a.yearUncertain ? 1 : 0) - (b.yearUncertain ? 1 : 0)); });
+    return '<ol class="tl">' + items.map(function (t) {
+      var noDate = t.yearPlacement === "bez terminu";
+      var y = noDate ? "—" : t.year;
+      var sub = noDate ? "bez terminu" : (t.yearUncertain ? "termin niepewny" : "");
+      var live = t.status === "w budowie";
+      return '<li class="' + (live ? "live" : "") + '"><div class="tl-year num">' + y + (sub ? "<small>" + sub + "</small>" : "") + '</div><span class="tl-dot" aria-hidden="true"></span>' +
+        '<div><span class="st">' + (live ? "W budowie" : "Planowana") + "</span><h3>" + esc(t.title) + "</h3><p>" + esc(t.description) + "</p>" +
+        '<p class="note">' + esc(t.yearNote) + "</p></div></li>";
+    }).join("") + "</ol>";
+  }
+
+  function featuredCard() {
+    var p = state.profile, pr = F.prices, img = F.heroImages[state.photo];
+    var diff = (pr.buyPerM2 / pr.cityBuyPerM2 - 1) * 100;
+    var maxCm = 60;
+    var tmax = Math.max.apply(null, F.traffic), tpeak = F.traffic.indexOf(tmax);
+    var o = Object.assign({}, sb, { match: F.match, rank: F.rank });
+    return '<div class="gallery"><img id="gimg" src="' + img.src + '" alt="' + esc(img.alt) + '"></div>' +
+      '<div class="g-cap"><div class="g-credit"><em>' + esc(img.alt) + "</em>, " + esc(img.credit) + "</div>" +
+      '<div class="g-nav"><button type="button" data-g="-1" aria-label="Poprzednie zdjęcie"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M7.5 2 3.5 6l4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>' +
+      '<span class="g-count num">' + (state.photo + 1) + "/" + F.heroImages.length + "</span>" +
+      '<button type="button" data-g="1" aria-label="Następne zdjęcie"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></button></div></div>' +
+      headBlock(o, true) +
+      '<p class="lede">' + esc(sb.blurb[p]) + '<span class="lede-note">' + esc(F.tagline) + "</span></p>" +
+      '<nav class="subnav" aria-label="Sekcje karty">' +
+      ["Kategorie|kat", "W okolicy|okolica", "Dojazdy|dojazdy", "Ceny|ceny", "Zmiany|zmiany", "Dane|dane"].map(function (s, i) { s = s.split("|"); return '<a href="#' + s[1] + '"' + (i === 0 ? ' class="on"' : "") + ">" + s[0] + "</a>"; }).join("") + "</nav>" +
+
+      '<section class="sec" id="kat"><h2>Jak wypada w 10 kategoriach</h2><p class="sec-sub">Wynik 0–100 na tle całej Warszawy.</p>' + catsBlock(F.stats) + "</section>" +
+
+      '<section class="sec" id="okolica"><h2>W okolicy, pieszo</h2><p class="sec-sub">Czas dojścia ze środka osiedla.</p><ul class="places">' +
+      placesSorted.map(function (h) {
+        return '<li><button type="button" class="place" data-id="' + h.id + '"><span class="place-no num" aria-hidden="true">' + placeNo[h.id] + "</span>" +
+          "<span><b>" + esc(h.name) + '</b><span class="d">' + esc(h.description) + "</span></span>" +
+          '<span class="place-min num">' + h.walkMin + " min<small>" + fmt(h.distanceM) + " m</small></span></button></li>";
+      }).join("") + '</ul><div class="sec-actions"><button type="button" class="btn" id="to-plan">' +
+      '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5 5.5 2l5 2 4-1.5v10l-4 1.5-5-2-4 1.5z M5.5 2v10 M10.5 4v10" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path></svg>' +
+      (state.view === "plan" ? "Wróć do mapy Warszawy" : "Pokaż plan okolicy") + "</button></div></section>" +
+
+      '<section class="sec" id="dojazdy"><h2>Dojazdy rano</h2><p class="sec-sub">Przyjazd 7:30–9:00, mediana z 28 kwadratów osiedla.</p><div class="commute">' +
+      F.commute.map(function (c) {
+        var line = function (lab, v) { return '<div class="cm-line"><span>' + lab + '</span><div class="track"><i style="width:' + Math.min(100, v / maxCm * 100) + '%;background:' + (lab === "Rower" ? "#8c84b8" : "#f2a65a") + '"></i></div><span class="v num">' + v + " min</span></div>"; };
+        return '<div class="cm-row"><b>' + esc(c.label) + '</b><div class="cm-lines">' + line("Komunikacja", c.minutes.komunikacja) + line("Rower", c.minutes.rower) + "</div></div>";
+      }).join("") + '<div class="cm-scale" aria-hidden="true"><span></span><div><span>0</span><span>30</span><span>60 min</span></div><span></span></div></div></section>' +
+
+      '<section class="sec" id="ceny"><h2>Ceny mieszkań</h2><p class="sec-sub">' + esc(pr.basisLabel) + ".</p>" +
+      '<div class="price-top"><div><div class="k">Stare Bielany, mediana</div><div class="v num">' + fmt(pr.buyPerM2) + "<small>zł/m²</small></div>" +
+      '<div class="d num">o ' + fmt(diff, 1) + "% drożej niż Warszawa</div></div>" +
+      '<div class="city"><div class="k">Warszawa, mediana</div><div class="v num">' + fmt(pr.cityBuyPerM2) + "<small>zł/m²</small></div>" +
+      '<div class="k num" style="margin-top:2px">' + fmt(pr.rcn.city.n) + " transakcji</div></div></div>" +
+      '<div class="range-chart">' + rangeChart() + "</div>" +
+      '<p class="sec-foot">Prostokąt to połowa transakcji ze środka (od 1. do 3. kwartyla), kreska to mediana. Stare Bielany: ' + fmt(pr.rcn.msi.n) + " transakcji. " + esc(pr.rentNote) + "</p>" +
+      '<div class="sec-actions">' + F.portals.map(function (pt) { return '<a class="btn" href="' + pt.buyUrl + '" target="_blank" rel="noopener">Oferty w ' + esc(pt.name) + "</a>"; }).join("") + "</div></section>" +
+
+      '<section class="sec" id="ruch"><h2>Ruch w ciągu doby</h2><p class="sec-sub">' + esc(F.trafficRoad) + ". Skala 0–100.</p>" +
+      '<div class="traffic">' + trafficChart() + "</div>" +
+      '<p class="sec-foot num">Najwięcej o ' + tpeak + ":00 i to tylko " + tmax + " na 100, czyli płynnie przez całą dobę.</p></section>" +
+
+      '<section class="sec" id="zmiany"><h2>Co się tu zmieni</h2><p class="sec-sub">Inwestycje i projekty w okolicy, ' + Math.min.apply(null, F.timeline.map(function (t) { return t.year; })) + "–" + Math.max.apply(null, F.timeline.map(function (t) { return t.year; })) + ".</p>" + timelineHtml() + "</section>" +
+
+      '<div class="datanote" id="dane"><p><b>Skąd są dane.</b> ' + esc(MM.credits) + ".</p><p>" + esc(pr.sourceNote) + "</p><p>" + esc(F.commute[0].source) + "</p></div>";
+  }
+
+  function compactCard(o) {
+    var p = state.profile;
+    return headBlock(o, false) +
+      '<p class="lede">' + esc(o.blurb[p]) + "</p>" +
+      '<div class="compact-note"><span>Pełną kartę z cenami, dojazdami i planem okolicy mamy na razie dla Starych Bielan.</span>' +
+      '<button type="button" class="btn" id="back">Otwórz Stare Bielany</button></div>' +
+      '<section class="sec" style="border-top:1px solid var(--line)"><h2>Jak wypada w 10 kategoriach</h2><p class="sec-sub">Wynik 0–100 na tle całej Warszawy. Powierzchnia ' + fmt(o.areaKm2, 2) + " km².</p>" + catsBlock(o.cats) + "</section>" +
+      '<div class="datanote"><p><b>Skąd są dane.</b> ' + esc(MM.credits) + ".</p></div>";
+  }
+
+  var card = $("card");
+  function renderCard(resetScroll) {
+    var featured = state.selected === "stare-bielany";
+    card.className = "card" + (featured ? "" : " compact");
+    var st = card.scrollTop;
+    card.innerHTML = featured ? featuredCard() : compactCard(byId[state.selected]);
+    card.setAttribute("aria-label", "Karta osiedla " + byId[state.selected].name);
+    card.scrollTop = resetScroll ? 0 : st;
+    wireCard();
+  }
+  function wireCard() {
+    card.querySelectorAll("[data-g]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var n = F.heroImages.length;
+        state.photo = (state.photo + Number(b.dataset.g) + n) % n;
+        var img = F.heroImages[state.photo];
+        $("gimg").src = img.src; $("gimg").alt = img.alt;
+        card.querySelector(".g-credit").innerHTML = "<em>" + esc(img.alt) + "</em>, " + esc(img.credit);
+        card.querySelector(".g-count").textContent = (state.photo + 1) + "/" + n;
+      });
+    });
+    var tp = $("to-plan");
+    if (tp) tp.addEventListener("click", function () { setView(state.view === "plan" ? "city" : "plan"); renderCard(false); });
+    var bk = $("back");
+    if (bk) bk.addEventListener("click", function () { select("stare-bielany"); });
+    card.querySelectorAll(".place").forEach(function (b) {
+      b.addEventListener("mouseenter", function () { markPlace(b.dataset.id); });
+      b.addEventListener("mouseleave", function () { markPlace(null); });
+      b.addEventListener("focus", function () { markPlace(b.dataset.id); });
+      b.addEventListener("blur", function () { markPlace(null); });
+      b.addEventListener("click", function () { if (state.view !== "plan") { setView("plan"); var t = $("to-plan"); if (t) t.lastChild.textContent = "Wróć do mapy Warszawy"; } markPlace(b.dataset.id); });
+    });
+  }
+  card.addEventListener("click", function (e) {
+    var a = e.target.closest(".subnav a"); if (!a) return;
+    var t = card.querySelector(a.getAttribute("href")); if (!t) return;
+    e.preventDefault();
+    card.scrollTo({ top: t.offsetTop - card.querySelector(".subnav").offsetHeight + 1, behavior: reduce ? "auto" : "smooth" });
+  });
+  // scroll-spy for the in-card section nav
+  card.addEventListener("scroll", function () {
+    var links = card.querySelectorAll(".subnav a"); if (!links.length) return;
+    var nav = card.querySelector(".subnav"), y = nav.getBoundingClientRect().bottom + 24, on = links[0];
+    links.forEach(function (a) { var s = card.querySelector(a.getAttribute("href")); if (s && s.getBoundingClientRect().top <= y) on = a; });
+    links.forEach(function (a) { a.classList.toggle("on", a === on); });
+  }, { passive: true });
+
+  /* ---------------- init ---------------- */
+  var hs = new URLSearchParams(location.hash.slice(1));
+  if (hs.get("p") && MM.profiles[hs.get("p")]) state.profile = hs.get("p");
+  setView(hs.get("view") === "plan" ? "plan" : "city");
+  setProfile(state.profile);
+  if (hs.get("os") && byId[hs.get("os")]) select(hs.get("os"));
+  if (hs.get("s")) card.scrollTop = Number(hs.get("s"));
+  if (hs.get("y")) setTimeout(function () { window.scrollTo(0, Number(hs.get("y"))); }, 50);
+  if (hs.get("view") === "plan") renderCard(false);
+  requestAnimationFrame(function () { $("app").classList.add("ready"); });
+  if (!reduce) setTimeout(function () { $("app").classList.remove("ignite"); }, 3200);
+})();
+</script>
+</body>
+</html>

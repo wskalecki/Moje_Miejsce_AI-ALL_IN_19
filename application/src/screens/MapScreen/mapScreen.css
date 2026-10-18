@@ -1,5 +1,5 @@
 .map-screen {
-  --smap-panel-width: 416px;
+  --smap-panel-width: var(--chrome-col, 416px);
   position: fixed;
   inset: 0;
   z-index: var(--z-map);

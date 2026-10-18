@@ -1,5 +1,5 @@
 /**
- * Minimal top bar: Okolica brand + profile switcher.
+ * Minimal top bar: Moje Miejsce brand + profile switcher.
  */
 import { APP_NAME } from '../../app/config'
 import { navigate } from '../../app/router'
@@ -17,7 +17,7 @@ export interface SentenceBarProps {
 export function SentenceBar({ hidden = false, profile, onProfileChange }: SentenceBarProps) {
   return (
     <div className="sbar" data-hidden={hidden || undefined} aria-hidden={hidden || undefined} inert={hidden || undefined}>
-      <nav className="sbar__bar sbar__bar--minimal" aria-label="Okolica">
+      <nav className="sbar__bar sbar__bar--minimal" aria-label={APP_NAME}>
         <button
           type="button"
           className="sbar__logo"

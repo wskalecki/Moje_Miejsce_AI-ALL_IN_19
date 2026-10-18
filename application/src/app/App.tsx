@@ -8,6 +8,7 @@ import { AnimatePresence, LazyMotion } from 'motion/react'
 import * as m from 'motion/react-m'
 import { lazy, Suspense, useEffect } from 'react'
 import { isHorizon, isProfileId } from './dictionary'
+import { forgetSession } from './freshStart'
 import { navigate, useRouter } from './router'
 import { AppStoreProvider } from './store'
 import { useAppStore } from './useAppStore'
@@ -41,6 +42,7 @@ function Shell() {
       const t = e.target instanceof Element ? e.target : null
       if (t?.closest('input, textarea, [contenteditable="true"]')) return
       e.preventDefault()
+      forgetSession()
       reset()
       navigate('/', { direction: -1 })
     }

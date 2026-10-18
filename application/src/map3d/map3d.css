@@ -1,28 +1,17 @@
-/* Osiedle 3D view: building legend (top left), traffic hour control (bottom, left of the panel), building card. */
+/* Osiedle 3D view chrome: the "Warstwy mapy" box (building colours + traffic) and the building card.
+   Same grid and box language as the map legend (src/design/chrome.css): it sits top-right, where the
+   map controls are on /mapa, clear of the place card in the left column. */
 
 .m3d {
-  /* free map area = the screen minus the osiedle panel (mirrors .op--overlay widths) */
-  --m3d-panel: 440px;
-  --m3d-gap: 16px;
   position: absolute;
-  top: var(--m3d-gap);
-  bottom: var(--m3d-gap);
-  left: var(--m3d-gap);
-  right: calc(var(--m3d-panel) + var(--m3d-gap) * 2);
+  top: var(--chrome-edge, 24px);
+  bottom: var(--chrome-edge, 24px);
+  left: calc(var(--chrome-edge, 24px) + var(--chrome-col, 416px) + var(--chrome-gap, 16px));
+  right: var(--chrome-edge, 24px);
   pointer-events: none;
   font-family: var(--font-ui);
   color: var(--color-ink);
   animation: m3d-in 600ms var(--ease-emphasized) both;
-}
-@media (min-width: 1280px) {
-  .m3d {
-    --m3d-panel: 520px;
-  }
-}
-@media (min-width: 1600px) {
-  .m3d {
-    --m3d-panel: 560px;
-  }
 }
 
 @keyframes m3d-in {
@@ -35,15 +24,6 @@
 .m3d-card {
   position: absolute;
   pointer-events: auto;
-  /* nearly opaque: it floats over coloured 3D buildings and pins */
-  background: rgba(255, 255, 255, 0.97);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  box-shadow:
-    inset 0 0 0 1px var(--glass-hairline),
-    var(--shadow-md);
-  border-radius: 16px;
 }
 
 /* ---------- building legend ---------- */
@@ -51,22 +31,30 @@
 /* ---------- advanced (building colours + traffic) ---------- */
 
 .m3d-advanced {
-  left: 0;
-  bottom: 0;
-  width: min(100%, 300px);
+  top: 0;
+  right: 0;
+  width: min(100%, 296px);
+  max-height: 100%;
   padding: 0;
-  overflow: hidden;
+  overflow: hidden auto;
+  scrollbar-width: thin;
 }
 .m3d-advanced__sum {
   display: flex;
   align-items: center;
-  min-height: 40px;
-  padding: 10px 14px;
+  min-height: 44px;
+  padding: 12px 16px;
   font-size: 13px;
+  line-height: 18px;
   font-weight: 650;
   cursor: pointer;
   list-style: none;
   user-select: none;
+  border-radius: inherit;
+}
+.m3d-advanced__sum:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 .m3d-advanced__sum::-webkit-details-marker {
   display: none;
@@ -87,23 +75,65 @@
 .m3d-advanced__body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 0 12px 12px;
+  gap: 8px;
+  padding: 10px 10px 10px;
   border-top: 1px solid var(--glass-hairline);
 }
+/* option rows: the filter-panel row (white veil, hairline ring) with the panel's switch */
 .m3d-advanced__opt {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 12.5px;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: var(--chrome-row-radius, 12px);
+  background: var(--chrome-row-bg);
+  box-shadow: var(--chrome-row-ring);
+  font-size: 13px;
   line-height: 17px;
-  color: var(--color-ink-2);
+  font-weight: 500;
+  color: var(--color-ink);
   cursor: pointer;
 }
+.m3d-advanced__opt span {
+  flex: 1;
+  min-width: 0;
+}
 .m3d-advanced__opt input {
+  order: 2;
   flex: none;
-  margin-top: 3px;
-  accent-color: var(--accent);
+  position: relative;
+  width: 30px;
+  height: 18px;
+  margin: 0;
+  border-radius: var(--r-pill);
+  background: rgba(22, 22, 29, 0.18);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: background var(--d-base) var(--ease-standard);
+}
+.m3d-advanced__opt input::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(22, 22, 29, 0.25);
+  transition: transform var(--d-base) var(--ease-emphasized);
+}
+.m3d-advanced__opt input:checked {
+  background: var(--accent);
+}
+.m3d-advanced__opt input:checked::before {
+  transform: translateX(12px);
+}
+.m3d-advanced__opt input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .m3d-legend {
@@ -160,9 +190,9 @@
   position: static;
   width: 100%;
   max-height: min(36vh, 280px);
-  background: rgba(22, 22, 29, 0.03);
-  border-radius: 12px;
-  border: 1px solid var(--glass-hairline);
+  background: var(--chrome-row-bg);
+  border-radius: var(--chrome-row-radius, 12px);
+  box-shadow: var(--chrome-row-ring);
 }
 .m3d-legend--nested .m3d-legend__head {
   border-radius: 12px;
@@ -234,10 +264,10 @@
 .m3d-traffic--nested {
   position: static;
   width: 100%;
-  padding: 10px 10px 6px;
-  background: rgba(22, 22, 29, 0.03);
-  border-radius: 12px;
-  border: 1px solid var(--glass-hairline);
+  padding: 10px 10px 8px;
+  background: var(--chrome-row-bg);
+  border-radius: var(--chrome-row-radius, 12px);
+  box-shadow: var(--chrome-row-ring);
 }
 .m3d-traffic__row {
   display: flex;
@@ -248,11 +278,11 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border: 0;
   border-radius: 50%;
-  background: var(--color-ink);
+  background: var(--accent);
   color: #fff;
   cursor: pointer;
   transition: transform var(--d-fast) var(--ease-standard), background var(--d-base) var(--ease-standard);
@@ -279,8 +309,8 @@
 }
 .m3d-traffic__hour {
   font-family: var(--font-display);
-  font-size: 20px;
-  line-height: 24px;
+  font-size: 18px;
+  line-height: 22px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
@@ -295,7 +325,7 @@
   display: block;
   width: 100%;
   margin: 0;
-  accent-color: var(--color-ink);
+  accent-color: var(--accent);
   cursor: pointer;
 }
 .m3d-traffic__slider input:focus-visible {
@@ -468,63 +498,65 @@
   color: var(--color-ink);
 }
 
-/* ---------- phones: the map is the top 35 % above the sheet ---------- */
+/* ---------- phones and tablets: the map strip above the place sheet (35vh) ---------- */
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .m3d {
-    --m3d-gap: 8px;
-    top: 8px;
-    left: 8px;
-    right: 8px;
-    bottom: calc(65vh + 8px);
+    top: auto;
+    left: var(--chrome-edge, 12px);
+    right: var(--chrome-edge, 12px);
+    bottom: calc(65vh + var(--chrome-gap, 8px));
+    height: calc(35vh - 76px);
   }
-  .m3d-legend {
-    width: auto;
-    max-width: 200px;
-    max-height: calc(100% - 4px);
-    z-index: 1;
+  .m3d-advanced {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: min(100%, 296px);
+    border-radius: 16px;
   }
-  .m3d-legend__head {
-    min-height: 34px;
-    padding: 6px 8px 6px 12px;
-  }
-  .m3d-traffic {
-    width: auto;
-    right: 0;
-    padding: 6px 10px 6px 6px;
-    border-radius: 14px;
-  }
-  .m3d-traffic__play {
-    width: 30px;
-    height: 30px;
-  }
-  .m3d-traffic__time {
-    min-width: 0;
+  .m3d-advanced__sum {
+    min-height: 40px;
+    padding: 10px 14px;
   }
   .m3d-traffic__label,
-  .m3d-traffic__legend,
   .m3d-traffic__caption,
   .m3d-switch__text {
     display: none;
   }
-  .m3d-traffic__hour {
-    font-size: 16px;
-    line-height: 20px;
-  }
-  .m3d-traffic__slider {
-    padding-bottom: 0;
-  }
-  .m3d-traffic__ticks {
-    display: none;
+  .m3d-traffic__time {
+    min-width: 0;
   }
   .m3d-traffic__caption-short {
     display: block;
-    margin: 2px 0 0 4px;
-    font-size: 10px;
-    line-height: 12px;
+    margin: 6px 0 0;
+    font-size: 10.5px;
+    line-height: 13px;
     color: var(--color-ink-3);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
+}
+
+/* ---------- traffic inside the narrow layers box: slider on its own line ---------- */
+
+.m3d-traffic--nested .m3d-traffic__row {
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+.m3d-traffic--nested .m3d-traffic__slider {
+  flex-basis: 100%;
+}
+.m3d-traffic--nested .m3d-traffic__ramp {
+  flex-basis: 100%;
+  min-width: 0;
+}
+.m3d-traffic--nested .m3d-traffic__ramp-labels {
+  font-size: 11px;
+  white-space: normal;
+}
+.m3d-traffic--nested .m3d-traffic__caption > span {
+  white-space: normal;
 }

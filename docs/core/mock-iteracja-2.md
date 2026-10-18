@@ -69,3 +69,37 @@ UI pokazuje prawdziwe miejsce w rankingu dla aktualnych wag (bez sztucznego „#
 
 - **UI zawsze w pełni poprawny i profesjonalny** — na każdym commicie bez niedoróbek (nakładanie, ucięty tekst, nierówne odstępy, błędy w konsoli). Finalny dobór designu na końcu to dodatkowe dopasowanie, nie naprawa.
 - **Każda kategoria ma własny kolor** (`CATEGORY_COLORS` w `src/app/dictionary.ts`) — używany spójnie w filtrach, heatmapie pojedynczej kategorii, punktach POI, legendzie, budynkach 3D i panelu osiedla.
+
+## Decyzja: top 3 dla seniora (18.10.2026)
+
+Zastępuje „nowe wyróżnione osiedla” powyżej. Liczy się **jeden profil**: mock zakłada, że w ankiecie wybrano
+**seniora** (`DEFAULT_PROFILE` w `src/app/dictionary.ts` — świeża sesja startuje z seniorem, ankieta pokazuje go
+jako zaznaczonego, można go zmienić). Wyróżnione (z pełną treścią: zdjęcia, liczby, 3D, kwartały) są 3 najlepsze
+osiedla dla seniora w **tym samym rankingu, którego używa mapa** (`src/app/ranking.ts`, domyślne wagi seniora,
+sekcja „Liczy się dla mnie”: cisza, zieleń, kultura, gastronomia):
+
+| # | Osiedle (MSI) | Dopasowanie | Uwagi |
+|---|---------------|-------------|-------|
+| 1 | Groszówka (`groszowka`, Wesoła) | 84% | cisza 99, zieleń 100; słabo: zdrowie 17, komunikacja 3 (59 min do centrum) |
+| 2 | Wilanów Królewski (`wilanow-krolewski`) | 84% | cisza 87, zieleń 86, kultura 79, gastronomia 77 |
+| 3 | Stare Bielany (`stare-bielany`) | 75% | kultura 100, zdrowie 84, metro M1 |
+
+Muranów i Natolin (wcześniej student / rodzina) wypadły z listy razem ze zdjęciami i warstwami 3D; ich opisane
+źródłami pliki `data/featured/*.json` zostają na wypadek powrotu. `src/app/ranking.test.ts` pilnuje, że lista
+wyróżnionych = top 3 seniora.
+
+Na mapie wszystkie osiedla wyglądają tak samo (jedna skala wypełnienia wg dopasowania, bez kolorów profili
+i poświaty). Lekki znacznik „top 3” (pigułka z #1/#2/#3, nazwą i %, cienki kontur) liczy się na żywo z aktualnych
+wag — po zmianie suwaków przechodzi na nowe najlepsze osiedla. Otwiera się tylko osiedle z pełną treścią; inne
+z top 3 pokazują komunikat „Pełny profil tego osiedla wkrótce”.
+
+**Na prezentacji klikamy Wilanów Królewski (#2, 84% — remis z #1 po zaokrągleniu).** Powody:
+- najmocniejsze zdjęcia (pałac z lotu ptaka, ogrody, Morysin, kościół św. Anny) i najładniejszy widok 3D
+  (pałac z oficynami, park 22 ha i rezerwat tuż przy domach);
+- pełna historia seniora z danych: UTW i biblioteka przy Kolegiackiej 3, miejska przychodnia Wiertnicza 81,
+  park 190 m od domu, dużo kultury i gastronomii;
+- rzetelne ceny (RCN n = 30, z kwartylami) i oś czasu z prawdziwymi inwestycjami (dworzec Kolei Wilanowskiej,
+  konserwacja pałacu, M4 do Wilanowa).
+
+Groszówka (#1) jest uczciwie pierwsza, ale jej przewaga to tylko cisza i las: 0 przychodni w 1 km, 3 transakcje
+w RCN, niska zabudowa w lesie (słabe 3D). Stare Bielany mają najbogatsze dane, ale stoją na #3.

@@ -1,6 +1,6 @@
 {
  "metadata": {
-  "generated": "2026-10-18",
+  "generated": "2026-10-17",
   "script": "data/scripts/build_kwartal_metrics.py",
   "doc": "docs/data/raport-danych.md (Kwartały — status danych), docs/data/zrodla-danych.md §3a",
   "rcn": {
@@ -50,7 +50,7 @@
    "clinic": "przychodnia (OSM)",
    "pharmacy": "apteka (OSM)",
    "supermarket": "supermarket (OSM)",
-   "park": "park >= 1 ha, odległość do krawędzi (OSM, a73a4733e23d1ea2.json)",
+   "park": "park >= 1 ha, odległość do krawędzi (OSM, e39479af49a915ad.json)",
    "forest": "las >= 1 ha, odległość do krawędzi (OSM)",
    "stop": "słupek ZTM (dane.um.warszawa.pl)",
    "tram": "słupek z tramwajem (ZTM GTFS)",
@@ -183,7 +183,7 @@
     "p25": 12380,
     "p75": 15844
    },
-   "kb": 62
+   "kb": 61
   },
   "brzeziny": {
    "kwartaly": 310,
@@ -568,7 +568,7 @@
     "p25": 14722,
     "p75": 18032
    },
-   "kb": 70
+   "kb": 69
   },
   "ksawerow": {
    "kwartaly": 47,
@@ -700,7 +700,7 @@
     "p25": 14490,
     "p75": 17610
    },
-   "kb": 109
+   "kb": 108
   },
   "mlynow": {
    "kwartaly": 56,
@@ -777,7 +777,7 @@
     "p25": 18658,
     "p75": 22357
    },
-   "kb": 24
+   "kb": 25
   },
   "nowe-wlochy": {
    "kwartaly": 187,
@@ -975,7 +975,7 @@
     "p25": 11907,
     "p75": 15326
    },
-   "kb": 129
+   "kb": 128
   },
   "radiowo": {
    "kwartaly": 88,
@@ -986,7 +986,7 @@
     "p25": 10992,
     "p75": 13542
    },
-   "kb": 74
+   "kb": 73
   },
   "radosc": {
    "kwartaly": 467,
@@ -1437,7 +1437,7 @@
     "p25": 15273,
     "p75": 18208
    },
-   "kb": 117
+   "kb": 118
   },
   "ursynow-polnocny": {
    "kwartaly": 94,
@@ -1602,7 +1602,7 @@
     "p25": 12390,
     "p75": 15172
    },
-   "kb": 432
+   "kb": 431
   },
   "zaluski": {
    "kwartaly": 21,

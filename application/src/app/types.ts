@@ -24,10 +24,10 @@ export type CategoryId = CategoryKey
 
 export type Horizon = 'chwila' | 'stale'
 
-/** Slugs of the featured osiedla (src/mock/osiedla.ts). */
-export type FeaturedSlug = 'muranow' | 'natolin' | 'stare-bielany'
+/** Slugs of the featured osiedla — the senior top 3 with full content (src/mock/osiedla.ts). */
+export type FeaturedSlug = 'groszowka' | 'wilanow-krolewski' | 'stare-bielany'
 
-/** Persisted app state (sessionStorage `okolica.mock.v2`). */
+/** Persisted app state (sessionStorage `moje-miejsce.mock.v2`). */
 export interface AppState {
   profile: ProfileId | null
   /** Categories marked as priorities, in the order they were picked (no limit).
@@ -37,7 +37,7 @@ export interface AppState {
   weights: Record<CategoryKey, number>
   horizon: Horizon | null
   timelineYear: number
-  /** Featured slugs whose cinematic interlude was already shown this session. */
+  /** Featured slugs whose first (full-length) fly-in was already shown this session. */
   visited: string[]
   /** Optional POI subtypes to show on the map (filter panel checkboxes). Empty = none. */
   poiInterests: string[]

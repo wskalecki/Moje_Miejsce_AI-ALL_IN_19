@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moje Miejsce — ranking osiedli Warszawy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap&subset=latin-ext" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F5F7; --surface:#FFFFFF; --sunken:#F7F8FA;
+  --line:#E3E6EB; --line-2:#CFD4DB;
+  --ink:#15181E; --ink-2:#4A5260; --ink-3:#687080;
+  --hover:#EFF1F4;
+  --accent:#E0531A; --accent-ink:#B5410F; --accent-tint:#FDF0E9;
+  --c0:#ece9bb; --c1:#b2d298; --c2:#68ba8d; --c3:#009d90; --c4:#007a8e; --c5:#0c547a; --c6:#21325a;
+  --heat:#3f87ad;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --cond:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;
+  --row:28px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font:400 13px/1.45 var(--sans);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;font-feature-settings:"kern"}
+button,input,select{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:3px}
+a{color:var(--accent-ink);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:2px}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- App shell ---------- */
+.app{display:grid;grid-template-rows:44px 1fr;height:100vh;min-height:600px}
+.top{display:flex;align-items:center;gap:16px;padding:0 12px 0 14px;background:var(--surface);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;letter-spacing:-.005em;white-space:nowrap}
+.brand svg{display:block}
+.crumb{display:flex;align-items:center;gap:8px;color:var(--ink-3);white-space:nowrap}
+.crumb b{font-weight:500;color:var(--ink-2)}
+.vr{width:1px;height:20px;background:var(--line)}
+.seg{display:inline-flex;padding:2px;background:var(--bg);border:1px solid var(--line);border-radius:6px;gap:2px}
+.seg button{border:0;background:transparent;height:24px;padding:0 10px;border-radius:4px;color:var(--ink-2);cursor:pointer;font-weight:500;white-space:nowrap}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-checked="true"],.seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line-2),0 1px 1px rgba(16,24,40,.06)}
+.lbl{color:var(--ink-3);font-size:12px}
+.top .grow{flex:1}
+.top .meta{font-size:12px;color:var(--ink-3);white-space:nowrap}
+.top .meta a{color:var(--ink-2)}
+
+.shell{display:grid;grid-template-columns:476px minmax(0,1fr) 384px;min-height:0}
+.pane{min-height:0;background:var(--surface);display:flex;flex-direction:column}
+.pane+.pane{border-left:1px solid var(--line)}
+.phead{display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;border-bottom:1px solid var(--line);flex:none}
+.phead h2{margin:0;font-size:13px;font-weight:600}
+.phead .count{color:var(--ink-3)}
+
+/* ---------- Ranking table ---------- */
+.search{position:relative;flex:1;max-width:208px;margin-left:auto}
+.search input{width:100%;height:28px;border:1px solid var(--line-2);border-radius:5px;padding:0 28px 0 28px;background:var(--surface)}
+.search input::placeholder{color:var(--ink-3)}
+.search input:focus-visible{outline:2px solid var(--accent);outline-offset:-1px}
+.search svg{position:absolute;left:8px;top:7px;color:var(--ink-3)}
+.search kbd{position:absolute;right:6px;top:5px;font:500 11px/16px var(--sans);color:var(--ink-3);border:1px solid var(--line);border-radius:3px;padding:0 4px;background:var(--sunken)}
+.tablewrap{flex:1;overflow:auto;min-height:0;position:relative;overscroll-behavior:contain}
+table.rank{border-collapse:separate;border-spacing:0;width:100%;table-layout:fixed;font-family:var(--cond);font-size:13px}
+.rank col.c-rank{width:38px}.rank col.c-name{width:auto}.rank col.c-match{width:82px}.rank col.c-cat{width:23px}
+.rank thead th{position:sticky;top:0;z-index:2;background:var(--surface);border-bottom:1px solid var(--line-2);font-weight:500;color:var(--ink-2);padding:0;height:92px;vertical-align:bottom;text-align:left}
+.rank th button{all:unset;box-sizing:border-box;display:flex;align-items:flex-end;gap:3px;width:100%;height:100%;padding:0 6px 7px;cursor:pointer;font-family:var(--sans);font-size:12px;color:var(--ink-2)}
+.rank th button:hover{color:var(--ink);background:var(--sunken)}
+.rank th button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.rank th.r button{justify-content:flex-end}
+.rank thead th:first-child{z-index:3}
+.rank th .hint{position:absolute;left:10px;top:10px;width:220px;font:400 11.5px/1.45 var(--sans);color:var(--ink-3);white-space:normal;pointer-events:none}
+.rank th .hint b{font-weight:500;color:var(--ink-2)}
+.rank th.cat button{flex-direction:column;align-items:center;justify-content:flex-end;padding:0 0 6px;gap:4px}
+.rank th.cat .vt{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;font-size:11.5px;line-height:1}
+.rank th.cat.prio .vt{color:var(--ink);font-weight:600}
+.rank th[aria-sort] button{color:var(--ink);font-weight:600}
+.rank th .si{width:9px;height:9px;flex:none;opacity:0}
+.rank th[aria-sort] .si{opacity:1}
+.rank th.cat .si{display:none}
+.rank th.cat[aria-sort] .vt{color:var(--ink)}
+.rank th.cat[aria-sort]::after{content:"";position:absolute;left:5px;right:5px;bottom:-1px;height:2px;background:var(--ink)}
+.rank th.cat.onmap .vt::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--c4);margin-bottom:4px;box-shadow:0 0 0 2px var(--surface)}
+.rank tbody tr{height:var(--row);cursor:pointer}
+.rank tbody td{border-bottom:1px solid #EEF0F3;padding:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank td.rk{text-align:right;padding-right:8px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.rank td.nm{padding-left:4px;padding-right:6px;font-weight:500}
+.rank td.nm .ds{color:var(--ink-3);font-weight:400;margin-left:6px}
+.rank td.mt{padding:0 8px 0 2px}
+.mbar{display:flex;align-items:center;gap:6px}
+.mbar i{display:block;flex:1;height:5px;background:#EDEFF2;border-radius:0 2px 2px 0;position:relative;overflow:hidden}
+.mbar i b{position:absolute;left:0;top:0;bottom:0;border-radius:0 2px 2px 0}
+.mbar span{width:20px;text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
+.rank td.ht{border-bottom-color:#fff;text-align:center;font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--ink);border-left:1px solid var(--surface)}
+.rank tbody tr:hover td,.rank tbody tr.hov td{background-color:var(--hover)}
+.rank tbody tr:hover td.ht,.rank tbody tr.hov td.ht{box-shadow:inset 0 0 0 100px rgba(21,24,30,.04)}
+.rank tbody tr.sel td{background-color:var(--accent-tint)}
+.rank tbody tr.sel td.ht{box-shadow:inset 0 0 0 100px rgba(224,83,26,.06)}
+.rank tbody tr.sel td.rk{box-shadow:inset 3px 0 0 var(--accent);color:var(--accent-ink);font-weight:600}
+.rank tbody tr:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.rank tbody tr.dim{display:none}
+.rank tfoot td{position:sticky;bottom:0;background:var(--sunken);border-top:1px solid var(--line-2);height:30px;padding:0;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums;z-index:2}
+.rank tfoot td.ht{text-align:center;font-size:11.5px;font-weight:500;color:var(--ink)}
+.rank tfoot td.nm{padding-left:4px;font-family:var(--sans);font-weight:500;color:var(--ink)}
+.rank tfoot td.mt{padding:0 8px 0 2px}
+.empty{padding:24px 16px;color:var(--ink-3)}
+
+/* ---------- Map ---------- */
+.mapPane{position:relative;background:var(--bg)}
+.mapPane .phead{background:var(--surface);gap:10px}
+.ctl{display:flex;align-items:center;gap:6px}
+select.sel{height:28px;border:1px solid var(--line-2);border-radius:5px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2 3.5l3 3 3-3' fill='none' stroke='%23687080' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat right 8px center;padding:0 26px 0 8px;appearance:none;cursor:pointer;max-width:170px}
+select.sel:focus-visible{outline:2px solid var(--accent);outline-offset:-1px}
+.stage{position:relative;flex:1;min-height:0;overflow:hidden}
+.stage svg.map{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+.stage svg.map.drag{cursor:grabbing}
+.os{stroke:#fff;stroke-width:.7;vector-effect:non-scaling-stroke;transition:fill .35s ease,opacity .2s}
+.os.dim{opacity:.18}
+.river{fill:none;stroke:#C8DAEA;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.river-c{fill:none;stroke:#93AFC7;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.hl-hov{fill:none;stroke:var(--ink);stroke-width:1.6;vector-effect:non-scaling-stroke;pointer-events:none}
+.hl-sel{fill:none;stroke:var(--accent);stroke-width:2.5;vector-effect:non-scaling-stroke;pointer-events:none;stroke-linejoin:round}
+.hl-sel-halo{fill:none;stroke:#fff;stroke-width:5;vector-effect:non-scaling-stroke;pointer-events:none;stroke-linejoin:round}
+.labels{position:absolute;inset:0;pointer-events:none}
+.dlab{position:absolute;transform:translate(-50%,-50%);font-size:10.5px;font-weight:500;color:var(--ink-2);white-space:nowrap;text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff,0 0 4px rgba(255,255,255,.9)}
+.callout{position:absolute;display:flex;align-items:center;gap:6px;white-space:nowrap;transform:translate(14px,-50%);background:var(--surface);border:1px solid var(--line-2);border-radius:4px;padding:2px 6px 2px 4px;font-size:12px;font-weight:600;box-shadow:0 1px 2px rgba(16,24,40,.08)}
+.callout::before{content:"";position:absolute;left:-15px;top:50%;width:14px;height:1px;background:var(--ink)}
+.callout .bdg{background:var(--accent);color:#fff;border-radius:3px;font-size:11px;padding:0 4px;line-height:16px;font-variant-numeric:tabular-nums}
+.callout .v{color:var(--ink-2);font-weight:500;font-variant-numeric:tabular-nums}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;border-radius:5px;padding:6px 8px;font-size:12px;line-height:1.4;white-space:nowrap;transform:translate(12px,12px);opacity:0;transition:opacity .08s;z-index:5;box-shadow:0 4px 12px rgba(16,24,40,.18)}
+.tip.on{opacity:1}
+.tip b{font-weight:600}
+.tip .s{color:#B9C0CC}
+.tip .row{display:flex;justify-content:space-between;gap:16px;font-variant-numeric:tabular-nums}
+
+.legend{position:absolute;left:12px;bottom:12px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:9px 12px 8px;width:300px;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.legend .lt{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;margin-bottom:4px}
+.legend .lt b{font-weight:600}
+.legend .lt span{color:var(--ink-3);font-size:11px}
+.legend svg{display:block;overflow:visible}
+.legend .ax{font-size:10.5px;fill:var(--ink-3);font-variant-numeric:tabular-nums}
+.legend .note{font-size:11px;color:var(--ink-3);margin-top:3px;display:flex;align-items:center;gap:6px}
+.legend .note i{display:inline-block;width:2px;height:10px;background:var(--accent)}
+.zoom{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.zoom button{width:30px;height:30px;border:0;background:transparent;display:grid;place-items:center;color:var(--ink-2);cursor:pointer}
+.zoom button+button{border-top:1px solid var(--line)}
+.zoom button:hover{background:var(--hover);color:var(--ink)}
+.zoom button:focus-visible{outline-offset:-2px}
+.status{display:flex;align-items:center;gap:14px;height:26px;padding:0 12px;border-top:1px solid var(--line);background:var(--surface);font-size:11px;color:var(--ink-3);flex:none;white-space:nowrap;overflow:hidden}
+.status b{font-weight:500;color:var(--ink-2)}
+.status .grow{flex:1}
+
+/* plan okolicy */
+svg.plan{position:absolute;inset:0;width:100%;height:100%;display:block;background:#F2F3F1}
+.planc .bld{stroke:none}
+.planc .grn{fill:#CFE3C3}
+.planc .wtr{fill:#C8DAEA}
+.planc .rd-c{fill:none;stroke:#D2D6DC;stroke-linecap:round;stroke-linejoin:round}
+.planc .rd{fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round}
+.planc .outl{fill:none;stroke:var(--accent);stroke-width:2.5;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.planc .pin circle{fill:var(--ink);stroke:#fff;stroke-width:2;vector-effect:non-scaling-stroke}
+.planc .pin text{fill:#fff;font:600 12px var(--sans);text-anchor:middle;dominant-baseline:central}
+.planc .pin.on circle{fill:var(--accent)}
+.planc .rdlab{font:500 15px var(--sans);fill:#59616E;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+.planleg{position:absolute;left:12px;bottom:12px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:11.5px;color:var(--ink-2);display:grid;grid-template-columns:auto auto;gap:4px 14px;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.planpl{position:absolute;right:12px;top:12px;width:236px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px 6px;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.planpl h4{margin:0 0 4px;font-size:12px;font-weight:600}
+.planpl ol{list-style:none;margin:0;padding:0}
+.planpl li{display:grid;grid-template-columns:18px 1fr auto;gap:8px;align-items:center;height:24px;font-size:12px;margin:0 -4px;padding:0 4px;border-radius:4px}
+.planpl li.on,.planpl li:hover{background:var(--hover)}
+.planpl li .n{width:16px;height:16px;border-radius:50%;background:var(--ink);color:#fff;font-size:10px;font-weight:600;display:grid;place-items:center}
+.planpl li.on .n{background:var(--accent)}
+.planpl li span.t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.planpl li span.m{color:var(--ink-2);font-variant-numeric:tabular-nums}
+.planleg span{display:flex;align-items:center;gap:6px}
+.planleg i{display:inline-block;width:12px;height:10px;border-radius:2px}
+
+/* ---------- Inspector ---------- */
+.insp .scroll{flex:1;overflow:auto;min-height:0;overscroll-behavior:contain}
+.ihead{padding:12px 16px 14px;border-bottom:1px solid var(--line)}
+.ihead .k{display:flex;align-items:center;gap:6px;color:var(--ink-3);font-size:12px}
+.ihead h1{margin:2px 0 0;font-size:20px;line-height:26px;font-weight:600;letter-spacing:-.012em}
+.stats{display:grid;grid-template-columns:1fr 1fr 1.25fr;margin-top:12px;border:1px solid var(--line);border-radius:6px}
+.stats>div{padding:7px 10px 8px}
+.stats>div+div{border-left:1px solid var(--line)}
+.stats .sl{font-size:11.5px;color:var(--ink-3)}
+.stats .sv{font-size:24px;line-height:30px;font-weight:600;letter-spacing:-.02em}
+.stats .sv small{font-size:12px;font-weight:400;color:var(--ink-3);letter-spacing:0;margin-left:3px}
+.stats .sv.acc{color:var(--ink)}
+.ihead p.blurb{margin:10px 0 0;color:var(--ink-2);font-size:12.5px;line-height:1.5}
+.ihead p.blurb em{font-style:normal;color:var(--ink-3)}
+.photos{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:62px 62px;gap:2px;margin-top:12px;border-radius:5px;overflow:hidden}
+.photos button{all:unset;position:relative;cursor:pointer;background:#DDE1E6}
+.photos button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.photos button:first-child{grid-row:1/3}
+.photos img{width:100%;height:100%;object-fit:cover;display:block}
+.photos .more{position:absolute;inset:0;display:grid;place-items:center;background:rgba(21,24,30,.48);color:#fff;font-weight:500;font-size:12px}
+.credit{margin-top:5px;font-size:11px;color:var(--ink-3);line-height:1.4}
+.credit b{font-weight:500;color:var(--ink-2)}
+
+details.sec{border-bottom:1px solid var(--line)}
+details.sec>summary{list-style:none;display:flex;align-items:center;gap:8px;height:38px;padding:0 16px;cursor:pointer;user-select:none}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary:hover{background:var(--sunken)}
+details.sec>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:0}
+details.sec>summary h3{margin:0;font-size:13px;font-weight:600}
+details.sec>summary .aside{margin-left:auto;color:var(--ink-3);font-size:12px;font-variant-numeric:tabular-nums}
+details.sec>summary .chev{width:12px;height:12px;color:var(--ink-3);transition:transform .15s;flex:none}
+details.sec[open]>summary .chev{transform:rotate(90deg)}
+.sbody{padding:2px 16px 16px}
+.keyrow{display:flex;gap:14px;font-size:11.5px;color:var(--ink-2);margin:0 0 6px;align-items:center;flex-wrap:wrap}
+.keyrow span{display:inline-flex;align-items:center;gap:5px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.dot.sb{background:var(--accent)}
+.dot.md{border:1.5px solid var(--ink-3);background:#fff}
+.band{width:12px;height:10px;background:#F0F2F5;border-left:2px solid var(--ink-2);display:inline-block}
+svg.chart{display:block;width:100%;overflow:visible}
+.chart .lab{font-size:12px;fill:var(--ink-2)}
+.chart .lab.p{fill:var(--ink);font-weight:600}
+.chart .tick{font-size:10.5px;fill:var(--ink-3);font-variant-numeric:tabular-nums}
+.chart .val{font-size:11.5px;fill:var(--ink);font-variant-numeric:tabular-nums;font-weight:500}
+.chart .dl{font-size:11.5px;fill:var(--ink-2);font-variant-numeric:tabular-nums}
+.chart .grid{stroke:#ECEEF1;stroke-width:1}
+.chart .base{stroke:var(--line-2);stroke-width:1}
+.chart .hit{fill:transparent}
+.chart .hit:hover~*{}
+.chart g.r:hover .rowbg{fill:var(--hover)}
+.note{font-size:11.5px;color:var(--ink-3);line-height:1.45;margin:8px 0 0}
+.note b{color:var(--ink-2);font-weight:500}
+.kv{display:grid;grid-template-columns:1fr auto;gap:0 12px;font-size:12.5px}
+.kv div{padding:5px 0;border-bottom:1px solid #EEF0F3}
+.kv div:nth-child(even){text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
+.kv div:nth-last-child(-n+2){border-bottom:0}
+
+.places{list-style:none;margin:8px 0 0;padding:0}
+.places li{display:grid;grid-template-columns:20px 1fr auto;gap:0 10px;align-items:center;min-height:30px;padding:4px 6px;margin:0 -6px;border-radius:4px;cursor:default}
+.places li:hover,.places li.on{background:var(--hover)}
+.places .n{width:18px;height:18px;border-radius:50%;background:var(--ink);color:#fff;font-size:10.5px;font-weight:600;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.places li.on .n{background:var(--accent)}
+.places .t{min-width:0}
+.places .t b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.places .t span{font-size:11.5px;color:var(--ink-3)}
+.places .m{text-align:right;font-variant-numeric:tabular-nums;font-weight:500;white-space:nowrap}
+.places .m span{display:block;font-size:11px;color:var(--ink-3);font-weight:400}
+.miniplan{position:relative;height:168px;border:1px solid var(--line);border-radius:5px;overflow:hidden;cursor:pointer;margin-top:4px;background:#F2F3F1}
+.miniplan svg{width:100%;height:100%;display:block}
+.miniplan .open{position:absolute;right:6px;top:6px;background:var(--surface);border:1px solid var(--line-2);border-radius:4px;font-size:11.5px;font-weight:500;padding:2px 7px;color:var(--ink-2)}
+.miniplan:hover .open{color:var(--ink);border-color:var(--ink-3)}
+.miniplan:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+table.comm{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:2px}
+table.comm th{font-weight:400;color:var(--ink-3);font-size:11.5px;text-align:right;padding:0 0 4px;white-space:nowrap}
+table.comm th:first-child{text-align:left}
+table.comm td{padding:6px 0;border-top:1px solid #EEF0F3;vertical-align:top}
+table.comm td.v{text-align:right;font-variant-numeric:tabular-nums;font-weight:500;width:74px;white-space:nowrap}
+table.comm td.v small{font-weight:400;color:var(--ink-3)}
+table.comm .sub{display:block;font-size:11px;color:var(--ink-3);margin-top:1px;font-variant-numeric:tabular-nums}
+.cbar{display:block;height:4px;background:#EDEFF2;border-radius:0 2px 2px 0;margin-top:4px;margin-left:auto;width:56px;position:relative}
+.cbar b{position:absolute;left:0;top:0;bottom:0;background:var(--ink-2);border-radius:0 2px 2px 0}
+
+ol.tl{list-style:none;margin:6px 0 0;padding:0;position:relative}
+ol.tl li{display:grid;grid-template-columns:52px 1fr;gap:0 12px;padding:8px 0;position:relative}
+ol.tl li+li{border-top:1px solid #EEF0F3}
+ol.tl .yr{font-variant-numeric:tabular-nums;font-weight:600;font-size:13px;line-height:18px}
+ol.tl .yr small{display:block;font-weight:400;font-size:11px;color:var(--ink-3);line-height:1.3}
+ol.tl h4{margin:0;font-size:12.5px;font-weight:600;line-height:18px}
+ol.tl p{margin:2px 0 0;font-size:12px;color:var(--ink-2);line-height:1.45}
+ol.tl .mt{display:flex;gap:10px;align-items:center;margin-top:5px;font-size:11px;color:var(--ink-3)}
+.st{display:inline-flex;align-items:center;gap:5px;font-weight:500;color:var(--ink-2)}
+.st i{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--ink-2)}
+.st.b i{background:var(--ink-2)}
+
+.portals{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:12.5px;margin-top:10px;padding-top:10px;border-top:1px solid #EEF0F3}
+.portals span{color:var(--ink-2)}
+.portals div{display:flex;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px solid var(--line-2);border-radius:5px;background:var(--surface);cursor:pointer;font-weight:500}
+.btn:hover{background:var(--hover)}
+.compactnote{margin:12px 16px 16px;padding:10px 12px;background:var(--sunken);border:1px solid var(--line);border-radius:6px;font-size:12px;color:var(--ink-2)}
+.compactnote p{margin:0 0 8px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1280px){.shell{grid-template-columns:420px minmax(0,1fr) 360px}.rank col.c-cat{width:20px}.rank td.ht{font-size:10.5px}}
+@media (max-width:1060px){
+  .app{height:auto;display:block}
+  .shell{display:flex;flex-direction:column}
+  .pane+.pane{border-left:0;border-top:1px solid var(--line)}
+  .mapPane{order:1;height:min(64vh,560px);min-height:380px}
+  .insp{order:2}
+  .rankPane{order:3;height:80vh}
+  .insp .scroll{overflow:visible}
+  .top{height:auto;flex-wrap:wrap;padding:8px 12px;gap:8px 12px}
+  .top .meta,.crumb,.top .vr{display:none}
+  .top .grow{display:none}
+}
+@media (max-width:520px){
+  .top .lbl{display:none}
+  .seg button{padding:0 8px}
+  .legend{width:auto;right:54px}
+  .legend svg{width:100%}
+  .mapPane .phead{flex-wrap:wrap;height:auto;padding:6px 10px}
+  .status{display:none}
+  .tablewrap{overflow:auto}
+  table.rank{min-width:470px}
+  .search{max-width:none}
+  .stats .sv{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.2 6.1L9.4 2.2L16.9 4.6L17.6 12.4L11.8 17.8L4.1 15.6Z" fill="#21325a"></path><path d="M3.2 6.1L9.4 2.2L16.9 4.6L17.6 12.4L11.8 17.8L4.1 15.6Z" fill="none" stroke="#21325a" stroke-width="1.4" stroke-linejoin="round"></path><circle cx="10.6" cy="9.8" r="3.6" fill="#E0531A" stroke="#fff" stroke-width="1.6"></circle></svg>
+      <span>Moje Miejsce</span>
+    </div>
+    <div class="vr"></div>
+    <div class="crumb"><b>Warszawa</b><span id="crumbN">143 osiedla</span></div>
+    <div class="grow"></div>
+    <span class="lbl" id="profLbl">Profil</span>
+    <div class="seg" role="radiogroup" aria-labelledby="profLbl" id="profiles"></div>
+    <div class="grow"></div>
+    <div class="meta" id="credits"></div>
+  </header>
+
+  <main class="shell">
+    <section class="pane rankPane" aria-labelledby="rankTitle">
+      <div class="phead">
+        <h2 id="rankTitle">Ranking</h2><span class="count num" id="rankCount"></span>
+        <label class="search"><span class="sr">Filtruj osiedla</span>
+          <svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.8" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M10.6 10.6L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>
+          <input id="q" type="search" placeholder="Osiedle lub dzielnica" autocomplete="off"><kbd>/</kbd>
+        </label>
+      </div>
+      <div class="tablewrap" id="tablewrap">
+        <table class="rank" id="rank">
+          <caption class="sr">Ranking 143 osiedli według dopasowania do profilu i wyniki 10 kategorii (0–100)</caption>
+          <colgroup id="cols"></colgroup>
+          <thead><tr id="thr"></tr></thead>
+          <tbody id="tb"></tbody>
+          <tfoot><tr id="tf"></tr></tfoot>
+        </table>
+        <div class="empty" id="empty" hidden>Brak osiedli pasujących do filtra.</div>
+      </div>
+    </section>
+
+    <section class="pane mapPane" aria-label="Mapa">
+      <div class="phead">
+        <div class="seg" role="tablist" aria-label="Widok mapy" id="views">
+          <button role="tab" aria-selected="true" data-v="city" id="tabCity">Warszawa</button>
+          <button role="tab" aria-selected="false" data-v="plan" id="tabPlan">Plan okolicy</button>
+        </div>
+        <div class="ctl" id="layerCtl" style="margin-left:auto">
+          <label class="lbl" for="layer">Kolor</label>
+          <select class="sel" id="layer"></select>
+        </div>
+      </div>
+      <div class="stage" id="stage">
+        <svg class="map" id="map" role="img" aria-label="Mapa 143 osiedli Warszawy pokolorowana według wybranej warstwy" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="labels" id="labels"></div>
+        <svg class="plan planc" id="plan" role="img" aria-label="Plan okolicy Starych Bielan: budynki, drogi, zieleń i miejsca w pobliżu" preserveAspectRatio="xMidYMid meet" hidden></svg>
+        <div class="legend" id="legend"></div>
+        <div class="planleg" id="planleg" hidden>
+          <span><i style="background:linear-gradient(90deg,#D5D9DF,#78828F)"></i>Budynki (ciemniej = wyżej)</span>
+          <span><i style="background:#CFE3C3"></i>Zieleń</span>
+          <span><i style="background:transparent;border:2px solid var(--accent);height:10px"></i>Granica osiedla</span>
+          <span><i style="background:#C8DAEA"></i>Woda</span>
+        </div>
+        <div class="planpl" id="planpl" hidden></div>
+        <div class="zoom" role="group" aria-label="Powiększenie">
+          <button id="zin" aria-label="Przybliż"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.5v9M1.5 6h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg></button>
+          <button id="zout" aria-label="Oddal"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M1.5 6h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg></button>
+          <button id="zfit" aria-label="Pokaż całość"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M1.5 4.5v-3h3M7.5 1.5h3v3M10.5 7.5v3h-3M4.5 10.5h-3v-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+        </div>
+        <div class="tip" id="tip" role="status" aria-live="polite"></div>
+      </div>
+      <div class="status" id="status"></div>
+    </section>
+
+    <aside class="pane insp" aria-label="Inspektor osiedla">
+      <div class="scroll" id="insp"></div>
+    </aside>
+  </main>
+</div>
+
+<script src="../shared/data.js"></script>
+<script>
+(function(){
+'use strict';
+const MM = window.MM;
+const OS = MM.city.osiedla;
+const F = MM.featured;
+const CATS = Object.keys(MM.categories);
+const SHORT = {cisza:'Cisza',zielen:'Zieleń',komunikacja:'Komunikacja',gastronomia:'Gastronomia',sport:'Sport',kultura:'Kultura',edukacja:'Edukacja',zdrowie:'Zdrowie',zakupy:'Zakupy',zycieNocne:'Życie nocne'};
+const RAMP = ['#ece9bb','#b2d298','#68ba8d','#009d90','#007a8e','#0c547a','#21325a'];
+const PROFILE_ACC = {student:'studenta',rodzina:'rodziny',senior:'seniora'};
+const byId = Object.fromEntries(OS.map(o=>[o.id,o]));
+const FEATURED_ID = 'stare-bielany';
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nf = new Intl.NumberFormat('pl-PL');
+const fmt = (v,d=0)=>new Intl.NumberFormat('pl-PL',{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
+const fold = s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/ł/g,'l');
+const plural = (n,a,b,c)=> n===1?a:(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?b:c;
+
+function median(a){const s=[...a].sort((x,y)=>x-y);const m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2;}
+const MED = Object.fromEntries(CATS.map(k=>[k,median(OS.map(o=>o.cats[k]))]));
+
+const state = {profile:MM.activeProfile||'senior', layer:'match', sort:{key:'rank',dir:1}, q:'', sel:FEATURED_ID, hov:null, view:'city', photo:0};
+
+/* ================= Top bar ================= */
+const profEl = $('#profiles');
+profEl.innerHTML = Object.entries(MM.profiles).map(([k,p])=>`<button role="radio" aria-checked="${k===state.profile}" data-p="${k}" title="${esc(p.description)}" tabindex="${k===state.profile?0:-1}">${esc(p.title)}</button>`).join('');
+profEl.addEventListener('click',e=>{const b=e.target.closest('button');if(b)setProfile(b.dataset.p);});
+profEl.addEventListener('keydown',e=>{
+  if(!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();
+  const ks=Object.keys(MM.profiles);const i=ks.indexOf(state.profile);const n=ks[(i+(e.key==='ArrowRight'?1:ks.length-1))%ks.length];
+  setProfile(n);profEl.querySelector(`[data-p="${n}"]`).focus();
+});
+$('#credits').innerHTML = `${esc(MM.credits)}`;
+
+/* ================= Layer helpers ================= */
+const val = (o,layer=state.layer)=> layer==='match'? o.match[state.profile] : o.cats[layer];
+function layerName(l=state.layer){return l==='match'?`Dopasowanie: ${MM.profiles[state.profile].title}`:MM.categories[l];}
+function breaks(layer=state.layer){
+  const s=OS.map(o=>val(o,layer)).sort((a,b)=>a-b);
+  const out=[];for(let i=1;i<7;i++){const q=s[Math.floor(i*s.length/7)];if(!out.length||q>out[out.length-1])out.push(q);}
+  return {b:out,min:s[0],max:s[s.length-1]};
+}
+let BR = breaks();
+function cls(v){let c=0;for(const b of BR.b){if(v>=b)c++;}return c;}
+function color(v){const n=BR.b.length;const c=cls(v);return RAMP[Math.round(c*6/n)];}
+
+const layerSel=$('#layer');
+layerSel.innerHTML = `<option value="match">Dopasowanie do profilu</option><optgroup label="Kategoria">${CATS.map(k=>`<option value="${k}">${esc(MM.categories[k])}</option>`).join('')}</optgroup>`;
+layerSel.addEventListener('change',()=>setLayer(layerSel.value));
+
+/* ================= Ranking table ================= */
+const prios = ()=> state.profile==='senior'? MM.seniorPriorities : [];
+function buildHead(){
+  $('#cols').innerHTML = `<col class="c-rank"><col class="c-name"><col class="c-match">${CATS.map(()=>'<col class="c-cat">').join('')}`;
+  const si = `<svg class="si" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 2v6M2.5 5.5L5 8l2.5-2.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
+  const th=(key,label,cl,title)=>`<th scope="col" class="${cl}" data-k="${key}" ${title?`title="${esc(title)}"`:''}><button type="button">${label}${si}</button></th>`;
+  $('#thr').innerHTML = th('rank','#','r','Miejsce w rankingu dla profilu') + th('name','Osiedle','','Nazwa osiedla') + th('match','Dopasowanie','','Dopasowanie do profilu, 0–100')
+    + CATS.map(k=>`<th scope="col" class="cat${prios().includes(k)?' prio':''}" data-k="${k}" title="${esc(MM.categories[k])}: wynik 0–100. Kliknij, aby sortować i pokazać na mapie."><button type="button"><span class="vt">${esc(SHORT[k])}</span></button></th>`).join('');
+  $('#thr').querySelectorAll('th').forEach(t=>t.querySelector('button').addEventListener('click',()=>sortBy(t.dataset.k)));
+  $('#thr th').insertAdjacentHTML('beforeend',`<span class="hint" aria-hidden="true"><b>Kategorie 0–100</b> z otwartych danych miasta. Kliknij nagłówek kolumny, aby sortować i pokolorować nią mapę.</span>`);
+  paintHead();
+}
+function paintHead(){
+  $('#thr').querySelectorAll('th').forEach(t=>{
+    const k=t.dataset.k;
+    if(state.sort.key===k)t.setAttribute('aria-sort',state.sort.dir>0?'ascending':'descending');else t.removeAttribute('aria-sort');
+    t.classList.toggle('prio',prios().includes(k));
+    t.classList.toggle('onmap',k===state.layer&&k!=='match');
+    const si=t.querySelector('.si');if(si)si.style.transform=state.sort.dir>0&&state.sort.key===k&&k!=='rank'?'rotate(180deg)':'';
+    if(k==='rank'&&si)si.style.transform=state.sort.dir>0?'rotate(180deg)':'';
+  });
+}
+function heatBg(v){return `color-mix(in oklab, var(--heat) ${Math.round(v*0.4)}%, #fff)`;}
+let rows = {};
+function buildBody(){
+  const tb=$('#tb');
+  tb.innerHTML = OS.map(o=>`<tr data-id="${o.id}" tabindex="-1">
+    <td class="rk"></td>
+    <td class="nm" title="${esc(o.name)}, ${esc(o.district)}"><span>${esc(o.name)}</span></td>
+    <td class="mt"><div class="mbar"><i><b></b></i><span></span></div></td>
+    ${CATS.map(k=>`<td class="ht" style="background-color:${heatBg(o.cats[k])}">${o.cats[k]}</td>`).join('')}
+  </tr>`).join('');
+  rows={};tb.querySelectorAll('tr').forEach(r=>rows[r.dataset.id]=r);
+  tb.addEventListener('mouseover',e=>{const r=e.target.closest('tr');if(r)setHover(r.dataset.id,'table');});
+  tb.addEventListener('mouseleave',()=>setHover(null,'table'));
+  tb.addEventListener('click',e=>{const r=e.target.closest('tr');if(r){select(r.dataset.id,'table');}});
+  tb.addEventListener('keydown',e=>{
+    const r=e.target.closest('tr');if(!r)return;
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();select(r.dataset.id,'table');return;}
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();let n=r;do{n=e.key==='ArrowDown'?n.nextElementSibling:n.previousElementSibling;}while(n&&n.classList.contains('dim'));if(n){r.tabIndex=-1;n.tabIndex=0;n.focus();setHover(n.dataset.id,'table');}}
+  });
+  $('#tf').innerHTML = `<td class="rk"></td><td class="nm">Mediana Warszawy</td><td class="mt"><div class="mbar"><i><b></b></i><span id="medMatch"></span></div></td>${CATS.map(k=>`<td class="ht" style="background-color:${heatBg(MED[k])}">${fmt(MED[k])}</td>`).join('')}`;
+}
+function paintBody(){
+  const p=state.profile;
+  const arr=[...OS];
+  const {key,dir}=state.sort;
+  arr.sort((a,b)=>{
+    let d;
+    if(key==='rank')d=a.rank[p]-b.rank[p];
+    else if(key==='name')d=a.name.localeCompare(b.name,'pl');
+    else if(key==='match')d=b.match[p]-a.match[p];
+    else d=b.cats[key]-a.cats[key];
+    d*=dir;
+    return d||a.rank[p]-b.rank[p];
+  });
+  const tb=$('#tb');const qf=fold(state.q.trim());let shown=0;
+  arr.forEach(o=>{
+    const r=rows[o.id];tb.appendChild(r);
+    r.children[0].textContent=o.rank[p];
+    const m=o.match[p];const bar=r.children[2];
+    bar.querySelector('b').style.cssText=`width:${m}%;background:${color(state.layer==='match'?m:o.cats[state.layer])}`;
+    bar.querySelector('span').textContent=m;
+    const hit=!qf||fold(o.name).includes(qf)||fold(o.district).includes(qf);
+    r.classList.toggle('dim',!hit);if(hit)shown++;
+    r.classList.toggle('sel',o.id===state.sel);
+  });
+  const mm=median(OS.map(o=>o.match[p]));
+  $('#medMatch').textContent=fmt(mm);
+  $('#tf .mt b').style.cssText=`width:${mm}%;background:var(--ink-3)`;
+  $('#rankCount').textContent = qf? `${shown} z ${OS.length}` : `${OS.length}`;
+  $('#empty').hidden = shown>0;
+  // roving tabindex
+  const first=tb.querySelector('tr.sel:not(.dim)')||tb.querySelector('tr:not(.dim)');
+  tb.querySelectorAll('tr').forEach(r=>r.tabIndex=-1);if(first)first.tabIndex=0;
+  paintHead();
+}
+function sortBy(k){
+  if(state.sort.key===k){state.sort.dir*=-1;}
+  else state.sort={key:k,dir:1};
+  if(CATS.includes(k)) setLayer(k,true);
+  else if(k==='match'||k==='rank') setLayer('match',true);
+  paintBody();
+}
+$('#q').addEventListener('input',e=>{state.q=e.target.value;paintBody();paintMap();});
+document.addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();$('#q').focus();}});
+
+/* ================= City map ================= */
+const svg=$('#map');const W=MM.city.w,H=MM.city.h;
+const base={x:-8,y:-8,w:W+16,h:H+16};let vb={...base};
+svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+svg.innerHTML = `<g id="gOs">${OS.map(o=>`<path class="os" data-id="${o.id}" d="${o.d}"></path>`).join('')}</g>
+  <path class="river-c" d="${MM.city.river}"></path><path class="river" d="${MM.city.river}"></path>
+  <path id="hlHov" class="hl-hov" d=""></path><path id="hlSelHalo" class="hl-sel-halo" d=""></path><path id="hlSel" class="hl-sel" d=""></path>`;
+const paths={};svg.querySelectorAll('path.os').forEach(p=>paths[p.dataset.id]=p);
+// district centroids (area weighted)
+const DIST={};OS.forEach(o=>{const d=DIST[o.district]||(DIST[o.district]={x:0,y:0,a:0});d.x+=o.cx*o.areaKm2;d.y+=o.cy*o.areaKm2;d.a+=o.areaKm2;});
+const labelsEl=$('#labels');
+labelsEl.innerHTML = Object.entries(DIST).map(([n,d])=>`<div class="dlab" data-x="${d.x/d.a}" data-y="${d.y/d.a}">${esc(n)}</div>`).join('') + `<div class="callout" id="callout"></div>`;
+function paintMap(){
+  const qf=fold(state.q.trim());
+  OS.forEach(o=>{const p=paths[o.id];p.style.fill=color(val(o));p.classList.toggle('dim',!!qf&&!(fold(o.name).includes(qf)||fold(o.district).includes(qf)));});
+  const s=byId[state.sel];
+  $('#hlSel').setAttribute('d',s?s.d:'');$('#hlSelHalo').setAttribute('d',s?s.d:'');
+  const c=$('#callout');
+  if(s){c.innerHTML=`<span class="bdg">${s.rank[state.profile]}</span>${esc(s.name)}<span class="v">${val(s)}</span>`;c.dataset.x=s.cx;c.dataset.y=s.cy;c.hidden=false;}else c.hidden=true;
+  paintLegend();placeLabels();paintStatus();
+}
+function placeLabels(){
+  const ctm=svg.getScreenCTM();if(!ctm)return;const r=$('#stage').getBoundingClientRect();
+  const pt=svg.createSVGPoint();const z=base.w/vb.w;
+  labelsEl.querySelectorAll('[data-x]').forEach(el=>{
+    pt.x=+el.dataset.x;pt.y=+el.dataset.y;const q=pt.matrixTransform(ctm);
+    el.style.left=(q.x-r.left)+'px';el.style.top=(q.y-r.top)+'px';
+    if(el.classList.contains('dlab'))el.style.opacity=(z<0.9?0:1);
+  });
+  // hide district label under callout
+  const c=$('#callout');if(!c.hidden){const cb=c.getBoundingClientRect();labelsEl.querySelectorAll('.dlab').forEach(el=>{const b=el.getBoundingClientRect();if(!(b.right<cb.left-4||b.left>cb.right+4||b.bottom<cb.top-2||b.top>cb.bottom+2))el.style.opacity=0;});}
+}
+function setVB(n){
+  const minW=base.w/8;n.w=Math.max(minW,Math.min(base.w,n.w));n.h=n.w*base.h/base.w;
+  n.x=Math.max(base.x-n.w*0.3,Math.min(base.x+base.w-n.w*0.7,n.x));n.y=Math.max(base.y-n.h*0.3,Math.min(base.y+base.h-n.h*0.7,n.y));
+  vb=n;svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);placeLabels();paintStatus();
+}
+function toSvg(cx,cy){const pt=svg.createSVGPoint();pt.x=cx;pt.y=cy;return pt.matrixTransform(svg.getScreenCTM().inverse());}
+function zoomAt(f,cx,cy){
+  const r=svg.getBoundingClientRect();if(cx==null){cx=r.left+r.width/2;cy=r.top+r.height/2;}
+  const p=toSvg(cx,cy);const nw=Math.max(base.w/8,Math.min(base.w,vb.w/f));const k=nw/vb.w;
+  setVB({x:p.x-(p.x-vb.x)*k,y:p.y-(p.y-vb.y)*k,w:nw,h:nw*base.h/base.w});
+}
+svg.addEventListener('wheel',e=>{e.preventDefault();zoomAt(Math.exp(-e.deltaY*0.0018),e.clientX,e.clientY);},{passive:false});
+let drag=null;
+svg.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,vb:{...vb},moved:false};svg.setPointerCapture(e.pointerId);});
+svg.addEventListener('pointermove',e=>{
+  if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>3){drag.moved=true;svg.classList.add('drag');hideTip();}
+    if(drag.moved){const s=drag.vb.w/svg.getBoundingClientRect().width*Math.max(1,(svg.getBoundingClientRect().height/svg.getBoundingClientRect().width)/(base.h/base.w)) ;setVB({...drag.vb,x:drag.vb.x-dx*s,y:drag.vb.y-dy*s});return;}}
+  const t=e.target.closest('path.os');
+  if(t){setHover(t.dataset.id,'map');showTip(t.dataset.id,e);}else{setHover(null,'map');hideTip();}
+});
+svg.addEventListener('pointerup',e=>{const was=drag&&drag.moved;drag=null;svg.classList.remove('drag');if(!was){const t=document.elementFromPoint(e.clientX,e.clientY);const p=t&&t.closest&&t.closest('path.os');if(p)select(p.dataset.id,'map');}});
+svg.addEventListener('pointerleave',()=>{if(!drag){setHover(null,'map');hideTip();}});
+$('#zin').onclick=()=>zoomAt(1.6);$('#zout').onclick=()=>zoomAt(1/1.6);$('#zfit').onclick=()=>setVB({...base});
+window.addEventListener('resize',()=>{placeLabels();});
+
+const tip=$('#tip');
+function showTip(id,e){
+  const o=byId[id];const r=$('#stage').getBoundingClientRect();const p=state.profile;
+  const extra = state.layer==='match'?'':`<div class="row"><span class="s">${esc(MM.categories[state.layer])}</span><span>${o.cats[state.layer]} / 100</span></div>`;
+  tip.innerHTML=`<b>${esc(o.name)}</b> <span class="s">${esc(o.district)}</span><div class="row"><span class="s">Dopasowanie</span><span>${o.match[p]} / 100</span></div><div class="row"><span class="s">Miejsce</span><span>${o.rank[p]} z ${OS.length}</span></div>${extra}`;
+  let x=e.clientX-r.left,y=e.clientY-r.top;tip.classList.add('on');
+  const tw=tip.offsetWidth,th=tip.offsetHeight;if(x+tw+20>r.width)x-=tw+24;if(y+th+20>r.height)y-=th+24;
+  tip.style.left=x+'px';tip.style.top=y+'px';
+}
+function hideTip(){tip.classList.remove('on');}
+
+/* legend: rug of all 143 values over class bar */
+function paintLegend(){
+  const LW=274,pad=0;const x=v=>pad+v/100*LW;
+  const p=state.profile;const vals=OS.map(o=>({id:o.id,v:val(o)}));
+  const edges=[0,...BR.b,100];
+  let segs='';for(let i=0;i<edges.length-1;i++){const x0=x(edges[i]),x1=x(edges[i+1]);segs+=`<rect x="${x0+(i?1:0)}" y="22" width="${Math.max(0,x1-x0-(i?1:0))}" height="8" fill="${RAMP[Math.round(i*6/(edges.length-2))]}"></rect>`;}
+  const rug=vals.map(d=>`<line x1="${x(d.v)}" x2="${x(d.v)}" y1="4" y2="18" stroke="${d.id===state.sel?'transparent':'#9AA2AE'}" stroke-width="1" stroke-opacity=".55"></line>`).join('');
+  const s=byId[state.sel];const sv=s?val(s):null;
+  const selLine= s?`<line x1="${x(sv)}" x2="${x(sv)}" y1="0" y2="30" stroke="#fff" stroke-width="4"></line><line x1="${x(sv)}" x2="${x(sv)}" y1="0" y2="30" stroke="var(--accent)" stroke-width="2"></line>`:'';
+  let lastX=-99;const keep=edges.map((e,i)=>{const xx=x(e);if(i===edges.length-1)return true;if(xx-lastX<22)return false;lastX=xx;return true;});
+  if(x(100)-lastX<22){/* drop the previous label to keep 100 */for(let i=edges.length-2;i>=0;i--){if(keep[i]){if(x(100)-x(edges[i])<22)keep[i]=false;break;}}}
+  const ticks=edges.map((e,i)=>{if(!keep[i])return '';const anchor=i===0?'start':i===edges.length-1?'end':'middle';return `<text class="ax" x="${x(e)}" y="43" text-anchor="${anchor}">${e}</text>`;}).join('');
+  const tickMarks=BR.b.map(e=>`<line x1="${x(e)}" x2="${x(e)}" y1="30" y2="33" stroke="var(--ink-3)"></line>`).join('');
+  $('#legend').innerHTML=`<div class="lt"><b>${esc(layerName())}</b><span>kwantyle, ${edges.length-1} klas</span></div>
+    <svg width="${LW}" height="46" viewBox="0 0 ${LW} 46" role="img" aria-label="Skala: progi klas ${BR.b.join(', ')}; każda kreska to jedno osiedle">${rug}${segs}${tickMarks}${selLine}${ticks}</svg>
+    <div class="note"><i></i>${s?`${esc(s.name)}: ${sv}`:''}<span style="margin-left:auto">kreska = 1 osiedle</span></div>`;
+}
+function paintStatus(){
+  const z=base.w/vb.w;const s=byId[state.sel];
+  $('#status').innerHTML = state.view==='city'
+    ? `<span><b>${OS.length}</b> osiedli</span><span>Warstwa: <b>${esc(layerName())}</b></span><span>Mediana: <b class="num">${fmt(median(OS.map(o=>val(o))))}</b></span><span class="grow"></span><span>Powiększenie <b class="num">${fmt(z,1)}×</b></span>`
+    : `<span>Plan okolicy: <b>Stare Bielany</b></span><span><b class="num">${nf.format(MM.neighborhood.buildings.length)}</b> budynków</span><span class="grow"></span><span>Budynki i drogi: © współtwórcy OpenStreetMap</span>`;
+}
+
+/* ================= Neighborhood plan ================= */
+const N=MM.neighborhood;
+function hexMix(a,b,t){const pa=[1,3,5].map(i=>parseInt(a.substr(i,2),16)),pb=[1,3,5].map(i=>parseInt(b.substr(i,2),16));return '#'+pa.map((v,i)=>Math.round(v+(pb[i]-v)*t).toString(16).padStart(2,'0')).join('');}
+const RW={motorway:11,motorway_link:6,secondary:9,secondary_link:6,tertiary:7,tertiary_link:5,residential:4,living_street:3.5,unclassified:4};
+const highlightsOrdered=[...F.highlights].sort((a,b)=>a.walkMin-b.walkMin);
+const placeNo=Object.fromEntries(highlightsOrdered.map((h,i)=>[h.id,i+1]));
+function planContent(withLabels,pinScale){
+  const hs=N.buildings.map(b=>b.h);const hmax=40;
+  const bl=N.buildings.map(b=>`<path class="bld" d="${b.d}" fill="${hexMix('#D5D9DF','#78828F',Math.min(1,Math.max(0,(b.h-3)/hmax)))}"></path>`).join('');
+  const roads=[...N.roads].sort((a,b)=>(RW[a.hw]||3)-(RW[b.hw]||3));
+  const rc=roads.map(r=>`<path class="rd-c" d="${r.d}" stroke-width="${(RW[r.hw]||3)+1.6}"></path>`).join('');
+  const rf=roads.map(r=>`<path class="rd" d="${r.d}" stroke-width="${RW[r.hw]||3}"></path>`).join('');
+  let labs='';
+  if(withLabels){
+    const seen=new Set();
+    N.roads.filter(r=>r.name&&(r.hw==='secondary'||r.hw==='tertiary')).forEach((r,i)=>{if(seen.has(r.name))return;seen.add(r.name);
+      labs+=`<path id="rp${i}" d="${r.d}" fill="none"></path><text class="rdlab" dy="3.5"><textPath href="#rp${i}" startOffset="50%" text-anchor="middle">${esc(r.name)}</textPath></text>`;});
+  }
+  const pins=N.places.map(p=>`<g class="pin" data-id="${p.id}" transform="translate(${p.xy[0]} ${p.xy[1]}) scale(${pinScale})"><circle r="11"></circle><text>${placeNo[p.id]}</text></g>`).join('');
+  return `<rect x="-2000" y="-2000" width="5000" height="5000" fill="#F2F3F1"></rect>${N.water.map(d=>`<path class="wtr" d="${d}"></path>`).join('')}${N.green.map(g=>`<path class="grn" d="${g.d}"></path>`).join('')}${rc}${rf}${bl}${labs}<path class="outl" d="${N.outline}"></path>${pins}`;
+}
+const plan=$('#plan');
+let planBuilt=false;
+function buildPlan(){if(planBuilt)return;planBuilt=true;
+  const pl=$('#planpl');pl.innerHTML=`<h4>Miejsca w pobliżu, pieszo</h4><ol>${highlightsOrdered.map(h=>`<li data-id="${h.id}"><span class="n">${placeNo[h.id]}</span><span class="t">${esc(h.name)}</span><span class="m">${h.walkMin} min</span></li>`).join('')}</ol>`;
+  pl.addEventListener('mouseover',e=>{const li=e.target.closest('li');pinOn(li?li.dataset.id:null);});pl.addEventListener('mouseleave',()=>pinOn(null));plan.setAttribute('viewBox',`0 0 ${N.w} ${N.h}`);plan.innerHTML=planContent(true,1.7);}
+
+function setView(v){
+  state.view=v;
+  $('#tabCity').setAttribute('aria-selected',v==='city');$('#tabPlan').setAttribute('aria-selected',v==='plan');
+  $('#tabCity').tabIndex=v==='city'?0:-1;$('#tabPlan').tabIndex=v==='plan'?0:-1;
+  if(v==='plan')buildPlan();
+  svg.style.display=v==='city'?'':'none';labelsEl.hidden=v!=='city';plan.toggleAttribute('hidden',v!=='plan');
+  $('#legend').hidden=v!=='city';$('#planleg').hidden=v!=='plan';$('#planpl').hidden=v!=='plan';$('#layerCtl').style.visibility=v==='city'?'':'hidden';
+  document.querySelector('.zoom').style.display=v==='city'?'':'none';
+  hideTip();paintStatus();if(v==='city')requestAnimationFrame(placeLabels);
+}
+$('#views').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setView(b.dataset.v);});
+$('#views').addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();const n=state.view==='city'?'plan':'city';setView(n);$(n==='city'?'#tabCity':'#tabPlan').focus();}});
+
+/* ================= Charts ================= */
+function dumbbell(o){
+  const W=352,L=96,R=44,rowH=23,top=14;const pw=W-L-R;const x=v=>L+v/100*pw;
+  const pr=prios();const isF=o.id===FEATURED_ID;const vals=isF?F.stats:o.cats;
+  let g='';
+  const yb=top+CATS.length*rowH;
+  [0,25,50,75,100].forEach(t=>{g+=`<line class="grid" x1="${x(t)}" x2="${x(t)}" y1="${top-4}" y2="${yb}"></line><text class="tick" x="${x(t)}" y="${yb+13}" text-anchor="middle">${t}</text>`;});
+  g+=`<text class="tick" x="${W}" y="${top-6}" text-anchor="end">Różnica</text>`;
+  CATS.forEach((k,i)=>{
+    const y=top+i*rowH+rowH/2;const v=vals[k],m=MED[k];const d=v-m;const isP=pr.includes(k);
+    g+=`<g class="r"><title>${esc(MM.categories[k])}: ${esc(o.name)} ${v}, mediana Warszawy ${fmt(m)}</title>`;
+    g+=`<rect class="rowbg" x="0" y="${y-rowH/2+1}" width="${W}" height="${rowH-2}" rx="3" fill="${isP?'#F0F2F5':'transparent'}"></rect>`;
+    if(isP)g+=`<rect x="0" y="${y-rowH/2+1}" width="2" height="${rowH-2}" fill="var(--ink-2)"></rect>`;
+    g+=`<text class="lab${isP?' p':''}" x="8" y="${y+4}">${esc(SHORT[k])}</text>`;
+    g+=`<line x1="${x(Math.min(v,m))}" x2="${x(Math.max(v,m))}" y1="${y}" y2="${y}" stroke="#B9C0CA" stroke-width="2" stroke-linecap="round"></line>`;
+    g+=`<circle cx="${x(m)}" cy="${y}" r="4" fill="#fff" stroke="var(--ink-3)" stroke-width="1.5"></circle>`;
+    g+=`<circle cx="${x(v)}" cy="${y}" r="6.5" fill="#fff"></circle><circle cx="${x(v)}" cy="${y}" r="4.5" fill="var(--accent)"></circle>`;
+    g+=`<text class="dl" x="${W}" y="${y+4}" text-anchor="end">${d>0?'+':d<0?'−':''}${fmt(Math.abs(d))}</text>`;
+    g+=`</g>`;
+  });
+  const h=top+CATS.length*rowH+18;
+  return `<div class="keyrow"><span><i class="dot sb"></i>${esc(o.name)}</span><span><i class="dot md"></i>Mediana 143 osiedli</span>${pr.length?`<span><i class="band"></i>Priorytet ${PROFILE_ACC[state.profile]}</span>`:''}</div>
+  <svg class="chart" viewBox="0 0 ${W} ${h}" height="${h}" role="img" aria-label="Wyniki 10 kategorii dla osiedla ${esc(o.name)} na tle mediany Warszawy">${g}</svg>
+  <table class="sr"><caption>Kategorie: ${esc(o.name)} i mediana Warszawy</caption><tr><th>Kategoria</th><th>Osiedle</th><th>Mediana</th></tr>${CATS.map(k=>`<tr><td>${esc(MM.categories[k])}</td><td>${vals[k]}</td><td>${fmt(MED[k])}</td></tr>`).join('')}</table>`;
+}
+function priceBox(){
+  const P=F.prices.rcn;const W=352,L=96,R=8;const lo=12000,hi=20000;const pw=W-L-R;const x=v=>L+(v-lo)/(hi-lo)*pw;
+  const rows=[{n:'Stare Bielany',sub:`n = ${nf.format(P.msi.n)}`,d:P.msi,acc:true},{n:'Warszawa',sub:`n = ${nf.format(P.city.n)}`,d:P.city,acc:false}];
+  let g='';const top=8,rh=46;
+  for(let t=lo;t<=hi;t+=2000){g+=`<line class="grid" x1="${x(t)}" x2="${x(t)}" y1="${top}" y2="${top+rows.length*rh}"></line><text class="tick" x="${x(t)}" y="${top+rows.length*rh+14}" text-anchor="middle">${t/1000} tys.</text>`;}
+  rows.forEach((r,i)=>{
+    const y=top+i*rh+rh/2+4;const d=r.d;
+    g+=`<text class="lab p" x="0" y="${y-1}">${r.n}</text><text class="tick" x="0" y="${y+13}">${r.sub}</text>`;
+    g+=`<line x1="${x(d.p25)}" x2="${x(d.p75)}" y1="${y}" y2="${y}" stroke="${r.acc?'var(--accent)':'#9AA2AE'}" stroke-width="1"></line>`;
+    g+=`<rect x="${x(d.p25)}" y="${y-8}" width="${x(d.p75)-x(d.p25)}" height="16" rx="3" fill="${r.acc?'#FBE3D7':'#E7EAEE'}"></rect>`;
+    g+=`<rect x="${x(d.med)-1.5}" y="${y-11}" width="3" height="22" rx="1" fill="${r.acc?'var(--accent)':'var(--ink-2)'}"></rect>`;
+    g+=`<text class="val" x="${x(d.med)}" y="${y-15}" text-anchor="middle">${nf.format(d.med)}</text>`;
+    g+=`<text class="tick" x="${x(d.p25)-4}" y="${y+4}" text-anchor="end">${nf.format(d.p25)}</text><text class="tick" x="${x(d.p75)+4}" y="${y+4}">${nf.format(d.p75)}</text>`;
+  });
+  const h=top+rows.length*rh+20;
+  const diff=F.prices.buyPerM2-F.prices.cityBuyPerM2;const pct=diff/F.prices.cityBuyPerM2*100;
+  return `<p class="note" style="margin:0 0 6px;color:var(--ink-2)">Mediana <b>${nf.format(F.prices.buyPerM2)} zł/m²</b>, o ${nf.format(diff)} zł/m² (${fmt(pct,1)}%) wyżej niż w całej Warszawie. Pudełko: kwartyle 25–75%, pionowa kreska: mediana.</p>
+  <svg class="chart" viewBox="0 0 ${W} ${h}" height="${h}" role="img" aria-label="Ceny transakcyjne w zł za metr: Stare Bielany mediana ${P.msi.med}, kwartyle ${P.msi.p25}–${P.msi.p75}; Warszawa mediana ${P.city.med}, kwartyle ${P.city.p25}–${P.city.p75}">${g}</svg>
+  <p class="note">${esc(F.prices.basisLabel)}, zł/m². ${esc(F.prices.rentNote)}</p>
+  <div class="portals">${F.portals.map(p=>`<span>${esc(p.name)}</span><div><a href="${esc(p.buyUrl)}" target="_blank" rel="noopener">Kupno</a><a href="${esc(p.rentUrl)}" target="_blank" rel="noopener">Najem</a></div>`).join('')}</div>`;
+}
+function trafficChart(){
+  const T=F.traffic;const W=352,L=22,top=6,ph=64;const max=35;const bw=(W-L)/24;
+  const y=v=>top+ph-v/max*ph;let g='';
+  [0,35].forEach(t=>{g+=`<line class="${t?'grid':'base'}" x1="${L}" x2="${W}" y1="${y(t)}" y2="${y(t)}"></line><text class="tick" x="${L-5}" y="${y(t)+3.5}" text-anchor="end">${t}</text>`;});
+  T.forEach((v,h)=>{const x=L+h*bw+1;const hh=Math.max(0,y(0)-y(v));
+    if(v>0)g+=`<path d="M${x} ${y(0)}V${y(v)+Math.min(2,hh)}q0 -2 2 -2h${bw-6}q2 0 2 2V${y(0)}Z" fill="#7C8695"><title>${h}:00 — ${v} na 100</title></path>`;
+    else g+=`<rect x="${x}" y="${y(0)-1}" width="${bw-2}" height="1" fill="#D4D8DE"><title>${h}:00 — brak kursów lub 0</title></rect>`;
+  });
+  [0,6,12,18,23].forEach(h=>{g+=`<text class="tick" x="${L+h*bw+bw/2}" y="${top+ph+14}" text-anchor="middle">${h}:00</text>`;});
+  const mx=Math.max(...T);const hrs=T.map((v,h)=>v===mx?h:null).filter(v=>v!=null);
+  const h=top+ph+20;
+  return `<p class="note" style="margin:0 0 8px;color:var(--ink-2)">${esc(F.trafficRoad)}. Przez całą dobę <b>płynnie</b>: najwyżej ${mx} na 100 (${hrs.map(h=>h+':00').join(' i ')}). Próg „umiarkowanie” to 35.</p>
+  <svg class="chart" viewBox="0 0 ${W} ${h}" height="${h}" role="img" aria-label="Spowolnienie w ciągu doby, wartości od 0 do ${mx} na 100">${g}</svg>`;
+}
+function commuteTable(){
+  const mx=60;
+  const modes={metro:'metro',tramwaj:'tramwaj',autobus:'autobus'};
+  return `<table class="comm"><thead><tr><th>Cel, przyjazd 7:30–9:00</th><th>Komunikacja</th><th>Rower</th></tr></thead><tbody>${F.commute.map(c=>`<tr><td>${esc(c.label)}<span class="sub">${Object.entries(c.transitByMode).map(([k,v])=>`${modes[k]} ${fmt(v,0)} min`).join(', ')}</span></td>
+    <td class="v">${c.minutes.komunikacja} <small>min</small><span class="cbar"><b style="width:${c.minutes.komunikacja/mx*100}%"></b></span></td>
+    <td class="v">${c.minutes.rower} <small>min</small><span class="cbar"><b style="width:${c.minutes.rower/mx*100}%;background:#9AA2AE"></b></span></td></tr>`).join('')}</tbody></table>
+    <p class="note">Komunikacja: mediana z ${F.commute[0].cells} komórek 250 m w osiedlu, rozkład ZTM, bez czekania na pierwszy pojazd. Rower: OSRM, bez postojów. Skala pasków: 0–60 min.</p>`;
+}
+function timeline(){
+  const items=[...F.timeline].sort((a,b)=>(a.yearPlacement==='bez terminu')-(b.yearPlacement==='bez terminu')||a.year-b.year||(a.yearUncertain?1:0)-(b.yearUncertain?1:0));
+  return `<ol class="tl">${items.map(t=>{
+    const noDate=t.yearPlacement==='bez terminu';
+    const yr=noDate?`—<small>bez terminu</small>`:`${t.year}${t.yearUncertain?`<small>termin niepewny</small>`:''}`;
+    return `<li><div class="yr">${yr}</div><div><h4>${esc(t.title)}</h4><p>${esc(t.description)}</p>
+      <div class="mt"><span class="st${t.status==='w budowie'?' b':''}"><i></i>${esc(t.status)}</span><span>${esc(MM.categories[t.category]||t.category)}</span></div>
+      <p class="note" style="margin-top:4px">${esc(t.yearNote)}</p></div></li>`;}).join('')}</ol>`;
+}
+function placesList(){
+  return `<div class="miniplan" id="miniplan" tabindex="0" role="button" aria-label="Otwórz plan okolicy na mapie"><svg class="planc" viewBox="200 180 560 760" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${planContent(false,1.6)}</svg><span class="open">Otwórz plan</span></div>
+  <ul class="places" id="places">${highlightsOrdered.map(h=>`<li data-id="${h.id}"><span class="n">${placeNo[h.id]}</span><span class="t"><b>${esc(h.name)}</b><span>${esc(MM.categories[h.category])}</span></span><span class="m">${h.walkMin} min<span>${nf.format(h.distanceM)} m${h.distanceTo==='skraj'?' do skraju':''}</span></span></li>`).join('')}</ul>
+  <p class="note">Czas pieszo od środka osiedla.</p>`;
+}
+function metricsKV(){
+  return `<div class="kv">${F.metrics.map(m=>`<div>${esc(m.label)}</div><div>${fmt(m.value,Number.isInteger(m.value)?0:1)} ${esc(m.unit==='szt.'?'':m.unit)}</div>`).join('')}</div><p class="note">W promieniu 1 km od osiedla, o ile nie zaznaczono inaczej.</p>`;
+}
+
+const chev=`<svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5L8 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
+const openSecs={cats:true,prices:true,places:true,commute:true,traffic:false,timeline:true,metrics:false,data:false};
+function sec(id,title,aside,body){return `<details class="sec" data-s="${id}" ${openSecs[id]?'open':''}><summary>${chev}<h3>${title}</h3>${aside?`<span class="aside">${aside}</span>`:''}</summary><div class="sbody">${body}</div></details>`;}
+
+/* ================= Inspector ================= */
+function renderInspector(){
+  const o=byId[state.sel];const p=state.profile;const isF=o.id===FEATURED_ID;const el=$('#insp');
+  const st=el.scrollTop;
+  const head=`<div class="ihead">
+    <div class="k"><span>${esc(o.district)}</span><span aria-hidden="true">/</span><span class="num">${fmt(o.areaKm2,2)} km²</span></div>
+    <h1>${esc(o.name)}</h1>
+    <div class="stats">
+      <div><div class="sl">Dopasowanie</div><div class="sv acc">${o.match[p]}<small>/ 100</small></div></div>
+      <div><div class="sl">Miejsce</div><div class="sv">${o.rank[p]}<small>z ${OS.length}</small></div></div>
+      <div>${isF?`<div class="sl">Cena, mediana</div><div class="sv">${nf.format(F.prices.buyPerM2)}<small>zł/m²</small></div>`:`<div class="sl">Mediana Warszawy</div><div class="sv">${fmt(median(OS.map(x=>x.match[p])))}<small>/ 100</small></div>`}</div>
+    </div>
+    <p class="blurb">${blurbHTML(o.blurb[p])}</p>
+    ${isF?photosHTML():''}
+  </div>`;
+  if(isF){
+    el.innerHTML = head
+      + sec('cats','Kategorie na tle Warszawy','0–100',dumbbell(o))
+      + sec('prices','Ceny transakcyjne','zł/m²',priceBox())
+      + sec('places','W pobliżu pieszo',`${F.highlights.length} miejsc`,placesList())
+      + sec('commute','Dojazdy w porannym szczycie','3 cele',commuteTable())
+      + sec('timeline','Zmiany w okolicy',`${F.timeline.length} inwestycji`,timeline())
+      + sec('traffic','Ruch komunikacji w ciągu doby','24 h',trafficChart())
+      + sec('metrics','Wskaźniki źródłowe',`${F.metrics.length}`,metricsKV())
+      + sec('data','O danych','',`<p class="note" style="margin-top:0">${esc(F.prices.sourceNote)}</p><p class="note">${esc(F.commute[0].source)}</p><p class="note">Mediany kategorii liczone z 143 osiedli w tym widoku. ${esc(MM.credits)}.</p>`);
+    wireFeatured();
+  } else {
+    el.innerHTML = head + sec('cats','Kategorie na tle Warszawy','0–100',dumbbell(o))
+      + `<div class="compactnote"><p>Pełna karta ze zdjęciami, cenami, dojazdami i planami zmian jest na razie gotowa tylko dla Starych Bielan.</p><button class="btn" id="backF" type="button">Pokaż Stare Bielany</button></div>`;
+    $('#backF').onclick=()=>select(FEATURED_ID,'insp');
+  }
+  el.querySelectorAll('details.sec').forEach(d=>d.addEventListener('toggle',()=>{openSecs[d.dataset.s]=d.open;}));
+  el.scrollTop = st;
+}
+function blurbHTML(s){const i=s.indexOf('Słabiej:');return i<0?esc(s):`${esc(s.slice(0,i))}<em>${esc(s.slice(i))}</em>`;}
+function photosHTML(){
+  const imgs=F.heroImages;const a=state.photo;const order=[a,(a+1)%imgs.length,(a+2)%imgs.length];
+  return `<div class="photos">${order.map((ix,j)=>`<button type="button" data-ix="${ix}" aria-label="${j===0?'Zdjęcie: ':'Pokaż zdjęcie: '}${esc(imgs[ix].alt)}"><img src="${imgs[ix].src}" alt="${j===0?esc(imgs[ix].alt):''}" loading="lazy">${j===2?`<span class="more">${a+1} / ${imgs.length}</span>`:''}</button>`).join('')}</div>
+  <div class="credit"><b>${esc(imgs[a].alt)}.</b> ${esc(imgs[a].credit)}</div>`;
+}
+function wireFeatured(){
+  const el=$('#insp');
+  el.querySelectorAll('.photos button').forEach((b,j)=>b.addEventListener('click',()=>{state.photo=j===0?(state.photo+1)%F.heroImages.length:+b.dataset.ix;const ph=el.querySelector('.photos');const cr=el.querySelector('.credit');const tmp=document.createElement('div');tmp.innerHTML=photosHTML();ph.replaceWith(tmp.children[0]);cr.replaceWith(tmp.children[0]);wireFeatured();}));
+  const mp=$('#miniplan');if(mp){mp.onclick=()=>setView('plan');mp.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setView('plan');}};}
+  const pl=$('#places');if(pl){
+    pl.addEventListener('mouseover',e=>{const li=e.target.closest('li');pinOn(li?li.dataset.id:null);});
+    pl.addEventListener('mouseleave',()=>pinOn(null));
+  }
+}
+function pinOn(id){
+  document.querySelectorAll('.pin').forEach(p=>p.classList.toggle('on',p.dataset.id===id));
+  document.querySelectorAll('#places li, #planpl li').forEach(l=>l.classList.toggle('on',l.dataset.id===id));
+}
+plan.addEventListener('mouseover',e=>{const g=e.target.closest('.pin');pinOn(g?g.dataset.id:null);});
+
+/* ================= Linking ================= */
+function setHover(id,src){
+  if(state.hov===id)return;
+  if(state.hov&&rows[state.hov])rows[state.hov].classList.remove('hov');
+  state.hov=id;
+  $('#hlHov').setAttribute('d',id?byId[id].d:'');
+  if(id&&rows[id]){rows[id].classList.add('hov');
+    if(src==='map'){const w=$('#tablewrap');const r=rows[id];const top=r.offsetTop,hh=92,ft=30;if(top<w.scrollTop+hh||top+28>w.scrollTop+w.clientHeight-ft)w.scrollTop=top-hh-w.clientHeight/2+80;}}
+}
+function select(id,src){
+  state.sel=id;if(id!==FEATURED_ID&&state.view==='plan')setView('city');
+  paintBody();paintMap();$('#insp').scrollTop=0;renderInspector();
+  if(src==='map'){const w=$('#tablewrap');const r=rows[id];if(r&&!r.classList.contains('dim')){w.scrollTop=r.offsetTop-92-w.clientHeight/2+80;}}
+}
+function setLayer(l,fromSort){
+  state.layer=l;layerSel.value=l;BR=breaks();
+  if(!fromSort){state.sort= l==='match'?{key:'rank',dir:1}:{key:l,dir:1};}
+  paintBody();paintMap();
+}
+function setProfile(p){
+  state.profile=p;
+  profEl.querySelectorAll('button').forEach(b=>{b.setAttribute('aria-checked',b.dataset.p===p);b.tabIndex=b.dataset.p===p?0:-1;});
+  BR=breaks();buildHead();paintBody();paintMap();renderInspector();
+}
+
+const hp=new URLSearchParams(location.hash.slice(1));
+if(hp.get('profile')&&MM.profiles[hp.get('profile')])state.profile=hp.get('profile');
+if(hp.get('sel')&&byId[hp.get('sel')])state.sel=hp.get('sel');
+if(hp.get('layer')&&(hp.get('layer')==='match'||CATS.includes(hp.get('layer')))){state.layer=hp.get('layer');layerSel.value=state.layer;state.sort={key:state.layer==='match'?'rank':state.layer,dir:1};}
+profEl.querySelectorAll('button').forEach(b=>{b.setAttribute('aria-checked',b.dataset.p===state.profile);b.tabIndex=b.dataset.p===state.profile?0:-1;});
+BR=breaks();
+buildHead();buildBody();paintBody();paintMap();renderInspector();
+if(hp.get('view')==='plan')setView('plan');
+if(hp.get('q')){$('#q').value=hp.get('q');state.q=hp.get('q');paintBody();paintMap();}
+requestAnimationFrame(()=>{placeLabels();});
+if(document.fonts)document.fonts.ready.then(placeLabels);
+})();
+</script>
+</body>
+</html>
