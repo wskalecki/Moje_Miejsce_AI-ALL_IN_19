@@ -80,6 +80,13 @@ function dist2M(a: LngLat, p: PoiPoint): number {
   return dx * dx + dy * dy
 }
 
+/**
+ * Counts per (POI list, cuisine set, point, radius). The ranking re-scores every osiedle on each slider
+ * step, but the count only depends on the POI and the cuisines — not on the weights — so a drag reuses it.
+ * `allowed` sets are treated as immutable (callers build a new one per selection).
+ */
+const nearCache = new WeakMap<readonly PoiPoint[], WeakMap<ReadonlySet<GastronomyCuisine>, Map<string, number>>>()
+
 /** Count gastronomy POIs in radius whose cuisine is in `allowed`. */
 export function countGastronomyNear(
   poi: PoiData,
@@ -87,9 +94,24 @@ export function countGastronomyNear(
   allowed: ReadonlySet<GastronomyCuisine>,
   radiusM = 1000,
 ): number {
+  const pts = poi.byCat.gastronomia
+  if (!pts) return 0
+  let bySet = nearCache.get(pts)
+  if (!bySet) nearCache.set(pts, (bySet = new WeakMap()))
+  let byPoint = bySet.get(allowed)
+  if (!byPoint) bySet.set(allowed, (byPoint = new Map()))
+  const key = `${at[0]},${at[1]},${radiusM}`
+  const hit = byPoint.get(key)
+  if (hit !== undefined) return hit
+  const n = countUncached(pts, at, allowed, radiusM)
+  byPoint.set(key, n)
+  return n
+}
+
+function countUncached(pts: readonly PoiPoint[], at: LngLat, allowed: ReadonlySet<GastronomyCuisine>, radiusM: number): number {
   const r2 = radiusM * radiusM
   let n = 0
-  for (const p of poi.byCat.gastronomia ?? []) {
+  for (const p of pts) {
     const tag = (p.cuisine && isGastronomyCuisine(p.cuisine) ? p.cuisine : classifyGastronomyName(p.name)) as GastronomyCuisine
     if (!allowed.has(tag)) continue
     if (dist2M(at, p) <= r2) n++

@@ -67,6 +67,17 @@ function computeShifts(map: MlMap, pins: Pin[]): Shift {
   return out
 }
 
+/** Keep the previous object when nothing moved, so React skips the re-render. */
+function sameShift(a: Shift, b: Shift): boolean {
+  const ka = Object.keys(a)
+  if (ka.length !== Object.keys(b).length) return false
+  for (const id of ka) {
+    const s = b[id]
+    if (!s || s[0] !== a[id][0] || s[1] !== a[id][1]) return false
+  }
+  return true
+}
+
 /**
  * HTML pins standing on the 3D map: a disc with the category icon on a short stem, dropping in
  * one after another; investments are diamonds with their year. Markers are diffed by id, so a pin
@@ -116,8 +127,12 @@ export function PlacePins({ map, pins, accent, deep, activeId, stagger = 80, onP
   }, [map, key])
 
   // keep the pins clear of each other whenever the camera settles (zoom changes the spacing)
+  // (the sway's per-frame `jumpTo` fires `moveend` every frame: only re-render when a shift changed)
   useEffect(() => {
-    const onEnd = () => setShift(computeShifts(map, pinsRef.current))
+    const onEnd = () => {
+      const next = computeShifts(map, pinsRef.current)
+      setShift((prev) => (sameShift(prev, next) ? prev : next))
+    }
     map.on('moveend', onEnd)
     return () => {
       map.off('moveend', onEnd)

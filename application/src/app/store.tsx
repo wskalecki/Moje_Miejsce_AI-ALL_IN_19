@@ -17,9 +17,10 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     document.documentElement.dataset.profile = state.profile ?? 'none'
   }, [state.profile])
 
-  const store = useMemo<AppStore>(
+  // Actions never change (dispatch is stable, togglePriority reads the ref), so components and
+  // callbacks that take them as props / deps don't churn on every state change.
+  const actions = useMemo<Omit<AppStore, 'state'>>(
     () => ({
-      state,
       setProfile: (profile, opts) => dispatch({ type: 'setProfile', profile, keepChoices: opts?.keepChoices }),
       togglePriority: (category): TogglePriorityResult => {
         const result: TogglePriorityResult = stateRef.current.priorities.includes(category) ? 'removed' : 'added'
@@ -39,8 +40,9 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       setFilterSections: (sections) => dispatch({ type: 'setFilterSections', sections }),
       reset: () => dispatch({ type: 'reset' }),
     }),
-    [state],
+    [],
   )
+  const store = useMemo<AppStore>(() => ({ state, ...actions }), [state, actions])
 
   return <AppStoreContext.Provider value={store}>{children}</AppStoreContext.Provider>
 }

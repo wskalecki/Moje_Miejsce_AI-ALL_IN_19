@@ -1,6 +1,7 @@
 /**
  * Minimal top bar: Moje Miejsce brand + profile switcher.
  */
+import { memo } from 'react'
 import { APP_NAME } from '../../app/config'
 import { navigate } from '../../app/router'
 import type { ProfileId } from '../../app/types'
@@ -14,7 +15,7 @@ export interface SentenceBarProps {
   onProfileChange: (profile: ProfileId) => void
 }
 
-export function SentenceBar({ hidden = false, profile, onProfileChange }: SentenceBarProps) {
+export const SentenceBar = memo(function SentenceBar({ hidden = false, profile, onProfileChange }: SentenceBarProps) {
   return (
     <div className="sbar" data-hidden={hidden || undefined} aria-hidden={hidden || undefined} inert={hidden || undefined}>
       <nav className="sbar__bar sbar__bar--minimal" aria-label={APP_NAME}>
@@ -32,4 +33,4 @@ export function SentenceBar({ hidden = false, profile, onProfileChange }: Senten
       </nav>
     </div>
   )
-}
+})

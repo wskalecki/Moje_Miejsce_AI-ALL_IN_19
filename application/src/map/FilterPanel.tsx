@@ -1,7 +1,7 @@
 import { ChevronRight, Minus, Pin, Plus, RotateCcw } from 'lucide-react'
 import { useReducedMotion } from 'motion/react'
 import * as m from 'motion/react-m'
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
+import { memo, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
 import { PANEL_HINT_KEY } from '../app/config'
 import { HORIZON_ORDER, HORIZONS } from '../app/dictionary'
 import { CATEGORY_ICONS } from '../app/icons'
@@ -40,7 +40,8 @@ const EASE = [0.16, 1, 0.3, 1] as const
 const ENTER_DELAY = 70
 const LEAVE_DELAY = 140
 
-export function FilterPanel({
+/** Memoised: the map re-renders on every hovered osiedle / POI, the panel only when its props change. */
+export const FilterPanel = memo(function FilterPanel({
   weights,
   horizon,
   onHorizonChange,
@@ -320,4 +321,4 @@ export function FilterPanel({
       </m.section>
     </div>
   )
-}
+})

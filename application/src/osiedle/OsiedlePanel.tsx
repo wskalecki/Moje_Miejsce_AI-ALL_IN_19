@@ -1,6 +1,6 @@
 import { ArrowLeft, Crown } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DEFAULT_PRIORITIES } from '../app/dictionary'
 import type { CategoryId, Horizon, ProfileId } from '../app/types'
 import type { PlaceFit } from '../cinematic/panelLoader'
@@ -52,6 +52,18 @@ const MSI_NAMES: Record<string, string> = {
   'blonia-wilanowskie': 'Błonia Wilanowskie',
 }
 
+// Sections re-render only when their own props change — not on every pin hover / route / store
+// update that re-renders the panel (each is pure in its props and its own state).
+const HeroSection = memo(Hero)
+const CategoryBarsSection = memo(CategoryBars)
+const PlacesSection = memo(Places)
+const RoutesSection = memo(Routes)
+const CommuteSection = memo(Commute)
+const TrafficSection = memo(TrafficChart)
+const PricesSection = memo(Prices)
+const TimelineSection = memo(Timeline)
+const CreditsSection = memo(Credits)
+
 const DEMO_NOTE = 'Wersja demonstracyjna — liczby policzone z otwartych danych bez ręcznych korekt; szacunki są oznaczone.'
 
 /**
@@ -84,7 +96,12 @@ function PanelBody({
   const reduce = useReducedMotion()
   const scrollRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
-  const prios = priorities?.length ? priorities : [...DEFAULT_PRIORITIES[profile]]
+  // by content: the caller passes a fresh copy of the same list on every render
+  const prioKey = priorities?.length ? priorities.join(',') : ''
+  const prios = useMemo(
+    () => (prioKey ? (prioKey.split(',') as CategoryId[]) : [...DEFAULT_PRIORITIES[profile]]),
+    [prioKey, profile],
+  )
   // The map's live ranking (same weights as the pills); the mock snapshot only without a map (dev harness).
   const rank = fit?.rank ?? osiedle.rank?.[profile]
   const total = fit?.total ?? 143
@@ -105,8 +122,8 @@ function PanelBody({
     onYearRef.current?.(year, eventsUpTo(osiedle, year))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  const values = statsAtYear(osiedle, year)
-  const deltas = statDeltasAtYear(osiedle, year)
+  const values = useMemo(() => statsAtYear(osiedle, year), [osiedle, year])
+  const deltas = useMemo(() => statDeltasAtYear(osiedle, year), [osiedle, year])
   const match = matchAtYear(osiedle, profile, year, todayMatch)
 
   // Routes — first destination selected by default. The route is on the map only while the section is
@@ -150,28 +167,31 @@ function PanelBody({
     return () => window.clearTimeout(t)
   }, [routeOn, route, mode])
   useEffect(() => () => showRoute.current?.(null), [])
-  const selectRoute = (r: Route) => {
+  const selectRoute = useCallback((r: Route) => {
     setRouteDismissed(false)
     setRouteId(r.id)
     setMode((m) => (r.minutes[m] != null ? m : defaultMode(r)))
-  }
-  const selectMode = (m: TravelMode) => {
+  }, [])
+  const selectMode = useCallback((m: TravelMode) => {
     setRouteDismissed(false)
     setMode(m)
-  }
+  }, [])
 
   // Places — a place picked while a route is shown clears the route first, then the camera flies there.
   const [placeId, setPlaceId] = useState<string | null>(null)
   const shownPlaceId = activePlaceId ?? placeId
-  const selectPlace = (p: Highlight) => {
-    setPlaceId(p.id)
-    setRouteDismissed(true)
-    if (routeShown.current) {
-      routeShown.current = false
-      showRoute.current?.(null)
-    }
-    onFocusPlace?.(p.coord, p)
-  }
+  const selectPlace = useCallback(
+    (p: Highlight) => {
+      setPlaceId(p.id)
+      setRouteDismissed(true)
+      if (routeShown.current) {
+        routeShown.current = false
+        showRoute.current?.(null)
+      }
+      onFocusPlace?.(p.coord, p)
+    },
+    [onFocusPlace],
+  )
 
   // Focus the heading on open (spec §10), Esc goes back.
   useEffect(() => {
@@ -225,23 +245,23 @@ function PanelBody({
       </header>
 
       <div ref={scrollRef} className="op__scroll">
-        <Hero osiedle={osiedle} video={heroVideo} />
+        <HeroSection osiedle={osiedle} video={heroVideo} />
         {osiedle.tagline && <p className="op-lead">{osiedle.tagline}</p>}
 
-        <CategoryBars profile={profile} priorities={prios} values={values} deltas={deltas} />
-        <Places places={osiedle.highlights} activeId={shownPlaceId} onSelect={selectPlace} onHover={onHoverPlace} hasMap={!!onFocusPlace} />
+        <CategoryBarsSection profile={profile} priorities={prios} values={values} deltas={deltas} />
+        <PlacesSection places={osiedle.highlights} activeId={shownPlaceId} onSelect={selectPlace} onHover={onHoverPlace} hasMap={!!onFocusPlace} />
         {osiedle.routes.length > 0 && (
           <div ref={routesRef}>
-            <Routes routes={osiedle.routes} selectedId={route?.id ?? ''} mode={mode} onSelect={selectRoute} onMode={selectMode} />
+            <RoutesSection routes={osiedle.routes} selectedId={route?.id ?? ''} mode={mode} onSelect={selectRoute} onMode={selectMode} />
           </div>
         )}
-        <Commute rows={osiedle.commute} />
-        <TrafficChart traffic={osiedle.traffic} road={osiedle.trafficRoad} />
-        <Prices osiedle={osiedle} horizon={horizon} />
-        <Timeline osiedle={osiedle} profile={profile} year={year} onYear={setYear} baseMatch={todayMatch} />
+        <CommuteSection rows={osiedle.commute} />
+        <TrafficSection traffic={osiedle.traffic} road={osiedle.trafficRoad} />
+        <PricesSection osiedle={osiedle} horizon={horizon} />
+        <TimelineSection osiedle={osiedle} profile={profile} year={year} onYear={setYear} baseMatch={todayMatch} />
 
         <footer className="op-foot">
-          <Credits slug={osiedle.slug} images={osiedle.heroImages} />
+          <CreditsSection slug={osiedle.slug} images={osiedle.heroImages} />
           <p className="op-note">{DEMO_NOTE}</p>
         </footer>
       </div>
